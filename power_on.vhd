@@ -46,21 +46,21 @@ architecture Behavioral of power_on is
 
 	shared variable i2c_clk : INTEGER := 50_000_000 / 100_000;
 	shared variable count : INTEGER := 0;
-	shared variable s_idx,c_idx,d_idx : integer := 0;
 
-	signal clock,clk : std_logic := '0';
+	signal clock : std_logic := '0';
+	signal clk : std_logic;
 	signal sda : std_logic;
 	signal sck : std_logic := '0';
 
 	type state is (state0,state1,state2,state3,state4,state5,state6,state7);
-	signal c_state,n_state : state;
+	signal c_state,n_state : state := state0;
 	
-	signal slave : std_logic_vector(7 downto 0) := "01111010";
-	signal control : std_logic_vector(7 downto 0) := "00000000";
-	signal data : std_logic_vector(7 downto 0) := "10101110";
+	signal slave : std_logic_vector(0 to 7) := "01111010";
+	signal control : std_logic_vector(0 to 7) := "00000000";
+	signal data : std_logic_vector(0 to 7) := "10101110";
 begin	
-	clk_gen(clk, 20 ns, 20 ns, 20 ns);
-	
+	clk_gen(clk, 0 ns, 20 ns, 20 ns);
+
 	p0 : process(clk) is
 	begin
 		if (rising_edge(clk)) then
@@ -77,13 +77,18 @@ begin
 		if (rising_edge(clock)) then
 			c_state <= n_state;
 		end if;
+	end process p1;
+
+	p2 : process(c_state,clock) is
+		variable s_idx,c_idx,d_idx : integer := 0;
+	begin
 		case c_state is
 			when state0 => -- start condition
 				sda <= '1';
 				sck <= '1';
 				n_state <= state1;
 			when state1 => -- slave address byte
-				if (s_idx < 8) then
+				if (falling_edge(clock) and s_idx < 8) then
 					sda <= slave(s_idx);
 					s_idx := s_idx + 1;
 					n_state <= state1;
@@ -93,7 +98,7 @@ begin
 			when state2 => -- ack
 				n_state <= state3;
 			when state3 => -- control byte
-				if (c_idx < 8) then
+				if (falling_edge(clock) and c_idx < 8) then
 					sda <= control(c_idx);
 					c_idx := c_idx + 1;
 					n_state <= state3;
@@ -103,7 +108,7 @@ begin
 			when state4 => -- ack
 				n_state <= state5;
 			when state5 => -- data byte
-				if (d_idx < 8) then
+				if (falling_edge(clock) and d_idx < 8) then
 					sda <= data(d_idx);
 					d_idx := d_idx + 1;
 					n_state <= state5;
@@ -115,8 +120,9 @@ begin
 			when state7 => -- stop condition
 				sda <= '1';
 				sck <= '1';
+				n_state <= state7;
 		end case p_state;
-		sck <= not sck;
-	end process p1;
+		sck <= not clock;
+	end process p2;
 end Behavioral;
 
