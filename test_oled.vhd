@@ -108,76 +108,69 @@ scl => scl
 );
 
 p0 : process (clk) is
-begin
-if(rising_edge(clk)) then
-c_state <= n_state;
-end if;
-end process p0;
-
-process (c_state,clk) is
 variable idx_i : integer := 0;
 VARIABLE busy_cnt : INTEGER := 0;
 begin
-	case c_state is
-		when start =>
-			busy_prev <= i2c_busy;
-			if(busy_prev='0' and i2c_busy='1') then
-				busy_cnt := busy_cnt + 1;
-			end if;
-			case busy_cnt is
-				when 0 =>
-					i2c_reset <= '1';
-					i2c_ena <= '1';
-					i2c_addr <= "1010101"; -- address 3C 3D 78 ; 0111100 0111101 1111000
-					i2c_rw <= '0';
-					i2c_data_wr <= X"00"; -- control 80
-					n_state <= start;
-				when 1 =>
-					i2c_reset <= '0';
-					i2c_ena <= '0';
-					if(i2c_busy='0') then
-						busy_cnt := 0;
-						n_state <= send_c;
-					end if;
-				when others => null;
-			end case;
-		when send_c =>
-			busy_prev <= i2c_busy;
-			if(busy_prev='0' and i2c_busy='1') then
-				busy_cnt := busy_cnt + 1;
-			end if;
-			case busy_cnt is
-				when 0 =>
-					i2c_ena <= '1';
-					i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
-					i2c_rw <= '0';
-					i2c_data_wr <= "00000000";
-					n_state <= send_c;
-				when 1 =>
-					i2c_ena <= '0';
-					if(i2c_busy='0') then
-						busy_cnt := 0;
-						n_state <= send_i;
-					end if;
-				when others => null;
-			end case;
-		when send_i =>
-			busy_prev <= i2c_busy;
-			if(busy_prev='0' and i2c_busy='1') then
-				busy_cnt := busy_cnt + 1;
+if(rising_edge(clk)) then
+c_state <= n_state;
+case c_state is
+	when start =>
+		busy_prev <= i2c_busy;
+		if(busy_prev='0' and i2c_busy='1') then
+			busy_cnt := busy_cnt + 1;
+		end if;
+		case busy_cnt is
+			when 0 =>
+				i2c_reset <= '1';
 				i2c_ena <= '1';
-				if(idx_i < AMNT_INSTRS) then
-					i2c_data_wr <= Instrs(idx_i); -- command
-					idx_i := idx_i + 1;
-					n_state <= send_i;
-				else
-					n_state <= stop;
+				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
+				i2c_rw <= '0';
+				i2c_data_wr <= X"00"; -- control 80
+			when 1 =>
+				--i2c_ena <= '0';
+				if(i2c_busy='0') then
+					busy_cnt := 0;
+					n_state <= send_c;
 				end if;
+			when others => null;
+		end case;
+	when send_c =>
+		busy_prev <= i2c_busy;
+		if(busy_prev='0' and i2c_busy='1') then
+			busy_cnt := busy_cnt + 1;
+		end if;
+		case busy_cnt is
+			when 0 =>
+				--i2c_ena <= '1';
+				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
+				i2c_rw <= '0';
+				i2c_data_wr <= X"00"; -- control 80
+			when 1 =>
+				--i2c_ena <= '0';
+				if(i2c_busy='0') then
+					busy_cnt := 0;
+					n_state <= send_i;
+				end if;
+			when others => null;
+		end case;
+	when send_i =>
+		busy_prev <= i2c_busy;
+		if(busy_prev='0' and i2c_busy='1') then
+			busy_cnt := busy_cnt + 1;
+			--i2c_ena <= '1';
+			if(idx_i < AMNT_INSTRS) then
+				i2c_data_wr <= Instrs(idx_i); -- command
+				idx_i := idx_i + 1;
+				n_state <= send_c;
+			else
+				n_state <= stop;
 			end if;
-		when stop =>
-			n_state <= stop;
-		when others => null;
-	end case;
-end process;
+		end if;
+	when stop =>
+		n_state <= stop;
+	when others => null;
+end case;
+end if;
+end process p0;
 end Behavioral;
 
