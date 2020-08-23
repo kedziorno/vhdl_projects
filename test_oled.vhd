@@ -114,7 +114,7 @@ c_state <= n_state;
 end if;
 end process p0;
 
-process (c_state) is
+process (c_state,clk) is
 variable idx_i : integer := 0;
 VARIABLE busy_cnt : INTEGER := 0;
 begin
@@ -130,9 +130,10 @@ begin
 					i2c_ena <= '1';
 					i2c_addr <= "1010101"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 					i2c_rw <= '0';
-					--i2c_data_wr <= X"00"; -- control 80
+					i2c_data_wr <= X"00"; -- control 80
 					n_state <= start;
 				when 1 =>
+					i2c_reset <= '0';
 					i2c_ena <= '0';
 					if(i2c_busy='0') then
 						busy_cnt := 0;
@@ -147,8 +148,6 @@ begin
 			end if;
 			case busy_cnt is
 				when 0 =>
-									i2c_reset <= '0';
-
 					i2c_ena <= '1';
 					i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 					i2c_rw <= '0';
