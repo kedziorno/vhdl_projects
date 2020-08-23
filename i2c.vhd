@@ -230,8 +230,8 @@ BEGIN
                  sda_int WHEN OTHERS;          --set to internal sda signal    
       
   --set scl and sda outputs
-  scl <= '0' WHEN (scl_ena = '1' AND scl_clk = '0') ELSE 'Z';
-  sda <= '0' WHEN sda_ena_n = '0' ELSE 'Z';
+  scl <= '0' WHEN (scl_ena = '1' AND scl_clk = '0') ELSE '1';
+  sda <= '0' WHEN sda_ena_n = '0' ELSE '1';
   
 END logic;
 
