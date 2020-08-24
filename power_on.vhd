@@ -17,6 +17,7 @@
 -- Additional Comments: 
 --
 ----------------------------------------------------------------------------------
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
@@ -34,10 +35,9 @@ entity power_on is
 end power_on;
 
 architecture Behavioral of power_on is
-	shared variable i2c_clk : INTEGER := 50_000_000 / 400_000;
+	shared variable i2c_clk : INTEGER := 50_000_000 / 100_000;
+
 	shared variable count : INTEGER := 0;
-	shared variable i_idx : integer := 0;
-	signal temp_data : std_logic_vector(7 downto 0);
 
 	signal clock : std_logic := '1';
 
@@ -47,10 +47,8 @@ architecture Behavioral of power_on is
 	constant AMNT_INSTRS: natural := 25;
 	type IAR is array (0 to AMNT_INSTRS-1) of std_logic_vector(7 downto 0);
 	signal Instrs : IAR := (x"ae",x"00",x"10",x"40",x"b0",x"81",x"ff",x"a1",x"a6",x"c9",x"a8",x"3f",x"d3",x"00",x"d5",x"80",x"d9",x"f1",x"da",x"12",x"db",x"40",x"8d",x"14",x"af");
+	signal i_idx : std_logic_vector(7 downto 0) := x"00";
 
-	signal slave : std_logic_vector(7 downto 0) := "01111010";
-	signal control : std_logic_vector(0 to 7) := "00000000";
-	
 	signal clk : std_logic := '1';
 	signal sda : std_logic := '0';
 	signal sck : std_logic := '1';
@@ -73,7 +71,7 @@ begin
 	
 	p0 : process(clk) is
 	begin
-		if (clk'event and clk='1') then
+		if (rising_edge(clk)) then
 			count := count + 1;
 			if (count = i2c_clk) then
 				count := 0;
@@ -84,7 +82,7 @@ begin
 	
 	p1 : process(clock) is
 	begin
-		if (clock'event and clock='1') then
+		if (rising_edge(clock)) then
 			c_state <= n_state;
 		end if;
 	end process p1;
@@ -105,7 +103,7 @@ begin
 				sck <= '1';
 				n_state <= s_address;
 			when s_address =>
-				if(s_idx=0) then
+				if(s_idx=1) then
 					n_state <= s_rw;
 				else
 					sda <= slave(s_idx-1);
@@ -115,29 +113,29 @@ begin
 						s_idx := s_idx - 1;
 						w := 0;
 					end if;
+					n_state <= s_address;
 				end if;
 				sck <= not clock;
 			when s_rw =>
 				sck <= not clock;
 				n_state <= s_ack;
 			when s_ack =>
-				sda <= '0';
+				sda <= '1';
 				sck <= not clock;
 				n_state <= get_instruction;
 			when get_instruction =>
-				if(i_idx < AMNT_INSTRS) then
-					temp_data <= Instrs(i_idx); -- command
-					i_idx := i_idx + 1;
-					d_idx := 8;
-					n_state <= data;
-				else
-					n_state <= stop;
+				sda <= '0';
+				if(rising_edge(clock)) then
+					i_idx <= std_logic_vector(to_unsigned(to_integer(unsigned(i_idx))+1,8));
 				end if;
+				d_idx := 8;
+				n_state <= data;
+				--sck <= not clock;
 			when data =>
-				if (d_idx=0) then
+				if (d_idx=1) then
 					n_state <= data_ack;
 				else
-					sda <= temp_data(d_idx-1);
+					sda <= Instrs(to_integer(unsigned(i_idx)))(d_idx-1); -- command
 					if(w<1) then
 						w := w + 1;
 					else
@@ -148,9 +146,9 @@ begin
 				end if;
 				sck <= not clock;
 			when data_ack =>
-				sda <= '0';
+				sda <= '1';
 				sck <= not clock;
-				if(i_idx/=AMNT_INSTRS) then
+				if(unsigned(i_idx)<AMNT_INSTRS-1) then
 					n_state <= get_instruction;
 				else
 					n_state <= stop;
