@@ -31,10 +31,11 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity power_on is 
---port (clk : in std_logic; sda,sck : out std_logic);
+port (clk : in std_logic; sda,sck : out std_logic);
 end power_on;
 
 architecture Behavioral of power_on is
+
 	shared variable i2c_clk : INTEGER := 50_000_000 / 100_000;
 
 	shared variable count : INTEGER := 0;
@@ -49,25 +50,7 @@ architecture Behavioral of power_on is
 	signal Instrs : IAR := (x"ae",x"00",x"10",x"40",x"b0",x"81",x"ff",x"a1",x"a6",x"c9",x"a8",x"3f",x"d3",x"00",x"d5",x"80",x"d9",x"f1",x"da",x"12",x"db",x"40",x"8d",x"14",x"af");
 	signal i_idx : std_logic_vector(7 downto 0) := x"00";
 
-	signal clk : std_logic := '1';
-	signal sda : std_logic := '0';
-	signal sck : std_logic := '1';
-
-	procedure clk_gen(signal clk : out std_logic; constant wait_start : time; constant HT : time; constant LT : time) is
-	begin
-		clk <= '0';
-		wait for wait_start;
-		loop
-			clk <= '1';
-			wait for HT;
-			clk <= '0';
-			wait for LT;
-		end loop;
-	end procedure;
-
 begin
-
-	clk_gen(clk,0 ns,20 ns,20 ns);
 	
 	p0 : process(clk) is
 	begin
@@ -120,7 +103,7 @@ begin
 				sck <= not clock;
 				n_state <= s_ack;
 			when s_ack =>
-				sda <= '1';
+				sda <= '0';
 				sck <= not clock;
 				n_state <= get_instruction;
 			when get_instruction =>
@@ -130,7 +113,7 @@ begin
 				end if;
 				d_idx := 8;
 				n_state <= data;
-				--sck <= not clock;
+				sck <= not clock;
 			when data =>
 				if (d_idx=1) then
 					n_state <= data_ack;
@@ -146,7 +129,7 @@ begin
 				end if;
 				sck <= not clock;
 			when data_ack =>
-				sda <= '1';
+				sda <= '0';
 				sck <= not clock;
 				if(unsigned(i_idx)<AMNT_INSTRS-1) then
 					n_state <= get_instruction;
@@ -155,7 +138,7 @@ begin
 				end if;
 			when stop =>
 				sda <= '0';
-				sck <= '1';
+				sck <= not clock;
 				n_state <= sda_stop;
 			when sda_stop =>
 				sda <= '1';
