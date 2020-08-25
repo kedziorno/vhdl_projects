@@ -30,31 +30,30 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity test_oled is 
---port (
---signal clk : in std_logic;
---signal sda,scl : inout std_logic
---);
+port (signal clk : in std_logic; signal sda,scl : inout std_logic);
 end test_oled;
 
 architecture Behavioral of test_oled is
 
-signal clk,sda,scl : std_logic;
-procedure clk_gen(signal clk : out std_logic; constant wait_start : time; constant HT : time; constant LT : time) is
-begin
-clk <= '0';
-wait for wait_start;
-loop
-clk <= '1';
-wait for HT;
-clk <= '0';
-wait for LT;
-end loop;
-end procedure;
+--signal clk,sda,scl : std_logic;
+--
+--procedure clk_gen(signal clk : out std_logic; constant wait_start : time; constant HT : time; constant LT : time) is
+--begin
+--clk <= '0';
+--wait for wait_start;
+--loop
+--clk <= '1';
+--wait for HT;
+--clk <= '0';
+--wait for LT;
+--end loop;
+--end procedure;
 	
-constant AMNT_INSTRS: natural := 25;
+constant AMNT_INSTRS: natural := 25; -- 25 , 27
 type IAR is array (0 to AMNT_INSTRS-1) of std_logic_vector(7 downto 0);
 --signal Instrs: IAR := (x"A8", x"3F", x"D3", x"00", x"40", x"A1", x"DA", x"12", x"81", x"7F", x"20", x"00", x"21", x"00", x"7F", x"22", x"00", x"07", x"A6", x"DB", x"40", x"A4", x"D5", x"80", x"8D", x"14", x"AF");
-signal Instrs : IAR := (x"AE",x"D5",x"80",x"A8",x"3F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A0",x"C8",x"DA",x"12",x"81",x"CF",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"AF");
+--signal Instrs : IAR := (x"AE",x"D5",x"80",x"A8",x"3F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A0",x"C8",x"DA",x"12",x"81",x"CF",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"AF");
+signal Instrs : IAR := (x"ae",x"00",x"10",x"40",x"b0",x"81",x"ff",x"a1",x"a6",x"c9",x"a8",x"3f",x"d3",x"00",x"d5",x"80",x"d9",x"f1",x"da",x"12",x"db",x"40",x"8d",x"14",x"af");
 
 SIGNAL i2c_ena     : STD_LOGIC;                     --i2c enable signal
 SIGNAL i2c_addr    : STD_LOGIC_VECTOR(6 DOWNTO 0);  --i2c address signal
@@ -89,10 +88,10 @@ signal c_state,n_state : state := start;
 
 begin
 
-clk_gen(clk,0 ns,20 ns,20 ns);
+--clk_gen(clk,0 ns,20 ns,20 ns);
 
-c1 : i2c 
-GENERIC MAP(bus_clk => 100_000)
+c1 : i2c
+GENERIC MAP(bus_clk => 400_000)
 PORT MAP(
 clk => clk,
 reset_n => i2c_reset,
@@ -125,7 +124,7 @@ case c_state is
 				i2c_ena <= '1';
 				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 				i2c_rw <= '0';
-				i2c_data_wr <= X"00"; -- control 80
+				--i2c_data_wr <= X"00"; -- control 80
 			when 1 =>
 				--i2c_ena <= '0';
 				if(i2c_busy='0') then
@@ -144,7 +143,7 @@ case c_state is
 				--i2c_ena <= '1';
 				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 				i2c_rw <= '0';
-				i2c_data_wr <= X"00"; -- control 80
+				--i2c_data_wr <= X"00"; -- control 80
 			when 1 =>
 				--i2c_ena <= '0';
 				if(i2c_busy='0') then
@@ -157,9 +156,9 @@ case c_state is
 		busy_prev <= i2c_busy;
 		if(busy_prev='0' and i2c_busy='1') then
 			busy_cnt := busy_cnt + 1;
-			--i2c_ena <= '1';
 			if(idx_i < AMNT_INSTRS) then
 				i2c_data_wr <= Instrs(idx_i); -- command
+				--i2c_data_wr <= "10100101"; -- command
 				idx_i := idx_i + 1;
 				n_state <= send_c;
 			else
@@ -167,6 +166,7 @@ case c_state is
 			end if;
 		end if;
 	when stop =>
+		i2c_ena <= '0';
 		n_state <= stop;
 	when others => null;
 end case;
