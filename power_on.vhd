@@ -36,13 +36,13 @@ end power_on;
 
 architecture Behavioral of power_on is
 
-	shared variable i2c_clk : INTEGER := 50_000_000 / 100_000;
+	shared variable i2c_clk : INTEGER := 50_000_000 / 400_000;
 
 	shared variable count : INTEGER := 0;
 
 	signal clock : std_logic := '1';
 
-	type state is (sda_start,start,pause,s_address,s_rw,s_ack,get_instruction,data,data_ack,stop,sda_stop);
+	type state is (sda_start,start,pause,s_address,s_rw,s_ack,data,data_last_bit,data_ack,stop,sda_stop);
 	signal c_state,n_state : state := sda_start;
 
 	constant AMNT_INSTRS: natural := 25;
@@ -71,7 +71,7 @@ begin
 	end process p1;
 
 	p2 : process(c_state,clock) is
-		variable d_idx : integer := 8;
+		variable d_idx : integer := 7;
 		variable s_idx : integer := 7;
 		variable w : integer := 0;
 		variable slave : std_logic_vector(6 downto 0) := "0111100";
@@ -105,34 +105,36 @@ begin
 			when s_ack =>
 				sda <= '0';
 				sck <= not clock;
-				n_state <= get_instruction;
-			when get_instruction =>
-				sda <= '0';
-				if(rising_edge(clock)) then
-					i_idx <= std_logic_vector(to_unsigned(to_integer(unsigned(i_idx))+1,8));
-				end if;
-				d_idx := 8;
 				n_state <= data;
-				sck <= not clock;
 			when data =>
-				if (d_idx=1) then
+				sck <= not clock;
+				if (d_idx<0) then
 					n_state <= data_ack;
+				elsif (d_idx=1) then
+					n_state <= data_last_bit;
 				else
-					sda <= Instrs(to_integer(unsigned(i_idx)))(d_idx-1); -- command
-					if(w<1) then
+					sda <= Instrs(to_integer(unsigned(i_idx)))(d_idx); -- command
+					if(w<1 and d_idx <= 7) then
 						w := w + 1;
+						n_state <= data;
 					else
 						d_idx := d_idx - 1;
 						w := 0;
 					end if;
-					n_state <= data;
 				end if;
+			when data_last_bit =>
+				sda <= Instrs(to_integer(unsigned(i_idx)))(0); -- last bit
 				sck <= not clock;
+				n_state <= data_ack;
 			when data_ack =>
 				sda <= '0';
 				sck <= not clock;
 				if(unsigned(i_idx)<AMNT_INSTRS-1) then
-					n_state <= get_instruction;
+					if(rising_edge(clock)) then
+						i_idx <= std_logic_vector(to_unsigned(to_integer(unsigned(i_idx))+1,8));
+					end if;
+					d_idx := 7;
+					n_state <= data;
 				else
 					n_state <= stop;
 				end if;
