@@ -36,12 +36,14 @@ end power_on;
 
 architecture Behavioral of power_on is
 
-	shared variable i2c_clk : INTEGER := 50_000_000 / 400_000;
+	shared variable i2c_clk : INTEGER := 50_000_000 / 400_000 / 4;
 
 	shared variable count : INTEGER := 0;
 
 	signal clock : std_logic := '1';
-
+	signal clock_strength : std_logic := '0';
+	signal clock_prev : std_logic := '0';
+	
 	type state is (sda_start,start,pause,s_address,s_rw,s_ack,data,data_last_bit,data_ack,stop,sda_stop);
 	signal c_state,n_state : state := sda_start;
 
@@ -50,7 +52,50 @@ architecture Behavioral of power_on is
 	signal Instrs : IAR := (x"ae",x"00",x"10",x"40",x"b0",x"81",x"ff",x"a1",x"a6",x"c9",x"a8",x"3f",x"d3",x"00",x"d5",x"80",x"d9",x"f1",x"da",x"12",x"db",x"40",x"8d",x"14",x"af");
 	signal i_idx : std_logic_vector(7 downto 0) := x"00";
 
+	type clock_mode is (cmode0,cmode1,cmode2,cmode3);
+	signal c_cmode,n_cmode : clock_mode := cmode0;
+
 begin
+	
+	p3 : process(clock) is
+	begin
+		if (rising_edge(clock)) then
+			c_cmode <= n_cmode;
+		end if;
+	end process p3;
+	
+	p4 : process(clock,c_cmode) is
+	begin
+		case c_cmode is
+			when cmode0 =>
+				clock_strength <= '0';
+				n_cmode <= cmode1;
+			when cmode1 =>
+				clock_strength <= '0';
+				n_cmode <= cmode2;
+			when cmode2 =>
+				clock_strength <= '1';
+				n_cmode <= cmode3;
+			when cmode3 =>
+				clock_strength <= '1';
+				n_cmode <= cmode0;
+			when others => null;
+		end case;
+	end process p4;
+	
+--		if (falling_edge(clock_prev) and rising_edge(clock)) then
+--			clock_strength <= '0';
+--		end if;
+--		if (falling_edge(clock)) then
+--			clock_strength <= clock;
+--		end if;
+--		end if;
+--		if (rising_edge(clock_prev)) then
+--			clock_strength <= not clock;
+--		end if;
+--		if (falling_edge(clock_prev)) then
+--			clock_strength <= not clock;
+--		end if;
 	
 	p0 : process(clk) is
 	begin
@@ -148,4 +193,5 @@ begin
 			when others => null;
 		end case;
 	end process p2;
+
 end Behavioral;
