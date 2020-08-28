@@ -48,14 +48,15 @@ architecture Behavioral of test_oled is
 --wait for LT;
 --end loop;
 --end procedure;
-	
-constant AMNT_INSTRS: natural := 31; -- 64,23,32,25,27
-type IAR is array (0 to AMNT_INSTRS-1) of std_logic_vector(7 downto 0);
+
 --signal Instrs: IAR := (x"A8", x"3F", x"D3", x"00", x"40", x"A1", x"DA", x"12", x"81", x"7F", x"20", x"00", x"21", x"00", x"7F", x"22", x"00", x"07", x"A6", x"DB", x"40", x"A4", x"D5", x"80", x"8D", x"14", x"AF");
 --signal Instrs : IAR := (x"AE",x"D5",x"80",x"A8",x"3F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A0",x"C8",x"DA",x"12",x"81",x"CF",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"AF");
 --signal Instrs : IAR := (x"ae",x"00",x"10",x"40",x"b0",x"81",x"ff",x"a1",x"a6",x"c9",x"a8",x"3f",x"d3",x"00",x"d5",x"80",x"d9",x"f1",x"da",x"12",x"db",x"40",x"8d",x"14",x"af");
+	
+constant NI_INIT : natural := 25; -- 64,23,32,25,27
+type INIT is array (0 to NI_INIT-1) of std_logic_vector(7 downto 0);
 
-signal Instrs : IAR := 
+signal init_display : INIT := 
 (
 	x"AE", -- Set display OFF
 	x"D5", -- Set Display Clock Divide Ratio / OSC Frequency
@@ -81,13 +82,20 @@ signal Instrs : IAR :=
 	x"A4", -- Set all pixels OFF
 	x"A6", -- Set display not inverted
 	x"AF", -- Set display On
-	x"A5", -- all pixels on
+	x"A5" -- all pixels on
+);
+
+constant NI_CLEAR : natural := 6; -- 64,23,32,25,27
+type CLEAR is array (0 to NI_CLEAR-1) of std_logic_vector(7 downto 0);
+
+signal clear_display : CLEAR :=
+(
 	x"21", -- 
 	x"00", -- 
-	x"20", -- 
+	x"1F", -- 
 	x"22", -- 
 	x"00", -- 
-	x"10"  -- 
+	x"0F"  -- 
 );
 
 --signal Instrs : IAR := 
@@ -145,8 +153,19 @@ END component i2c;
 
 for all : i2c use entity WORK.i2c_master(logic);
 
-type state is (start,reset1,reset2,enable1,enable2,send_a,send_c,send_i,clear_1,clear_2,stop);
-signal c_state,n_state : state := start;
+type state is 
+(
+	init_start,
+	init_send_c,
+	init_send_i,
+	init_stop,
+	clear_start,
+	clear_send_i,
+	clear_1,
+	clear_2,
+	clear_stop
+);
+signal c_state,n_state : state := init_start;
 
 begin
 
@@ -176,7 +195,7 @@ begin
 if(rising_edge(clk)) then
 c_state <= n_state;
 case c_state is
-	when start =>
+	when init_start =>
 		busy_prev <= i2c_busy;
 		if(busy_prev='0' and i2c_busy='1') then
 			busy_cnt := busy_cnt + 1;
@@ -192,11 +211,11 @@ case c_state is
 				--i2c_ena <= '0';
 				if(i2c_busy='0') then
 					busy_cnt := 0;
-					n_state <= send_c;
+					n_state <= init_send_c;
 				end if;
 			when others => null;
 		end case;
-	when send_c =>
+	when init_send_c =>
 		busy_prev <= i2c_busy;
 		if(busy_prev='0' and i2c_busy='1') then
 			busy_cnt := busy_cnt + 1;
@@ -211,19 +230,39 @@ case c_state is
 				--i2c_ena <= '0';
 				if(i2c_busy='0') then
 					busy_cnt := 0;
-					n_state <= send_i;
+					n_state <= init_send_i;
 				end if;
 			when others => null;
 		end case;
-	when send_i =>
+	when init_send_i =>
 		busy_prev <= i2c_busy;
 		if(busy_prev='0' and i2c_busy='1') then
 			busy_cnt := busy_cnt + 1;
-			if(idx_i < AMNT_INSTRS) then
-				i2c_data_wr <= Instrs(idx_i); -- command
+			if(idx_i < NI_INIT) then
+				i2c_data_wr <= init_display(idx_i); -- command
 				--i2c_data_wr <= "10100101"; -- command
 				idx_i := idx_i + 1;
-				n_state <= send_c;
+				n_state <= init_send_c;
+			else
+				n_state <= init_stop;
+			end if;
+		end if;
+	when init_stop =>
+		i2c_ena <= '0';
+		n_state <= clear_start;
+	when clear_start =>
+		idx_i := 0;
+		i2c_reset <= '1';
+		i2c_ena <= '1';
+		n_state <= clear_send_i;
+	when clear_send_i =>
+		busy_prev <= i2c_busy;
+		if(busy_prev='0' and i2c_busy='1') then
+			busy_cnt := busy_cnt + 1;
+			if(idx_i < NI_CLEAR) then
+				i2c_data_wr <= clear_display(idx_i); -- command
+				idx_i := idx_i + 1;
+				n_state <= clear_send_i;
 			else
 				n_state <= clear_1;
 			end if;
@@ -241,12 +280,12 @@ case c_state is
 					a := a + 1;
 					n_state <= clear_2;
 				else
-					n_state <= stop;
+					n_state <= clear_stop;
 				end if;
 			when 1 =>
 				if(i2c_busy='0') then
 					busy_cnt := 0;
-					n_state <= send_i;
+					n_state <= init_send_i;
 				end if;
 			when others => null;
 		end case;
@@ -262,9 +301,9 @@ case c_state is
 				n_state <= clear_1;
 			end if;
 		end if;
-	when stop =>
+	when clear_stop =>
 		i2c_ena <= '0';
-		n_state <= stop;
+		n_state <= clear_stop;
 	when others => null;
 end case;
 end if;
