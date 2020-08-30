@@ -302,16 +302,20 @@ case c_state is
 		busy_prev <= i2c_busy;
 		if(busy_prev='0' and i2c_busy='1') then
 			busy_cnt := busy_cnt + 1;
+		end if;
+		case busy_cnt is
+			when 0 =>
+			
+			when 1 =>
+			
+			when others => null;
+		end case;
 			if(idx_i < NI_INIT) then
 				i2c_data_wr <= init_display(idx_i); -- command
 				idx_i := idx_i + 1;
 				n_state <= init_send_i;
 			else
 				n_state <= clear_start;
-				--i2c_ena <= '0';
-				busy_cnt := 0;
-				--i2c_ena <= '0';
-				--i2c_reset <= '0';
 			end if;
 		end if;
 	when clear_start =>
