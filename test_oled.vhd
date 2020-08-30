@@ -120,7 +120,7 @@ architecture Behavioral of test_oled is
 --	x"AF" -- Set display On
 --);
 
-constant NI_INIT : natural := 19;
+constant NI_INIT : natural := 27;
 type A_INIT is array (0 to NI_INIT-1) of std_logic_vector(7 downto 0);
 signal init_display : A_INIT :=
 (
@@ -163,24 +163,35 @@ signal init_display : A_INIT :=
 --	x"20",
 --	x"00",
 
-	x"AF"
-);
-
-constant NI_CLEAR : natural := 8;
-type A_CLEAR is array (0 to NI_CLEAR-1) of std_logic_vector(7 downto 0);
-
-signal clear_display : A_CLEAR :=
-(
-	--x"40", --
+	x"AF",
+	
 	x"21", -- 
 	x"00", -- 
 	x"7F", -- 
+	
 	x"22", -- 
 	x"00", -- 
 	x"07", --
+	
 	x"20", --
 	x"00"  --
 );
+
+--constant NI_CLEAR : natural := 8;
+--type A_CLEAR is array (0 to NI_CLEAR-1) of std_logic_vector(7 downto 0);
+--
+--signal clear_display : A_CLEAR :=
+--(
+--	--x"40", --
+--	x"21", -- 
+--	x"00", -- 
+--	x"7F", -- 
+--	x"22", -- 
+--	x"00", -- 
+--	x"07", --
+--	x"20", --
+--	x"00"  --
+--);
 
 --signal Instrs : IAR := 
 --(
@@ -295,37 +306,37 @@ case c_state is
 				i2c_ena <= '0';
 				if(i2c_busy='0') then
 					busy_cnt := 0;
-					n_state <= clear;
-				end if;
-			when others => null;
-		end case;
-	when clear =>
-		busy_prev <= i2c_busy;
-		if(busy_prev='0' and i2c_busy='1') then
-			busy_cnt := busy_cnt + 1;
-		end if;
-		case busy_cnt is
-			when 0 =>
-				--i2c_reset <= '1';
-				i2c_ena <= '1'; -- we are busy
-				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
-				i2c_rw <= '0';
-			when 1 to NI_CLEAR =>
-				i2c_data_wr <= clear_display(busy_cnt-1); -- command
-			when NI_CLEAR+1 to NI_CLEAR+2 =>
-				if(busy_cnt mod 2) = 1 then 
-					i2c_data_wr <= x"40";
-				else
-					i2c_data_wr <= x"FF";
-				end if;
-			when NI_CLEAR+2+1 =>
-				i2c_ena <= '0';
-				if(i2c_busy='0') then
-					busy_cnt := 0;
 					n_state <= stop;
 				end if;
 			when others => null;
 		end case;
+--	when clear =>
+--		busy_prev <= i2c_busy;
+--		if(busy_prev='0' and i2c_busy='1') then
+--			busy_cnt := busy_cnt + 1;
+--		end if;
+--		case busy_cnt is
+--			when 0 =>
+--				--i2c_reset <= '1';
+--				i2c_ena <= '1'; -- we are busy
+--				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
+--				i2c_rw <= '0';
+--			when 1 to NI_CLEAR =>
+--				i2c_data_wr <= clear_display(busy_cnt-1); -- command
+--			when NI_CLEAR+1 to NI_CLEAR+2 =>
+--				if(busy_cnt mod 2) = 1 then 
+--					i2c_data_wr <= x"40";
+--				else
+--					i2c_data_wr <= x"FF";
+--				end if;
+--			when NI_CLEAR+2+1 =>
+--				i2c_ena <= '0';
+--				if(i2c_busy='0') then
+--					busy_cnt := 0;
+--					n_state <= stop;
+--				end if;
+--			when others => null;
+--		end case;
 	when stop =>
 		i2c_ena <= '0';
 		n_state <= stop;
