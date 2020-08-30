@@ -231,7 +231,7 @@ SIGNAL busy_prev   : STD_LOGIC;                     --previous value of i2c busy
 COMPONENT i2c IS
 GENERIC(
 input_clk : INTEGER := 50_000_000; --input clock speed from user logic in Hz
-bus_clk   : INTEGER := 100_000);   --speed the i2c bus (scl) will run at in Hz
+bus_clk   : INTEGER := 400_000);   --speed the i2c bus (scl) will run at in Hz
 PORT(
 clk       : IN     STD_LOGIC;                    --system clock
 reset_n   : IN     STD_LOGIC;                    --active low reset
@@ -263,7 +263,7 @@ begin
 --clk_gen(clk,0 ns,20 ns,20 ns);
 
 c1 : i2c
-GENERIC MAP(bus_clk => 100_000)
+GENERIC MAP(bus_clk => 400_000)
 PORT MAP(
 clk => clk,
 reset_n => i2c_reset,
@@ -280,15 +280,16 @@ scl => scl
 
 p0 : process (clk,i2c_reset) is
 VARIABLE busy_cnt : INTEGER := 0;
-variable a,b : integer := 0;
+variable a : integer := 0;
+variable b : integer := 4;
 begin
 IF(i2c_reset='0') THEN
 i2c_ena <= '0';
 busy_cnt := 0;
 c_state <= start;
+i2c_reset <= '1';
 elsif(rising_edge(clk)) then
 c_state <= n_state;
-i2c_data_wr <= x"00";
 case c_state is
 	when start =>
 		busy_prev <= i2c_busy;
@@ -297,7 +298,7 @@ case c_state is
 		end if;
 		case busy_cnt is
 			when 0 =>
-				i2c_reset <= '1';
+				--i2c_reset <= '1';
 				i2c_ena <= '1'; -- we are busy
 				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 				i2c_rw <= '0';
@@ -312,32 +313,34 @@ case c_state is
 			when others => null;
 		end case;
 --	when clear =>
---		busy_prev <= i2c_busy;
---		if(busy_prev='0' and i2c_busy='1') then
---			busy_cnt := busy_cnt + 1;
---		end if;
---		case busy_cnt is
---			when 0 =>
---				--i2c_reset <= '1';
---				i2c_ena <= '1'; -- we are busy
---				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
---				i2c_rw <= '0';
---			when 1 to 2 =>
---				if(busy_cnt mod 2) = 1 then 
+--		if (a<b) then
+--			busy_prev <= i2c_busy;
+--			if(busy_prev='0' and i2c_busy='1') then
+--				busy_cnt := busy_cnt + 1;
+--			end if;
+--			case busy_cnt is
+--				when 0 =>
+--					--i2c_reset <= '1';
+--					i2c_ena <= '1'; -- we are busy
+--					i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
+--					i2c_rw <= '0';
+--				when 1 =>
 --					i2c_data_wr <= x"40";
---				else
---					i2c_data_wr <= x"FF";
---				end if;
---			when 3 =>
---				i2c_ena <= '0';
---				if(i2c_busy='0') then
---					busy_cnt := 0;
---					n_state <= stop;
---				end if;
---			when others => null;
---		end case;
+--				when 2 =>
+--					i2c_data_wr <= x"00";
+--				when 3 =>
+--					i2c_ena <= '0';
+--					if(i2c_busy='0') then
+--						busy_cnt := 0;
+--						a := a + 1;
+--					end if;
+--				when others => null;
+--			end case;
+--		else
+--			n_state <= stop;
+--		end if;
 	when stop =>
-		i2c_ena <= '0';
+		--i2c_ena <= '0';
 		n_state <= stop;
 	when others => null;
 end case;
