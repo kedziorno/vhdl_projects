@@ -288,6 +288,7 @@ busy_cnt := 0;
 c_state <= start;
 elsif(rising_edge(clk)) then
 c_state <= n_state;
+i2c_data_wr <= x"00";
 case c_state is
 	when start =>
 		busy_prev <= i2c_busy;
@@ -296,7 +297,7 @@ case c_state is
 		end if;
 		case busy_cnt is
 			when 0 =>
-				i2c_reset <= '1';
+				--i2c_reset <= '1';
 				i2c_ena <= '1'; -- we are busy
 				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 				i2c_rw <= '0';
@@ -306,37 +307,35 @@ case c_state is
 				i2c_ena <= '0';
 				if(i2c_busy='0') then
 					busy_cnt := 0;
+					n_state <= clear;
+				end if;
+			when others => null;
+		end case;
+	when clear =>
+		busy_prev <= i2c_busy;
+		if(busy_prev='0' and i2c_busy='1') then
+			busy_cnt := busy_cnt + 1;
+		end if;
+		case busy_cnt is
+			when 0 =>
+				--i2c_reset <= '1';
+				i2c_ena <= '1'; -- we are busy
+				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
+				i2c_rw <= '0';
+			when 1 to 2 =>
+				if(busy_cnt mod 2) = 1 then 
+					i2c_data_wr <= x"40";
+				else
+					i2c_data_wr <= x"FF";
+				end if;
+			when 3 =>
+				i2c_ena <= '0';
+				if(i2c_busy='0') then
+					busy_cnt := 0;
 					n_state <= stop;
 				end if;
 			when others => null;
 		end case;
---	when clear =>
---		busy_prev <= i2c_busy;
---		if(busy_prev='0' and i2c_busy='1') then
---			busy_cnt := busy_cnt + 1;
---		end if;
---		case busy_cnt is
---			when 0 =>
---				--i2c_reset <= '1';
---				i2c_ena <= '1'; -- we are busy
---				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
---				i2c_rw <= '0';
---			when 1 to NI_CLEAR =>
---				i2c_data_wr <= clear_display(busy_cnt-1); -- command
---			when NI_CLEAR+1 to NI_CLEAR+2 =>
---				if(busy_cnt mod 2) = 1 then 
---					i2c_data_wr <= x"40";
---				else
---					i2c_data_wr <= x"FF";
---				end if;
---			when NI_CLEAR+2+1 =>
---				i2c_ena <= '0';
---				if(i2c_busy='0') then
---					busy_cnt := 0;
---					n_state <= stop;
---				end if;
---			when others => null;
---		end case;
 	when stop =>
 		i2c_ena <= '0';
 		n_state <= stop;
