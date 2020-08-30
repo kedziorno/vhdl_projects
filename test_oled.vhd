@@ -19,10 +19,11 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+--use IEEE.STD_LOGIC_ARITH.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
@@ -35,127 +36,63 @@ end test_oled;
 
 architecture Behavioral of test_oled is
 
---signal clk,sda,scl : std_logic;
---
---procedure clk_gen(signal clk : out std_logic; constant wait_start : time; constant HT : time; constant LT : time) is
---begin
---clk <= '0';
---wait for wait_start;
---loop
---clk <= '1';
---wait for HT;
---clk <= '0';
---wait for LT;
---end loop;
---end procedure;
+constant OLED_WIDTH : integer := 128;
+constant OLED_HEIGHT : integer := 32;
+constant OLED_PAGES : integer := (OLED_HEIGHT / 8);
+constant OLED_PAGES_ALL : integer := OLED_WIDTH * OLED_PAGES;
+constant SSD1306_DATA : integer := to_integer(unsigned'(x"40"));
+constant SSD1306_COMMAND : integer := to_integer(unsigned'(x"00"));
 
---signal Instrs: IAR := (x"A8", x"3F", x"D3", x"00", x"40", x"A1", x"DA", x"12", x"81", x"7F", x"20", x"00", x"21", x"00", x"7F", x"22", x"00", x"07", x"A6", x"DB", x"40", x"A4", x"D5", x"80", x"8D", x"14", x"AF");
---signal Instrs : IAR := (x"AE",x"D5",x"80",x"A8",x"3F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A0",x"C8",x"DA",x"12",x"81",x"CF",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"AF");
---signal Instrs : IAR := (x"ae",x"00",x"10",x"40",x"b0",x"81",x"ff",x"a1",x"a6",x"c9",x"a8",x"3f",x"d3",x"00",x"d5",x"80",x"d9",x"f1",x"da",x"12",x"db",x"40",x"8d",x"14",x"af");
+shared variable busy_cnt : INTEGER := 0;
+shared variable v_ff : std_logic_vector(7 downto 0) := "11111111";
+shared variable a,b : integer := 0;
 
---work1	
---constant NI_INIT : natural := 25;
---type INIT is array (0 to NI_INIT-1) of std_logic_vector(7 downto 0);
---signal init_display : INIT :=
+--constant NI_INIT : natural := 17;
+--type A_INIT is array (0 to NI_INIT-1) of std_logic_vector(7 downto 0);
+--signal init_display : A_INIT :=
 --(
---	x"AE",
---	x"D5",
---	x"80",
 --	x"A8",
 --	x"3F",
+--
+--	x"D3",
 --	x"00",
---	x"40",
+--
+--	x"A1",
+--
+--	x"C8",
+--
+--	x"DA",
+--	x"02",
+--
+--	x"81",
+--	x"FF",
+--
+--	x"A4",
+--
+--	x"A6",
+--
+--	x"D5",
+--	x"80",
+--
 --	x"8D",
 --	x"14",
---	x"20",
---	x"02",
---	x"A1",
---	x"C8",
---	x"DA",
---	x"12",
---	x"81",
---	x"CF",
---	x"D9",
---	x"F1",
---	x"DB",
---	x"40",
---	x"A4",
---	x"A6",
---	x"AF",
---	x"A5"
+--
+--	x"AF"
 --);
 
---constant NI_INIT : natural := 18;
---type INIT is array (0 to NI_INIT-1) of std_logic_vector(7 downto 0);
---signal init_display : INIT :=
---(
---	x"a8", -- Set Display Clock Divide Ratio / OSC Frequency
---	x"c0", -- Display Clock Divide Ratio / OSC Frequency 
---	
---	x"d3", -- Set Multiplex Ratio
---	x"00", -- Multiplex Ratio for 128x64 (64-1)
---	
---	x"40", -- Set Display Offset
---	
---	x"a0", -- Set Display Start Line
---	
---	x"c0", -- Charge Pump (0x10 External, 0x14 Internal DC/DC)
---	
---	x"da", -- horizontal addressing mode
---	x"02", -- set segment re-map, column address 127 is mapped to SEG0
---	
---	x"81", -- Set Com Output Scan Direction
---	x"ff", -- Set COM Hardware Configuration
---	
---	x"a5", -- COM Hardware Configuration
---	
---	x"a6", -- Set Contrast
---	
---	x"d5", -- Contrast
---	x"80", -- Set Pre-Charge Period
---	
---	x"8d", -- Set Pre-Charge Period (0x22 External, 0xF1 Internal)
---	x"14", -- Set VCOMH Deselect Level
---	
---	x"AF" -- Set display On
---);
-
---signal Instrs : IAR := 
---(
---x"AE", -- SSD1306_DISPLAYOFF,
---x"00", -- SSD1306_SETLOWCOLUMN,
---x"10", -- SSD1306_SETHIGHCOLUMN,
---x"40", -- SSD1306_SETSTARTLINE,
---x"81", -- SSD1306_SETCONTRAST,
---x"CF",
---x"A1", -- SSD1306_SEGREMAP,
---x"A6", -- SSD1306_NORMALDISPLAY,
---x"A8", -- SSD1306_SETMULTIPLEX,
---x"3F",
---x"D3", -- SSD1306_SETDISPLAYOFFSET,
---x"00",
---x"D5", -- SSD1306_SETDISPLAYCLOCKDIV,
---x"80",
---x"D9", -- SSD1306_SETPRECHARGE,
---x"F1",
---x"DA", -- SSD1306_SETCOMPINS,
---x"12",
---x"DB", -- SSD1306_SETVCOMDETECT,
---x"40",
---x"8D", -- SSD1306_CHARGEPUMP,
---x"14",
---x"A5" -- SSD1306_DISPLAYON
---);
-
-constant NI_INIT : natural := 25;
+constant NI_INIT : natural := 17;
 type A_INIT is array (0 to NI_INIT-1) of std_logic_vector(7 downto 0);
 signal init_display : A_INIT :=
 (
+--	x"00", -- ssd1306_command
+
 	x"A8",
 	x"3F",
 
 	x"D3",
 	x"00",
+
+--	x"40",
 
 	x"A1",
 
@@ -165,7 +102,7 @@ signal init_display : A_INIT :=
 	x"02",
 
 	x"81",
-	x"FF",
+	x"7F",
 
 	x"A4",
 
@@ -177,22 +114,32 @@ signal init_display : A_INIT :=
 	x"8D",
 	x"14",
 
+--	x"db",
+--	x"40",
+--
+--	x"d9",
+--	x"f1",
+--
+--	x"20",
+--	x"00",
+
 	x"AF"
 );
 
-constant NI_CLEAR : natural := 8;
+constant NI_CLEAR : natural := 7;
 type A_CLEAR is array (0 to NI_CLEAR-1) of std_logic_vector(7 downto 0);
 
 signal clear_display : A_CLEAR :=
 (
+	std_logic_vector(to_unsigned(SSD1306_DATA,8)), --
+
 	x"21", -- 
 	x"00", -- 
-	x"7F", -- 
+	std_logic_vector(to_unsigned(OLED_WIDTH-1,8)), -- 
+
 	x"22", -- 
 	x"00", -- 
-	x"07", --
-	x"20", --
-	x"00"  --
+	std_logic_vector(to_unsigned(OLED_PAGES-1,8))  --
 );
 
 SIGNAL i2c_ena     : STD_LOGIC;                     --i2c enable signal
@@ -226,7 +173,8 @@ for all : i2c use entity WORK.i2c_master(logic);
 type state is 
 (
 	start,
-	clear,
+	set_address,
+	clear_display_state,
 	stop
 );
 signal c_state,n_state : state := start;
@@ -254,9 +202,6 @@ scl => scl
 );
 
 p0 : process (clk,i2c_reset) is
-VARIABLE busy_cnt : INTEGER := 0;
-variable a : integer := 0;
-variable b : integer := 4;
 begin
 IF(i2c_reset='0') THEN
 i2c_ena <= '0';
@@ -282,33 +227,54 @@ case c_state is
 				i2c_ena <= '0';
 				if(i2c_busy='0') then
 					busy_cnt := 0;
+					n_state <= set_address;
 				end if;
 			when others => null;
 		end case;
---	when clear =>
---		if (a<b) then
---			busy_prev <= i2c_busy;
---			if(busy_prev='0' and i2c_busy='1') then
---				busy_cnt := busy_cnt + 1;
---			end if;
---			case busy_cnt is
---				when 0 =>
---					i2c_ena <= '1'; -- we are busy
---					i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
---					i2c_rw <= '0';
---				when 1 =>
---					i2c_data_wr <= x"40";
---				when 2 =>
---					i2c_data_wr <= x"00";
---				when 3 =>
---					i2c_ena <= '0';
---					if(i2c_busy='0') then
---						busy_cnt := 0;
---						a := a + 1;
---					end if;
---				when others => null;
---			end case;
---		end if;
+	when set_address =>
+		busy_prev <= i2c_busy;
+		if(busy_prev='0' and i2c_busy='1') then
+			busy_cnt := busy_cnt + 1;
+		end if;
+		case busy_cnt is
+			when 0 =>
+				i2c_ena <= '1'; -- we are busy
+				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
+				i2c_rw <= '0';
+			when 1 to NI_CLEAR =>
+				i2c_data_wr <= clear_display(busy_cnt-1); -- command
+			when NI_CLEAR+1 =>
+				i2c_ena <= '0';
+				if(i2c_busy='0') then
+					busy_cnt := 0;
+					n_state <= clear_display_state;
+				end if;
+			when others => null;
+		end case;
+	when clear_display_state =>
+		busy_prev <= i2c_busy;
+		if(busy_prev='0' and i2c_busy='1') then
+			busy_cnt := busy_cnt + 1;
+		end if;
+		case busy_cnt is
+			when 0 =>
+				i2c_ena <= '1'; -- we are busy
+				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
+				i2c_rw <= '0';
+			when 1 =>
+				i2c_data_wr <= std_logic_vector(to_unsigned(SSD1306_DATA,8));
+			when 2 to OLED_PAGES_ALL =>
+				i2c_data_wr <= x"00";
+			when OLED_PAGES_ALL+1 =>
+				i2c_ena <= '0';
+				if(i2c_busy='0') then
+					busy_cnt := 0;
+					n_state <= stop;
+				end if;
+			when others => null;
+		end case;
+	when stop =>
+		n_state <= stop;
 	when others => null;
 end case;
 end if;
