@@ -121,8 +121,8 @@ architecture Behavioral of test_oled is
 --);
 
 constant NI_INIT : natural := 19;
-type INIT is array (0 to NI_INIT-1) of std_logic_vector(7 downto 0);
-signal init_display : INIT :=
+type A_INIT is array (0 to NI_INIT-1) of std_logic_vector(7 downto 0);
+signal init_display : A_INIT :=
 (
 	x"AE",
 	
@@ -167,9 +167,9 @@ signal init_display : INIT :=
 );
 
 constant NI_CLEAR : natural := 8;
-type CLEAR is array (0 to NI_CLEAR-1) of std_logic_vector(7 downto 0);
+type A_CLEAR is array (0 to NI_CLEAR-1) of std_logic_vector(7 downto 0);
 
-signal clear_display : CLEAR :=
+signal clear_display : A_CLEAR :=
 (
 	--x"40", --
 	x"21", -- 
@@ -239,16 +239,13 @@ for all : i2c use entity WORK.i2c_master(logic);
 
 type state is 
 (
-	init_start,
-	init_send_i,
-	init_stop,
-	clear_start,
-	clear_send_i,
-	clear_1,
-	clear_2,
-	clear_stop
+	start,
+	clear,
+	stop
 );
-signal c_state,n_state : state := init_start;
+signal c_state,n_state : state := start;
+
+shared variable idx_i : integer := 0;
 
 begin
 
@@ -271,18 +268,17 @@ scl => scl
 );
 
 p0 : process (clk,i2c_reset) is
-variable idx_i : integer := 0;
 VARIABLE busy_cnt : INTEGER := 0;
 variable a,b : integer := 0;
 begin
 IF(i2c_reset='0') THEN
 i2c_ena <= '0';
 busy_cnt := 0;
-c_state <= init_start;
+c_state <= start;
 elsif(rising_edge(clk)) then
 c_state <= n_state;
 case c_state is
-	when init_start =>
+	when start =>
 		busy_prev <= i2c_busy;
 		if(busy_prev='0' and i2c_busy='1') then
 			busy_cnt := busy_cnt + 1;
@@ -293,131 +289,46 @@ case c_state is
 				i2c_ena <= '1'; -- we are busy
 				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 				i2c_rw <= '0';
-				i2c_data_wr <= init_display(0);
-			when 1 to NI_INIT-1 =>
-				i2c_data_wr <= init_display(busy_cnt); -- command
-				--idx_i := idx_i + 1;
-				--n_state <= init_send_i;
-				--busy_cnt := 1;
-				--else
-				--n_state <= clear_start;
-				--end if;
-			when NI_INIT =>
+			when 1 to NI_INIT =>
+				i2c_data_wr <= init_display(busy_cnt-1); -- command
+			when NI_INIT+1 =>
 				i2c_ena <= '0';
 				if(i2c_busy='0') then
 					busy_cnt := 0;
-					n_state <= clear_stop;
+					n_state <= clear;
 				end if;
 			when others => null;
 		end case;
---	when init_send_i =>
---		busy_prev <= i2c_busy;
---		if(busy_prev='0' and i2c_busy='1') then
---			busy_cnt := busy_cnt + 1;
---		end if;
---		case busy_cnt is
---			when 1 =>
---				if(idx_i < NI_INIT) then
---					i2c_data_wr <= init_display(idx_i); -- command
---					idx_i := idx_i + 1;
---					n_state <= init_send_i;
-----					busy_cnt := 1;
---				else
---					n_state <= clear_start;
---				end if;
---			when 2 =>
---				if(i2c_busy='0') then
---					busy_cnt := 0;
---					n_state <= clear_start;
---				end if;
---			when others => null;
---		end case;
---	when clear_start =>
---		idx_i := 0;
---		busy_prev <= i2c_busy;
---		if(busy_prev='0' and i2c_busy='1') then
---			busy_cnt := busy_cnt + 1;
---		end if;
---		case busy_cnt is
---			when 0 =>
---				--i2c_reset <= '1';
---				--i2c_ena <= '1';
---				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
---				i2c_rw <= '0';
---			when 1 =>
---				if(i2c_busy='0') then
---					busy_cnt := 0;
---					n_state <= clear_send_i;
---				end if;
---			when others => null;
---		end case;
---	when clear_send_i =>
---		busy_prev <= i2c_busy;
---		if(busy_prev='0' and i2c_busy='1') then
---			busy_cnt := busy_cnt + 1;
---		end if;
---		case busy_cnt is
---			when 0 to NI_CLEAR-1 =>
---				if(idx_i < NI_CLEAR) then
---					i2c_data_wr <= clear_display(idx_i); -- command
---					idx_i := idx_i + 1;
---					n_state <= clear_send_i;
---				else
---					n_state <= clear_1;
---				end if;
---			when NI_CLEAR =>
---				if(i2c_busy='0') then
---					busy_cnt := 0;
---					n_state <= clear_send_i;
---				end if;
---			when others => null;
---		end case;
---	when clear_1 =>
-----		busy_prev <= i2c_busy;
-----		if(busy_prev='0' and i2c_busy='1') then
-----			busy_cnt := busy_cnt + 1;
-----		end if;
-----		case busy_cnt is
-----			when 0 =>
---				--b := 0;
---				if(a<1024) then
---					i2c_data_wr <= x"40";
---					a := a + 1;
---					n_state <= clear_2;
---				else
---					n_state <= clear_stop;
---				end if;
-----			when 1 =>
-----				if(i2c_busy='0') then
-----					busy_cnt := 0;
-----					n_state <= init_send_i;
-----				end if;
-----			when others => null;
-----		end case;
---	when clear_2 =>
-----		busy_prev <= i2c_busy;
-----		if(busy_prev='0' and i2c_busy='1') then
-----			busy_cnt := busy_cnt + 1;
-----		end if;
---		--case busy_cnt is
---			--when 0 =>
---				--if(b<16) then
---					i2c_data_wr <= x"FF";
---				--	b := b + 1;
---					--n_state <= clear_2;
---				--else
---				--busy_cnt := 0;
---					--n_state <= clear_1;
---				--end if;
---			--when 1 =>
---				--if(i2c_busy='0') then
---					--busy_cnt := 0;
---					n_state <= clear_1;
---				--end if;
---		--end case;
-	when clear_stop =>
+	when clear =>
+		busy_prev <= i2c_busy;
+		if(busy_prev='0' and i2c_busy='1') then
+			busy_cnt := busy_cnt + 1;
+		end if;
+		case busy_cnt is
+			when 0 =>
+				--i2c_reset <= '1';
+				i2c_ena <= '1'; -- we are busy
+				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
+				i2c_rw <= '0';
+			when 1 to NI_CLEAR =>
+				i2c_data_wr <= clear_display(busy_cnt-1); -- command
+			when NI_CLEAR+1 to NI_CLEAR+2 =>
+				if(busy_cnt mod 2) = 1 then 
+					i2c_data_wr <= x"40";
+				else
+					i2c_data_wr <= x"FF";
+				end if;
+			when NI_CLEAR+2+1 =>
+				i2c_ena <= '0';
+				if(i2c_busy='0') then
+					busy_cnt := 0;
+					n_state <= stop;
+				end if;
+			when others => null;
+		end case;
+	when stop =>
 		i2c_ena <= '0';
-		n_state <= clear_stop;
+		n_state <= stop;
 	when others => null;
 end case;
 end if;
