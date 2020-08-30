@@ -120,6 +120,33 @@ architecture Behavioral of test_oled is
 --	x"AF" -- Set display On
 --);
 
+--signal Instrs : IAR := 
+--(
+--x"AE", -- SSD1306_DISPLAYOFF,
+--x"00", -- SSD1306_SETLOWCOLUMN,
+--x"10", -- SSD1306_SETHIGHCOLUMN,
+--x"40", -- SSD1306_SETSTARTLINE,
+--x"81", -- SSD1306_SETCONTRAST,
+--x"CF",
+--x"A1", -- SSD1306_SEGREMAP,
+--x"A6", -- SSD1306_NORMALDISPLAY,
+--x"A8", -- SSD1306_SETMULTIPLEX,
+--x"3F",
+--x"D3", -- SSD1306_SETDISPLAYOFFSET,
+--x"00",
+--x"D5", -- SSD1306_SETDISPLAYCLOCKDIV,
+--x"80",
+--x"D9", -- SSD1306_SETPRECHARGE,
+--x"F1",
+--x"DA", -- SSD1306_SETCOMPINS,
+--x"12",
+--x"DB", -- SSD1306_SETVCOMDETECT,
+--x"40",
+--x"8D", -- SSD1306_CHARGEPUMP,
+--x"14",
+--x"A5" -- SSD1306_DISPLAYON
+--);
+
 constant NI_INIT : natural := 25;
 type A_INIT is array (0 to NI_INIT-1) of std_logic_vector(7 downto 0);
 signal init_display : A_INIT :=
@@ -150,62 +177,23 @@ signal init_display : A_INIT :=
 	x"8D",
 	x"14",
 
-	x"AF",
-	
+	x"AF"
+);
+
+constant NI_CLEAR : natural := 8;
+type A_CLEAR is array (0 to NI_CLEAR-1) of std_logic_vector(7 downto 0);
+
+signal clear_display : A_CLEAR :=
+(
 	x"21", -- 
 	x"00", -- 
 	x"7F", -- 
-	
 	x"22", -- 
 	x"00", -- 
 	x"07", --
-	
 	x"20", --
 	x"00"  --
 );
-
---constant NI_CLEAR : natural := 8;
---type A_CLEAR is array (0 to NI_CLEAR-1) of std_logic_vector(7 downto 0);
---
---signal clear_display : A_CLEAR :=
---(
---	--x"40", --
---	x"21", -- 
---	x"00", -- 
---	x"7F", -- 
---	x"22", -- 
---	x"00", -- 
---	x"07", --
---	x"20", --
---	x"00"  --
---);
-
---signal Instrs : IAR := 
---(
---x"AE", -- SSD1306_DISPLAYOFF,
---x"00", -- SSD1306_SETLOWCOLUMN,
---x"10", -- SSD1306_SETHIGHCOLUMN,
---x"40", -- SSD1306_SETSTARTLINE,
---x"81", -- SSD1306_SETCONTRAST,
---x"CF",
---x"A1", -- SSD1306_SEGREMAP,
---x"A6", -- SSD1306_NORMALDISPLAY,
---x"A8", -- SSD1306_SETMULTIPLEX,
---x"3F",
---x"D3", -- SSD1306_SETDISPLAYOFFSET,
---x"00",
---x"D5", -- SSD1306_SETDISPLAYCLOCKDIV,
---x"80",
---x"D9", -- SSD1306_SETPRECHARGE,
---x"F1",
---x"DA", -- SSD1306_SETCOMPINS,
---x"12",
---x"DB", -- SSD1306_SETVCOMDETECT,
---x"40",
---x"8D", -- SSD1306_CHARGEPUMP,
---x"14",
---x"A5" -- SSD1306_DISPLAYON
---);
 
 SIGNAL i2c_ena     : STD_LOGIC;                     --i2c enable signal
 SIGNAL i2c_addr    : STD_LOGIC_VECTOR(6 DOWNTO 0);  --i2c address signal
