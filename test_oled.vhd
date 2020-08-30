@@ -120,29 +120,25 @@ architecture Behavioral of test_oled is
 --	x"AF" -- Set display On
 --);
 
-constant NI_INIT : natural := 27;
+constant NI_INIT : natural := 25;
 type A_INIT is array (0 to NI_INIT-1) of std_logic_vector(7 downto 0);
 signal init_display : A_INIT :=
 (
-	x"AE",
-	
 	x"A8",
-	x"1f",
+	x"3F",
 
 	x"D3",
 	x"00",
-
-	x"40",
 
 	x"A1",
 
 	x"C8",
 
 	x"DA",
-	x"12",
+	x"02",
 
 	x"81",
-	x"7F",
+	x"FF",
 
 	x"A4",
 
@@ -153,15 +149,6 @@ signal init_display : A_INIT :=
 
 	x"8D",
 	x"14",
-
---	x"db",
---	x"40",
---
---	x"d9",
---	x"f1",
---
---	x"20",
---	x"00",
 
 	x"AF",
 	
@@ -298,7 +285,6 @@ case c_state is
 		end if;
 		case busy_cnt is
 			when 0 =>
-				--i2c_reset <= '1';
 				i2c_ena <= '1'; -- we are busy
 				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 				i2c_rw <= '0';
@@ -308,7 +294,6 @@ case c_state is
 				i2c_ena <= '0';
 				if(i2c_busy='0') then
 					busy_cnt := 0;
-					n_state <= stop;
 				end if;
 			when others => null;
 		end case;
@@ -320,7 +305,6 @@ case c_state is
 --			end if;
 --			case busy_cnt is
 --				when 0 =>
---					--i2c_reset <= '1';
 --					i2c_ena <= '1'; -- we are busy
 --					i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 --					i2c_rw <= '0';
@@ -336,12 +320,7 @@ case c_state is
 --					end if;
 --				when others => null;
 --			end case;
---		else
---			n_state <= stop;
 --		end if;
-	when stop =>
-		--i2c_ena <= '0';
-		n_state <= stop;
 	when others => null;
 end case;
 end if;
