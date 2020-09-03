@@ -49,11 +49,11 @@ constant SSD1306_COMMAND : integer := to_integer(unsigned'(x"00"));
 SIGNAL busy_cnt : INTEGER := 0;
 shared variable a,b : integer := 0;
 
-constant NI_INIT : natural := 27;
+constant NI_INIT : natural := 26;
 type A_INIT is array (0 to NI_INIT-1) of std_logic_vector(7 downto 0);
 signal init_display : A_INIT :=
 (
-	std_logic_vector(to_unsigned(SSD1306_DATA,8)), --
+	--std_logic_vector(to_unsigned(SSD1306_DATA,8)), --
 
 	x"AE",
 	x"D5",
@@ -198,35 +198,17 @@ case c_state is
 				i2c_ena <= '1'; -- we are busy
 				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 				i2c_rw <= '0';
-			when 1 =>
 				i2c_data_wr <= x"00";
-			when 2 to NI_INIT-1 =>
-				i2c_data_wr <= init_display(busy_cnt); -- command
-			when NI_INIT =>
+			when 1 to NI_INIT =>
+				i2c_data_wr <= init_display(busy_cnt-1); -- command
+			when NI_INIT+1 =>
 				i2c_ena <= '0';
 				if(i2c_busy='0') then
 					busy_cnt <= 0;
 					n_state <= set_address;
 				end if;
+			when others => null;
 		end case;
---		if (busy_cnt=0) then
---			i2c_ena <= '1'; -- we are busy
---			i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
---			i2c_rw <= '0';
---		end if;
---		if ((busy_cnt/=0) and (busy_cnt<(NI_INIT*2)-1) and ((busy_cnt mod 2) = 1)) then
---			i2c_data_wr <= x"00";
---		end if;
---		if ((busy_cnt/=0) and (busy_cnt<(NI_INIT*2)-1) and ((busy_cnt mod 2) = 0)) then
---			i2c_data_wr <= init_display((busy_cnt / 2)-1); -- command
---		end if;
---		if ((busy_cnt/=0) and busy_cnt=(NI_INIT*2)-1) then
---			i2c_ena <= '0';
---			if(i2c_busy='0') then
---				busy_cnt <= 0;
---				n_state <= set_address;
---			end if;
---		end if;
 
 	when set_address =>
 		busy_prev <= i2c_busy;
@@ -238,35 +220,17 @@ case c_state is
 				i2c_ena <= '1'; -- we are busy
 				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 				i2c_rw <= '0';
-			when 1 =>
 				i2c_data_wr <= x"00";
-			when 2 to NI_CLEAR-1 =>
-				i2c_data_wr <= clear_display(busy_cnt); -- command
-			when NI_CLEAR =>
+			when 1 to NI_CLEAR =>
+				i2c_data_wr <= clear_display(busy_cnt-1); -- command
+			when NI_CLEAR+1 =>
 				i2c_ena <= '0';
 				if(i2c_busy='0') then
 					busy_cnt <= 0;
 					n_state <= clear_display_state;
 				end if;
+			when others => null;
 		end case;
---		if (busy_cnt=0) then
---			i2c_ena <= '1'; -- we are busy
---			i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
---			i2c_rw <= '0';
---		end if;
---		if ((busy_cnt/=0) and (busy_cnt<(NI_CLEAR*2)-1) and ((busy_cnt mod 2) = 1)) then
---			i2c_data_wr <= x"00";
---		end if;
---		if ((busy_cnt/=0) and (busy_cnt<(NI_CLEAR*2)-1) and ((busy_cnt mod 2) = 0)) then
---			i2c_data_wr <= clear_display((busy_cnt / 2)-1); -- command
---		end if;
---		if ((busy_cnt/=0) and busy_cnt=(NI_CLEAR*2)-1) then
---			i2c_ena <= '0';
---			if(i2c_busy='0') then
---				busy_cnt <= 0;
---				n_state <= clear_display_state;
---			end if;
---		end if;
 
 	when clear_display_state =>
 		busy_prev <= i2c_busy;
@@ -278,36 +242,17 @@ case c_state is
 				i2c_ena <= '1'; -- we are busy
 				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 				i2c_rw <= '0';
-			when 1 =>
 				i2c_data_wr <= x"40";
-			when 2 to OLED_PAGES_ALL-1 =>
+			when 1 to OLED_PAGES_ALL =>
 				i2c_data_wr <= x"FF"; -- command
-			when OLED_PAGES_ALL =>
+			when OLED_PAGES_ALL+1 =>
 				i2c_ena <= '0';
 				if(i2c_busy='0') then
 					busy_cnt <= 0;
 					n_state <= stop;
 				end if;
+			when others => null;
 		end case;
-		
---		if (busy_cnt=0) then
---			i2c_ena <= '1'; -- we are busy
---			i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
---			i2c_rw <= '0';
---		end if;
---		if ((busy_cnt/=0) and (busy_cnt<(OLED_PAGES_ALL*2)-1) and ((busy_cnt mod 2) = 1)) then
---			i2c_data_wr <= x"40";
---		end if;
---		if ((busy_cnt/=0) and (busy_cnt<(OLED_PAGES_ALL*2)-1) and ((busy_cnt mod 2) = 0)) then
---			i2c_data_wr <= x"FF"; -- command
---		end if;
---		if ((busy_cnt/=0) and busy_cnt=(OLED_PAGES_ALL*2)-1) then
---			i2c_ena <= '0';
---			if(i2c_busy='0') then
---				busy_cnt <= 0;
---				n_state <= stop;
---			end if;
---		end if;
 
 	when stop =>
 		n_state <= start;
