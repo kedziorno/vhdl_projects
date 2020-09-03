@@ -19,7 +19,6 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
---use IEEE.STD_LOGIC_ARITH.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -41,23 +40,20 @@ constant BCLK : integer := 100_000;
 
 constant OLED_WIDTH : integer := 128;
 constant OLED_HEIGHT : integer := 32;
-constant OLED_PAGES : integer := (OLED_HEIGHT / 8);
-constant OLED_PAGES_ALL : integer := OLED_WIDTH * ((OLED_HEIGHT + 7) / 8); -- adafruit
-constant SSD1306_DATA : integer := to_integer(unsigned'(x"40"));
-constant SSD1306_COMMAND : integer := to_integer(unsigned'(x"00"));
+constant OLED_PAGES : integer := OLED_HEIGHT;
+constant OLED_PAGES_ALL : integer := OLED_WIDTH * ((OLED_HEIGHT + 7) / 8);
+constant OLED_DATA : integer := to_integer(unsigned'(x"40"));
+constant OLED_COMMAND : integer := to_integer(unsigned'(x"00")); -- 00,80
 
 SIGNAL busy_cnt : INTEGER := 0;
-shared variable a,b : integer := 0;
 
 constant NI_INIT : natural := 26;
 type A_INIT is array (0 to NI_INIT-1) of std_logic_vector(7 downto 0);
 signal init_display : A_INIT :=
 (
-	--std_logic_vector(to_unsigned(SSD1306_DATA,8)), --
-
 	x"AE",
 	x"D5",
-	x"80",
+	x"80", --x"F0",
 	x"A8",
 	x"1F",
 	x"D3",
@@ -67,8 +63,8 @@ signal init_display : A_INIT :=
 	x"14",
 	x"20",
 	x"00",
-	x"A1",
-	x"C8",
+	x"A0", --x"A1",
+	x"C0", --x"C8",
 	x"DA",
 	x"02",
 	x"81",
@@ -80,7 +76,7 @@ signal init_display : A_INIT :=
 	x"A4",
 	x"A6",
 	x"2E",
-	x"AF" -- ,x"A5"
+	x"AF"
 );
 
 constant NI_CLEAR : natural := 6;
@@ -88,15 +84,13 @@ type A_CLEAR is array (0 to NI_CLEAR-1) of std_logic_vector(7 downto 0);
 
 signal clear_display : A_CLEAR :=
 (
-	-- std_logic_vector(to_unsigned(SSD1306_DATA,8)), --
+	x"21", --
+	x"00", --
+	std_logic_vector(to_unsigned(OLED_WIDTH-1,8)), -- 
 
 	x"22", --
 	x"00", --
-	x"FF", -- std_logic_vector(to_unsigned(OLED_WIDTH-1,8)), -- 
-
-	x"21", --
-	x"00", --
-	x"1F"  -- std_logic_vector(to_unsigned(OLED_PAGES-1,8))  --
+	x"FF"  -- std_logic_vector(to_unsigned(OLED_HEIGHT-1,8))  --
 );
 
 SIGNAL i2c_ena     : STD_LOGIC;                     --i2c enable signal
@@ -130,7 +124,6 @@ for all : i2c use entity WORK.i2c_master(logic);
 
 type state is 
 (
---	waiting,
 	start,
 	set_address,
 	clear_display_state,
@@ -161,13 +154,6 @@ sda => sda,
 scl => scl
 );
 
--- adafruit_ssd1306.cpp:372 ssd1306_command1(c)
--- - st(addr),w(0x00),
---   w(c),et()
--- adafruit_ssd1306.cpp:386 ssd1306_commandList(c,n)
--- - st(addr),w(0x00),
---   w(c[0])...WIRE_MAX...,et(),st(addr),w(0x00),...WIRE_MAX...w(c[n-1]),et()
-
 p0 : process (clk,i2c_reset) is
 variable counter : INTEGER RANGE 0 TO GCLK/10 := 0; --counts 100ms to wait before communicating
 begin
@@ -179,15 +165,6 @@ i2c_reset <= '1';
 elsif(rising_edge(clk)) then
 c_state <= n_state;
 case c_state is
---	WHEN waiting =>
---		IF(counter < GCLK/10) THEN --100ms not yet reached
---			counter := counter + 1; --increment counter
---			n_state <= waiting;
---		ELSE --100ms reached
---			counter := 0; --clear counter
---			n_state <= start; --advance to setting the gain
---		END IF;
-
 	when start =>
 		busy_prev <= i2c_busy;
 		if(busy_prev='0' and i2c_busy='1') then
@@ -198,7 +175,7 @@ case c_state is
 				i2c_ena <= '1'; -- we are busy
 				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 				i2c_rw <= '0';
-				i2c_data_wr <= x"00";
+				i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,8));
 			when 1 to NI_INIT =>
 				i2c_data_wr <= init_display(busy_cnt-1); -- command
 			when NI_INIT+1 =>
@@ -220,7 +197,7 @@ case c_state is
 				i2c_ena <= '1'; -- we are busy
 				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 				i2c_rw <= '0';
-				i2c_data_wr <= x"00";
+				i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,8));
 			when 1 to NI_CLEAR =>
 				i2c_data_wr <= clear_display(busy_cnt-1); -- command
 			when NI_CLEAR+1 =>
@@ -242,9 +219,9 @@ case c_state is
 				i2c_ena <= '1'; -- we are busy
 				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 				i2c_rw <= '0';
-				i2c_data_wr <= x"40";
+				i2c_data_wr <= std_logic_vector(to_unsigned(OLED_DATA,8));
 			when 1 to OLED_PAGES_ALL =>
-				i2c_data_wr <= x"FF"; -- command
+				i2c_data_wr <= x"AA"; -- command - FF/blink,00/blank,F0/zebra
 			when OLED_PAGES_ALL+1 =>
 				i2c_ena <= '0';
 				if(i2c_busy='0') then
@@ -255,7 +232,7 @@ case c_state is
 		end case;
 
 	when stop =>
-		n_state <= stop;
+		n_state <= start;
 
 	when others => null;
 end case;
