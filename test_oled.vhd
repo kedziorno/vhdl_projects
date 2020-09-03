@@ -255,7 +255,7 @@ case c_state is
 		end case;
 
 	when stop =>
-		n_state <= start;
+		n_state <= stop;
 
 	when others => null;
 end case;
