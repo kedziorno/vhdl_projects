@@ -30,7 +30,11 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity test_oled is 
-port (signal clk : in std_logic; signal sda,scl : inout std_logic);
+port
+(
+signal clk : in std_logic;
+signal sda,scl : inout std_logic
+);
 end test_oled;
 
 architecture Behavioral of test_oled is
@@ -40,12 +44,11 @@ constant BCLK : integer := 100_000;
 
 constant OLED_WIDTH : integer := 128;
 constant OLED_HEIGHT : integer := 32;
-constant OLED_PAGES : integer := OLED_HEIGHT;
 constant OLED_PAGES_ALL : integer := OLED_WIDTH * ((OLED_HEIGHT + 7) / 8);
 constant OLED_DATA : integer := to_integer(unsigned'(x"40"));
 constant OLED_COMMAND : integer := to_integer(unsigned'(x"00")); -- 00,80
 
-SIGNAL busy_cnt : INTEGER := 0;
+SIGNAL busy_cnt : INTEGER := 0; -- for i2c, count the clk tick when i2c_busy=1
 
 constant NI_INIT : natural := 26;
 type A_INIT is array (0 to NI_INIT-1) of std_logic_vector(7 downto 0);
@@ -90,7 +93,7 @@ signal clear_display : A_CLEAR :=
 
 	x"22", --
 	x"00", --
-	x"FF"  -- std_logic_vector(to_unsigned(OLED_HEIGHT-1,8))  --
+	x"FF"  -- std_logic_vector(to_unsigned(OLED_HEIGHT-1,8))
 );
 
 SIGNAL i2c_ena     : STD_LOGIC;                     --i2c enable signal
@@ -103,31 +106,31 @@ SIGNAL busy_prev   : STD_LOGIC;                     --previous value of i2c busy
 
 COMPONENT i2c IS
 GENERIC(
-input_clk : INTEGER := GCLK; --input clock speed from user logic in Hz
-bus_clk   : INTEGER := BCLK --speed the i2c bus (scl) will run at in Hz
+	input_clk : INTEGER := GCLK; --input clock speed from user logic in Hz
+	bus_clk   : INTEGER := BCLK  --speed the i2c bus (scl) will run at in Hz
 );
 PORT(
-clk       : IN     STD_LOGIC;                    --system clock
-reset_n   : IN     STD_LOGIC;                    --active low reset
-ena       : IN     STD_LOGIC;                    --latch in command
-addr      : IN     STD_LOGIC_VECTOR(6 DOWNTO 0); --address of target slave
-rw        : IN     STD_LOGIC;                    --'0' is write, '1' is read
-data_wr   : IN     STD_LOGIC_VECTOR(7 DOWNTO 0); --data to write to slave
-busy      : OUT    STD_LOGIC;                    --indicates transaction in progress
-data_rd   : OUT    STD_LOGIC_VECTOR(7 DOWNTO 0); --data read from slave
-ack_error : BUFFER STD_LOGIC;                    --flag if improper acknowledge from slave
-sda       : INOUT  STD_LOGIC;                    --serial data output of i2c bus
-scl       : INOUT  STD_LOGIC);                   --serial clock output of i2c bus
+	clk       : IN     STD_LOGIC;                    --system clock
+	reset_n   : IN     STD_LOGIC;                    --active low reset
+	ena       : IN     STD_LOGIC;                    --latch in command
+	addr      : IN     STD_LOGIC_VECTOR(6 DOWNTO 0); --address of target slave
+	rw        : IN     STD_LOGIC;                    --'0' is write, '1' is read
+	data_wr   : IN     STD_LOGIC_VECTOR(7 DOWNTO 0); --data to write to slave
+	busy      : OUT    STD_LOGIC;                    --indicates transaction in progress
+	data_rd   : OUT    STD_LOGIC_VECTOR(7 DOWNTO 0); --data read from slave
+	ack_error : BUFFER STD_LOGIC;                    --flag if improper acknowledge from slave
+	sda       : INOUT  STD_LOGIC;                    --serial data output of i2c bus
+	scl       : INOUT  STD_LOGIC);                   --serial clock output of i2c bus
 END component i2c;
 
 for all : i2c use entity WORK.i2c_master(logic);
 
 type state is 
 (
-	start,
-	set_address,
-	clear_display_state,
-	stop
+	start, -- initialize oled
+	set_address, -- set begin point 0,0
+	clear_display_state, -- send the same data
+	stop -- when index=counter, i2c disable
 );
 signal c_state,n_state : state := start;
 	
@@ -136,107 +139,110 @@ begin
 c1 : i2c
 GENERIC MAP
 (
-input_clk => GCLK,
-bus_clk => BCLK
+	input_clk => GCLK,
+	bus_clk => BCLK
 )
 PORT MAP
 (
-clk => clk,
-reset_n => i2c_reset,
-ena => i2c_ena,
-addr => i2c_addr,
-rw => i2c_rw,
-data_wr => i2c_data_wr,
-busy => i2c_busy,
-data_rd => open,
-ack_error => open,
-sda => sda,
-scl => scl
+	clk => clk,
+	reset_n => i2c_reset,
+	ena => i2c_ena,
+	addr => i2c_addr,
+	rw => i2c_rw,
+	data_wr => i2c_data_wr,
+	busy => i2c_busy,
+	data_rd => open,
+	ack_error => open,
+	sda => sda,
+	scl => scl
 );
 
 p0 : process (clk,i2c_reset) is
-variable counter : INTEGER RANGE 0 TO GCLK/10 := 0; --counts 100ms to wait before communicating
+	variable index : INTEGER RANGE 0 TO 5 := 0;
+	variable counter : INTEGER RANGE 0 TO 5 := 5;
 begin
-IF(i2c_reset='0') THEN
-i2c_ena <= '0';
-busy_cnt <= 0;
-c_state <= start;
-i2c_reset <= '1';
-elsif(rising_edge(clk)) then
-c_state <= n_state;
-case c_state is
-	when start =>
-		busy_prev <= i2c_busy;
-		if(busy_prev='0' and i2c_busy='1') then
-			busy_cnt <= busy_cnt + 1;
+	if (i2c_reset = '0') then
+		i2c_ena <= '0';
+		busy_cnt <= 0;
+		c_state <= start;
+		i2c_reset <= '1';
+	elsif (rising_edge(clk)) then
+		c_state <= n_state;
+		if (index < counter) then
+			case c_state is
+				when start =>
+					busy_prev <= i2c_busy;
+					if (busy_prev = '0' and i2c_busy = '1') then
+						busy_cnt <= busy_cnt + 1;
+					end if;
+					case busy_cnt is
+						when 0 =>
+							i2c_ena <= '1'; -- we are busy
+							i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
+							i2c_rw <= '0';
+							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,8));
+						when 1 to NI_INIT =>
+							i2c_data_wr <= init_display(busy_cnt-1); -- command
+						when NI_INIT+1 =>
+							i2c_ena <= '0';
+							if (i2c_busy = '0') then
+								busy_cnt <= 0;
+								n_state <= set_address;
+							end if;
+						when others => null;
+					end case;
+				when set_address =>
+					busy_prev <= i2c_busy;
+					if (busy_prev = '0' and i2c_busy = '1') then
+						busy_cnt <= busy_cnt + 1;
+					end if;
+					case busy_cnt is
+						when 0 =>
+							i2c_ena <= '1'; -- we are busy
+							i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
+							i2c_rw <= '0';
+							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,8));
+						when 1 to NI_CLEAR =>
+							i2c_data_wr <= clear_display(busy_cnt-1); -- command
+						when NI_CLEAR+1 =>
+							i2c_ena <= '0';
+							if (i2c_busy = '0') then
+								busy_cnt <= 0;
+								n_state <= clear_display_state;
+							end if;
+						when others => null;
+					end case;
+				when clear_display_state =>
+					busy_prev <= i2c_busy;
+					if (busy_prev = '0' and i2c_busy = '1') then
+						busy_cnt <= busy_cnt + 1;
+					end if;
+					case busy_cnt is
+						when 0 =>
+							i2c_ena <= '1'; -- we are busy
+							i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
+							i2c_rw <= '0';
+							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_DATA,8));
+						when 1 to OLED_PAGES_ALL-1 =>
+							i2c_data_wr <= x"88"; -- command - FF/allpixels,00/blank,F0/zebra
+						when OLED_PAGES_ALL =>
+							i2c_ena <= '0';
+							if (i2c_busy = '0') then
+								busy_cnt <= 0;
+								n_state <= stop;
+							end if;
+						when others => null;
+					end case;
+				when stop =>
+					index := index + 1;
+					n_state <= start;
+				when others => null;
+			end case;
+		else
+			i2c_ena <= '0'; -- if index=counter then disable i2c, high impedance on sda/scl
 		end if;
-		case busy_cnt is
-			when 0 =>
-				i2c_ena <= '1'; -- we are busy
-				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
-				i2c_rw <= '0';
-				i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,8));
-			when 1 to NI_INIT =>
-				i2c_data_wr <= init_display(busy_cnt-1); -- command
-			when NI_INIT+1 =>
-				i2c_ena <= '0';
-				if(i2c_busy='0') then
-					busy_cnt <= 0;
-					n_state <= set_address;
-				end if;
-			when others => null;
-		end case;
-
-	when set_address =>
-		busy_prev <= i2c_busy;
-		if(busy_prev='0' and i2c_busy='1') then
-			busy_cnt <= busy_cnt + 1;
-		end if;
-		case busy_cnt is
-			when 0 =>
-				i2c_ena <= '1'; -- we are busy
-				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
-				i2c_rw <= '0';
-				i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,8));
-			when 1 to NI_CLEAR =>
-				i2c_data_wr <= clear_display(busy_cnt-1); -- command
-			when NI_CLEAR+1 =>
-				i2c_ena <= '0';
-				if(i2c_busy='0') then
-					busy_cnt <= 0;
-					n_state <= clear_display_state;
-				end if;
-			when others => null;
-		end case;
-
-	when clear_display_state =>
-		busy_prev <= i2c_busy;
-		if(busy_prev='0' and i2c_busy='1') then
-			busy_cnt <= busy_cnt + 1;
-		end if;
-		case busy_cnt is
-			when 0 =>
-				i2c_ena <= '1'; -- we are busy
-				i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
-				i2c_rw <= '0';
-				i2c_data_wr <= std_logic_vector(to_unsigned(OLED_DATA,8));
-			when 1 to OLED_PAGES_ALL =>
-				i2c_data_wr <= x"AA"; -- command - FF/blink,00/blank,F0/zebra
-			when OLED_PAGES_ALL+1 =>
-				i2c_ena <= '0';
-				if(i2c_busy='0') then
-					busy_cnt <= 0;
-					n_state <= stop;
-				end if;
-			when others => null;
-		end case;
-
-	when stop =>
-		n_state <= start;
-
-	when others => null;
-end case;
-end if;
+	end if;
 end process p0;
+
 end Behavioral;
 
