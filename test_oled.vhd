@@ -48,6 +48,8 @@ constant OLED_PAGES_ALL : integer := OLED_WIDTH * ((OLED_HEIGHT + 7) / 8);
 constant OLED_DATA : integer := to_integer(unsigned'(x"40"));
 constant OLED_COMMAND : integer := to_integer(unsigned'(x"00")); -- 00,80
 
+constant OLED_STABLE : integer := 2; -- we send the same data x-time
+
 SIGNAL busy_cnt : INTEGER := 0; -- for i2c, count the clk tick when i2c_busy=1
 
 constant NI_INIT : natural := 26;
@@ -158,8 +160,8 @@ PORT MAP
 );
 
 p0 : process (clk,i2c_reset) is
-	variable index : INTEGER RANGE 0 TO 5 := 0;
-	variable counter : INTEGER RANGE 0 TO 5 := 5;
+	variable index : INTEGER RANGE 0 TO OLED_STABLE := 0;
+	variable counter : INTEGER RANGE 0 TO OLED_STABLE := OLED_STABLE;
 begin
 	if (i2c_reset = '0') then
 		i2c_ena <= '0';
