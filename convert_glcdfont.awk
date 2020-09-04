@@ -6,19 +6,21 @@
 BEGIN {
  FPAT="(0x[0-9ABCDEF]+[0-9ABCDEF]+[, ]+{0,5})";
  global_index = 0;
+ global_row_index = 0;
  table_name = "GLCDFONTC";
 }
 {
  #printf("%d:\t%s\n",NR,$0);
- array_line[global_index] = $0;
  if (NF > 0) {
    #print "NF = ", NF
    for (i = 1; i <= NF; i++) {
+    array_line[global_index] = (global_row_index*5)":"$0;
     #printf("$%d = <%s>\n", i, $i)
     array_hex[global_index] = substr($i,3,2); # "0xXX, -> XX"
     #printf("x\"%s\",\n",temp[global_index]); 
     global_index++;
    }
+   global_row_index++;
    #printf("\n");
   }
 }
