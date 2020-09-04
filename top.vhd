@@ -62,7 +62,16 @@ port map
 	io_scl => scl
 );
 
-font_character <= std_logic_vector(to_unsigned(325,font_character'length)); -- 'A'
+-- font_character <= std_logic_vector(to_unsigned(325,font_character'length)); -- 'A'
+
+p0 : process (clk) is
+begin
+	if (rising_edge(clk)) then
+		l0 : for i in 0 to 1 loop
+			font_character <= std_logic_vector(to_unsigned(325+(5*i),font_character'length));
+		end loop l0;
+	end if;
+end process p0;
 
 end Behavioral;
 
