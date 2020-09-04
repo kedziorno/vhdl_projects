@@ -106,6 +106,16 @@ SIGNAL i2c_busy    : STD_LOGIC;                     --i2c busy signal
 SIGNAL i2c_reset   : STD_LOGIC;                     --i2c busy signal
 SIGNAL busy_prev   : STD_LOGIC;                     --previous value of i2c busy signal
 
+component glcdfont is
+port(
+	i_clk : in std_logic;
+	i_index : in std_logic_vector(11 downto 0);
+	o_character : out std_logic_vector(7 downto 0)
+);
+end component glcdfont;
+
+for all : glcdfont use entity WORK.glcdfont(behavioral_glcdfont);
+
 COMPONENT i2c IS
 GENERIC(
 	input_clk : INTEGER := GCLK; --input clock speed from user logic in Hz
@@ -130,13 +140,26 @@ for all : i2c use entity WORK.i2c_master(logic);
 type state is 
 (
 	start, -- initialize oled
-	set_address, -- set begin point 0,0
-	clear_display_state, -- send the same data
+	set_address_1, -- set begin point 0,0
+	clear_display_state, -- clear display
+	set_address_2, -- set begin point 0,0
+	some_text, -- send the some data
 	stop -- when index=counter, i2c disable
 );
 signal c_state,n_state : state := start;
-	
+
+signal char_o : std_logic_vector(7 downto 0) := (others => '0');
+signal char_i : std_logic_vector(11 downto 0) := (others => '0');
+
 begin
+
+c0 : glcdfont
+port map
+(
+	i_clk => clk,
+	i_index => char_i,
+	o_character => char_o
+);
 
 c1 : i2c
 GENERIC MAP
@@ -189,11 +212,11 @@ begin
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
 								busy_cnt <= 0;
-								n_state <= set_address;
+								n_state <= set_address_1;
 							end if;
 						when others => null;
 					end case;
-				when set_address =>
+				when set_address_1 =>
 					busy_prev <= i2c_busy;
 					if (busy_prev = '0' and i2c_busy = '1') then
 						busy_cnt <= busy_cnt + 1;
@@ -225,9 +248,64 @@ begin
 							i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 							i2c_rw <= '0';
 							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_DATA,8));
-						when 1 to OLED_PAGES_ALL-1 =>
-							i2c_data_wr <= x"88"; -- command - FF/allpixels,00/blank,F0/zebra
-						when OLED_PAGES_ALL =>
+						when 1 to OLED_PAGES_ALL =>
+							i2c_data_wr <= x"00"; -- command - FF/allpixels,00/blank,F0/zebra
+						when OLED_PAGES_ALL+1 =>
+							i2c_ena <= '0';
+							if (i2c_busy = '0') then
+								busy_cnt <= 0;
+								n_state <= set_address_2;
+							end if;
+						when others => null;
+					end case;
+				when set_address_2 =>
+					busy_prev <= i2c_busy;
+					if (busy_prev = '0' and i2c_busy = '1') then
+						busy_cnt <= busy_cnt + 1;
+					end if;
+					case busy_cnt is
+						when 0 =>
+							i2c_ena <= '1'; -- we are busy
+							i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
+							i2c_rw <= '0';
+							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,8));
+						when 1 to NI_CLEAR =>
+							i2c_data_wr <= clear_display(busy_cnt-1); -- command
+						when NI_CLEAR+1 =>
+							i2c_ena <= '0';
+							if (i2c_busy = '0') then
+								busy_cnt <= 0;
+								n_state <= some_text;
+							end if;
+						when others => null;
+					end case;
+				when some_text =>
+					busy_prev <= i2c_busy;
+					if (busy_prev = '0' and i2c_busy = '1') then
+						busy_cnt <= busy_cnt + 1;
+					end if;
+					case busy_cnt is
+						when 0 =>
+							i2c_ena <= '1'; -- we are busy
+							i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
+							i2c_rw <= '0';
+							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_DATA,8));
+						when 1 =>
+							char_i <= std_logic_vector(to_unsigned(1120,char_i'length));
+							i2c_data_wr <= char_o;
+						when 2 =>
+							char_i <= std_logic_vector(to_unsigned(1121,char_i'length));
+							i2c_data_wr <= char_o;
+						when 3 =>
+							char_i <= std_logic_vector(to_unsigned(1122,char_i'length));
+							i2c_data_wr <= char_o;
+						when 4 =>
+							char_i <= std_logic_vector(to_unsigned(1123,char_i'length));
+							i2c_data_wr <= char_o;
+						when 5 =>
+							char_i <= std_logic_vector(to_unsigned(1124,char_i'length));
+							i2c_data_wr <= char_o;
+						when 6 =>
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
 								busy_cnt <= 0;
