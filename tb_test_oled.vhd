@@ -30,7 +30,7 @@ USE ieee.std_logic_1164.ALL;
  
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---USE ieee.numeric_std.ALL;
+USE ieee.numeric_std.ALL;
  
 ENTITY tb_test_oled IS
 END tb_test_oled;
@@ -51,7 +51,7 @@ ARCHITECTURE behavior OF tb_test_oled IS
 
    --Inputs
    signal clk : std_logic := '0';
-   signal char : std_logic_vector(11 downto 0) := "101010101010";
+   signal char : std_logic_vector(11 downto 0) := (others => '0'); -- "000101000101"; -- 325, 'A'
 
 	--BiDirs
    signal sda : std_logic;
@@ -82,7 +82,10 @@ BEGIN
    -- Stimulus process
    stim_proc: process
    begin
-      -- insert stimulus here 
+      -- insert stimulus here
+		l0 : for i in 0 to 1 loop
+			char <= std_logic_vector(to_unsigned(325+(5*i),char'length));
+		end loop l0;
       wait;
    end process;
 

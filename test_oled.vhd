@@ -19,15 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
 use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
 
 entity test_oled is 
 port
@@ -55,49 +47,11 @@ SIGNAL busy_cnt : INTEGER := 0; -- for i2c, count the clk tick when i2c_busy=1
 
 constant NI_INIT : natural := 26;
 type A_INIT is array (0 to NI_INIT-1) of std_logic_vector(7 downto 0);
-signal init_display : A_INIT :=
-(
-	x"AE",
-	x"D5",
-	x"F0",
-	x"A8",
-	x"1F",
-	x"D3",
-	x"00",
-	x"40",
-	x"8D",
-	x"14",
-	x"20",
-	x"00",
-	x"A1",
-	x"C8",
-	x"DA",
-	x"02",
-	x"81",
-	x"8F",
-	x"D9",
-	x"F1",
-	x"DB",
-	x"40",
-	x"A4",
-	x"A6",
-	x"2E",
-	x"AF"
-);
+signal init_display : A_INIT := (x"AE",x"D5",x"F0",x"A8",x"1F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"8F",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E",x"AF");
 
-constant NI_CLEAR : natural := 6;
-type A_CLEAR is array (0 to NI_CLEAR-1) of std_logic_vector(7 downto 0);
-
-signal clear_display : A_CLEAR :=
-(
-	x"21", --
-	x"00", --
-	std_logic_vector(to_unsigned(OLED_WIDTH-1,8)), -- 
-
-	x"22", --
-	x"00", --
-	x"FF"  -- std_logic_vector(to_unsigned(OLED_HEIGHT-1,8))
-);
+constant NI_SET_COORDINATION : natural := 6;
+type A_SET_COORDINATION is array (0 to NI_SET_COORDINATION-1) of std_logic_vector(7 downto 0);
+signal set_coordination : A_SET_COORDINATION := (x"21",x"00",std_logic_vector(to_unsigned(OLED_WIDTH-1,8)),x"22",x"00",std_logic_vector(to_unsigned(OLED_HEIGHT-1,8)));
 
 SIGNAL i2c_ena     : STD_LOGIC;                     --i2c enable signal
 SIGNAL i2c_addr    : STD_LOGIC_VECTOR(6 DOWNTO 0);  --i2c address signal
@@ -228,9 +182,9 @@ begin
 							i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 							i2c_rw <= '0';
 							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,8));
-						when 1 to NI_CLEAR =>
-							i2c_data_wr <= clear_display(busy_cnt-1); -- command
-						when NI_CLEAR+1 =>
+						when 1 to NI_SET_COORDINATION =>
+							i2c_data_wr <= set_coordination(busy_cnt-1); -- command
+						when NI_SET_COORDINATION+1 =>
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
 								busy_cnt <= 0;
@@ -270,9 +224,9 @@ begin
 							i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 							i2c_rw <= '0';
 							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,8));
-						when 1 to NI_CLEAR =>
-							i2c_data_wr <= clear_display(busy_cnt-1); -- command
-						when NI_CLEAR+1 =>
+						when 1 to NI_SET_COORDINATION =>
+							i2c_data_wr <= set_coordination(busy_cnt-1); -- command
+						when NI_SET_COORDINATION+1 =>
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
 								busy_cnt <= 0;
