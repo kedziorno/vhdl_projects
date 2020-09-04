@@ -41,15 +41,17 @@ ARCHITECTURE behavior OF tb_test_oled IS
  
     COMPONENT test_oled
     PORT(
-         clk : IN  std_logic;
-         sda : INOUT  std_logic;
-         scl : INOUT  std_logic
+         i_clk : IN  std_logic;
+         i_char : in std_logic_vector(11 downto 0);
+         io_sda : INOUT  std_logic;
+         io_scl : INOUT  std_logic
         );
     END COMPONENT;
     
 
    --Inputs
    signal clk : std_logic := '0';
+   signal char : std_logic_vector(11 downto 0) := "101010101010";
 
 	--BiDirs
    signal sda : std_logic;
@@ -62,9 +64,10 @@ BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
    uut: test_oled PORT MAP (
-          clk => clk,
-          sda => sda,
-          scl => scl
+          i_clk => clk,
+          i_char => char,
+          io_sda => sda,
+          io_scl => scl
         );
 
    -- Clock process definitions
