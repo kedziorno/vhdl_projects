@@ -32,8 +32,9 @@ use IEEE.NUMERIC_STD.ALL;
 entity test_oled is 
 port
 (
-signal clk : in std_logic;
-signal sda,scl : inout std_logic
+signal i_clk : in std_logic;
+signal i_char : in std_logic_vector(11 downto 0);
+signal io_sda,io_scl : inout std_logic
 );
 end test_oled;
 
@@ -148,17 +149,17 @@ type state is
 );
 signal c_state,n_state : state := start;
 
-signal char_o : std_logic_vector(7 downto 0) := (others => '0');
-signal char_i : std_logic_vector(11 downto 0) := (others => '0');
+signal glcdfont_character : std_logic_vector(7 downto 0) := (others => '0');
+signal glcdfont_index : std_logic_vector(11 downto 0) := (others => '0');
 
 begin
 
 c0 : glcdfont
 port map
 (
-	i_clk => clk,
-	i_index => char_i,
-	o_character => char_o
+	i_clk => i_clk,
+	i_index => glcdfont_index,
+	o_character => glcdfont_character
 );
 
 c1 : i2c
@@ -169,7 +170,7 @@ GENERIC MAP
 )
 PORT MAP
 (
-	clk => clk,
+	clk => i_clk,
 	reset_n => i2c_reset,
 	ena => i2c_ena,
 	addr => i2c_addr,
@@ -178,11 +179,11 @@ PORT MAP
 	busy => i2c_busy,
 	data_rd => open,
 	ack_error => open,
-	sda => sda,
-	scl => scl
+	sda => io_sda,
+	scl => io_scl
 );
 
-p0 : process (clk,i2c_reset) is
+p0 : process (i_clk,i2c_reset) is
 	variable index : INTEGER RANGE 0 TO OLED_STABLE := 0;
 	variable counter : INTEGER RANGE 0 TO OLED_STABLE := OLED_STABLE;
 begin
@@ -191,7 +192,7 @@ begin
 		busy_cnt <= 0;
 		c_state <= start;
 		i2c_reset <= '1';
-	elsif (rising_edge(clk)) then
+	elsif (rising_edge(i_clk)) then
 		c_state <= n_state;
 		if (index < counter) then
 			case c_state is
@@ -291,20 +292,20 @@ begin
 							i2c_rw <= '0';
 							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_DATA,8));
 						when 1 =>
-							char_i <= std_logic_vector(to_unsigned(1120,char_i'length));
-							i2c_data_wr <= char_o;
+							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(i_char))+0,glcdfont_index'length));
+							i2c_data_wr <= glcdfont_character;
 						when 2 =>
-							char_i <= std_logic_vector(to_unsigned(1121,char_i'length));
-							i2c_data_wr <= char_o;
+							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(i_char))+1,glcdfont_index'length));
+							i2c_data_wr <= glcdfont_character;
 						when 3 =>
-							char_i <= std_logic_vector(to_unsigned(1122,char_i'length));
-							i2c_data_wr <= char_o;
+							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(i_char))+2,glcdfont_index'length));
+							i2c_data_wr <= glcdfont_character;
 						when 4 =>
-							char_i <= std_logic_vector(to_unsigned(1123,char_i'length));
-							i2c_data_wr <= char_o;
+							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(i_char))+3,glcdfont_index'length));
+							i2c_data_wr <= glcdfont_character;
 						when 5 =>
-							char_i <= std_logic_vector(to_unsigned(1124,char_i'length));
-							i2c_data_wr <= char_o;
+							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(i_char))+4,glcdfont_index'length));
+							i2c_data_wr <= glcdfont_character;
 						when 6 =>
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
