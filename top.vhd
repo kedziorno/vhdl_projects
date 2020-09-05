@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use WORK.p_pkg1.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -42,14 +43,18 @@ component test_oled is
 port
 (
 signal i_clk : in std_logic;
-signal i_char : in std_logic_vector(11 downto 0);
+signal i_char : in array1;
 signal io_sda,io_scl : inout std_logic
 );
 end component test_oled;
 
 for all : test_oled use entity WORK.test_oled(Behavioral);
 
-signal font_character : std_logic_vector(11 downto 0) := (others => '0');
+--signal font_character : std_logic_vector(11 downto 0) := (others => '0');
+signal font_character : array1(0 to 13-1);
+--signal text : array1(0 to 13-1) := (x"4B",x"55",x"52",x"57",x"41",x"20",x"4D",x"41",x"43",x"20",x"3A",x"2D",x"29");
+signal text : array1(0 to 13-1) := ("000101110111","000110101001","000110011010","000110110011","000101000101","000010100000","000110000001","000101000101","000101001111","000010100000","000100100010","000011100001","000011001101");
+
 
 begin
 
@@ -62,14 +67,10 @@ port map
 	io_scl => scl
 );
 
--- font_character <= std_logic_vector(to_unsigned(325,font_character'length)); -- 'A'
-
 p0 : process (clk) is
 begin
 	if (rising_edge(clk)) then
-		l0 : for i in 0 to 1 loop
-			font_character <= std_logic_vector(to_unsigned(325+(5*i),font_character'length));
-		end loop l0;
+		font_character <= text;
 	end if;
 end process p0;
 

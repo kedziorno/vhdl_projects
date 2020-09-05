@@ -27,7 +27,8 @@
 --------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
- 
+USE WORK.p_pkg1.ALL;
+
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 USE ieee.numeric_std.ALL;
@@ -42,7 +43,7 @@ ARCHITECTURE behavior OF tb_test_oled IS
     COMPONENT test_oled
     PORT(
          i_clk : IN  std_logic;
-         i_char : in std_logic_vector(11 downto 0);
+         i_char : in array1;
          io_sda : INOUT  std_logic;
          io_scl : INOUT  std_logic
         );
@@ -51,7 +52,7 @@ ARCHITECTURE behavior OF tb_test_oled IS
 
    --Inputs
    signal clk : std_logic := '0';
-   signal char : std_logic_vector(11 downto 0) := (others => '0'); -- "000101000101"; -- 325, 'A'
+   signal char : array1(0 to 1) := ("000101000101","000101111101");
 
 	--BiDirs
    signal sda : std_logic;
@@ -83,9 +84,7 @@ BEGIN
    stim_proc: process
    begin
       -- insert stimulus here
-		l0 : for i in 0 to 1 loop
-			char <= std_logic_vector(to_unsigned(325+(5*i),char'length));
-		end loop l0;
+
       wait;
    end process;
 
