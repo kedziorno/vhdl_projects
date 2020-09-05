@@ -264,6 +264,8 @@ begin
 							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(i_char(index_character)))+4,glcdfont_index'length));
 							i2c_data_wr <= glcdfont_character;
 						when 6 =>
+							i2c_data_wr <= x"00"; -- to space between characters / optional
+						when 7 =>
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
 								busy_cnt <= 0;
@@ -283,6 +285,7 @@ begin
 								index_character := index_character + 1;
 							end if;
 						when 1 =>
+							i2c_data_wr <= x"00";
 							if (i2c_busy = '1') then
 								if (index_character > i_char'length-1) then -- we gain end array
 									i2c_ena <= '0';
