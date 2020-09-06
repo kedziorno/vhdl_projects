@@ -56,6 +56,8 @@ architecture Behavioral of power_on is
 begin
 
 	-- clk divider - clock = ~9.96us , _|_|_ and not __+-+__+-+__
+	-- clock_strength = ~19.96us
+
 	p0 : process(clk) is
 		constant I2C_COUNTER_MAX : integer := 50_000_000 / 100_000 / 4;
 		variable count : integer range 0 to I2C_COUNTER_MAX := 0;
@@ -72,26 +74,20 @@ begin
 	end process p0;
 
 	p1 : process(clock,reset) is
+		constant SLAVE_INDEX_MAX : integer := 7;
+		variable slave_index : integer range 0 to SLAVE_INDEX_MAX := 0;
+		constant SDA_WIDTH_MAX : integer := 1;
+		variable sda_width: integer range 0 to SDA_WIDTH_MAX := SDA_WIDTH_MAX;
+		constant slave : std_logic_vector(SLAVE_INDEX_MAX-1 downto 0) := "1010101";
+--		constant slave : std_logic_vector(SLAVE_INDEX_MAX-1 downto 0) := "0101010";
 	begin
 		if (reset = '1') then
 			c_state <= sda_start;
-		elsif (rising_edge(clock)) then
-			c_state <= n_state;
-		end if;
-	end process p1;
-
-	p2 : process(clock,reset) is
-	begin
-		if (reset = '1') then
 			c_cmode <= c0;
 		elsif (rising_edge(clock)) then
+			c_state <= n_state;
 			c_cmode <= n_cmode;
 		end if;
-	end process p2;
-
-	-- clock_strength = ~19.96us
-	p3 : process(clock,c_cmode) is
-	begin
 		case c_cmode is
 			when c0 =>
 				clock_strength <= '0';
@@ -107,16 +103,6 @@ begin
 				n_cmode <= c0;
 			when others => null;
 		end case;
-	end process p3;
-
-	p4 : process(c_cmode,c_state,clock_strength) is
-		constant slave_idx1 : natural range 0 to 7 := 7;
-		variable slave_idx2 : natural range 0 to slave_idx1-1 := 0;
-		constant nc: natural range 0 to 4 := 0;
-		variable counter: natural range 0 to 4 := nc;
-		constant slave : std_logic_vector(slave_idx1-1 downto 0) := "1010101";
---		constant slave : std_logic_vector(slave_idx1-1 downto 0) := "0101010";
-	begin
 		case c_state is
 			when sda_start =>
 				if (c_cmode = c0) then
@@ -136,23 +122,23 @@ begin
 				else
 					sck <= '1';
 				end if;
-				if (slave_idx2 < slave_idx1) then
+				if (slave_index < SLAVE_INDEX_MAX) then
 					if (c_cmode = c3) then
 --						if (slave_idx = 1 and c_cmode = c3 and falling_edge(clock)) then
 --							sda <= '0';
 --						else
 							--if (c_cmode = c3) then
 								--if (slave_idx2 < slave_idx1) then
-									sda <= slave(slave_idx2);
+									sda <= slave(slave_index);
 								--end if;
 							--end if;
 --						end if;
-						--if (counter > 0) then
-						--	counter := counter - 1;
-						--else
-							slave_idx2 := slave_idx2 + 1;
-						--	counter := nc;
-						--end if;
+						if (sda_width > 0) then
+							sda_width := sda_width - 1;
+						else
+							slave_index := slave_index + 1;
+							sda_width := SDA_WIDTH_MAX;
+						end if;
 						n_state <= s_address;
 					end if;
 --				elsif (slave_idx2 = 7) then
@@ -231,6 +217,6 @@ begin
 				n_state <= sda_stop;
 			when others => null;
 		end case;
-	end process p4;
+	end process p1;
 
 end Behavioral;
