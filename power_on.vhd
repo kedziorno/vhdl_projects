@@ -38,20 +38,20 @@ architecture Behavioral of power_on is
 
 	signal clock : std_logic := '0';
 	signal clock_strength : std_logic := '0';
-	--signal clock_prev : std_logic;
-	
+
 	--type state is (sda_start,start,pause,s_address,s_rw,s_ack,data,data_last_bit,data_ack,stop,sda_stop);
-	type state is (sda_start,start,s_address,s_address_last_bit,s_rw,s_ack,stop,sda_stop);
+	type state is (sda_start,start,slave_address,slave_address_lastbit,slave_rw,slave_ack,data,data_lastbit,data_ack,stop,sda_stop);
 	signal c_state,n_state : state := sda_start;
 
 	constant AMNT_INSTRS : natural range 0 to 26 := 26;
 	type IAR is array (0 to AMNT_INSTRS-1) of std_logic_vector(7 downto 0);
 	signal Instrs : IAR := (x"AE",x"D5",x"F0",x"A8",x"1F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"8F",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E",x"AF");
 
-	--signal i_idx : std_logic_vector(7 downto 0) := x"00";
-
 	type clock_mode is (c0,c1,c2,c3);
 	signal c_cmode,n_cmode : clock_mode := c0;
+
+	signal temp_sda : std_logic := 'Z';
+	signal temp_sck : std_logic := 'Z';
 
 begin
 
@@ -74,6 +74,8 @@ begin
 	end process p0;
 
 	p1 : process(clock,reset) is
+		constant DATA_INDEX_MAX : integer := 8;
+		variable data_index : integer range 0 to DATA_INDEX_MAX := 0;
 		constant SLAVE_INDEX_MAX : integer := 7;
 		variable slave_index : integer range 0 to SLAVE_INDEX_MAX := 0;
 		constant SDA_WIDTH_MAX : integer := 1;
@@ -105,72 +107,72 @@ begin
 		end case;
 		case c_state is
 			when sda_start =>
-				sck <= '1';
-				sda <= '1';
+				temp_sck <= '1';
+				temp_sda <= '1';
 				n_state <= start;
 			when start =>
 				if (rising_edge(clock)) then
-					sck <= clock_strength;
+					temp_sck <= clock_strength;
 				end if;
-				sda <= '0';
-				n_state <= s_address;
-			when s_address =>
+				temp_sda <= '0';
+				n_state <= slave_address;
+			when slave_address =>
 				if (rising_edge(clock)) then
-					sck <= not clock_strength;
+					temp_sck <= not clock_strength;
 				end if;
 				if (slave_index < SLAVE_INDEX_MAX-1) then
 					if (c_cmode = c0) then
-						sda <= slave(slave_index);
+						temp_sda <= slave(slave_index);
 						if (sda_width > 0) then
 							sda_width := sda_width - 1;
-							n_state <= s_address;
+							n_state <= slave_address;
 						else
 							slave_index := slave_index + 1;
 							sda_width := SDA_WIDTH_MAX;
-							n_state <= s_address;
+							n_state <= slave_address;
 						end if;
 					end if;
 				else
-					n_state <= s_address_last_bit;
+					n_state <= slave_address_lastbit;
 					sda_width := SDA_WIDTH_MAX;
 				end if;
-			when s_address_last_bit =>
+			when slave_address_lastbit =>
 				if (rising_edge(clock)) then
-					sck <= not clock_strength;
+					temp_sck <= not clock_strength;
 				end if;
 				if (c_cmode = c0) then
-					sda <= slave(SLAVE_INDEX_MAX-1);
+					temp_sda <= slave(SLAVE_INDEX_MAX-1);
 					if (sda_width > 0) then
 						sda_width := sda_width - 1;
-						n_state <= s_address_last_bit;
+						n_state <= slave_address_lastbit;
 					else
 						sda_width := SDA_WIDTH_MAX;
-						n_state <= s_rw;
+						n_state <= slave_rw;
 					end if;
 				end if;
-			when s_rw =>
+			when slave_rw =>
 				if (rising_edge(clock)) then
-					sck <= not clock_strength;
+					temp_sck <= not clock_strength;
 				end if;
 				if (c_cmode = c0) then
-					sda <= '0'; -- rw
+					temp_sda <= '0'; -- rw
 					if (sda_width > 0) then
 						sda_width := sda_width - 1;
-						n_state <= s_rw;
+						n_state <= slave_rw;
 					else
 						sda_width := SDA_WIDTH_MAX;
-						n_state <= s_ack;
+						n_state <= slave_ack;
 					end if;
 				end if;
-			when s_ack =>
+			when slave_ack =>
 				if (rising_edge(clock)) then
-					sck <= not clock_strength;
+					temp_sck <= not clock_strength;
 				end if;
 				if (c_cmode = c0) then
-					sda <= '1'; -- ack
+					temp_sda <= '1'; -- ack
 					if (sda_width > 0) then
 						sda_width := sda_width - 1;
-						n_state <= s_ack;
+						n_state <= slave_ack;
 					else
 						sda_width := SDA_WIDTH_MAX;
 						n_state <= stop;
@@ -210,10 +212,10 @@ begin
 --				end if;
 			when stop =>
 				if (rising_edge(clock)) then
-					sck <= not clock_strength;
+					temp_sck <= not clock_strength;
 				end if;
 				if (c_cmode = c0) then
-					sda <= '0'; -- stop
+					temp_sda <= '0'; -- stop
 					if (sda_width > 0) then
 						sda_width := sda_width - 1;
 						n_state <= stop;
@@ -223,11 +225,12 @@ begin
 					end if;
 				end if;
 			when sda_stop =>
-				sck <= '1';
-				sda <= '1';
+				temp_sck <= '1';
+				temp_sda <= '1';
 				n_state <= sda_stop;
 			when others => null;
 		end case;
 	end process p1;
-
+	sda <= '0' when temp_sda = '0' else 'Z';
+	sck <= '0' when temp_sck = '0' else 'Z';
 end Behavioral;
