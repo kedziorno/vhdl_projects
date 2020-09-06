@@ -106,10 +106,10 @@ begin
 		end case;
 	end process p3;
 
-	p4 : process(c_cmode,c_state,clock,clock_strength) is
+	p4 : process(c_cmode,c_state) is
 		variable d_idx : integer := 8;
 		variable slave_idx : integer := 7;
-		variable nc: integer := 1;
+		variable nc: integer := 0;
 		variable counter: integer := nc;
 		variable w : integer := 0;
 		variable slave : std_logic_vector(slave_idx-1 downto 0) := "1010101";
@@ -129,16 +129,18 @@ begin
 				sck <= '1';
 				n_state <= s_address;
 			when s_address =>
-				sck <= not clock_strength;
+				if (c_cmode = c2 or c_cmode = c3) then
+					sck <= '0';
+				else
+					sck <= '1';
+				end if;
 				if (c_cmode = c3) then
 					if (slave_idx > 0) then
 						if (rising_edge(clock) and sck = '0' and clock_strength = '1' and c_cmode = c2) then
 							sda <= '0';
 						else
---if (slave_idx > 0 and slave_idx <=	 7) then
-						sda <= slave(slave_idx - 1);
---					end if;
-					end if;
+							sda <= slave(slave_idx - 1);
+						end if;
 						if (counter > 0) then
 							counter := counter - 1;
 						else
