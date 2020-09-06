@@ -108,12 +108,13 @@ begin
 
 	p4 : process(c_cmode,c_state) is
 		variable d_idx : integer := 8;
-		variable slave_idx : integer := 7;
+		variable slave_idx1 : integer := 7;
+		variable slave_idx2 : integer := 0;
 		variable nc: integer := 0;
 		variable counter: integer := nc;
 		variable w : integer := 0;
-		variable slave : std_logic_vector(slave_idx-1 downto 0) := "1010101";
---		variable slave : std_logic_vector(slave_idx-1 downto 0) := "0101010";
+		variable slave : std_logic_vector(slave_idx1-1 downto 0) := "1010101";
+--		variable slave : std_logic_vector(slave_idx1-1 downto 0) := "0101010";
 	begin
 		case c_state is
 			when sda_start =>
@@ -134,39 +135,52 @@ begin
 				else
 					sck <= '1';
 				end if;
-				if (c_cmode = c3) then
-					if (slave_idx > 0) then
-						if (rising_edge(clock) and sck = '0' and clock_strength = '1' and c_cmode = c2) then
-							sda <= '0';
-						else
-							sda <= slave(slave_idx - 1);
-						end if;
-						if (counter > 0) then
-							counter := counter - 1;
-						else
-							slave_idx := slave_idx - 1;
-							counter := nc;
-						end if;
-
+				if (slave_idx2 < slave_idx1+1) then
+					if (c_cmode = c3) then
+--						if (slave_idx = 1 and c_cmode = c3 and falling_edge(clock)) then
+--							sda <= '0';
+--						else
+							--if (c_cmode = c3) then
+								if (slave_idx2 < slave_idx1) then
+									sda <= slave(slave_idx2);
+								end if;
+							--end if;
+--						end if;
+						--if (counter > 0) then
+						--	counter := counter - 1;
+						--else
+							slave_idx2 := slave_idx2 + 1;
+						--	counter := nc;
+						--end if;
 						n_state <= s_address;
-					else
-						--sda <= slave(0);
-						n_state <= s_rw;
-						counter := nc;
 					end if;
+--				elsif (slave_idx2 = 7) then
+--					if (c_cmode = c3) then
+--						sda <= slave(0);
+--					end if;
+--					n_state <= s_rw;
+				else
+					--sda <= slave(0);
+					n_state <= s_rw;
+					--counter := nc;
 				end if;
 			when s_rw =>
-				sck <= not clock_strength;
-				if (counter > 0) then
+				--sck <= not clock_strength;
+				if (c_cmode = c2 or c_cmode = c3) then
+					sck <= '0';
+				else
+					sck <= '1';
+				end if;
+--				if (counter > 0) then
 					--if (c_cmode = c1) then
 						sda <= '0'; -- rw
 					--end if;
-					counter := counter - 1;
-					n_state <= s_rw;
-				else
+--					counter := counter - 1;
+					--n_state <= s_rw;
+				--else
 					n_state <= s_ack;
 					counter := nc;
-				end if;
+				--end if;
 			when s_ack =>
 				sck <= not clock_strength;
 				if (counter > 0) then
