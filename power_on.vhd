@@ -40,12 +40,14 @@ architecture Behavioral of power_on is
 	signal clock_strength : std_logic := '0';
 
 	--type state is (sda_start,start,pause,s_address,s_rw,s_ack,data,data_last_bit,data_ack,stop,sda_stop);
-	type state is (sda_start,start,slave_address,slave_address_lastbit,slave_rw,slave_ack,data,data_lastbit,data_ack,stop,sda_stop);
+	type state is (sda_start,start,slave_address,slave_address_lastbit,slave_rw,slave_ack,get_instruction,data,data_lastbit,data_ack,stop,sda_stop);
 	signal c_state,n_state : state := sda_start;
 
+	constant INSTRUCTION_MAX : natural := 8;
 	constant AMNT_INSTRS : natural range 0 to 26 := 26;
 	type IAR is array (0 to AMNT_INSTRS-1) of std_logic_vector(7 downto 0);
 	signal Instrs : IAR := (x"AE",x"D5",x"F0",x"A8",x"1F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"8F",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E",x"AF");
+	signal instruction_index : std_logic_vector(INSTRUCTION_MAX-1 downto 0) := (others => '0');
 
 	type clock_mode is (c0,c1,c2,c3);
 	signal c_cmode,n_cmode : clock_mode := c0;
@@ -58,7 +60,7 @@ begin
 	-- clk divider - clock = ~9.96us , _|_|_ and not __+-+__+-+__
 	-- clock_strength = ~19.96us
 
-	p0 : process(clk) is
+	p0 : process (clk) is
 
 		constant I2C_COUNTER_MAX : integer := 50_000_000 / 100_000 / 4;
 		variable count : integer range 0 to I2C_COUNTER_MAX := 0;
@@ -77,7 +79,7 @@ begin
 
 	end process p0;
 
-	p1 : process(clock,reset) is
+	p1 : process (clock,reset) is
 
 		constant DATA_INDEX_MAX : integer := 8;
 		variable data_index : integer range 0 to DATA_INDEX_MAX := 0;
@@ -92,7 +94,6 @@ begin
 --		constant slave : std_logic_vector(SLAVE_INDEX_MAX-1 downto 0) := "0101010";
 		constant slave : std_logic_vector(SLAVE_INDEX_MAX-1 downto 0) := "0111100";
 
-		variable instruction_index : integer range 0 to AMNT_INSTRS := 0;
 	begin
 
 		if (reset = '1') then
@@ -101,6 +102,9 @@ begin
 		elsif (rising_edge(clock)) then
 			c_state <= n_state;
 			c_cmode <= n_cmode;
+			if (c_state = get_instruction) then
+				instruction_index <= std_logic_vector(to_unsigned(to_integer(unsigned(instruction_index))+1,INSTRUCTION_MAX));
+			end if;
 		end if;
 		case c_cmode is
 			when c0 =>
@@ -186,9 +190,17 @@ begin
 						sda_width := sda_width - 1;
 						n_state <= slave_ack;
 					else
+						instruction_index <= (others => '0');
 						sda_width := SDA_WIDTH_MAX;
 						n_state <= data;
 					end if;
+				end if;
+			when get_instruction =>
+				temp_sck <= not clock_strength;
+				if (to_integer(unsigned(instruction_index)) < AMNT_INSTRS-1) then
+					n_state <= data;
+				else
+					n_state <= stop;
 				end if;
 			when data =>
 				if (rising_edge(clock)) then
@@ -196,7 +208,7 @@ begin
 				end if;
 				if (data_index < DATA_INDEX_MAX-1) then
 					if (c_cmode = c0) then
-						temp_sda <= Instrs(instruction_index)(DATA_INDEX_MAX-1-data_index);
+						temp_sda <= Instrs(to_integer(unsigned(instruction_index)))(DATA_INDEX_MAX-1-data_index);
 						if (sda_width > 0) then
 							sda_width := sda_width - 1;
 							n_state <= data;
@@ -207,15 +219,15 @@ begin
 						end if;
 					end if;
 				else
-					n_state <= data_lastbit;
 					sda_width := SDA_WIDTH_MAX;
+					n_state <= data_lastbit;
 				end if;
 			when data_lastbit =>
 				if (rising_edge(clock)) then
 					temp_sck <= not clock_strength;
 				end if;
 				if (c_cmode = c0) then
-					temp_sda <= Instrs(instruction_index)(0);
+					temp_sda <= Instrs(to_integer(unsigned(instruction_index)))(0);
 					if (sda_width > 0) then
 						sda_width := sda_width - 1;
 						n_state <= data_lastbit;
@@ -234,13 +246,9 @@ begin
 						sda_width := sda_width - 1;
 						n_state <= data_ack;
 					else
-						if (instruction_index < AMNT_INSTRS-1) then
-							instruction_index := instruction_index + 1;
-							n_state <= data;
-						else
-							sda_width := SDA_WIDTH_MAX;
-							n_state <= stop;
-						end if;
+						sda_width := SDA_WIDTH_MAX;
+						n_state <= get_instruction;
+						data_index := 0;
 					end if;
 				end if;
 			when stop =>
