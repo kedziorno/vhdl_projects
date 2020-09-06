@@ -41,7 +41,7 @@ architecture Behavioral of power_on is
 	--signal clock_prev : std_logic;
 	
 	--type state is (sda_start,start,pause,s_address,s_rw,s_ack,data,data_last_bit,data_ack,stop,sda_stop);
-	type state is (sda_start,start,s_address,s_rw,s_ack,stop,sda_stop);
+	type state is (sda_start,start,s_address,s_address_last_bit,s_rw,s_ack,stop,sda_stop);
 	signal c_state,n_state : state := sda_start;
 
 	constant AMNT_INSTRS : natural range 0 to 26 := 26;
@@ -78,8 +78,8 @@ begin
 		variable slave_index : integer range 0 to SLAVE_INDEX_MAX := 0;
 		constant SDA_WIDTH_MAX : integer := 1;
 		variable sda_width: integer range 0 to SDA_WIDTH_MAX := SDA_WIDTH_MAX;
-		constant slave : std_logic_vector(SLAVE_INDEX_MAX-1 downto 0) := "1010101";
---		constant slave : std_logic_vector(SLAVE_INDEX_MAX-1 downto 0) := "0101010";
+--		constant slave : std_logic_vector(SLAVE_INDEX_MAX-1 downto 0) := "1010101";
+		constant slave : std_logic_vector(SLAVE_INDEX_MAX-1 downto 0) := "0101010";
 	begin
 		if (reset = '1') then
 			c_state <= sda_start;
@@ -105,68 +105,77 @@ begin
 		end case;
 		case c_state is
 			when sda_start =>
-				if (c_cmode = c0) then
-					sda <= '1';
-				end if;
 				sck <= '1';
+				sda <= '1';
 				n_state <= start;
 			when start =>
-				if (c_cmode = c1) then
-					sda <= '0';
+				if (rising_edge(clock)) then
+					sck <= clock_strength;
 				end if;
-				sck <= '1';
+				sda <= '0';
 				n_state <= s_address;
 			when s_address =>
-				if (c_cmode = c2 or c_cmode = c3) then
-					sck <= '0';
-				else
-					sck <= '1';
+				if (rising_edge(clock)) then
+					sck <= not clock_strength;
 				end if;
-				if (slave_index < SLAVE_INDEX_MAX) then
-					if (c_cmode = c3) then
---						if (slave_idx = 1 and c_cmode = c3 and falling_edge(clock)) then
---							sda <= '0';
---						else
-							--if (c_cmode = c3) then
-								--if (slave_idx2 < slave_idx1) then
-									sda <= slave(slave_index);
-								--end if;
-							--end if;
---						end if;
+				if (slave_index < SLAVE_INDEX_MAX-1) then
+					if (c_cmode = c0) then
+						sda <= slave(slave_index);
 						if (sda_width > 0) then
 							sda_width := sda_width - 1;
+							n_state <= s_address;
 						else
 							slave_index := slave_index + 1;
 							sda_width := SDA_WIDTH_MAX;
+							n_state <= s_address;
 						end if;
-						n_state <= s_address;
 					end if;
---				elsif (slave_idx2 = 7) then
---					if (c_cmode = c3) then
---						sda <= slave(0);
---					end if;
---					n_state <= s_rw;
 				else
-					--sda <= slave(0);
-					n_state <= s_rw;
-					--counter := nc;
+					n_state <= s_address_last_bit;
+					sda_width := SDA_WIDTH_MAX;
+				end if;
+			when s_address_last_bit =>
+				if (rising_edge(clock)) then
+					sck <= not clock_strength;
+				end if;
+				if (c_cmode = c0) then
+					sda <= slave(SLAVE_INDEX_MAX-1);
+					if (sda_width > 0) then
+						sda_width := sda_width - 1;
+						n_state <= s_address_last_bit;
+					else
+						sda_width := SDA_WIDTH_MAX;
+						n_state <= s_rw;
+					end if;
 				end if;
 			when s_rw =>
-				if (c_cmode = c2 or c_cmode = c3) then
-					sck <= '0';
-				else
-					sck <= '1';
+				if (rising_edge(clock)) then
+					sck <= not clock_strength;
 				end if;
-				sda <= '0'; -- rw
-				n_state <= s_ack;
+				if (c_cmode = c0) then
+					sda <= '0'; -- rw
+					if (sda_width > 0) then
+						sda_width := sda_width - 1;
+						n_state <= s_rw;
+					else
+						sda_width := SDA_WIDTH_MAX;
+						n_state <= s_ack;
+					end if;
+				end if;
 			when s_ack =>
-				if (c_cmode = c2 or c_cmode = c3) then
-					sck <= '0';
-				else
-					sck <= '1';
+				if (rising_edge(clock)) then
+					sck <= not clock_strength;
 				end if;
-				sda <= '1'; -- ack
-				n_state <= stop;
+				if (c_cmode = c0) then
+					sda <= '1'; -- ack
+					if (sda_width > 0) then
+						sda_width := sda_width - 1;
+						n_state <= s_ack;
+					else
+						sda_width := SDA_WIDTH_MAX;
+						n_state <= stop;
+					end if;
+				end if;
 --			when data =>
 --				sck <= not clock_strength;
 --				if (d_idx<0) then
@@ -200,19 +209,21 @@ begin
 --					n_state <= stop;
 --				end if;
 			when stop =>
-				if (c_cmode = c2 or c_cmode = c3) then
-					sck <= '0';
-				else
-					sck <= '1';
+				if (rising_edge(clock)) then
+					sck <= not clock_strength;
 				end if;
-				sda <= '0';
-				n_state <= sda_stop;
+				if (c_cmode = c0) then
+					sda <= '0'; -- stop
+					if (sda_width > 0) then
+						sda_width := sda_width - 1;
+						n_state <= stop;
+					else
+						sda_width := SDA_WIDTH_MAX;
+						n_state <= sda_stop;
+					end if;
+				end if;
 			when sda_stop =>
-				if (c_cmode = c2 or c_cmode = c3) then
-					sck <= '0';
-				else
-					sck <= '1';
-				end if;
+				sck <= '1';
 				sda <= '1';
 				n_state <= sda_stop;
 			when others => null;
