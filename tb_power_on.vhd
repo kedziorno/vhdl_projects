@@ -54,8 +54,8 @@ ARCHITECTURE behavior OF tb_power_on IS
     COMPONENT power_on
     PORT(
          clk : IN  std_logic;
-         sda : OUT  std_logic;
-         sck : OUT  std_logic
+         sda : INOUT  std_logic;
+         sck : INOUT  std_logic
         );
     END COMPONENT;
 

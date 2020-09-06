@@ -31,72 +31,34 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity power_on is 
-port (clk : in std_logic; sda,sck : out std_logic);
+port (clk : in std_logic; sda,sck : inout std_logic);
 end power_on;
 
 architecture Behavioral of power_on is
 
-	shared variable i2c_clk : INTEGER := 50_000_000 / 400_000 / 4;
+	shared variable i2c_clk : INTEGER := 50_000_000 / 100_000 / 4;
 
 	shared variable count : INTEGER := 0;
 
-	signal clock : std_logic := '1';
-	signal clock_strength : std_logic := '0';
-	signal clock_prev : std_logic := '0';
+	signal clock : std_logic := '0';
+	signal clock_strength : std_logic;
+	--signal clock_prev : std_logic;
 	
 	type state is (sda_start,start,pause,s_address,s_rw,s_ack,data,data_last_bit,data_ack,stop,sda_stop);
 	signal c_state,n_state : state := sda_start;
 
-	constant AMNT_INSTRS: natural := 25;
+	constant AMNT_INSTRS : natural := 26;
 	type IAR is array (0 to AMNT_INSTRS-1) of std_logic_vector(7 downto 0);
-	signal Instrs : IAR := (x"ae",x"00",x"10",x"40",x"b0",x"81",x"ff",x"a1",x"a6",x"c9",x"a8",x"3f",x"d3",x"00",x"d5",x"80",x"d9",x"f1",x"da",x"12",x"db",x"40",x"8d",x"14",x"af");
+	signal Instrs : IAR := (x"AE",x"D5",x"F0",x"A8",x"1F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"8F",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E",x"AF");
+
 	signal i_idx : std_logic_vector(7 downto 0) := x"00";
 
-	type clock_mode is (cmode0,cmode1,cmode2,cmode3);
-	signal c_cmode,n_cmode : clock_mode := cmode0;
+	type clock_mode is (c0,c1,c2,c3);
+	signal c_cmode,n_cmode : clock_mode := c0;
 
 begin
-	
-	p3 : process(clock) is
-	begin
-		if (rising_edge(clock)) then
-			c_cmode <= n_cmode;
-		end if;
-	end process p3;
-	
-	p4 : process(clock,c_cmode) is
-	begin
-		case c_cmode is
-			when cmode0 =>
-				clock_strength <= '0';
-				n_cmode <= cmode1;
-			when cmode1 =>
-				clock_strength <= '0';
-				n_cmode <= cmode2;
-			when cmode2 =>
-				clock_strength <= '1';
-				n_cmode <= cmode3;
-			when cmode3 =>
-				clock_strength <= '1';
-				n_cmode <= cmode0;
-			when others => null;
-		end case;
-	end process p4;
-	
---		if (falling_edge(clock_prev) and rising_edge(clock)) then
---			clock_strength <= '0';
---		end if;
---		if (falling_edge(clock)) then
---			clock_strength <= clock;
---		end if;
---		end if;
---		if (rising_edge(clock_prev)) then
---			clock_strength <= not clock;
---		end if;
---		if (falling_edge(clock_prev)) then
---			clock_strength <= not clock;
---		end if;
-	
+
+	-- clk divider - clock = ~9.96us
 	p0 : process(clk) is
 	begin
 		if (rising_edge(clk)) then
@@ -107,52 +69,114 @@ begin
 			end if;
 		end if;
 	end process p0;
-	
+
 	p1 : process(clock) is
 	begin
-		if (rising_edge(clock)) then
+		if (rising_edge(clock) or falling_edge(clock)) then
 			c_state <= n_state;
 		end if;
 	end process p1;
 
-	p2 : process(c_state,clock) is
-		variable d_idx : integer := 7;
-		variable s_idx : integer := 7;
+	p2 : process(clock) is
+	begin
+		if (rising_edge(clock) or falling_edge(clock)) then
+			c_cmode <= n_cmode;
+		end if;
+	end process p2;
+
+	-- clock_strength = ~19.96us
+	p3 : process(clock,c_cmode) is
+	begin
+		case c_cmode is
+			when c0 =>
+				clock_strength <= '0';
+				n_cmode <= c1;
+			when c1 =>
+				clock_strength <= '0';
+				n_cmode <= c2;
+			when c2 =>
+				clock_strength <= '1';
+				n_cmode <= c3;
+			when c3 =>
+				clock_strength <= '1';
+				n_cmode <= c0;
+			when others => null;
+		end case;
+	end process p3;
+
+	p4 : process(c_cmode,c_state,clock,clock_strength) is
+		variable d_idx : integer := 8;
+		variable slave_idx : integer := 7;
+		variable nc: integer := 1;
+		variable counter: integer := nc;
 		variable w : integer := 0;
-		variable slave : std_logic_vector(6 downto 0) := "0111100";
+		variable slave : std_logic_vector(slave_idx-1 downto 0) := "1010101";
+--		variable slave : std_logic_vector(slave_idx-1 downto 0) := "0101010";
 	begin
 		case c_state is
 			when sda_start =>
-				sda <= '1';
+				if (c_cmode = c0) then
+					sda <= '1';
+				end if;
 				sck <= '1';
 				n_state <= start;
 			when start =>
-				sda <= '0';
+				if (c_cmode = c1) then
+					sda <= '0';
+				end if;
 				sck <= '1';
 				n_state <= s_address;
 			when s_address =>
-				if(s_idx=1) then
+				sck <= not clock_strength;
+				if (c_cmode = c3) then
+					if (slave_idx > 0) then
+						if (rising_edge(clock) and sck = '0' and clock_strength = '1' and c_cmode = c2) then
+							sda <= '0';
+						else
+--if (slave_idx > 0 and slave_idx <=	 7) then
+						sda <= slave(slave_idx - 1);
+--					end if;
+					end if;
+						if (counter > 0) then
+							counter := counter - 1;
+						else
+							slave_idx := slave_idx - 1;
+							counter := nc;
+						end if;
+
+						n_state <= s_address;
+					else
+						--sda <= slave(0);
+						n_state <= s_rw;
+						counter := nc;
+					end if;
+				end if;
+			when s_rw =>
+				sck <= not clock_strength;
+				if (counter > 0) then
+					--if (c_cmode = c1) then
+						sda <= '0'; -- rw
+					--end if;
+					counter := counter - 1;
 					n_state <= s_rw;
 				else
-					sda <= slave(s_idx-1);
-					if(w<1) then
-						w := w + 1;
-					else
-						s_idx := s_idx - 1;
-						w := 0;
-					end if;
-					n_state <= s_address;
+					n_state <= s_ack;
+					counter := nc;
 				end if;
-				sck <= not clock;
-			when s_rw =>
-				sck <= not clock;
-				n_state <= s_ack;
 			when s_ack =>
-				sda <= '0';
-				sck <= not clock;
-				n_state <= data;
+				sck <= not clock_strength;
+				if (counter > 0) then
+					--if (c_cmode = c1) then
+						sda <= '1'; -- ack
+					--end if;
+					counter := counter - 1;
+					n_state <= s_ack;
+				else
+					n_state <= data;
+					counter := nc;
+				end if;
 			when data =>
-				sck <= not clock;
+				sck <= not clock_strength;
 				if (d_idx<0) then
 					n_state <= data_ack;
 				elsif (d_idx=1) then
@@ -169,11 +193,11 @@ begin
 				end if;
 			when data_last_bit =>
 				sda <= Instrs(to_integer(unsigned(i_idx)))(0); -- last bit
-				sck <= not clock;
+				sck <= not clock_strength;
 				n_state <= data_ack;
 			when data_ack =>
 				sda <= '0';
-				sck <= not clock;
+				sck <= not clock_strength;
 				if(unsigned(i_idx)<AMNT_INSTRS-1) then
 					if(rising_edge(clock)) then
 						i_idx <= std_logic_vector(to_unsigned(to_integer(unsigned(i_idx))+1,8));
@@ -185,13 +209,14 @@ begin
 				end if;
 			when stop =>
 				sda <= '0';
-				sck <= not clock;
+				sck <= not clock_strength;
 				n_state <= sda_stop;
 			when sda_stop =>
 				sda <= '1';
 				sck <= '1';
 			when others => null;
 		end case;
-	end process p2;
+		--end if;
+	end process p4;
 
 end Behavioral;
