@@ -31,7 +31,7 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity power_on is 
-port (clk : in std_logic; sda,sck : inout std_logic);
+port (reset,clk : in std_logic; sda,sck : inout std_logic);
 end power_on;
 
 architecture Behavioral of power_on is
@@ -72,7 +72,9 @@ begin
 
 	p1 : process(clock) is
 	begin
-		if (rising_edge(clock) or falling_edge(clock)) then
+		if (reset = '1') then
+			c_state <= sda_start;
+		elsif (rising_edge(clock) or falling_edge(clock)) then
 			c_state <= n_state;
 		end if;
 	end process p1;
