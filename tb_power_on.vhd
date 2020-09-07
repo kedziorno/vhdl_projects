@@ -37,26 +37,14 @@ END tb_power_on;
  
 ARCHITECTURE behavior OF tb_power_on IS 
 
-	procedure clk_gen(signal clk : out std_logic; constant wait_start : time; constant HT : time; constant LT : time) is
-	begin
-		clk <= '0';
-		wait for wait_start;
-		loop
-			clk <= '1';
-			wait for HT;
-			clk <= '0';
-			wait for LT;
-		end loop;
-	end procedure;
-
     -- Component Declaration for the Unit Under Test (UUT)
  
     COMPONENT power_on
     PORT(
          clk : IN  std_logic;
          reset : IN std_logic;
-         sda : INOUT  std_logic;
-         sck : INOUT  std_logic
+         sda : OUT  std_logic;
+         sck : OUT  std_logic
         );
     END COMPONENT;
 
@@ -69,11 +57,9 @@ ARCHITECTURE behavior OF tb_power_on IS
    signal sck : std_logic;
 
    -- Clock period definitions
-   constant clk_period : time := 10 ns;
+   constant clk_period : time := 20 ns;
 
 BEGIN
-
-	clk_gen(clk,0 ns,20 ns,20 ns);
 
 	-- Instantiate the Unit Under Test (UUT)
 	uut: power_on PORT MAP (
@@ -83,9 +69,18 @@ BEGIN
 		sck => sck
 	);
 
+	-- Clock process definitions
+	clk_process :process
+	begin
+		clk <= '0';
+		wait for clk_period/2;
+		clk <= '1';
+		wait for clk_period/2;
+	end process;
+
 	-- Stimulus process
 	stim_proc: process
-	begin		
+	begin
 		wait;
 	end process;
 
