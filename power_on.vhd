@@ -36,6 +36,9 @@ end power_on;
 
 architecture Behavioral of power_on is
 
+	constant INPUT_CLOCK : integer := 50_000_000;
+	constant I2C_CLOCK : integer := 200_000;
+
 	signal clock : std_logic := '0';
 	signal clock_strength : std_logic := '0';
 
@@ -43,10 +46,10 @@ architecture Behavioral of power_on is
 	signal c_state,n_state : state := sda_start;
 
 	constant INSTRUCTION_MAX : natural := 8;
+	signal instruction_index : std_logic_vector(INSTRUCTION_MAX-1 downto 0) := (others => '0');
 	constant AMNT_INSTRS : natural := 28;
 	type IAR is array (0 to AMNT_INSTRS-1) of std_logic_vector(7 downto 0);
 	signal Instrs : IAR := (x"00",x"00",x"AE",x"D5",x"F0",x"A8",x"1F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"8F",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E",x"AF");
-	signal instruction_index : std_logic_vector(INSTRUCTION_MAX-1 downto 0) := (others => '0');
 
 	type clock_mode is (c0,c1,c2,c3);
 	signal c_cmode,n_cmode : clock_mode := c0;
@@ -58,7 +61,7 @@ begin
 
 	p0 : process (clk) is
 
-		constant I2C_COUNTER_MAX : integer := 50_000_000 / 350_000 / 4;
+		constant I2C_COUNTER_MAX : integer := (INPUT_CLOCK / I2C_CLOCK) / 4;
 		variable count : integer range 0 to I2C_COUNTER_MAX := 0;
 
 	begin
@@ -86,9 +89,9 @@ begin
 		constant SDA_WIDTH_MAX : integer := 1;
 		variable sda_width: integer range 0 to SDA_WIDTH_MAX := SDA_WIDTH_MAX;
 
---		constant slave : std_logic_vector(SLAVE_INDEX_MAX-1 downto 0) := "1010101";
---		constant slave : std_logic_vector(SLAVE_INDEX_MAX-1 downto 0) := "0101010";
-		constant slave : std_logic_vector(SLAVE_INDEX_MAX-1 downto 0) := "0111100";
+--		constant slave : std_logic_vector(SLAVE_INDEX_MAX-1 downto 0) := "1010101"; -- test pattern
+--		constant slave : std_logic_vector(SLAVE_INDEX_MAX-1 downto 0) := "0101010"; -- test pattern
+		constant slave : std_logic_vector(SLAVE_INDEX_MAX-1 downto 0) := "0111100"; -- oled ssd1306 0x3c 0x3d 0x78
 
 	begin
 
@@ -176,7 +179,7 @@ begin
 					temp_sck <= '1';
 				end if;
 				if (c_cmode = c0) then
-					temp_sda <= '0'; -- rw
+					temp_sda <= '0';
 					if (sda_width > 0) then
 						sda_width := sda_width - 1;
 						n_state <= slave_rw;
@@ -193,7 +196,7 @@ begin
 					temp_sck <= '1';
 				end if;
 				if (c_cmode = c0) then
-					temp_sda <= '1'; -- ack
+					temp_sda <= '1';
 					if (sda_width > 0) then
 						sda_width := sda_width - 1;
 						n_state <= slave_ack;
@@ -257,7 +260,7 @@ begin
 					temp_sck <= '1';
 				end if;
 				if (c_cmode = c0) then
-					temp_sda <= '1'; -- ack
+					temp_sda <= '1';
 					if (sda_width > 0) then
 						sda_width := sda_width - 1;
 						n_state <= data_ack;
@@ -275,7 +278,7 @@ begin
 					temp_sck <= '1';
 				end if;
 				if (c_cmode = c0) then
-					temp_sda <= '0'; -- stop
+					temp_sda <= '0';
 					if (sda_width > 0) then
 						sda_width := sda_width - 1;
 						n_state <= stop;
