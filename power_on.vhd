@@ -38,24 +38,21 @@ architecture Behavioral of power_on is
 
 	constant INPUT_CLOCK : integer := 50_000_000;
 	constant I2C_CLOCK : integer := 200_000;
+	constant INSTRUCTION_MAX : natural := 8;
+	constant BYTES_SEQUENCE : natural := 28;
+
+	type ARRAY_BYTES_SEQUENCE is array (0 to BYTES_SEQUENCE-1) of std_logic_vector(7 downto 0);
+	type state is (sda_start,start,slave_address,slave_address_lastbit,slave_rw,slave_ack,get_instruction,data,data_lastbit,data_ack,stop,sda_stop);
+	type clock_mode is (c0,c1,c2,c3);
 
 	signal clock : std_logic := '0';
 	signal clock_strength : std_logic := '0';
-
-	type state is (sda_start,start,slave_address,slave_address_lastbit,slave_rw,slave_ack,get_instruction,data,data_lastbit,data_ack,stop,sda_stop);
-	signal c_state,n_state : state := sda_start;
-
-	constant INSTRUCTION_MAX : natural := 8;
-	signal instruction_index : std_logic_vector(INSTRUCTION_MAX-1 downto 0) := (others => '0');
-	constant AMNT_INSTRS : natural := 28;
-	type IAR is array (0 to AMNT_INSTRS-1) of std_logic_vector(7 downto 0);
-	signal Instrs : IAR := (x"00",x"00",x"AE",x"D5",x"F0",x"A8",x"1F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"8F",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E",x"AF");
-
-	type clock_mode is (c0,c1,c2,c3);
-	signal c_cmode,n_cmode : clock_mode := c0;
-
 	signal temp_sda : std_logic := 'Z';
 	signal temp_sck : std_logic := 'Z';
+	signal instruction_index : std_logic_vector(INSTRUCTION_MAX-1 downto 0) := (others => '0');
+	signal Instrs : ARRAY_BYTES_SEQUENCE := (x"00",x"00",x"AE",x"D5",x"F0",x"A8",x"1F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"8F",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E",x"AF");
+	signal c_state,n_state : state := sda_start;
+	signal c_cmode,n_cmode : clock_mode := c0;
 
 begin
 
