@@ -58,7 +58,7 @@ begin
 
 	p0 : process (clk) is
 
-		constant I2C_COUNTER_MAX : integer := 50_000_000 / 100_000 / 4;
+		constant I2C_COUNTER_MAX : integer := 50_000_000 / 350_000 / 4;
 		variable count : integer range 0 to I2C_COUNTER_MAX := 0;
 
 	begin
@@ -123,21 +123,20 @@ begin
 				temp_sda <= '1';
 				n_state <= start;
 			when start =>
-				if (c_cmode = c1 and c_cmode /= c0 and c_cmode /= c2 and c_cmode /= c3) then
-					temp_sda <= '0';
-				else
-					temp_sda <= '1';
-				end if;
+				temp_sda <= '1';
 				n_state <= slave_address;
 			when slave_address =>
-				if (c_cmode /= c0 and c_cmode /= c1 and (c_cmode = c2 or c_cmode = c3)) then
+				if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
 					temp_sck <= '0';
 				end if;
-				if ((c_cmode = c0 or c_cmode = c1) and c_cmode /= c2 and c_cmode /= c3) then
+				if ((c_cmode = c1 or c_cmode = c2) and c_cmode /= c0 and c_cmode /= c3) then
 					temp_sck <= '1';
 				end if;
+				if (c_cmode = c2 and slave_index = 0) then
+					temp_sda <= '0';
+				end if;
 				if (slave_index < SLAVE_INDEX_MAX-1) then
-					if (c_cmode = c3) then
+					if (c_cmode = c0) then
 						temp_sda <= slave(SLAVE_INDEX_MAX-1-slave_index);
 						if (sda_width > 0) then
 							sda_width := sda_width - 1;
@@ -153,13 +152,13 @@ begin
 					sda_width := SDA_WIDTH_MAX;
 				end if;
 			when slave_address_lastbit =>
-				if (c_cmode = c0 and c_cmode /= c1 and c_cmode /= c2 and c_cmode /= c3) then
-					temp_sck <= '1';
-				end if;
-				if (c_cmode /= c0 and c_cmode /= c1 and (c_cmode = c2 or c_cmode = c3)) then
+				if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
 					temp_sck <= '0';
 				end if;
-				if (c_cmode = c3) then
+				if ((c_cmode = c1 or c_cmode = c2) and c_cmode /= c0 and c_cmode /= c3) then
+					temp_sck <= '1';
+				end if;
+				if (c_cmode = c0) then
 					temp_sda <= slave(0);
 					if (sda_width > 0) then
 						sda_width := sda_width - 1;
@@ -170,13 +169,13 @@ begin
 					end if;
 				end if;
 			when slave_rw =>
-				if ((c_cmode = c0 or c_cmode = c1) and c_cmode /= c2 and c_cmode /= c3) then
-					temp_sck <= '1';
-				end if;
-				if (c_cmode /= c0 and c_cmode /= c1 and (c_cmode = c2 or c_cmode = c3)) then
+				if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
 					temp_sck <= '0';
 				end if;
-				if (c_cmode = c3) then
+				if ((c_cmode = c1 or c_cmode = c2) and c_cmode /= c0 and c_cmode /= c3) then
+					temp_sck <= '1';
+				end if;
+				if (c_cmode = c0) then
 					temp_sda <= '0'; -- rw
 					if (sda_width > 0) then
 						sda_width := sda_width - 1;
@@ -187,13 +186,13 @@ begin
 					end if;
 				end if;
 			when slave_ack =>
-				if ((c_cmode = c0 or c_cmode = c1) and c_cmode /= c2 and c_cmode /= c3) then
-					temp_sck <= '1';
-				end if;
-				if (c_cmode /= c0 and c_cmode /= c1 and (c_cmode = c2 or c_cmode = c3)) then
+				if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
 					temp_sck <= '0';
 				end if;
-				if (c_cmode = c3) then
+				if ((c_cmode = c1 or c_cmode = c2) and c_cmode /= c0 and c_cmode /= c3) then
+					temp_sck <= '1';
+				end if;
+				if (c_cmode = c0) then
 					temp_sda <= '1'; -- ack
 					if (sda_width > 0) then
 						sda_width := sda_width - 1;
@@ -211,14 +210,14 @@ begin
 					n_state <= stop;
 				end if;
 			when data =>
-				if ((c_cmode = c0 or c_cmode = c1) and c_cmode /= c2 and c_cmode /= c3) then
-					temp_sck <= '1';
-				end if;
-				if (c_cmode /= c0 and c_cmode /= c1 and (c_cmode = c2 or c_cmode = c3)) then
+				if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
 					temp_sck <= '0';
 				end if;
+				if ((c_cmode = c1 or c_cmode = c2) and c_cmode /= c0 and c_cmode /= c3) then
+					temp_sck <= '1';
+				end if;
 				if (data_index < DATA_INDEX_MAX-1) then
-					if (c_cmode = c3) then
+					if (c_cmode = c0) then
 						temp_sda <= Instrs(to_integer(unsigned(instruction_index)))(DATA_INDEX_MAX-1-data_index);
 						if (sda_width > 0) then
 							sda_width := sda_width - 1;
@@ -234,13 +233,13 @@ begin
 					n_state <= data_lastbit;
 				end if;
 			when data_lastbit =>
-				if ((c_cmode = c0 or c_cmode = c1) and c_cmode /= c2 and c_cmode /= c3) then
-					temp_sck <= '1';
-				end if;
-				if (c_cmode /= c0 and c_cmode /= c1 and (c_cmode = c2 or c_cmode = c3)) then
+				if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
 					temp_sck <= '0';
 				end if;
-				if (c_cmode = c3) then
+				if ((c_cmode = c1 or c_cmode = c2) and c_cmode /= c0 and c_cmode /= c3) then
+					temp_sck <= '1';
+				end if;
+				if (c_cmode = c0) then
 					temp_sda <= Instrs(to_integer(unsigned(instruction_index)))(0);
 					if (sda_width > 0) then
 						sda_width := sda_width - 1;
@@ -251,13 +250,13 @@ begin
 					end if;
 				end if;
 			when data_ack =>
-				if ((c_cmode = c0 or c_cmode = c1) and c_cmode /= c2 and c_cmode /= c3) then
-					temp_sck <= '1';
-				end if;
-				if (c_cmode /= c0 and c_cmode /= c1 and (c_cmode = c2 or c_cmode = c3)) then
+				if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
 					temp_sck <= '0';
 				end if;
-				if (c_cmode = c3) then
+				if ((c_cmode = c1 or c_cmode = c2) and c_cmode /= c0 and c_cmode /= c3) then
+					temp_sck <= '1';
+				end if;
+				if (c_cmode = c0) then
 					temp_sda <= '1'; -- ack
 					if (sda_width > 0) then
 						sda_width := sda_width - 1;
@@ -269,13 +268,13 @@ begin
 					end if;
 				end if;
 			when stop =>
-				if ((c_cmode = c0 or c_cmode = c1) and c_cmode /= c2 and c_cmode /= c3) then
-					temp_sck <= '1';
-				end if;
-				if (c_cmode /= c0 and c_cmode /= c1 and (c_cmode = c2 or c_cmode = c3)) then
+				if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
 					temp_sck <= '0';
 				end if;
-				if (c_cmode = c3) then
+				if ((c_cmode = c1 or c_cmode = c2) and c_cmode /= c0 and c_cmode /= c3) then
+					temp_sck <= '1';
+				end if;
+				if (c_cmode = c0) then
 					temp_sda <= '0'; -- stop
 					if (sda_width > 0) then
 						sda_width := sda_width - 1;
