@@ -31,7 +31,7 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity power_on is 
-port (reset,clk : in std_logic; sda,sck : inout std_logic);
+port (reset,clk : in std_logic; sda,sck : out std_logic);
 end power_on;
 
 architecture Behavioral of power_on is
@@ -39,14 +39,13 @@ architecture Behavioral of power_on is
 	signal clock : std_logic := '0';
 	signal clock_strength : std_logic := '0';
 
-	--type state is (sda_start,start,pause,s_address,s_rw,s_ack,data,data_last_bit,data_ack,stop,sda_stop);
 	type state is (sda_start,start,slave_address,slave_address_lastbit,slave_rw,slave_ack,get_instruction,data,data_lastbit,data_ack,stop,sda_stop);
 	signal c_state,n_state : state := sda_start;
 
 	constant INSTRUCTION_MAX : natural := 8;
-	constant AMNT_INSTRS : natural range 0 to 26 := 26;
+	constant AMNT_INSTRS : natural := 27;
 	type IAR is array (0 to AMNT_INSTRS-1) of std_logic_vector(7 downto 0);
-	signal Instrs : IAR := (x"AE",x"D5",x"F0",x"A8",x"1F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"8F",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E",x"AF");
+	signal Instrs : IAR := (x"00",x"AE",x"D5",x"F0",x"A8",x"1F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"8F",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E",x"AF");
 	signal instruction_index : std_logic_vector(INSTRUCTION_MAX-1 downto 0) := (others => '0');
 
 	type clock_mode is (c0,c1,c2,c3);
@@ -127,15 +126,13 @@ begin
 				temp_sda <= '1';
 				n_state <= start;
 			when start =>
-				if (rising_edge(clock)) then
-					temp_sck <= clock_strength;
+				temp_sck <= '1';
+				if (c_cmode = c1) then
+					temp_sda <= '0';
 				end if;
-				temp_sda <= '0';
 				n_state <= slave_address;
 			when slave_address =>
-				if (rising_edge(clock)) then
-					temp_sck <= not clock_strength;
-				end if;
+				temp_sck <= not clock_strength;
 				if (slave_index < SLAVE_INDEX_MAX-1) then
 					if (c_cmode = c0) then
 						temp_sda <= slave(SLAVE_INDEX_MAX-1-slave_index);
@@ -153,9 +150,7 @@ begin
 					sda_width := SDA_WIDTH_MAX;
 				end if;
 			when slave_address_lastbit =>
-				if (rising_edge(clock)) then
-					temp_sck <= not clock_strength;
-				end if;
+				temp_sck <= not clock_strength;
 				if (c_cmode = c0) then
 					temp_sda <= slave(0);
 					if (sda_width > 0) then
@@ -167,9 +162,7 @@ begin
 					end if;
 				end if;
 			when slave_rw =>
-				if (rising_edge(clock)) then
-					temp_sck <= not clock_strength;
-				end if;
+				temp_sck <= not clock_strength;
 				if (c_cmode = c0) then
 					temp_sda <= '0'; -- rw
 					if (sda_width > 0) then
@@ -181,16 +174,13 @@ begin
 					end if;
 				end if;
 			when slave_ack =>
-				if (rising_edge(clock)) then
-					temp_sck <= not clock_strength;
-				end if;
+				temp_sck <= not clock_strength;
 				if (c_cmode = c0) then
 					temp_sda <= '1'; -- ack
 					if (sda_width > 0) then
 						sda_width := sda_width - 1;
 						n_state <= slave_ack;
 					else
-						instruction_index <= (others => '0');
 						sda_width := SDA_WIDTH_MAX;
 						n_state <= data;
 					end if;
@@ -203,9 +193,7 @@ begin
 					n_state <= stop;
 				end if;
 			when data =>
-				if (rising_edge(clock)) then
-					temp_sck <= not clock_strength;
-				end if;
+				temp_sck <= not clock_strength;
 				if (data_index < DATA_INDEX_MAX-1) then
 					if (c_cmode = c0) then
 						temp_sda <= Instrs(to_integer(unsigned(instruction_index)))(DATA_INDEX_MAX-1-data_index);
@@ -223,9 +211,7 @@ begin
 					n_state <= data_lastbit;
 				end if;
 			when data_lastbit =>
-				if (rising_edge(clock)) then
-					temp_sck <= not clock_strength;
-				end if;
+				temp_sck <= not clock_strength;
 				if (c_cmode = c0) then
 					temp_sda <= Instrs(to_integer(unsigned(instruction_index)))(0);
 					if (sda_width > 0) then
@@ -237,9 +223,7 @@ begin
 					end if;
 				end if;
 			when data_ack =>
-				if (rising_edge(clock)) then
-					temp_sck <= not clock_strength;
-				end if;
+				temp_sck <= not clock_strength;
 				if (c_cmode = c0) then
 					temp_sda <= '1'; -- ack
 					if (sda_width > 0) then
@@ -252,9 +236,7 @@ begin
 					end if;
 				end if;
 			when stop =>
-				if (rising_edge(clock)) then
-					temp_sck <= not clock_strength;
-				end if;
+				temp_sck <= not clock_strength;
 				if (c_cmode = c0) then
 					temp_sda <= '0'; -- stop
 					if (sda_width > 0) then
