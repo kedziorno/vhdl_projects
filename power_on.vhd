@@ -36,12 +36,14 @@ end power_on;
 
 architecture Behavioral of power_on is
 
+	-- ok - timing look ok,Tsck~19.82us,Tsdastart~4.96us,Tsdastop~4.96(7)us,Tsdalow=sdahigh~19.84us
+
 	constant INPUT_CLOCK : integer := 50_000_000;
 	constant I2C_CLOCK : integer := 200_000;
 	constant INSTRUCTION_MAX : natural := 8;
-	constant BYTES_SEQUENCE : natural := 28;
+	constant BYTES_SEQUENCE_LENGTH : natural := 28;
 
-	type ARRAY_BYTES_SEQUENCE is array (0 to BYTES_SEQUENCE-1) of std_logic_vector(7 downto 0);
+	type ARRAY_BYTES_SEQUENCE is array (0 to BYTES_SEQUENCE_LENGTH-1) of std_logic_vector(7 downto 0);
 	type state is (sda_start,start,slave_address,slave_address_lastbit,slave_rw,slave_ack,get_instruction,data,data_lastbit,data_ack,stop,sda_stop);
 	type clock_mode is (c0,c1,c2,c3);
 
@@ -203,7 +205,7 @@ begin
 					end if;
 				end if;
 			when get_instruction =>
-				if (to_integer(unsigned(instruction_index)) < AMNT_INSTRS-1) then
+				if (to_integer(unsigned(instruction_index)) < BYTES_SEQUENCE_LENGTH-1) then
 					n_state <= data;
 				else
 					temp_sck <= not clock_strength;
