@@ -31,7 +31,7 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity power_on is 
-port (reset,clk : in std_logic; sda,sck : out std_logic);
+port (reset,clk : in std_logic; sda,sck : inout std_logic);
 end power_on;
 
 architecture Behavioral of power_on is
@@ -39,7 +39,7 @@ architecture Behavioral of power_on is
 	-- ok - timing look ok,Tsck~19.82us,Tsdastart~4.96us,Tsdastop~4.96(7)us,Tsdalow=sdahigh~19.84us
 
 	constant INPUT_CLOCK : integer := 50_000_000;
-	constant I2C_CLOCK : integer := 200_000;
+	constant I2C_CLOCK : integer := 300_000;
 	constant INSTRUCTION_MAX : natural := 8;
 	constant BYTES_SEQUENCE_LENGTH : natural := 28;
 
@@ -289,7 +289,11 @@ begin
 			when sda_stop =>
 				temp_sck <= '1';
 				temp_sda <= '1';
-				n_state <= sda_stop;
+				data_index := 0;
+				slave_index := 0;
+				sda_width := SDA_WIDTH_MAX;
+				instruction_index <= (others => '0');
+				n_state <= sda_start;
 			when others => null;
 		end case;
 	end process p1;
