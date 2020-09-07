@@ -30,10 +30,12 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity top is
-    Port ( clk : in  STD_LOGIC;
-           reset : in STD_LOGIC;
-           sda : inout  STD_LOGIC;
-           sck : inout  STD_LOGIC);
+Port(
+clk : in STD_LOGIC;
+reset : in STD_LOGIC;
+sda : inout STD_LOGIC;
+sck : inout STD_LOGIC
+);
 end top;
 
 architecture Behavioral of top is
@@ -41,9 +43,9 @@ architecture Behavioral of top is
 component power_on is 
 port
 (
-signal clk : in std_logic;
-signal reset : in std_logic;
-signal sda,sck : inout std_logic
+	signal clk : in std_logic;
+	signal reset : in std_logic;
+	signal sda,sck : inout std_logic
 );
 end component power_on;
 
@@ -68,4 +70,3 @@ begin
 end process p0;
 
 end Behavioral;
-
