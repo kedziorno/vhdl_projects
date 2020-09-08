@@ -40,14 +40,15 @@ end module_1;
 
 architecture Behavioral of module_1 is
 	constant CLK_BOARD : integer := 50_000_000;
-	constant BAUD_RATE : integer := 38_400;
+	constant BAUD_RATE : integer := 9_600;
 
 	signal clk_div1 : std_logic_vector (0 downto 0);
 	
 	constant NUMBER_BITS : integer := 8;
 	signal send_byte_index : std_logic_vector(NUMBER_BITS-1 downto 0) := x"00";
 
-	signal byte_to_send : std_logic_vector (NUMBER_BITS-1 downto 0) := "10101010";
+	signal byte_to_send : std_logic_vector (NUMBER_BITS-1 downto 0) := "01000001";
+--	signal byte_to_send : std_logic_vector (NUMBER_BITS-1 downto 0) := "10101010";
 --	signal byte_to_send : std_logic_vector (NUMBER_BITS-1 downto 0) := "01010101";
 --	signal byte_to_send : std_logic_vector (NUMBER_BITS-1 downto 0) := "11111111";
 --	signal byte_to_send : std_logic_vector (NUMBER_BITS-1 downto 0) := "00000000";
@@ -56,33 +57,38 @@ architecture Behavioral of module_1 is
 	signal c_state,n_state : state := start;
 begin
 
-	p_dv : process (clk(0)) is
+	p_dv : process (clk(0),c_state,rst) is
 		variable COUNTER_BAUD_RATE_MAX : integer := (CLK_BOARD/BAUD_RATE);
 		variable counter_baud_rate : integer := 0;
 	begin
-		if (rising_edge(clk(0))) then
+		if (rst(0) = '1') then
+			send_byte_index <= x"00";
+		elsif (rising_edge(clk(0))) then
 			if (counter_baud_rate < COUNTER_BAUD_RATE_MAX-1) then
 				clk_div1 <= std_logic_vector(to_unsigned(0,1));
 				counter_baud_rate := counter_baud_rate + 1;
 			else
 				clk_div1 <= std_logic_vector(to_unsigned(1,1));
 				counter_baud_rate := 0;
+				if (c_state = send_byte) then
+					if (to_integer(unsigned(send_byte_index)) < NUMBER_BITS-1) then
+						send_byte_index <= std_logic_vector(unsigned(send_byte_index)+1);
+					else
+						send_byte_index <= x"00";
+					end if;
+				end if;
 			end if;
 		end if;
 	end process p_dv;
 
-	p0 : process (clk_div1(0),rst) is
+	p0 : process (clk_div1(0),c_state) is
 	begin
-		if (rst(0) = '1') then
-			send_byte_index <= (others => '0');
-		elsif (rising_edge(clk_div1(0))) then
+		if (rising_edge(clk_div1(0))) then
 			c_state <= n_state;
-			send_byte_index <= std_logic_vector(unsigned(send_byte_index)+1);
 		end if;
 		case c_state is
 			when start =>
 				RsTx <= std_logic_vector(to_unsigned(0,1));
-				send_byte_index <= x"00";
 				n_state <= send_byte;				
 			when send_byte =>				
 				if (to_integer(unsigned(send_byte_index)) < NUMBER_BITS-1) then
@@ -97,7 +103,6 @@ begin
 				end if;
 			when stop =>
 				RsTx <= std_logic_vector(to_unsigned(1,1));
-				send_byte_index <= x"00";
 				n_state <= start;
 			when others => null;
 		end case;
