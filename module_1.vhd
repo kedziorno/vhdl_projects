@@ -32,6 +32,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity module_1 is
 Port(
 	clk : in  STD_LOGIC_VECTOR (0 downto 0);
+	rst : in  STD_LOGIC_VECTOR (0 downto 0);
 	RsTx : out  STD_LOGIC_VECTOR (0 downto 0);
 	RsRx : in  STD_LOGIC_VECTOR (0 downto 0)
 );
@@ -55,7 +56,7 @@ architecture Behavioral of module_1 is
 	signal c_state,n_state : state := start;
 begin
 
-	p_dv : process (clk) is
+	p_dv : process (clk(0)) is
 		variable COUNTER_BAUD_RATE_MAX : integer := (CLK_BOARD/BAUD_RATE);
 		variable counter_baud_rate : integer := 0;
 	begin
@@ -70,9 +71,11 @@ begin
 		end if;
 	end process p_dv;
 
-	p0 : process (clk_div1,send_byte_index) is
+	p0 : process (clk_div1(0),rst) is
 	begin
-		if (rising_edge(clk_div1(0))) then
+		if (rst(0) = '1') then
+			send_byte_index <= (others => '0');
+		elsif (rising_edge(clk_div1(0))) then
 			c_state <= n_state;
 			send_byte_index <= std_logic_vector(unsigned(send_byte_index)+1);
 		end if;

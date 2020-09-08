@@ -40,6 +40,7 @@ ARCHITECTURE behavior OF tbmodule_1 IS
 	COMPONENT module_1
 	PORT(
 		clk : IN  std_logic_vector(0 downto 0);
+		rst : IN  std_logic_vector(0 downto 0);
 		RsTx : OUT  std_logic_vector(0 downto 0);
 		RsRx : IN  std_logic_vector(0 downto 0)
 	);
@@ -47,6 +48,7 @@ ARCHITECTURE behavior OF tbmodule_1 IS
 
 	--Inputs
 	signal clk : std_logic_vector(0 downto 0) := (others => '0');
+	signal rst : std_logic_vector(0 downto 0) := (others => '0');
 	signal rx : std_logic_vector(0 downto 0) := (others => '0');
 
 	--Outputs
@@ -60,6 +62,7 @@ BEGIN
 	-- Instantiate the Unit Under Test (UUT)
 	uut: module_1 PORT MAP (
 		clk => clk,
+		rst => rst,
 		RsTx => tx,
 		RsRx => rx
 	);
