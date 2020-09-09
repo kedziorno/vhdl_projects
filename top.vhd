@@ -32,9 +32,9 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity top is
 Port(
 clk : in STD_LOGIC;
-reset : in STD_LOGIC;
-sda : inout STD_LOGIC;
-sck : inout STD_LOGIC
+rst : in STD_LOGIC;
+sda : out STD_LOGIC;
+sck : out STD_LOGIC
 );
 end top;
 
@@ -43,9 +43,8 @@ architecture Behavioral of top is
 component power_on is 
 port
 (
-	signal clk : in std_logic;
-	signal reset : in std_logic;
-	signal sda,sck : inout std_logic
+	signal clk,rst : in std_logic;
+	signal sda,sck : out std_logic
 );
 end component power_on;
 
@@ -57,7 +56,7 @@ c0 : power_on
 port map
 (
 	clk => clk,
-	reset => reset,
+	rst => rst,
 	sda => sda,
 	sck => sck
 );
