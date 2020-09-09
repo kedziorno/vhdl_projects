@@ -41,7 +41,8 @@ architecture Behavioral of power_on is
 	constant INPUT_CLOCK : integer := 50_000_000;
 	constant I2C_CLOCK : integer := 400_000;
 	constant INSTRUCTION_MAX : natural := 8;
-	constant BYTES_SEQUENCE_LENGTH : natural := 28;
+	constant BYTES_SEQUENCE_LENGTH : natural := 27;
+	constant NUMBER_BITS : integer := 8;
 
 	type ARRAY_BYTES_SEQUENCE is array (0 to BYTES_SEQUENCE_LENGTH-1) of std_logic_vector(7 downto 0);
 	type state is (sda_start,start,slave_address,slave_address_lastbit,slave_rw,slave_ack,get_instruction,data,data_lastbit,data_ack,stop,sda_stop);
@@ -50,45 +51,49 @@ architecture Behavioral of power_on is
 	signal clock : std_logic := '0';
 	signal temp_sda : std_logic := 'Z';
 	signal temp_sck : std_logic := 'Z';
-	signal Instrs : ARRAY_BYTES_SEQUENCE := (x"00",x"00",x"AE",x"D5",x"F0",x"A8",x"1F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"8F",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E",x"AF");
-	signal c_state,n_state : state := sda_start;
-	signal c_cmode,n_cmode : clock_mode := c0;
-
-	shared variable instruction_index : integer := 0;
+	signal instruction_index : std_logic_vector(NUMBER_BITS-1 downto 0) := x"00";
+	signal Instrs : ARRAY_BYTES_SEQUENCE := (x"00",x"AE",x"D5",x"F0",x"A8",x"1F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"8F",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E",x"AF");
+	signal c_state,n_state : state;
+	signal c_cmode,n_cmode : clock_mode;
 
 begin
 
-	p0 : process (clk,c_state,rst) is
+	p0 : process (clk) is
 		constant I2C_COUNTER_MAX : integer := (INPUT_CLOCK / I2C_CLOCK) / 4;
-		variable count : integer range 0 to I2C_COUNTER_MAX := 0;
+		variable count : integer := 0;
 	begin
 		if (rising_edge(clk)) then
-			if (count = I2C_COUNTER_MAX*4-1) then
+			if (count < (I2C_COUNTER_MAX*4)-1) then
+				clock <= '0';
+				count := count + 1;
+			else
 				count := 0;
 				clock <= '1';
 				if (c_state = get_instruction) then
-					instruction_index := instruction_index + 1;
+					if (to_integer(unsigned(instruction_index)) < BYTES_SEQUENCE_LENGTH-1) then
+						instruction_index <= std_logic_vector(unsigned(instruction_index) + 1);
+					else
+						instruction_index <= x"00";
+					end if;
 				end if;
-			else
-				clock <= '0';
-				count := count + 1;
+
 			end if;
 		end if;
 	end process p0;
 
-	pa : process (clock) is
+	pa : process (clock,rst) is
 		constant DATA_INDEX_MAX : integer := 8;
 		variable data_index : integer range 0 to DATA_INDEX_MAX := 0;
 		constant SLAVE_INDEX_MAX : integer := 7;
 		variable slave_index : integer range 0 to SLAVE_INDEX_MAX := 0;
 		constant SDA_WIDTH_MAX : integer := 1;
 		variable sda_width: integer range 0 to SDA_WIDTH_MAX := SDA_WIDTH_MAX;
-
---		constant slave : std_logic_vector(SLAVE_INDEX_MAX-1 downto 0) := "1010101"; -- test pattern
---		constant slave : std_logic_vector(SLAVE_INDEX_MAX-1 downto 0) := "0101010"; -- test pattern
 		constant slave : std_logic_vector(SLAVE_INDEX_MAX-1 downto 0) := "0111100"; -- oled ssd1306 0x3c 0x3d 0x78
 	begin
-		if (rising_edge(clock)) then
+		if (rst = '1') then
+			n_state <= sda_start;
+			n_cmode <= c0;
+		elsif (rising_edge(clock)) then
 			c_state <= n_state;
 			c_cmode <= n_cmode;
 		end if;
@@ -189,7 +194,7 @@ begin
 					end if;
 				end if;
 			when get_instruction =>
-				if (instruction_index < BYTES_SEQUENCE_LENGTH-1) then
+				if (to_integer(unsigned(instruction_index)) < BYTES_SEQUENCE_LENGTH-1) then
 					n_state <= data;
 				else
 					n_state <= stop;
@@ -203,7 +208,7 @@ begin
 				end if;
 				if (data_index < DATA_INDEX_MAX-1) then
 					if (c_cmode = c0) then
-						temp_sda <= Instrs(instruction_index)(DATA_INDEX_MAX-1-data_index);
+						temp_sda <= Instrs(to_integer(unsigned(instruction_index)))(DATA_INDEX_MAX-1-data_index);
 						if (sda_width > 0) then
 							sda_width := sda_width - 1;
 							n_state <= data;
@@ -225,7 +230,7 @@ begin
 					temp_sck <= '1';
 				end if;
 				if (c_cmode = c0) then
-					temp_sda <= Instrs(instruction_index)(0);
+					temp_sda <= Instrs(to_integer(unsigned(instruction_index)))(0);
 					if (sda_width > 0) then
 						sda_width := sda_width - 1;
 						n_state <= data_lastbit;
@@ -274,7 +279,7 @@ begin
 				temp_sda <= '1';
 				data_index := 0;
 				slave_index := 0;
-				instruction_index := 0;
+				--instruction_index <= x"00";
 				sda_width := SDA_WIDTH_MAX;
 				n_state <= sda_start;
 			when others => null;
