@@ -42,7 +42,7 @@ ARCHITECTURE behavior OF tb_power_on IS
     COMPONENT power_on
     PORT(
          clk : IN  std_logic;
-         reset : IN std_logic;
+         rst : IN  std_logic;
          sda : OUT  std_logic;
          sck : OUT  std_logic
         );
@@ -50,7 +50,7 @@ ARCHITECTURE behavior OF tb_power_on IS
 
    --Inputs
    signal clk : std_logic := '0';
-   signal reset : std_logic := '0';
+   signal rst : std_logic := '0';
 
  	--Outputs
    signal sda : std_logic;
@@ -64,7 +64,7 @@ BEGIN
 	-- Instantiate the Unit Under Test (UUT)
 	uut: power_on PORT MAP (
 		clk => clk,
-		reset => reset,
+		rst => rst,
 		sda => sda,
 		sck => sck
 	);
