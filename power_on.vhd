@@ -36,7 +36,7 @@ end power_on;
 
 architecture Behavioral of power_on is
 
-	-- ok - timing look ok,Tsck~19.82us,Tsdastart~4.96us,Tsdastop~4.96(7)us,Tsdalow=sdahigh~19.84us
+	-- ok?? - timing look ok,Tsck~19.82us,Tsdastart~4.96us,Tsdastop~4.96(7)us,Tsdalow=sdahigh~19.84us
 
 	constant INPUT_CLOCK : integer := 50_000_000;
 	constant I2C_CLOCK : integer := 400_000;
@@ -69,14 +69,14 @@ begin
 			else
 				count := 0;
 				clock <= '1';
+				if (c_state = sda_start) then
+					instruction_index <= (others => '0');
+				end if;
 				if (c_state = get_instruction) then
-					if (to_integer(unsigned(instruction_index)) < BYTES_SEQUENCE_LENGTH-1) then
+					if (to_integer(unsigned(instruction_index)) < BYTES_SEQUENCE_LENGTH) then
 						instruction_index <= std_logic_vector(unsigned(instruction_index) + 1);
-					else
-						instruction_index <= x"00";
 					end if;
 				end if;
-
 			end if;
 		end if;
 	end process p0;
@@ -194,7 +194,7 @@ begin
 					end if;
 				end if;
 			when get_instruction =>
-				if (to_integer(unsigned(instruction_index)) < BYTES_SEQUENCE_LENGTH-1) then
+				if (to_integer(unsigned(instruction_index)) < BYTES_SEQUENCE_LENGTH) then
 					n_state <= data;
 				else
 					n_state <= stop;
@@ -279,7 +279,6 @@ begin
 				temp_sda <= '1';
 				data_index := 0;
 				slave_index := 0;
-				--instruction_index <= x"00";
 				sda_width := SDA_WIDTH_MAX;
 				n_state <= sda_start;
 			when others => null;

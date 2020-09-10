@@ -61,11 +61,4 @@ port map
 	sck => sck
 );
 
-p0 : process (clk) is
-begin
-	if (rising_edge(clk)) then
-		-- 
-	end if;
-end process p0;
-
 end Behavioral;
