@@ -64,28 +64,26 @@ ARCHITECTURE behavior OF tb_test_oled IS
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
-   uut: test_oled PORT MAP (
-          i_clk => clk,
-          i_char => char,
-          io_sda => sda,
-          io_scl => scl
-        );
+	uut: test_oled PORT MAP (
+		i_clk => clk,
+		i_char => char,
+		io_sda => sda,
+		io_scl => scl
+	);
 
-   -- Clock process definitions
-   clk_process :process
-   begin
+	-- Clock process definitions
+	clk_process :process
+	begin
 		clk <= '0';
 		wait for clk_period/2;
 		clk <= '1';
 		wait for clk_period/2;
-   end process;
+	end process;
  
-   -- Stimulus process
-   stim_proc: process
-   begin
-      -- insert stimulus here
-
-      wait;
-   end process;
+	-- Stimulus process
+	stim_proc: process
+	begin
+		wait;
+	end process;
 
 END;
