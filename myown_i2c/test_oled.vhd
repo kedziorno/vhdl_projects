@@ -27,6 +27,7 @@ port
 (
 signal i_clk : in std_logic;
 signal i_rst : in std_logic;
+signal i_refresh : in std_logic;
 signal i_char : in array1;
 signal io_sda,io_scl : inout std_logic
 );
@@ -144,8 +145,12 @@ p0 : process (i_clk,i_rst) is
 begin
 	if (rising_edge(i_clk)) then
 		if (i_rst = '1') then
-			busy_cnt <= 0;
 			n_state <= start;
+			busy_cnt <= 0;
+			index_character <= 0;
+		elsif (i_refresh = '1') then
+			n_state <= set_address_1;
+			busy_cnt <= 0;
 			index_character <= 0;
 		else
 			c_state <= n_state;
