@@ -44,8 +44,6 @@ constant OLED_COMMAND : integer := to_integer(unsigned'(x"00")); -- 00,80
 
 constant OLED_STABLE : integer := 2; -- we send the same data x-time
 
-SIGNAL busy_cnt : INTEGER := 0; -- for i2c, count the clk tick when i2c_busy=1
-
 constant NI_INIT : natural := 26;
 type A_INIT is array (0 to NI_INIT-1) of std_logic_vector(7 downto 0);
 signal init_display : A_INIT := (x"AE",x"D5",x"F0",x"A8",x"1F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"8F",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E",x"AF");
@@ -61,6 +59,10 @@ SIGNAL i2c_data_wr : STD_LOGIC_VECTOR(7 DOWNTO 0);  --i2c write data
 SIGNAL i2c_busy    : STD_LOGIC;                     --i2c busy signal
 SIGNAL i2c_reset   : STD_LOGIC;                     --i2c busy signal
 SIGNAL busy_prev   : STD_LOGIC;                     --previous value of i2c busy signal
+
+signal busy_cnt : INTEGER := 0; -- for i2c, count the clk tick when i2c_busy=1
+signal index_character : INTEGER := 0;
+signal current_character : std_logic_vector(7 downto 0);
 
 component glcdfont is
 port(
@@ -142,7 +144,6 @@ PORT MAP
 p0 : process (i_clk,i2c_reset) is
 	variable index : INTEGER RANGE 0 TO OLED_STABLE := 0;
 	variable counter : INTEGER RANGE 0 TO OLED_STABLE := OLED_STABLE;
-	variable index_character : INTEGER := 0;
 begin
 	if (i2c_reset = '0') then
 		i2c_ena <= '0';
@@ -248,20 +249,21 @@ begin
 							i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 							i2c_rw <= '0';
 							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_DATA,8));
+							current_character <= i_char(index_character);
 						when 1 =>
-							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(i_char(index_character)))*5+0,glcdfont_index'length));
+							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+0,glcdfont_index'length));
 							i2c_data_wr <= glcdfont_character;
 						when 2 =>
-							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(i_char(index_character)))*5+1,glcdfont_index'length));
+							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+1,glcdfont_index'length));
 							i2c_data_wr <= glcdfont_character;
 						when 3 =>
-							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(i_char(index_character)))*5+2,glcdfont_index'length));
+							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+2,glcdfont_index'length));
 							i2c_data_wr <= glcdfont_character;
 						when 4 =>
-							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(i_char(index_character)))*5+3,glcdfont_index'length));
+							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+3,glcdfont_index'length));
 							i2c_data_wr <= glcdfont_character;
 						when 5 =>
-							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(i_char(index_character)))*5+4,glcdfont_index'length));
+							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+4,glcdfont_index'length));
 							i2c_data_wr <= glcdfont_character;
 						when 6 =>
 							i2c_data_wr <= x"00"; -- to space between characters / optional
@@ -282,7 +284,7 @@ begin
 						when 0 =>
 							i2c_ena <= '1'; -- we are busy
 							if (i2c_busy = '1') then
-								index_character := index_character + 1;
+								index_character <= index_character + 1;
 							end if;
 						when 1 =>
 							i2c_data_wr <= x"00";
