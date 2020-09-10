@@ -26,6 +26,7 @@ entity test_oled is
 port
 (
 signal i_clk : in std_logic;
+signal i_rst : in std_logic;
 signal i_char : in array1;
 signal io_sda,io_scl : inout std_logic
 );
@@ -41,8 +42,6 @@ constant OLED_HEIGHT : integer := 32;
 constant OLED_PAGES_ALL : integer := OLED_WIDTH * ((OLED_HEIGHT + 7) / 8);
 constant OLED_DATA : integer := to_integer(unsigned'(x"40"));
 constant OLED_COMMAND : integer := to_integer(unsigned'(x"00")); -- 00,80
-
-constant OLED_STABLE : integer := 2; -- we send the same data x-time
 
 constant NI_INIT : natural := 26;
 type A_INIT is array (0 to NI_INIT-1) of std_logic_vector(7 downto 0);
@@ -141,18 +140,15 @@ PORT MAP
 	scl => io_scl
 );
 
-p0 : process (i_clk,i2c_reset) is
-	variable index : INTEGER RANGE 0 TO OLED_STABLE := 0;
-	variable counter : INTEGER RANGE 0 TO OLED_STABLE := OLED_STABLE;
+p0 : process (i_clk,i_rst) is
 begin
-	if (i2c_reset = '0') then
-		i2c_ena <= '0';
-		busy_cnt <= 0;
-		c_state <= start;
-		i2c_reset <= '1';
-	elsif (rising_edge(i_clk)) then
-		c_state <= n_state;
-		if (index < counter) then
+	if (rising_edge(i_clk)) then
+		if (i_rst = '1') then
+			busy_cnt <= 0;
+			n_state <= start;
+			index_character <= 0;
+		else
+			c_state <= n_state;
 			case c_state is
 				when start =>
 					busy_prev <= i2c_busy;
@@ -161,6 +157,7 @@ begin
 					end if;
 					case busy_cnt is
 						when 0 =>
+							i2c_reset <= '1';
 							i2c_ena <= '1'; -- we are busy
 							i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 							i2c_rw <= '0';
@@ -306,12 +303,9 @@ begin
 						when others => null;
 					end case;
 				when stop =>
-					index := index + 1;
-					n_state <= start;
+					i2c_ena <= '0';
 				when others => null;
 			end case;
-		else
-			i2c_ena <= '0'; -- if index=counter then disable i2c, high impedance on sda/scl
 		end if;
 	end if;
 end process p0;
