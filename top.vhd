@@ -100,14 +100,14 @@ begin
 		else
 			second1 <= '1';
 			TICK := 0;
-			if (p_state = update_second) then
+--			if (p_state = update_second  p_state /= show_second) then
 				if (second_a < 9) then
 					second_a <= second_a + 1;
 				else
 					second_b <= second_b + 1;
 					second_a <= 0;
 				end if;
-			end if;
+--			end if;
 		end if;
 	end if;
 end process p0;
