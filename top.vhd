@@ -56,7 +56,18 @@ constant TEXT_LENGTH : integer := 26;
 signal font_character : array1(0 to TEXT_LENGTH-1);
 signal text : array1(0 to TEXT_LENGTH-1) := (x"4C",x"6F",x"52",x"65",x"4D",x"20",x"49",x"70",x"53",x"75",x"4D",x"20",x"64",x"4F",x"6C",x"4F",x"72",x"20",x"73",x"49",x"74",x"20",x"41",x"6D",x"45",x"74"); -- Lorem ipsum dolor sit amet
 
+--signal clk : std_logic;
+
 begin
+
+--clk_process :process
+--constant clk_period : time := 20 ns;
+--begin
+--clk <= '0';
+--wait for clk_period/2;
+--clk <= '1';
+--wait for clk_period/2;
+--end process;
 
 c0 : test_oled
 port map
