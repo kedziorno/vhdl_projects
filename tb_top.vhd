@@ -43,6 +43,9 @@ ARCHITECTURE behavior OF tb_top IS
     PORT(
          clk : IN  std_logic;
          btn_1 : IN  std_logic;
+         btn_2 : IN  std_logic;
+         btn_3 : IN  std_logic;
+         btn_4 : IN  std_logic;
          sda : INOUT  std_logic;
          scl : INOUT  std_logic
         );
@@ -52,6 +55,9 @@ ARCHITECTURE behavior OF tb_top IS
    --Inputs
    signal clk : std_logic := '0';
    signal btn_1 : std_logic := '0';
+   signal btn_2 : std_logic := '0';
+   signal btn_3 : std_logic := '0';
+   signal btn_4 : std_logic := '0';
 
 	--BiDirs
    signal sda : std_logic;
@@ -66,6 +72,9 @@ BEGIN
    uut: top PORT MAP (
           clk => clk,
           btn_1 => btn_1,
+          btn_2 => btn_2,
+          btn_3 => btn_3,
+          btn_4 => btn_4,
           sda => sda,
           scl => scl
         );
