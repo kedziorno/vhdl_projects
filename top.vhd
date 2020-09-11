@@ -58,24 +58,12 @@ signal text : array1(0 to TEXT_LENGTH-1) := (x"30",x"30",x"3A",x"30",x"30",x"3A"
 
 signal second1 : std_logic;
 
-type state is (update_second,show_second);
-signal p_state,n_state : state := update_second;
+type state is (update_second,update_minutes,update_hours,show_timer);
+signal p_state,n_state : state := show_timer;
 
-signal second_a : integer := 0;
-signal second_b : integer := 0;
-
---signal clk : std_logic;
+signal second_a,second_b,minute_a,minute_b,hour_a,hour_b : integer := 0;
 
 begin
-
---clk_process :process
---constant clk_period : time := 20 ns;
---begin
---clk <= '0';
---wait for clk_period/2;
---clk <= '1';
---wait for clk_period/2;
---end process;
 
 c0 : test_oled
 port map
@@ -90,24 +78,66 @@ port map
 
 p0 : process (clk) is
 	variable ONE_SECOND : integer := 50_000_000;
---	variable ONE_SECOND : integer := 500_000;
 	variable TICK : integer := 0;
 begin
-	if (rising_edge(clk)) then
+	if (btn_1 = '1') then
+		second_a <= 0;
+		second_b <= 0;
+		minute_a <= 0;
+		minute_b <= 0;
+		hour_a <= 0;
+		hour_b <= 0;
+	elsif (rising_edge(clk)) then
 		if (TICK < ONE_SECOND-1) then
 			second1 <= '0';
 			TICK := TICK + 1;
 		else
 			second1 <= '1';
 			TICK := 0;
---			if (p_state = update_second  p_state /= show_second) then
-				if (second_a < 9) then
-					second_a <= second_a + 1;
-				else
-					second_b <= second_b + 1;
-					second_a <= 0;
+			if (second_a < 9) then
+				second_a <= second_a + 1;
+			else
+				second_b <= second_b + 1;
+				second_a <= 0;
+				if (second_b*10+second_a+1 > 59) then
+					minute_a <= minute_a + 1;
+					if (minute_a < 9) then
+						minute_a <= minute_a + 1;
+						second_a <= 0;
+						second_b <= 0;
+					else
+						minute_b <= minute_b + 1;
+						minute_a <= 0;
+						second_a <= 0;
+						second_b <= 0;
+						if (minute_b*10+minute_a+1 > 59) then
+							hour_a <= hour_a + 1;
+							if (hour_a < 9) then
+								hour_a <= hour_a + 1;
+								second_a <= 0;
+								second_b <= 0;
+								minute_a <= 0;
+								minute_b <= 0;
+							else
+								hour_b <= hour_b + 1;
+								hour_a <= 0;
+								second_a <= 0;
+								second_b <= 0;
+								minute_a <= 0;
+								minute_b <= 0;
+							end if;
+						end if;
+					end if;
 				end if;
---			end if;
+			end if;
+			if (hour_b = 2 and hour_a = 3 and minute_b = 5 and minute_a = 9 and second_b = 5 and second_a = 9) then
+				second_a <= 0;
+				second_b <= 0;
+				minute_a <= 0;
+				minute_b <= 0;
+				hour_a <= 0;
+				hour_b <= 0;
+			end if;
 		end if;
 	end if;
 end process p0;
@@ -118,12 +148,14 @@ begin
 		p_state <= n_state;
 	end if;
 	case p_state is
-		when update_second =>
-			n_state <= show_second;
-		when show_second =>
+		when show_timer =>
 			text(7) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+second_a,8));
 			text(6) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+second_b,8));
-			n_state <= update_second;
+			text(4) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+minute_a,8));
+			text(3) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+minute_b,8));
+			text(1) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+hour_a,8));
+			text(0) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+hour_b,8));
+			n_state <= show_timer;
 		when others => null;
 	end case;
 end process p1;
