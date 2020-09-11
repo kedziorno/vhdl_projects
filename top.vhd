@@ -61,8 +61,6 @@ signal second1 : std_logic;
 type state is (update_second,show_second);
 signal p_state,n_state : state := update_second;
 
---signal clk : std_logic;
-
 signal second_a : integer := 0;
 signal second_b : integer := 0;
 
@@ -92,7 +90,7 @@ port map
 
 p0 : process (clk) is
 	variable ONE_SECOND : integer := 50_000_000;
---	variable ONE_SECOND : integer := 1_000;
+--	variable ONE_SECOND : integer := 500_000;
 	variable TICK : integer := 0;
 begin
 	if (rising_edge(clk)) then
