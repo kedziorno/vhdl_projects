@@ -44,9 +44,10 @@ constant OLED_PAGES_ALL : integer := OLED_WIDTH * ((OLED_HEIGHT + 7) / 8);
 constant OLED_DATA : integer := to_integer(unsigned'(x"40"));
 constant OLED_COMMAND : integer := to_integer(unsigned'(x"00")); -- 00,80
 
-constant NI_INIT : natural := 26;
+constant NI_INIT : natural := 25;
 type A_INIT is array (0 to NI_INIT-1) of std_logic_vector(7 downto 0);
-signal init_display : A_INIT := (x"AE",x"D5",x"F0",x"A8",x"1F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"8F",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E",x"AF");
+signal init_display : A_INIT := (x"AE",x"D5",x"F0",x"A8",x"1F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"8F",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E");
+--signal init_display : A_INIT := (x"AE",x"D5",x"80",x"A8",x"1F",x"D3",x"00",x"40",x"8D",x"14",x"A1",x"C8",x"DA",x"02",x"81",x"8F",x"D9",x"F1",x"DB",x"40",x"A4",x"A6");
 
 constant NI_SET_COORDINATION : natural := 6;
 type A_SET_COORDINATION is array (0 to NI_SET_COORDINATION-1) of std_logic_vector(7 downto 0);
@@ -173,7 +174,7 @@ begin
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
 								busy_cnt <= 0;
-								n_state <= set_address_1;
+								n_state <= clear_display_state;
 							end if;
 						when others => null;
 					end case;
@@ -208,10 +209,12 @@ begin
 							i2c_ena <= '1'; -- we are busy
 							i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 							i2c_rw <= '0';
-							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_DATA,8));
+							--i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,8));
 						when 1 to OLED_PAGES_ALL =>
 							i2c_data_wr <= x"00"; -- command - FF/allpixels,00/blank,F0/zebra
 						when OLED_PAGES_ALL+1 =>
+							i2c_data_wr <= x"AF"; -- display on
+						when OLED_PAGES_ALL+2 =>
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
 								busy_cnt <= 0;

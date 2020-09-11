@@ -66,6 +66,8 @@ signal p_state,n_state : state := update_second;
 signal second_a : integer := 0;
 signal second_b : integer := 0;
 
+--signal clk : std_logic;
+
 begin
 
 --clk_process :process
