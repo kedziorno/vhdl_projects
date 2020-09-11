@@ -34,6 +34,9 @@ entity top is
 port(
 signal clk : in std_logic;
 signal btn_1 : in std_logic;
+signal btn_2 : in std_logic;
+signal btn_3 : in std_logic;
+signal btn_4 : in std_logic;
 signal sda,scl : inout std_logic
 );
 end top;
@@ -58,10 +61,13 @@ signal text : array1(0 to TEXT_LENGTH-1) := (x"30",x"30",x"3A",x"30",x"30",x"3A"
 
 signal second1 : std_logic;
 
-type state is (update_second,update_minutes,update_hours,show_timer);
-signal p_state,n_state : state := show_timer;
+type state is (start,update_screen,update_timer);
+signal p_state,n_state : state := start;
 
 signal second_a,second_b,minute_a,minute_b,hour_a,hour_b : integer := 0;
+
+signal refresh_screen : std_logic := '1';
+signal stop_timer : std_logic := '0';
 
 begin
 
@@ -70,73 +76,104 @@ port map
 (
 	i_clk => clk,
 	i_rst => btn_1,
-	i_refresh => second1,
+	i_refresh => second1, --refresh_screen,
 	i_char => text,
 	io_sda => sda,
 	io_scl => scl
 );
 
-p0 : process (clk) is
+p0 : process (clk,btn_1,btn_2,btn_3,btn_4) is
 	variable ONE_SECOND : integer := 50_000_000;
 	variable TICK : integer := 0;
 begin
-	if (btn_1 = '1') then
-		second_a <= 0;
-		second_b <= 0;
-		minute_a <= 0;
-		minute_b <= 0;
-		hour_a <= 0;
-		hour_b <= 0;
-	elsif (rising_edge(clk)) then
+	if (rising_edge(clk)) then
+		if (btn_1 = '1') then -- reset timer
+			second_a <= 0;
+			second_b <= 0;
+			minute_a <= 0;
+			minute_b <= 0;
+			hour_a <= 0;
+			hour_b <= 0;
+		elsif (btn_2 = '1') then -- stop timer
+			stop_timer <= not stop_timer;
+		elsif (btn_3 = '1') then -- set minute
+			if (stop_timer = '1') then
+				if (minute_a <= 5 and minute_b <= 9) then
+					minute_b <= minute_b + 1;
+					if (minute_b > 9) then
+						minute_a <= minute_a + 1;
+						minute_b <= 0;
+					end if;
+				else
+					minute_a <= 0;
+					minute_b <= 0;
+				end if;
+			end if;
+		elsif (btn_4 = '1') then -- set hour
+			if (stop_timer = '1') then
+				if (hour_a <= 5 and hour_b <= 9) then
+					hour_b <= hour_b + 1;
+					if (hour_b > 9) then
+						hour_a <= hour_a + 1;
+						hour_b <= 0;
+					end if;
+				else
+					hour_a <= 0;
+					hour_b <= 0;
+				end if;
+			end if;
+		end if;
 		if (TICK < ONE_SECOND-1) then
 			second1 <= '0';
 			TICK := TICK + 1;
 		else
 			second1 <= '1';
 			TICK := 0;
-			if (second_a < 9) then
-				second_a <= second_a + 1;
-			else
-				second_b <= second_b + 1;
-				second_a <= 0;
-				if (second_b*10+second_a+1 > 59) then
-					minute_a <= minute_a + 1;
-					if (minute_a < 9) then
+			if (stop_timer = '0') then
+				if (second_a < 9) then
+					second_a <= second_a + 1;
+				else
+					second_b <= second_b + 1;
+					second_a <= 0;
+					if (second_b*10+second_a+1 > 59) then
 						minute_a <= minute_a + 1;
-						second_a <= 0;
-						second_b <= 0;
-					else
-						minute_b <= minute_b + 1;
-						minute_a <= 0;
-						second_a <= 0;
-						second_b <= 0;
-						if (minute_b*10+minute_a+1 > 59) then
-							hour_a <= hour_a + 1;
-							if (hour_a < 9) then
+						if (minute_a < 9) then
+							minute_a <= minute_a + 1;
+							second_a <= 0;
+							second_b <= 0;
+						else
+							minute_b <= minute_b + 1;
+							minute_a <= 0;
+							second_a <= 0;
+							second_b <= 0;
+							if (minute_b*10+minute_a+1 > 59) then
 								hour_a <= hour_a + 1;
-								second_a <= 0;
-								second_b <= 0;
-								minute_a <= 0;
-								minute_b <= 0;
-							else
-								hour_b <= hour_b + 1;
-								hour_a <= 0;
-								second_a <= 0;
-								second_b <= 0;
-								minute_a <= 0;
-								minute_b <= 0;
+								if (hour_a < 9) then
+									hour_a <= hour_a + 1;
+									second_a <= 0;
+									second_b <= 0;
+									minute_a <= 0;
+									minute_b <= 0;
+								else
+									hour_b <= hour_b + 1;
+									hour_a <= 0;
+									second_a <= 0;
+									second_b <= 0;
+									minute_a <= 0;
+									minute_b <= 0;
+								end if;
 							end if;
 						end if;
 					end if;
 				end if;
-			end if;
-			if (hour_b = 2 and hour_a = 3 and minute_b = 5 and minute_a = 9 and second_b = 5 and second_a = 9) then
-				second_a <= 0;
-				second_b <= 0;
-				minute_a <= 0;
-				minute_b <= 0;
-				hour_a <= 0;
-				hour_b <= 0;
+				if (hour_b = 2 and hour_a = 3 and minute_b = 5 and minute_a = 9 and second_b = 5 and second_a = 9) then
+					second_a <= 0;
+					second_b <= 0;
+					minute_a <= 0;
+					minute_b <= 0;
+					hour_a <= 0;
+					hour_b <= 0;
+				end if;
 			end if;
 		end if;
 	end if;
@@ -148,14 +185,23 @@ begin
 		p_state <= n_state;
 	end if;
 	case p_state is
-		when show_timer =>
-			text(7) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+second_a,8));
-			text(6) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+second_b,8));
-			text(4) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+minute_a,8));
-			text(3) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+minute_b,8));
-			text(1) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+hour_a,8));
-			text(0) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+hour_b,8));
-			n_state <= show_timer;
+		when start =>
+			n_state <= update_screen;
+		when update_screen =>
+			refresh_screen <= not refresh_screen;
+			n_state <= update_timer;
+		when update_timer =>
+			if (stop_timer = '1') then
+				text <= (x"41",x"30",x"41",x"30",x"41",x"3A",x"41",x"30");
+			else
+				text(7) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+second_a,8));
+				text(6) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+second_b,8));
+				text(4) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+minute_a,8));
+				text(3) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+minute_b,8));
+				text(1) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+hour_a,8));
+				text(0) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+hour_b,8));
+			end if;
+			n_state <= update_screen;
 		when others => null;
 	end case;
 end process p1;
