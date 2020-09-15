@@ -57,16 +57,16 @@ port (A,B:in STD_LOGIC;C:out STD_LOGIC);
 end component GAND;
 for all : GAND use entity WORK.GATE_AND(GATE_AND_BEHAVIORAL_1);
 
-signal sa,sb,sc,sd : std_logic := '0';
+signal sa,sb,sc,sd,se,sf,sg,sh : std_logic := '0';
 
-constant delay : TIME := 5 ns;
+constant delay : TIME := 0 ns;
 
 begin
 
 uut1: FF_D_GATED_NOR
 GENERIC MAP (DELAY => delay)
 PORT MAP (
-D => i_button,
+D => se,
 E => i_clk,
 Q1 => sa,
 Q2 => open
@@ -97,6 +97,13 @@ port map (sa,sb,sd);
 g2: GAND
 GENERIC MAP (DELAY => delay)
 port map (sd,sc,o_stable);
+
+p0 : process (i_clk,i_button,se) is
+begin
+	if (rising_edge(i_clk)) then
+		se <= i_button;
+	end if;
+end process p0;
 
 end Behavioral;
 
