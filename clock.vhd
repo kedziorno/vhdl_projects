@@ -42,14 +42,13 @@ port (A:in STD_LOGIC;B:out STD_LOGIC);
 end component GN;
 for all : FF_SR_NOR use entity WORK.FF_SR(Behavioral_NOR);
 for all : GN use entity WORK.GATE_NOT(GATE_NOT_BEHAVIORAL_1);
-signal sCLOCK: STD_LOGIC;
+signal sCLOCK,Q1,sa,sb: STD_LOGIC;
 begin
 sCLOCK <= '0';
+g1: FF_SR_NOR port map (sCLOCK,sa,Q1,sb);
+g2: GN port map (Q1,sCLOCK);
 p0 : process (sCLOCK) is
 begin
-g1: FF_SR_NOR port map (sCLOCK,open,Q1,open);
-g2: GN port map (Q1,sCLOCK);
-wait for 20 ns;
 end process p0;
 end Behavioral;
 

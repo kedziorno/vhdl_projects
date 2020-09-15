@@ -319,9 +319,9 @@ begin
 							i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 							i2c_rw <= '0';
 							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,8));
-						when 1 to OLED_PAGES_ALL-i_char'length*6 =>
+						when 1 to (OLED_PAGES_ALL-(i_char'length*6)) =>
 							i2c_data_wr <= x"00"; -- command - FF/allpixels,00/blank,F0/zebra
-						when (OLED_PAGES_ALL-i_char'length*6)+1 =>
+						when (OLED_PAGES_ALL-(i_char'length*6))+1 =>
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
 								busy_cnt <= 0;
