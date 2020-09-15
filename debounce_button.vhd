@@ -55,11 +55,6 @@ port (A,B:in STD_LOGIC;C:out STD_LOGIC);
 end component GAND;
 for all : GAND use entity WORK.GATE_AND(GATE_AND_BEHAVIORAL_1);
 
-component GOR is
-port (A,B:in STD_LOGIC;C:out STD_LOGIC);
-end component GOR;
-for all : GOR use entity WORK.GATE_OR(GATE_OR_BEHAVIORAL_1);
-
 signal sa,sb,sc,sd,se,sf,sg,sh : std_logic;
 
 begin
@@ -85,7 +80,7 @@ Q1 => open,
 Q2 => sc
 );
 
-g1: GOR port map (sa,sb,sd);
+g1: GAND port map (sa,sb,sd);
 g2: GAND port map (sd,sc,o_stable);
 
 end Behavioral;
