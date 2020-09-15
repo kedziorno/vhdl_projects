@@ -8,5 +8,5 @@ end entity GATE_AND;
 
 architecture GATE_AND_BEHAVIORAL_1 of GATE_AND is
 begin
-C <= A and B after delay;
+C <= transport A and B after delay;
 end architecture GATE_AND_BEHAVIORAL_1;
