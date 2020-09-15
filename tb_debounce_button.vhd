@@ -50,7 +50,6 @@ end loop;
 end procedure;
 
 COMPONENT debounce_button
-GENERIC (DELAY : TIME);
 PORT(
 i_button : IN  std_logic;
 i_clk : IN  std_logic;
@@ -64,10 +63,9 @@ signal o_stable : std_logic := '0';
 
 BEGIN
 
-clk_gen(i_clk, 10 ns, 20 ns, 20 ns);
+clk_gen(i_clk, 0 ns, 20 ns, 20 ns);
 
 uut: debounce_button
-GENERIC MAP (DELAY => 1 ns)
 PORT MAP (
 i_button => i_button,
 i_clk => i_clk,
@@ -78,20 +76,26 @@ o_stable => o_stable
 stim_proc: process
 begin
 
+--i_button <= '0';
+--wait for 500 ns;
+--i_button <= '1';
+--wait for 130 ns;
+--i_button <= '0';
+--wait for 40 ns;
+--i_button <= '1';
+--wait for 60 ns;
+--i_button <= '0';
+--wait for 30 ns;
+--i_button <= '1';
+--wait for 1200 ns;
+--i_button <= '0';
+--wait for 500 ns;
+
 i_button <= '0';
-wait for 500 ns;
+wait for 100 ns;
 i_button <= '1';
-wait for 130 ns;
+wait for 200 ns;
 i_button <= '0';
-wait for 40 ns;
-i_button <= '1';
-wait for 60 ns;
-i_button <= '0';
-wait for 30 ns;
-i_button <= '1';
-wait for 1200 ns;
-i_button <= '0';
-wait for 500 ns;
 
 wait;
 end process;

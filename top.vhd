@@ -53,8 +53,17 @@ signal i_char : in array1;
 signal io_sda,io_scl : inout std_logic
 );
 end component test_oled;
-
 for all : test_oled use entity WORK.test_oled(Behavioral);
+
+component debounce_button is
+Port
+(
+i_button : in  STD_LOGIC;
+i_clk : in  STD_LOGIC;
+o_stable : out  STD_LOGIC
+);
+end component debounce_button;
+for all : debounce_button use entity WORK.debounce_button(Behavioral);
 
 constant TEXT_LENGTH : integer := 8;
 signal text : array1(0 to TEXT_LENGTH-1) := (x"30",x"30",x"3A",x"30",x"30",x"3A",x"30",x"30");
@@ -67,8 +76,9 @@ signal p_state,n_state : state := start;
 signal second_a,second_b,minute_a,minute_b,hour_a,hour_b : integer := 0;
 
 signal refresh_screen : std_logic := '1';
-signal stop_timer : std_logic := '0';
+signal prev_stop_timer,stop_timer : std_logic := '0';
 
+signal o_stable_btn1,o_stable_btn2,o_stable_btn3,o_stable_btn4 : std_logic;
 begin
 
 c0 : test_oled
@@ -82,21 +92,59 @@ port map
 	io_scl => scl
 );
 
+c1 : debounce_button
+port map
+(
+	i_button => btn_1,
+	i_clk => clk,
+	o_stable => o_stable_btn1
+);
+
+c2 : debounce_button
+port map
+(
+	i_button => btn_2,
+	i_clk => clk,
+	o_stable => o_stable_btn2
+);
+
+c3 : debounce_button
+port map
+(
+	i_button => btn_3,
+	i_clk => clk,
+	o_stable => o_stable_btn3
+);
+
+c4 : debounce_button
+port map
+(
+	i_button => btn_4,
+	i_clk => clk,
+	o_stable => o_stable_btn4
+);
+
 p0 : process (clk,btn_1,btn_2,btn_3,btn_4) is
 	variable ONE_SECOND : integer := 50_000_000;
 	variable TICK : integer := 0;
 begin
 	if (rising_edge(clk)) then
-		if (btn_1 = '1') then -- reset timer
+		if (o_stable_btn1 = '1') then -- reset timer
 			second_a <= 0;
 			second_b <= 0;
 			minute_a <= 0;
 			minute_b <= 0;
 			hour_a <= 0;
 			hour_b <= 0;
-		elsif (btn_2 = '1') then -- stop timer
-			stop_timer <= not stop_timer;
-		elsif (btn_3 = '1') then -- set minute
+		elsif (o_stable_btn2 = '1') then -- stop timer
+			prev_stop_timer <= stop_timer;
+			if (prev_stop_timer = '0' and stop_timer = '1') then
+				stop_timer <= '0';
+			end if;
+			if (prev_stop_timer = '1' and stop_timer = '0') then
+				stop_timer <= '1';
+			end if;
+		elsif (o_stable_btn3 = '1') then -- set minute
 			if (stop_timer = '1') then
 				if (minute_a <= 5 and minute_b <= 9) then
 					minute_b <= minute_b + 1;
@@ -109,7 +157,7 @@ begin
 					minute_b <= 0;
 				end if;
 			end if;
-		elsif (btn_4 = '1') then -- set hour
+		elsif (o_stable_btn4 = '1') then -- set hour
 			if (stop_timer = '1') then
 				if (hour_a <= 5 and hour_b <= 9) then
 					hour_b <= hour_b + 1;
@@ -192,7 +240,7 @@ begin
 			n_state <= update_timer;
 		when update_timer =>
 			if (stop_timer = '1') then
-				text <= (x"41",x"30",x"41",x"30",x"41",x"3A",x"41",x"30");
+				--text <= (x"41",x"30",x"41",x"30",x"41",x"3A",x"41",x"30");
 			else
 				text(7) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+second_a,8));
 				text(6) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+second_b,8));
