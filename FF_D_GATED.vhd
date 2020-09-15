@@ -49,11 +49,11 @@ for all : GOR use entity WORK.GATE_OR(GATE_OR_BEHAVIORAL_1);
 for all : GN use entity WORK.GATE_NOT(GATE_NOT_BEHAVIORAL_1);
 signal sa,sb,sc,sd,se,sf,sg:STD_LOGIC;
 begin
-g1: GN generic map (0 ns) port map (D,sa);
-g2: GAND generic map (0 ns) port map (sa,E,sb);
-g3: GAND generic map (0 ns) port map (D,E,sc);
+g1: GN generic map (delay) port map (D,sa);
+g2: GAND generic map (delay) port map (sa,E,sb);
+g3: GAND generic map (delay) port map (D,E,sc);
 g4: GOR generic map (delay) port map (sb,Q2,sg);
-g5: GN generic map (0 ns) port map (sg,Q1);
+g5: GN generic map (delay) port map (sg,Q1);
 g6: GOR generic map (delay) port map (sc,Q1,se);
-g7: GN generic map (0 ns) port map (se,Q2);
+g7: GN generic map (delay) port map (se,Q2);
 end architecture Behavioral_GATED_D_NOR;
