@@ -50,6 +50,7 @@ end loop;
 end procedure;
 
 COMPONENT debounce_button
+GENERIC (DELAY : TIME);
 PORT(
 i_button : IN  std_logic;
 i_clk : IN  std_logic;
@@ -65,7 +66,9 @@ BEGIN
 
 clk_gen(i_clk, 10 ns, 20 ns, 20 ns);
 
-uut: debounce_button PORT MAP (
+uut: debounce_button
+GENERIC MAP (DELAY => 1 ns)
+PORT MAP (
 i_button => i_button,
 i_clk => i_clk,
 o_stable => o_stable

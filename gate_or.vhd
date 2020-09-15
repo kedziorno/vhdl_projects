@@ -8,5 +8,5 @@ end entity GATE_OR;
 
 architecture GATE_OR_BEHAVIORAL_1 of GATE_OR is
 begin
-C <= A or B after delay;
+C <= transport A or B after delay;
 end architecture GATE_OR_BEHAVIORAL_1;

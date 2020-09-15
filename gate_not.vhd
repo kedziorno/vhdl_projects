@@ -8,5 +8,5 @@ end entity GATE_NOT;
 
 architecture GATE_NOT_BEHAVIORAL_1 of GATE_NOT is
 begin
-B <= not A after delay;
+B <= transport not A after delay;
 end architecture GATE_NOT_BEHAVIORAL_1;
