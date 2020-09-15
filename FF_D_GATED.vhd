@@ -36,7 +36,7 @@ g6: GN generic map (delay_not) port map (sg,Q1);
 g7: GAND generic map (delay_and) port map (sd,Q1,se);
 g8: GN generic map (delay_not) port map (se,Q2);
 
-p0 : process (E) is
+p0 : process (E,D) is
 begin
 	if (rising_edge(E)) then
 		sh <= D;
@@ -66,13 +66,13 @@ signal sa,sb,sc,sd,se,sf,sg,sh:STD_LOGIC;
 begin
 g1: GN generic map (delay_not) port map (sh,sa);
 g2: GAND generic map (delay_and) port map (sa,E,sb);
-g3: GAND generic map (delay_and) port map (D,E,sc);
+g3: GAND generic map (delay_and) port map (sh,E,sc);
 g4: GOR generic map (delay_or) port map (sb,Q2,sg);
 g5: GN generic map (delay_not) port map (sg,Q1);
 g6: GOR generic map (delay_or) port map (sc,Q1,se);
 g7: GN generic map (delay_not) port map (se,Q2);
 
-p0 : process (E) is
+p0 : process (E,D) is
 begin
 	if (rising_edge(E)) then
 		sh <= D;

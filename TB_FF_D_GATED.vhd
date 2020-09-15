@@ -50,6 +50,11 @@ ARCHITECTURE behavior OF TB_FF_D_GATED IS
 	end procedure;
 	
 	COMPONENT FF_D_GATED_NAND
+	GENERIC(
+	DELAY_AND : TIME;
+	DELAY_OR : TIME;
+	DELAY_NOT : TIME
+	);
 	PORT(
 	D : IN  std_logic;
 	E : IN  std_logic;
@@ -59,6 +64,11 @@ ARCHITECTURE behavior OF TB_FF_D_GATED IS
 	END COMPONENT;
 
 	COMPONENT FF_D_GATED_NOR
+	GENERIC(
+	DELAY_AND : TIME;
+	DELAY_OR : TIME;
+	DELAY_NOT : TIME
+	);
 	PORT(
 	D : IN  std_logic;
 	E : IN  std_logic;
@@ -75,18 +85,34 @@ ARCHITECTURE behavior OF TB_FF_D_GATED IS
 	signal Q1_NAND,Q1_NOR : std_logic;
 	signal Q2_NAND,Q2_NOR : std_logic;
 
+	constant delay_and : TIME := 0 ns;
+	constant delay_or : TIME := 0 ns;
+	constant delay_not : TIME := 0 ns;
+
 BEGIN
 
 	clk_gen(CLK, 10 ns, 20 ns, 20 ns);
 
-	uut1: FF_D_GATED_NAND PORT MAP (
+	uut1: FF_D_GATED_NAND
+	GENERIC MAP (
+	DELAY_AND => delay_and,
+	DELAY_OR => delay_or,
+	DELAY_NOT => delay_not
+	)
+	PORT MAP (
 	D => D,
 	E => CLK,
 	Q1 => Q1_NAND,
 	Q2 => Q2_NAND
 	);
 
-	uut2: FF_D_GATED_NOR PORT MAP (
+	uut2: FF_D_GATED_NOR
+	GENERIC MAP (
+	DELAY_AND => delay_and,
+	DELAY_OR => delay_or,
+	DELAY_NOT => delay_not
+	)
+	PORT MAP (
 	D => D,
 	E => CLK,
 	Q1 => Q1_NOR,
