@@ -30,7 +30,6 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity debounce_button is
-Generic (Delay : TIME);
 Port
 (
 i_button : in  STD_LOGIC;
@@ -41,7 +40,7 @@ end debounce_button;
 
 architecture Behavioral of debounce_button is
 
-COMPONENT FF_D_GATED_NAND
+COMPONENT FF_D_GATED_NOR
 GENERIC (DELAY : TIME);
 PORT(
 D : IN  std_logic;
@@ -50,7 +49,7 @@ Q1 : INOUT  std_logic;
 Q2 : INOUT  std_logic
 );
 END COMPONENT;
-for all : FF_D_GATED_NAND use entity WORK.FF_D_GATED(Behavioral_GATED_D_NOR);
+for all : FF_D_GATED_NOR use entity WORK.FF_D_GATED(Behavioral_GATED_D_NOR);
 
 component GAND is
 GENERIC (DELAY : TIME);
@@ -58,12 +57,14 @@ port (A,B:in STD_LOGIC;C:out STD_LOGIC);
 end component GAND;
 for all : GAND use entity WORK.GATE_AND(GATE_AND_BEHAVIORAL_1);
 
-signal sa,sb,sc,sd,se,sf,sg,sh : std_logic;
+signal sa,sb,sc,sd : std_logic := '0';
+
+constant delay : TIME := 5 ns;
 
 begin
 
-uut1: FF_D_GATED_NAND
-GENERIC MAP (DELAY => DELAY)
+uut1: FF_D_GATED_NOR
+GENERIC MAP (DELAY => delay)
 PORT MAP (
 D => i_button,
 E => i_clk,
@@ -71,8 +72,8 @@ Q1 => sa,
 Q2 => open
 );
 
-uut2: FF_D_GATED_NAND
-GENERIC MAP (DELAY => DELAY)
+uut2: FF_D_GATED_NOR
+GENERIC MAP (DELAY => delay)
 PORT MAP (
 D => sa,
 E => i_clk,
@@ -80,8 +81,8 @@ Q1 => sb,
 Q2 => open
 );
 
-uut3: FF_D_GATED_NAND
-GENERIC MAP (DELAY => DELAY)
+uut3: FF_D_GATED_NOR
+GENERIC MAP (DELAY => delay)
 PORT MAP (
 D => sb,
 E => i_clk,
@@ -90,10 +91,11 @@ Q2 => sc
 );
 
 g1: GAND
-GENERIC MAP (DELAY => DELAY)
+GENERIC MAP (DELAY => delay)
 port map (sa,sb,sd);
+
 g2: GAND
-GENERIC MAP (DELAY => DELAY)
+GENERIC MAP (DELAY => delay)
 port map (sd,sc,o_stable);
 
 end Behavioral;
