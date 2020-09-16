@@ -79,13 +79,19 @@ signal refresh_screen : std_logic := '1';
 signal prev_stop_timer,stop_timer : std_logic := '0';
 
 signal o_stable_btn1,o_stable_btn2,o_stable_btn3,o_stable_btn4 : std_logic;
+
+constant BOARD_FREQUENCY_NORMAL : integer := 50_000_000;
+constant BOARD_FREQUENCY_DIV10 : integer := BOARD_FREQUENCY_NORMAL/10;
+
+signal ONE_SECOND : integer := BOARD_FREQUENCY_NORMAL;
+
 begin
 
 c0 : test_oled
 port map
 (
 	i_clk => clk,
-	i_rst => btn_1,
+	i_rst => o_stable_btn1,
 	i_refresh => second1, --refresh_screen,
 	i_char => text,
 	io_sda => sda,
@@ -124,8 +130,7 @@ port map
 	o_stable => o_stable_btn4
 );
 
-p0 : process (clk,btn_1,btn_2,btn_3,btn_4) is
-	variable ONE_SECOND : integer := 50_000_000;
+p0 : process (clk,o_stable_btn1,o_stable_btn2,o_stable_btn3,o_stable_btn4) is
 	variable TICK : integer := 0;
 begin
 	if (rising_edge(clk)) then
@@ -137,20 +142,15 @@ begin
 			hour_a <= 0;
 			hour_b <= 0;
 		elsif (o_stable_btn2 = '1') then -- stop timer
-			prev_stop_timer <= stop_timer;
-			if (prev_stop_timer = '0' and stop_timer = '1') then
-				stop_timer <= '0';
-			end if;
-			if (prev_stop_timer = '1' and stop_timer = '0') then
-				stop_timer <= '1';
-			end if;
+			stop_timer <= not stop_timer;
 		elsif (o_stable_btn3 = '1') then -- set minute
 			if (stop_timer = '1') then
-				if (minute_a <= 5 and minute_b <= 9) then
-					minute_b <= minute_b + 1;
-					if (minute_b > 9) then
+				if (minute_b*10+minute_a+1 < 60) then
+					if (minute_a < 9) then
 						minute_a <= minute_a + 1;
-						minute_b <= 0;
+					else
+						minute_b <= minute_b + 1;
+						minute_a <= 0;
 					end if;
 				else
 					minute_a <= 0;
@@ -159,17 +159,27 @@ begin
 			end if;
 		elsif (o_stable_btn4 = '1') then -- set hour
 			if (stop_timer = '1') then
-				if (hour_a <= 5 and hour_b <= 9) then
-					hour_b <= hour_b + 1;
-					if (hour_b > 9) then
+				if (hour_b*10+hour_a+1 < 24) then
+					if (hour_a < 9) then
 						hour_a <= hour_a + 1;
-						hour_b <= 0;
+					else
+						hour_b <= hour_b + 1;
+						hour_a <= 0;
 					end if;
 				else
 					hour_a <= 0;
 					hour_b <= 0;
 				end if;
+				if (hour_b = 2 and hour_a = 4) then
+					hour_a <= 0;
+					hour_b <= 0;
+				end if;
 			end if;
+		end if;
+		if (stop_timer = '1') then
+			ONE_SECOND <= BOARD_FREQUENCY_DIV10;
+		elsif (stop_timer = '0') then
+			ONE_SECOND <= BOARD_FREQUENCY_NORMAL;
 		end if;
 		if (TICK < ONE_SECOND-1) then
 			second1 <= '0';
@@ -239,16 +249,12 @@ begin
 			refresh_screen <= not refresh_screen;
 			n_state <= update_timer;
 		when update_timer =>
-			if (stop_timer = '1') then
-				--text <= (x"41",x"30",x"41",x"30",x"41",x"3A",x"41",x"30");
-			else
-				text(7) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+second_a,8));
-				text(6) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+second_b,8));
-				text(4) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+minute_a,8));
-				text(3) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+minute_b,8));
-				text(1) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+hour_a,8));
-				text(0) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+hour_b,8));
-			end if;
+			text(7) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+second_a,8));
+			text(6) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+second_b,8));
+			text(4) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+minute_a,8));
+			text(3) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+minute_b,8));
+			text(1) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+hour_a,8));
+			text(0) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+hour_b,8));
 			n_state <= update_screen;
 		when others => null;
 	end case;
