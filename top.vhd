@@ -159,7 +159,7 @@ begin
 			end if;
 		elsif (o_stable_btn4 = '1') then -- set hour
 			if (stop_timer = '1') then
-				if (hour_b*10+hour_a+1 < 24) then
+				if (not (hour_b = 2 and hour_a = 3)) then
 					if (hour_a < 9) then
 						hour_a <= hour_a + 1;
 					else
@@ -167,10 +167,6 @@ begin
 						hour_a <= 0;
 					end if;
 				else
-					hour_a <= 0;
-					hour_b <= 0;
-				end if;
-				if (hour_b = 2 and hour_a = 4) then
 					hour_a <= 0;
 					hour_b <= 0;
 				end if;
@@ -249,15 +245,16 @@ begin
 			refresh_screen <= not refresh_screen;
 			n_state <= update_timer;
 		when update_timer =>
-			text(7) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+second_a,8));
-			text(6) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+second_b,8));
-			text(4) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+minute_a,8));
-			text(3) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+minute_b,8));
-			text(1) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+hour_a,8));
-			text(0) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+hour_b,8));
 			n_state <= update_screen;
 		when others => null;
 	end case;
 end process p1;
+
+text(7) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+second_a,8));
+text(6) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+second_b,8));
+text(4) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+minute_a,8));
+text(3) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+minute_b,8));
+text(1) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+hour_a,8));
+text(0) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+hour_b,8));
 
 end Behavioral;
