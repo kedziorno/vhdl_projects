@@ -39,7 +39,9 @@ ARCHITECTURE behavior OF tb_top IS
  
     -- Component Declaration for the Unit Under Test (UUT)
  
-    COMPONENT top
+    COMPONENT top GENERIC(
+	 g_board_clock : INTEGER;
+	 g_bus_clock : INTEGER);
     PORT(
          clk : IN  std_logic;
          btn_1 : IN  std_logic;
@@ -65,12 +67,17 @@ ARCHITECTURE behavior OF tb_top IS
 
    -- Clock period definitions
    constant clk_period : time := 20 ns;
-   constant board_clock : integer := 3_000;
+   constant board_clock : integer := 1_000_000; -- 20ms
+   constant bus_clock : integer := 2_000; -- 20 ms
 
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
-   uut: top PORT MAP (
+   uut: top
+	GENERIC MAP (
+	g_board_clock => board_clock,
+	g_bus_clock => bus_clock)
+	PORT MAP (
           clk => clk,
           btn_1 => btn_1,
           btn_2 => btn_2,

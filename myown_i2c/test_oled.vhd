@@ -22,7 +22,11 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 use WORK.p_pkg1.ALL;
 
-entity test_oled is 
+entity test_oled is
+generic (
+g_board_clock : integer;
+g_bus_clock : integer
+);
 port
 (
 signal i_clk : in std_logic;
@@ -35,8 +39,8 @@ end test_oled;
 
 architecture Behavioral of test_oled is
 
-constant GCLK : integer := 50_000_000;
-constant BCLK : integer := 100_000;
+constant GCLK : integer := g_board_clock;
+constant BCLK : integer := g_bus_clock;
 
 constant OLED_WIDTH : integer := 128;
 constant OLED_HEIGHT : integer := 32;
