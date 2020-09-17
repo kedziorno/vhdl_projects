@@ -65,7 +65,8 @@ ARCHITECTURE behavior OF tb_top IS
 
    -- Clock period definitions
    constant clk_period : time := 20 ns;
- 
+   constant board_clock : integer := 3_000;
+
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
