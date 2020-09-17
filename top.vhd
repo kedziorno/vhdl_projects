@@ -31,6 +31,10 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity top is
+generic (
+g_board_clock : integer := 50_000_000;
+g_bus_clock : integer := 100_000
+);
 port(
 signal clk : in std_logic;
 signal btn_1 : in std_logic;
@@ -43,7 +47,11 @@ end top;
 
 architecture Behavioral of top is
 
-component test_oled is 
+component test_oled is
+generic (
+g_board_clock : integer;
+g_bus_clock : integer
+);
 port
 (
 signal i_clk : in std_logic;
@@ -77,7 +85,7 @@ signal prev_stop_timer,stop_timer : std_logic := '0';
 
 signal o_stable_btn1,o_stable_btn2,o_stable_btn3,o_stable_btn4 : std_logic;
 
-constant BOARD_FREQUENCY_NORMAL : integer := 50_000_000;
+constant BOARD_FREQUENCY_NORMAL : integer := g_board_clock;
 constant BOARD_FREQUENCY_DIV10 : integer := BOARD_FREQUENCY_NORMAL/10;
 
 signal ONE_SECOND : integer := BOARD_FREQUENCY_NORMAL;
@@ -85,6 +93,10 @@ signal ONE_SECOND : integer := BOARD_FREQUENCY_NORMAL;
 begin
 
 c0 : test_oled
+generic map (
+g_board_clock => g_board_clock,
+g_bus_clock => g_bus_clock
+)
 port map
 (
 	i_clk => clk,
