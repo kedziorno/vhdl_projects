@@ -70,9 +70,6 @@ signal text : array1(0 to TEXT_LENGTH-1) := (x"30",x"30",x"3A",x"30",x"30",x"3A"
 
 signal second1 : std_logic;
 
-type state is (start,update_screen,update_timer);
-signal p_state,n_state : state := start;
-
 signal second_a,second_b,minute_a,minute_b,hour_a,hour_b : integer := 0;
 
 signal refresh_screen : std_logic := '1';
@@ -92,7 +89,7 @@ port map
 (
 	i_clk => clk,
 	i_rst => o_stable_btn1,
-	i_refresh => second1, --refresh_screen,
+	i_refresh => refresh_screen,
 	i_char => text,
 	io_sda => sda,
 	io_scl => scl
@@ -130,7 +127,7 @@ port map
 	o_stable => o_stable_btn4
 );
 
-p0 : process (clk,o_stable_btn1,o_stable_btn2,o_stable_btn3,o_stable_btn4) is
+p0 : process (clk) is
 	variable TICK : integer := 0;
 begin
 	if (rising_edge(clk)) then
@@ -180,9 +177,11 @@ begin
 		if (TICK < ONE_SECOND-1) then
 			second1 <= '0';
 			TICK := TICK + 1;
+			refresh_screen <= '0';
 		else
 			second1 <= '1';
 			TICK := 0;
+			refresh_screen <= '1';
 			if (stop_timer = '0') then
 				if (second_a < 9) then
 					second_a <= second_a + 1;
@@ -232,23 +231,6 @@ begin
 		end if;
 	end if;
 end process p0;
-
-p1 : process (second1) is
-begin
-	if (rising_edge(second1)) then
-		p_state <= n_state;
-	end if;
-	case p_state is
-		when start =>
-			n_state <= update_screen;
-		when update_screen =>
-			refresh_screen <= not refresh_screen;
-			n_state <= update_timer;
-		when update_timer =>
-			n_state <= update_screen;
-		when others => null;
-	end case;
-end process p1;
 
 text(7) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+second_a,8));
 text(6) <= std_logic_vector(to_unsigned(to_integer(unsigned'(x"30"))+second_b,8));
