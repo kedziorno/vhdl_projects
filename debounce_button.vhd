@@ -30,6 +30,7 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity debounce_button is
+generic (g_board_clock : integer);
 Port
 (
 i_button : in  STD_LOGIC;
@@ -39,6 +40,16 @@ o_stable : out  STD_LOGIC
 end debounce_button;
 
 architecture Behavioral of debounce_button is
+
+component clock_divider is
+Generic(g_board_clock : integer);
+Port(
+i_clk : in  STD_LOGIC;
+o_clk_25khz : out  STD_LOGIC;
+o_clk_50khz : out  STD_LOGIC
+);
+end component clock_divider;
+for all : clock_divider use entity WORK.clock_divider(Behavioral);
 
 COMPONENT FF_D_GATED_NAND
 GENERIC(
@@ -68,11 +79,25 @@ for all : GAND use entity WORK.GATE_AND(GATE_AND_BEHAVIORAL_1);
 
 signal sa,sb,sc,sd,se,sf,sg,sh : std_logic := '0';
 
+signal clk_25khz : std_logic;
+signal clk_50khz : std_logic;
+
 constant delay_and : TIME := 0 ns;
 constant delay_or : TIME := 0 ns;
 constant delay_not : TIME := 0 ns;
 
 begin
+
+clk_div : clock_divider
+generic map (
+g_board_clock => g_board_clock
+)
+port map
+(
+i_clk => i_clk,
+o_clk_25khz => clk_25khz,
+o_clk_50khz => clk_50khz
+);
 
 uut1: FF_D_GATED_NAND
 GENERIC MAP (
@@ -82,7 +107,7 @@ DELAY_NOT => delay_not
 )
 PORT MAP (
 D => se,
-E => i_clk,
+E => clk_25khz,
 Q1 => sa,
 Q2 => open
 );
@@ -95,7 +120,7 @@ DELAY_NOT => delay_not
 )
 PORT MAP (
 D => sa,
-E => i_clk,
+E => clk_50khz,
 Q1 => sb,
 Q2 => open
 );
@@ -108,7 +133,7 @@ DELAY_NOT => delay_not
 )
 PORT MAP (
 D => sb,
-E => i_clk,
+E => clk_50khz,
 Q1 => open,
 Q2 => sc
 );
@@ -121,7 +146,7 @@ g2: GAND
 GENERIC MAP (DELAY_AND => delay_and)
 port map (sd,sc,o_stable);
 
-p0 : process (i_clk,i_button,se) is
+p0 : process (i_clk) is
 begin
 	if (rising_edge(i_clk)) then
 		se <= i_button;

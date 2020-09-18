@@ -64,6 +64,7 @@ end component test_oled;
 for all : test_oled use entity WORK.test_oled(Behavioral);
 
 component debounce_button is
+generic (g_board_clock : integer);
 Port
 (
 i_button : in  STD_LOGIC;
@@ -108,6 +109,9 @@ port map
 );
 
 c1 : debounce_button
+generic map (
+	g_board_clock => g_board_clock
+)
 port map
 (
 	i_button => btn_1,
@@ -116,6 +120,9 @@ port map
 );
 
 c2 : debounce_button
+generic map (
+	g_board_clock => g_board_clock
+)
 port map
 (
 	i_button => btn_2,
@@ -124,6 +131,9 @@ port map
 );
 
 c3 : debounce_button
+generic map (
+	g_board_clock => g_board_clock
+)
 port map
 (
 	i_button => btn_3,
@@ -132,6 +142,9 @@ port map
 );
 
 c4 : debounce_button
+generic map (
+	g_board_clock => g_board_clock
+)
 port map
 (
 	i_button => btn_4,

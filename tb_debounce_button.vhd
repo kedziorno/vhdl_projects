@@ -37,6 +37,8 @@ END tb_debounce_button;
  
 ARCHITECTURE behavior OF tb_debounce_button IS 
 
+constant board_clock : integer := 50_000_000;
+
 procedure clk_gen(signal clk : out std_logic; constant wait_start : time; constant HT : time; constant LT : time) is
 begin
 clk <= '0';
@@ -50,6 +52,7 @@ end loop;
 end procedure;
 
 COMPONENT debounce_button
+generic (g_board_clock : integer);
 PORT(
 i_button : IN  std_logic;
 i_clk : IN  std_logic;
@@ -66,6 +69,7 @@ BEGIN
 clk_gen(i_clk, 0 ns, 20 ns, 20 ns);
 
 uut: debounce_button
+generic map (g_board_clock => board_clock)
 PORT MAP (
 i_button => i_button,
 i_clk => i_clk,
@@ -76,26 +80,26 @@ o_stable => o_stable
 stim_proc: process
 begin
 
---i_button <= '0';
---wait for 500 ns;
---i_button <= '1';
---wait for 130 ns;
---i_button <= '0';
---wait for 40 ns;
---i_button <= '1';
---wait for 60 ns;
---i_button <= '0';
---wait for 30 ns;
---i_button <= '1';
---wait for 1200 ns;
---i_button <= '0';
---wait for 500 ns;
-
 i_button <= '0';
-wait for 100 ns;
+wait for 1 us;
 i_button <= '1';
-wait for 200 ns;
+wait for 300 us;
 i_button <= '0';
+wait for 50 us;
+i_button <= '1';
+wait for 200 us;
+i_button <= '0';
+wait for 70 us;
+i_button <= '1';
+wait for 100 us;
+i_button <= '0';
+wait for 100 us;
+
+--i_button <= '0';
+--wait for 1000 ns;
+--i_button <= '1';
+--wait for 20 ms;
+--i_button <= '0';
 
 wait;
 end process;
