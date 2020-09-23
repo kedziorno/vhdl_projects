@@ -89,10 +89,11 @@ BEGIN
 	-- Stimulus process
 	stim_proc: process
 	begin
-		wait for 60 ms;
-		refresh <= '1';
-		wait for 20 ns;
-		refresh <= '0';
+--		wait for 60 ms;
+--		refresh <= '1';
+--		wait for 20 ns;
+--		refresh <= '0';
+		wait;
 	end process;
 
 END;
