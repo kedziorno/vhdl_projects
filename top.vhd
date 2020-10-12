@@ -87,7 +87,7 @@ signal prev_stop_timer,stop_timer : std_logic := '0';
 signal o_stable_btn1,o_stable_btn2,o_stable_btn3,o_stable_btn4 : std_logic;
 
 constant BOARD_FREQUENCY_NORMAL : integer := g_board_clock;
-constant BOARD_FREQUENCY_DIV10 : integer := BOARD_FREQUENCY_NORMAL/10;
+constant BOARD_FREQUENCY_DIV10 : integer := BOARD_FREQUENCY_NORMAL/2;
 
 signal ONE_SECOND : integer := BOARD_FREQUENCY_NORMAL;
 

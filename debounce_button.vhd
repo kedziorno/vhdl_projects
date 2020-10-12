@@ -100,58 +100,19 @@ o_clk_50khz => clk_50khz
 );
 
 uut1: FF_D_GATED_NAND
-GENERIC MAP (
-DELAY_AND => delay_and,
-DELAY_OR => delay_or,
-DELAY_NOT => delay_not
-)
-PORT MAP (
-D => se,
-E => clk_25khz,
-Q1 => sa,
-Q2 => open
-);
+GENERIC MAP (DELAY_AND => delay_and,DELAY_OR => delay_or,DELAY_NOT => delay_not)
+PORT MAP (D => i_button,E => i_clk,Q1 => sa,Q2 => open);
 
 uut2: FF_D_GATED_NAND
-GENERIC MAP (
-DELAY_AND => delay_and,
-DELAY_OR => delay_or,
-DELAY_NOT => delay_not
-)
-PORT MAP (
-D => sa,
-E => clk_50khz,
-Q1 => sb,
-Q2 => open
-);
+GENERIC MAP (DELAY_AND => delay_and,DELAY_OR => delay_or,DELAY_NOT => delay_not)
+PORT MAP (D => sa,E => i_clk,Q1 => sb,Q2 => open);
 
 uut3: FF_D_GATED_NAND
-GENERIC MAP (
-DELAY_AND => delay_and,
-DELAY_OR => delay_or,
-DELAY_NOT => delay_not
-)
-PORT MAP (
-D => sb,
-E => clk_50khz,
-Q1 => open,
-Q2 => sc
-);
+GENERIC MAP (DELAY_AND => delay_and,DELAY_OR => delay_or,DELAY_NOT => delay_not)
+PORT MAP (D => sb,E => i_clk,Q1 => open,Q2 => sc);
 
-g1: GAND
-GENERIC MAP (DELAY_AND => delay_and)
-port map (sa,sb,sd);
-
-g2: GAND
-GENERIC MAP (DELAY_AND => delay_and)
-port map (sd,sc,o_stable);
-
-p0 : process (i_clk) is
-begin
-	if (rising_edge(i_clk)) then
-		se <= i_button;
-	end if;
-end process p0;
+g1: GAND GENERIC MAP (DELAY_AND => delay_and) port map (sa,sb,sd);
+g2: GAND GENERIC MAP (DELAY_AND => delay_and) port map (sd,sc,o_stable);
 
 end Behavioral;
 
