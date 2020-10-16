@@ -66,7 +66,7 @@ signal o_stable : std_logic := '0';
 
 BEGIN
 
-clk_gen(i_clk, 0 ns, 20 ns, 20 ns);
+clk_gen(i_clk, 0 ns, 10 ns, 10 ns);
 
 uut: debounce_button
 generic map (g_board_clock => board_clock)
@@ -80,6 +80,7 @@ o_stable => o_stable
 stim_proc: process
 begin
 
+wait for 2450 us;
 i_button <= '0';
 wait for 1 us;
 i_button <= '1';
