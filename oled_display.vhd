@@ -67,7 +67,7 @@ constant NI_SET_COORDINATION : natural := 6;
 type A_SET_COORDINATION is array (0 to NI_SET_COORDINATION-1) of std_logic_vector(7 downto 0);
 signal set_coordination_00 : A_SET_COORDINATION :=
 (x"21",x"00",std_logic_vector(to_unsigned(WIDTH-1,8))
-,x"22",x"00",std_logic_vector(to_unsigned(HEIGHT-1,8)));
+,x"22",x"00",std_logic_vector(to_unsigned((HEIGHT + 7) / 8,8)));
 
 SIGNAL i2c_ena     : STD_LOGIC;                     --i2c enable signal
 SIGNAL i2c_addr    : STD_LOGIC_VECTOR(6 DOWNTO 0);  --i2c address signal
