@@ -76,6 +76,10 @@ signal a,b : integer := 0;
 signal rst : std_logic := '0';
 signal clk_1s : std_logic := '0';
 
+type t_coord is array(0 to 3) of integer;
+signal x_coord : t_coord := (0,127,0,127);
+signal y_coord : t_coord := (0,0,31,31);
+
 begin
 
 clk_div : clock_divider
@@ -84,8 +88,8 @@ port map(
 i_clk => clk,
 o_clk_25khz => open,
 o_clk_50khz => open,
-o_clk_14sec => clk_1s,
-o_clk_1second => open);
+o_clk_14sec => open,
+o_clk_1second => clk_1s);
 
 c0 : oled_display
 generic map(
@@ -104,13 +108,16 @@ port map(
 );
 
 p0 : process (clk_1s) is
+	variable index : integer range 0 to 4 := 0;
 begin
 	if (btn_1 = '1') then
+		index := 0;
 		a <= 0;
 		b <= 0;
 	elsif (rising_edge(clk_1s)) then
-		a <= a + 1;
-		b <= b + 1;
+		a <= x_coord(index);
+		b <= y_coord(index);
+		index := index + 1;
 	end if;
 end process p0;
 
