@@ -68,6 +68,7 @@ Port(
 i_clk : in  STD_LOGIC;
 o_clk_25khz : out  STD_LOGIC;
 o_clk_50khz : out  STD_LOGIC;
+o_clk_14sec : out  STD_LOGIC;
 o_clk_1second : out  STD_LOGIC
 );
 end component clock_divider;
@@ -85,7 +86,8 @@ port map(
 i_clk => clk,
 o_clk_25khz => open,
 o_clk_50khz => open,
-o_clk_1second => clk_1s);
+o_clk_14sec => clk_1s,
+o_clk_1second => open);
 
 c0 : oled_display
 generic map(

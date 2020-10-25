@@ -137,10 +137,6 @@ PORT MAP
 );
 
 p0 : process (i_clk,i_rst) is
---	variable a : std_logic_vector(7 downto 0) := to_unsigned(x"01",8);
---	variable b : integer := i_y mod (HEIGHT / 8);
-	variable temp_zero : std_logic_vector(7 downto 0) := "00000001";
---	variable c : std_logic_vector(7 downto 0) := x"01" & a(2 downto 0);
 begin
 	if (rising_edge(i_clk)) then
 		if (i_rst = '1') then
@@ -234,8 +230,7 @@ begin
 						when 4 =>
 							i2c_data_wr <= x"22";
 						when 5 =>
-							i2c_data_wr <= std_logic_vector(to_unsigned(i_y / ((HEIGHT + 7) / 8),8));
---							i2c_data_wr <= x"00";
+							i2c_data_wr <= std_logic_vector(to_unsigned(i_y / 8,8));
 						when 6 =>
 							i2c_data_wr <= std_logic_vector(to_unsigned((HEIGHT + 7) / 8,8));
 						when 7 =>
@@ -258,14 +253,7 @@ begin
 							i2c_rw <= '0';
 							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_DATA,8));
 						when 1 =>
---							i2c_data_wr <= i_data;
---							i2c_data_wr <= std_logic_vector(to_unsigned(shift_left(to_integer(unsigned'(x"01")), to_unsigned(to_integer(unsigned'(i_y))) mod (HEIGHT / 8),8),8));
---							i2c_data_wr <= std_logic_vector(to_unsigned(x"01" sll (i_y mod (HEIGHT / 8)),8));
---							i2c_data_wr <= i_data & i2c_data_wr(7 downto (i_y mod (HEIGHT / 8))); -- https://stackoverflow.com/a/45978464
---							i2c_data_wr <= i_data sll (i_y mod (HEIGHT / 8));
---							i2c_data_wr <= temp_zero(7 downto (i_y mod 8)) & i_data & temp_zero(((i_y mod 8)-1) downto 0);
 							i2c_data_wr <= std_logic_vector(unsigned'(x"01") sll (i_y mod 8));
---							i2c_data_wr <= x"FF";
 						when 2 =>
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
