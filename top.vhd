@@ -43,18 +43,22 @@ constant INPUT_CLOCK : integer := 50_000_000;
 constant BUS_CLOCK : integer := 100_000;
 constant OLED_WIDTH : integer := 128;
 constant OLED_HEIGHT : integer := 32;
+constant OLED_W_BITS : integer := 7; -- 128
+constant OLED_H_BITS : integer := 5; -- 32
 
 component oled_display is
 generic(
 GLOBAL_CLK : integer;
 I2C_CLK : integer;
 WIDTH : integer;
-HEIGHT : integer);
+HEIGHT : integer;
+W_BITS : integer;
+H_BITS : integer);
 port(
 signal i_clk : in std_logic;
 signal i_rst : in std_logic;
-signal i_x : in integer;
-signal i_y : in integer;
+signal i_x : in std_logic_vector(OLED_W_BITS-1 downto 0);
+signal i_y : in std_logic_vector(OLED_H_BITS-1 downto 0);
 signal i_data : in std_logic;
 signal io_sda,io_scl : inout std_logic);
 end component oled_display;
@@ -70,13 +74,16 @@ o_clk : out STD_LOGIC);
 end component clock_divider;
 for all : clock_divider use entity WORK.clock_divider(Behavioral);
 
-signal a,b : integer := 0;
+signal a : std_logic_vector(OLED_W_BITS-1 downto 0) := (others => '0');
+signal b : std_logic_vector(OLED_H_BITS-1 downto 0) := (others => '0');
 signal rst : std_logic := '0';
 signal clk_1s : std_logic := '0';
 
-type t_coord is array(0 to 3) of integer;
-signal x_coord : t_coord := (0,127,0,127);
-signal y_coord : t_coord := (0,0,31,31);
+constant NV : integer := 10;
+type t_coord_x is array(0 to NV-1) of std_logic_vector(7 downto 0);
+type t_coord_y is array(0 to NV-1) of std_logic_vector(7 downto 0);
+signal x_coord : t_coord_x := (x"00",x"00",x"20",x"20",x"40",x"40",x"60",x"60",x"7F",x"7F");
+signal y_coord : t_coord_y := (x"00",x"1F",x"00",x"1F",x"00",x"1F",x"00",x"1F",x"00",x"1F");
 
 begin
 
@@ -93,7 +100,9 @@ generic map(
 	GLOBAL_CLK => INPUT_CLOCK,
 	I2C_CLK => BUS_CLOCK,
 	WIDTH => OLED_WIDTH,
-	HEIGHT => OLED_HEIGHT)
+	HEIGHT => OLED_HEIGHT,
+	W_BITS => OLED_W_BITS,
+	H_BITS => OLED_H_BITS)
 port map(
 	i_clk => clk,
 	i_rst => btn_1,
@@ -110,11 +119,11 @@ begin
 	if (rising_edge(clk_1s)) then
 		if (btn_1 = '1') then
 			index := 0;
-			a <= 0;
-			b <= 0;
+			a <= (others => '0');
+			b <= (others => '0');
 		else
-			a <= x_coord(index);
-			b <= y_coord(index);
+			a <= x_coord(index)(OLED_W_BITS-1 downto 0);
+			b <= y_coord(index)(OLED_H_BITS-1 downto 0);
 			index := index + 1;
 		end if;
 	end if;
