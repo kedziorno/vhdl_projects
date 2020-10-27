@@ -44,7 +44,7 @@ constant OLED_PAGES_ALL : integer := WIDTH * ((HEIGHT + 7) / 8);
 constant OLED_DATA : integer := to_integer(unsigned'(x"40"));
 constant OLED_COMMAND : integer := to_integer(unsigned'(x"00")); -- 00,80
 
-constant NI_INIT : natural := 25;
+constant NI_INIT : natural := 26;
 type A_INIT is array (0 to NI_INIT-1) of std_logic_vector(7 downto 0);
 signal init_display : A_INIT :=
 (
@@ -60,6 +60,7 @@ signal init_display : A_INIT :=
 ,x"DA",x"02"
 ,x"81",x"8F" -- contrast
 ,x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E"
+,x"AF" -- display on
 );
 
 constant NI_SET_COORDINATION : natural := 6;
@@ -202,8 +203,6 @@ begin
 						when 1 to OLED_PAGES_ALL =>
 							i2c_data_wr <= x"00"; -- command - FF/allpixels,00/blank,F0/zebra
 						when OLED_PAGES_ALL+1 =>
-							i2c_data_wr <= x"AF"; -- display on
-						when OLED_PAGES_ALL+2 =>
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
 								busy_cnt <= 0;

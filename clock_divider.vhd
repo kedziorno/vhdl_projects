@@ -30,67 +30,33 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity clock_divider is
-Generic(g_board_clock : integer);
+Generic(
+g_board_clock : integer;
+g_divider : integer);
 Port(
 i_clk : in  STD_LOGIC;
-o_clk_25khz : out  STD_LOGIC;
-o_clk_50khz : out  STD_LOGIC;
-o_clk_14sec : out  STD_LOGIC;
-o_clk_1second : out  STD_LOGIC
+o_clk : out  STD_LOGIC
 );
 end clock_divider;
 
 architecture Behavioral of clock_divider is
-	constant clk25khz_div   : integer := g_board_clock / 25_000;
-	constant clk50khz_div   : integer := g_board_clock / 50_000;
-	constant clk14sec_div   : integer := g_board_clock / 4;
-	constant clk1second_div : integer := g_board_clock;
+	constant clk_div   : integer := g_board_clock / g_divider;
 begin
 
 p0 : process (i_clk) is
-	variable clk_out25 : std_logic;
-	variable clk_out50 : std_logic;
-	variable clk_out14s : std_logic;
-	variable clk_out1s : std_logic;
-	variable counter1 : integer := 0;
-	variable counter2 : integer := 0;
-	variable counter3 : integer := 0;
-	variable counter4 : integer := 0;
+	variable clk_out : std_logic;
+	variable counter : integer := 0;
 begin
 	if (rising_edge(i_clk)) then
-		if (counter1 = clk25khz_div-1) then
-			clk_out25 := '1';
-			counter1 := 0;
+		if (counter = clk_div-1) then
+			clk_out := '1';
+			counter := 0;
 		else
-			clk_out25 := '0';
-			counter1 := counter1 + 1;
-		end if;
-		if (counter2 = clk50khz_div-1) then
-			clk_out50 := '1';
-			counter2 := 0;
-		else
-			clk_out50 := '0';
-			counter2 := counter2 + 1;
-		end if;
-		if (counter3 = clk14sec_div-1) then
-			clk_out14s := '1';
-			counter3 := 0;
-		else
-			clk_out14s := '0';
-			counter3 := counter3 + 1;
-		end if;
-		if (counter4 = clk1second_div-1) then
-			clk_out1s := '1';
-			counter4 := 0;
-		else
-			clk_out1s := '0';
-			counter4 := counter4 + 1;
+			clk_out := '0';
+			counter := counter + 1;
 		end if;
 	end if;
-	o_clk_25khz <= clk_out25;
-	o_clk_50khz <= clk_out50;
-	o_clk_14sec <= clk_out14s;
-	o_clk_1second <= clk_out1s;
+	o_clk <= clk_out;
 end process p0;
 
 end Behavioral;
