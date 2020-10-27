@@ -59,6 +59,7 @@ signal i_clk : in std_logic;
 signal i_rst : in std_logic;
 signal i_x : in std_logic_vector(OLED_W_BITS-1 downto 0);
 signal i_y : in std_logic_vector(OLED_H_BITS-1 downto 0);
+signal i_bit : in std_logic_vector(0 downto 0);
 signal i_all_pixels : in std_logic;
 signal io_sda,io_scl : inout std_logic);
 end component oled_display;
@@ -74,64 +75,85 @@ o_clk : out STD_LOGIC);
 end component clock_divider;
 for all : clock_divider use entity WORK.clock_divider(Behavioral);
 
+component memory1 is
+Generic (
+WIDTH : integer := 128;
+HEIGHT : integer := 32;
+W_BITS : integer := 7;
+H_BITS : integer := 5);
+Port (
+i_clk : in std_logic;
+i_x : in std_logic_vector(W_BITS-1 downto 0);
+i_y : in std_logic_vector(H_BITS-1 downto 0);
+o_bit : out std_logic_vector(0 downto 0));
+end component memory1;
+for all : memory1 use entity WORK.memory1(Behavioral);
+
 signal a : std_logic_vector(OLED_W_BITS-1 downto 0) := (others => '0');
 signal b : std_logic_vector(OLED_H_BITS-1 downto 0) := (others => '0');
 signal rst : std_logic := '0';
 signal all_pixels : std_logic := '0';
 signal clk_1s : std_logic := '0';
-
-constant NV : integer := 4; -- 10
-type t_coord_x is array(0 to NV-1) of std_logic_vector(7 downto 0);
-type t_coord_y is array(0 to NV-1) of std_logic_vector(7 downto 0);
---signal x_coord : t_coord_x := (x"79",x"78",x"66",x"55",x"44",x"33",x"22",x"11",x"05",x"00");
---signal y_coord : t_coord_y := (x"01",x"01",x"01",x"01",x"01",x"01",x"01",x"01",x"01",x"01");
-signal x_coord : t_coord_x := (x"00",x"7F",x"00",x"7F");
-signal y_coord : t_coord_y := (x"00",x"00",x"1F",x"1F");
+signal display_bit : std_logic_vector(0 downto 0) := "0";
 
 begin
 
 clk_div : clock_divider
-generic map(
-g_board_clock => INPUT_CLOCK,
-g_divider => 4)
-port map(
-i_clk => clk,
-o_clk => clk_1s);
+generic map (
+	g_board_clock => INPUT_CLOCK,
+	g_divider => 4)
+port map (
+	i_clk => clk,
+	o_clk => clk_1s
+);
 
 c0 : oled_display
-generic map(
+generic map (
 	GLOBAL_CLK => INPUT_CLOCK,
 	I2C_CLK => BUS_CLOCK,
 	WIDTH => OLED_WIDTH,
 	HEIGHT => OLED_HEIGHT,
 	W_BITS => OLED_W_BITS,
 	H_BITS => OLED_H_BITS)
-port map(
+port map (
 	i_clk => clk,
 	i_rst => btn_1,
 	i_x => a,
 	i_y => b,
+	i_bit => display_bit,
 	i_all_pixels => all_pixels,
 	io_sda => sda,
 	io_scl => scl
 );
 
+m1 : memory1
+generic map (
+	WIDTH => OLED_WIDTH,
+	HEIGHT => OLED_HEIGHT,
+	W_BITS => OLED_W_BITS,
+	H_BITS => OLED_H_BITS)
+port map (
+	i_clk => clk,
+	i_x => a,
+	i_y => b,
+	o_bit => display_bit
+);
+
 p0 : process (clk_1s) is
-	variable index : integer range 0 to NV-1 := 0;
 begin
 	if (rising_edge(clk_1s)) then
 		if (btn_1 = '1') then
 			all_pixels <= '0';
-			index := 0;
 			a <= (others => '0');
 			b <= (others => '0');
 		else
-			index := index + 1;
-			a <= x_coord(index)(OLED_W_BITS-1 downto 0);
-			b <= y_coord(index)(OLED_H_BITS-1 downto 0);
-			if (index = NV) then
-				all_pixels <= '1';
-			end if;
+			f0 : for i in OLED_WIDTH-1 downto 0 loop
+				f1 : for j in OLED_HEIGHT-1 downto 0 loop
+					a <= std_logic_vector(to_unsigned(i,OLED_W_BITS));
+					b <= std_logic_vector(to_unsigned(j,OLED_H_BITS));
+				end loop f1;
+			end loop f0;
+			all_pixels <= '1';
 		end if;
 	end if;
 end process p0;

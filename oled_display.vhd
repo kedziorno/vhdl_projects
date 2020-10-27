@@ -36,6 +36,7 @@ signal i_clk : in std_logic;
 signal i_rst : in std_logic;
 signal i_x : in std_logic_vector(W_BITS-1 downto 0);
 signal i_y : in std_logic_vector(H_BITS-1 downto 0);
+signal i_bit : in std_logic_vector(0 downto 0);
 signal i_all_pixels : in std_logic;
 signal io_sda,io_scl : inout std_logic);
 end oled_display;
@@ -257,7 +258,7 @@ begin
 							i2c_rw <= '0';
 							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_DATA,8));
 						when 1 =>
-							i2c_data_wr <= std_logic_vector(unsigned'(x"01") ror (to_integer(unsigned(i_y)-1) mod 8));
+							i2c_data_wr <= std_logic_vector(resize(unsigned(i_bit),8) ror (to_integer(unsigned(i_y)-1) mod 8));
 						when 2 =>
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
