@@ -258,7 +258,7 @@ begin
 							i2c_rw <= '0';
 							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_DATA,8));
 						when 1 =>
-							i2c_data_wr <= std_logic_vector(resize(unsigned(i_bit),8) ror (to_integer(unsigned(i_y)-1) mod 8));
+							i2c_data_wr <= std_logic_vector(resize(unsigned(i_bit),8) sll (to_integer(unsigned(i_y)-1) mod 8));
 						when 2 =>
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
