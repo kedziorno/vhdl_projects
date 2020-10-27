@@ -61,14 +61,12 @@ end component oled_display;
 for all : oled_display use entity WORK.oled_display(Behavioral);
 
 component clock_divider is
-Generic(g_board_clock : integer);
+Generic(
+g_board_clock : integer;
+g_divider : integer);
 Port(
-i_clk : in  STD_LOGIC;
-o_clk_25khz : out  STD_LOGIC;
-o_clk_50khz : out  STD_LOGIC;
-o_clk_14sec : out  STD_LOGIC;
-o_clk_1second : out  STD_LOGIC
-);
+i_clk : in STD_LOGIC;
+o_clk : out STD_LOGIC);
 end component clock_divider;
 for all : clock_divider use entity WORK.clock_divider(Behavioral);
 
@@ -83,13 +81,12 @@ signal y_coord : t_coord := (0,0,31,31);
 begin
 
 clk_div : clock_divider
-generic map(g_board_clock => INPUT_CLOCK)
+generic map(
+g_board_clock => INPUT_CLOCK,
+g_divider => 4)
 port map(
 i_clk => clk,
-o_clk_25khz => open,
-o_clk_50khz => open,
-o_clk_14sec => open,
-o_clk_1second => clk_1s);
+o_clk => clk_1s);
 
 c0 : oled_display
 generic map(
@@ -110,14 +107,16 @@ port map(
 p0 : process (clk_1s) is
 	variable index : integer range 0 to 4 := 0;
 begin
-	if (btn_1 = '1') then
-		index := 0;
-		a <= 0;
-		b <= 0;
-	elsif (rising_edge(clk_1s)) then
-		a <= x_coord(index);
-		b <= y_coord(index);
-		index := index + 1;
+	if (rising_edge(clk_1s)) then
+		if (btn_1 = '1') then
+			index := 0;
+			a <= 0;
+			b <= 0;
+		else
+			a <= x_coord(index);
+			b <= y_coord(index);
+			index := index + 1;
+		end if;
 	end if;
 end process p0;
 
