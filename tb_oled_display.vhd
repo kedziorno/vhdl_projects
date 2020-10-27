@@ -58,7 +58,7 @@ ARCHITECTURE behavior OF tb_oled_display IS
          i_rst : IN  std_logic;
          i_x : in std_logic_vector(W_BITS-1 downto 0);
          i_y : in std_logic_vector(H_BITS-1 downto 0);
-         i_data : in std_logic;
+         i_all_pixels : in std_logic;
          io_sda : INOUT  std_logic;
          io_scl : INOUT  std_logic
         );
@@ -69,6 +69,7 @@ ARCHITECTURE behavior OF tb_oled_display IS
    signal rst : std_logic := '0';
    signal a : std_logic_vector(OLED_W_BITS-1 downto 0) := (others => '0');
    signal b : std_logic_vector(OLED_H_BITS-1 downto 0) := (others => '0');
+   signal all_pixels : std_logic := '0';
 
 	--BiDirs
    signal sda : std_logic;
@@ -82,6 +83,8 @@ ARCHITECTURE behavior OF tb_oled_display IS
    type t_coord_y is array(0 to NV-1) of std_logic_vector(7 downto 0);
    signal x_coord : t_coord_x := (x"79",x"78",x"66",x"55",x"44",x"33",x"22",x"11",x"05",x"00");
    signal y_coord : t_coord_y := (x"01",x"01",x"01",x"01",x"01",x"01",x"01",x"01",x"01",x"01");
+--   signal x_coord : t_coord_x := (x"00",x"7F",x"00",x"7F");
+--   signal y_coord : t_coord_y := (x"00",x"00",x"1F",x"1F");
 
 BEGIN
 
@@ -99,7 +102,7 @@ BEGIN
 		i_rst => rst,
 		i_x => a,
 		i_y => b,
-		i_data => '1',
+		i_all_pixels => all_pixels,
 		io_sda => sda,
 		io_scl => scl
 	);
@@ -120,6 +123,8 @@ BEGIN
 		rst <= '1';
 		wait for 20 ns;
 		rst <= '0';
+		wait for 20 ns;
+		all_pixels <= '0';
 
 		wait for 50 ms;
 		a <= x_coord(0)(OLED_W_BITS-1 downto 0);
@@ -151,6 +156,8 @@ BEGIN
 		wait for 1.05 ms;
 		a <= x_coord(9)(OLED_W_BITS-1 downto 0);
 		b <= y_coord(9)(OLED_H_BITS-1 downto 0);
+
+		all_pixels <= '1';
 	end process;
 
 END;
