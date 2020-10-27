@@ -80,8 +80,8 @@ ARCHITECTURE behavior OF tb_oled_display IS
    constant NV : integer := 10;
    type t_coord_x is array(0 to NV-1) of std_logic_vector(7 downto 0);
    type t_coord_y is array(0 to NV-1) of std_logic_vector(7 downto 0);
-   signal x_coord : t_coord_x := (x"99",x"88",x"77",x"66",x"55",x"44",x"33",x"22",x"11",x"00");
-   signal y_coord : t_coord_y := (x"10",x"11",x"12",x"13",x"14",x"15",x"16",x"17",x"18",x"19");
+   signal x_coord : t_coord_x := (x"79",x"78",x"66",x"55",x"44",x"33",x"22",x"11",x"05",x"00");
+   signal y_coord : t_coord_y := (x"01",x"01",x"01",x"01",x"01",x"01",x"01",x"01",x"01",x"01");
 
 BEGIN
 

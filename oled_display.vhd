@@ -36,7 +36,7 @@ signal i_clk : in std_logic;
 signal i_rst : in std_logic;
 signal i_x : in std_logic_vector(W_BITS-1 downto 0);
 signal i_y : in std_logic_vector(H_BITS-1 downto 0);
-signal i_data : in std_logic;
+signal i_all_pixels : in std_logic;
 signal io_sda,io_scl : inout std_logic);
 end oled_display;
 
@@ -138,13 +138,15 @@ PORT MAP
 	scl => io_scl
 );
 
-p0 : process (i_clk,i_rst) is
+p0 : process (i_clk,i_rst,i_all_pixels) is
 begin
 	if (rising_edge(i_clk)) then
 		if (i_rst = '1') then
 			busy_cnt <= 0;
 			n_state <= start;
 			index_data <= 0;
+		elsif (i_all_pixels = '1') then
+			n_state <= stop;
 		else
 			c_state <= n_state;
 			case c_state is
@@ -260,13 +262,13 @@ begin
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
 								busy_cnt <= 0;
-								n_state <= stop;
+								n_state <= set_address_2;
 							end if;
 						when others => null;
 					end case;
 				when stop =>
 					i2c_ena <= '0';
-					n_state <= set_address_2;
+					n_state <= stop;
 				when others => null;
 			end case;
 		end if;
