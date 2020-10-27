@@ -230,13 +230,13 @@ begin
 						when 2 =>
 							i2c_data_wr <= std_logic_vector(to_unsigned(to_integer(unsigned(i_x)),8));
 						when 3 =>
-							i2c_data_wr <= std_logic_vector(to_unsigned(WIDTH-1,8));
+							i2c_data_wr <= std_logic_vector(to_unsigned(to_integer(unsigned(i_x)),8));
 						when 4 =>
 							i2c_data_wr <= x"22";
 						when 5 =>
 							i2c_data_wr <= std_logic_vector(to_unsigned(to_integer(unsigned(i_y)) / 8,8));
 						when 6 =>
-							i2c_data_wr <= std_logic_vector(to_unsigned((HEIGHT/8)-1,8));
+							i2c_data_wr <= std_logic_vector(to_unsigned(to_integer(unsigned(i_y)) / 8,8));
 						when 7 =>
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
