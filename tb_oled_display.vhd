@@ -80,8 +80,8 @@ ARCHITECTURE behavior OF tb_oled_display IS
    constant NV : integer := 10;
    type t_coord_x is array(0 to NV-1) of std_logic_vector(7 downto 0);
    type t_coord_y is array(0 to NV-1) of std_logic_vector(7 downto 0);
-   signal x_coord : t_coord_x := (x"00",x"00",x"20",x"20",x"40",x"40",x"60",x"60",x"7F",x"7F");
-   signal y_coord : t_coord_y := (x"00",x"1F",x"00",x"1F",x"00",x"1F",x"00",x"1F",x"00",x"1F");
+   signal x_coord : t_coord_x := (x"99",x"88",x"77",x"66",x"55",x"44",x"33",x"22",x"11",x"00");
+   signal y_coord : t_coord_y := (x"10",x"11",x"12",x"13",x"14",x"15",x"16",x"17",x"18",x"19");
 
 BEGIN
 
@@ -121,34 +121,34 @@ BEGIN
 		wait for 20 ns;
 		rst <= '0';
 
-		wait for 60 ms;
+		wait for 50 ms;
 		a <= x_coord(0)(OLED_W_BITS-1 downto 0);
 		b <= y_coord(0)(OLED_H_BITS-1 downto 0);
-		wait for 60 ms;
+		wait for 1.05 ms;
 		a <= x_coord(1)(OLED_W_BITS-1 downto 0);
 		b <= y_coord(1)(OLED_H_BITS-1 downto 0);
-		wait for 60 ms;
+		wait for 1.05 ms;
 		a <= x_coord(2)(OLED_W_BITS-1 downto 0);
 		b <= y_coord(2)(OLED_H_BITS-1 downto 0);
-		wait for 60 ms;
+		wait for 1.05 ms;
 		a <= x_coord(3)(OLED_W_BITS-1 downto 0);
 		b <= y_coord(3)(OLED_H_BITS-1 downto 0);
-		wait for 60 ms;
+		wait for 1.05 ms;
 		a <= x_coord(4)(OLED_W_BITS-1 downto 0);
 		b <= y_coord(4)(OLED_H_BITS-1 downto 0);
-		wait for 60 ms;
+		wait for 1.05 ms;
 		a <= x_coord(5)(OLED_W_BITS-1 downto 0);
 		b <= y_coord(5)(OLED_H_BITS-1 downto 0);
-		wait for 60 ms;
+		wait for 1.05 ms;
 		a <= x_coord(6)(OLED_W_BITS-1 downto 0);
 		b <= y_coord(6)(OLED_H_BITS-1 downto 0);
-		wait for 60 ms;
+		wait for 1.05 ms;
 		a <= x_coord(7)(OLED_W_BITS-1 downto 0);
 		b <= y_coord(7)(OLED_H_BITS-1 downto 0);
-		wait for 60 ms;
+		wait for 1.05 ms;
 		a <= x_coord(8)(OLED_W_BITS-1 downto 0);
 		b <= y_coord(8)(OLED_H_BITS-1 downto 0);
-		wait for 60 ms;
+		wait for 1.05 ms;
 		a <= x_coord(9)(OLED_W_BITS-1 downto 0);
 		b <= y_coord(9)(OLED_H_BITS-1 downto 0);
 	end process;
