@@ -61,7 +61,7 @@ signal i_clk : in std_logic;
 signal i_rst : in std_logic;
 signal i_x : in std_logic_vector(OLED_W_BITS-1 downto 0);
 signal i_y : in std_logic_vector(OLED_H_BITS-1 downto 0);
-signal i_data : in std_logic;
+signal i_all_pixels : in std_logic;
 signal io_sda,io_scl : inout std_logic);
 end component oled_display;
 for all : oled_display use entity WORK.oled_display(Behavioral);
@@ -79,13 +79,14 @@ for all : clock_divider use entity WORK.clock_divider(Behavioral);
 signal a : std_logic_vector(OLED_W_BITS-1 downto 0) := (others => '0');
 signal b : std_logic_vector(OLED_H_BITS-1 downto 0) := (others => '0');
 signal rst : std_logic := '0';
+signal all_pixels : std_logic := '0';
 signal clk_1s : std_logic := '0';
 
 constant NV : integer := 10;
 type t_coord_x is array(0 to NV-1) of std_logic_vector(7 downto 0);
 type t_coord_y is array(0 to NV-1) of std_logic_vector(7 downto 0);
-signal x_coord : t_coord_x := (x"99",x"88",x"77",x"66",x"55",x"44",x"33",x"22",x"11",x"00");
-signal y_coord : t_coord_y := (x"10",x"11",x"12",x"13",x"14",x"15",x"16",x"17",x"18",x"19");
+signal x_coord : t_coord_x := (x"79",x"78",x"66",x"55",x"44",x"33",x"22",x"11",x"05",x"00");
+signal y_coord : t_coord_y := (x"01",x"01",x"01",x"01",x"01",x"01",x"01",x"01",x"01",x"01");
 
 begin
 
@@ -110,23 +111,27 @@ port map(
 	i_rst => btn_1,
 	i_x => a,
 	i_y => b,
-	i_data => '1',
+	i_all_pixels => all_pixels,
 	io_sda => sda,
 	io_scl => scl
 );
 
 p0 : process (clk_1s) is
-	variable index : integer range 0 to 4 := 0;
+	variable index : integer range 0 to NV-1 := 0;
 begin
 	if (rising_edge(clk_1s)) then
 		if (btn_1 = '1') then
+			all_pixels <= '0';
 			index := 0;
 			a <= (others => '0');
 			b <= (others => '0');
 		else
+			index := index + 1;
 			a <= x_coord(index)(OLED_W_BITS-1 downto 0);
 			b <= y_coord(index)(OLED_H_BITS-1 downto 0);
-			index := index + 1;
+			if (index = NV-1) then
+				all_pixels <= '1';
+			end if;
 		end if;
 	end if;
 end process p0;
