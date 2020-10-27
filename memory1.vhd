@@ -43,7 +43,7 @@ o_bit : out std_logic_vector(0 downto 0));
 end memory1;
 
 architecture Behavioral of memory1 is
-	type array1 is array(WIDTH-1 downto 0) of std_logic_vector(HEIGHT-1 downto 0);
+	type array1 is array(0 to WIDTH-1) of std_logic_vector(0 to HEIGHT-1);
 	
 -- https://www.conwaylife.com/patterns/gosperglidergun.cells
 -- !Name: Gosper glider gun
@@ -192,10 +192,5 @@ architecture Behavioral of memory1 is
 		("00000000000000000000000000000000")
 	);
 begin
-	p0 : process(i_clk) is
-	begin
-		if (rising_edge(i_clk)) then
-			o_bit(0) <= m1(to_integer(unsigned(i_x)))(to_integer(unsigned(i_y)));
-		end if;
-	end process p0;
+	o_bit(0) <= m1(to_integer(unsigned(i_x)))(to_integer(unsigned(i_y)));
 end Behavioral;
