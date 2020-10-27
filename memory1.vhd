@@ -39,7 +39,7 @@ Port (
 i_clk : in std_logic;
 i_x : in std_logic_vector(W_BITS-1 downto 0);
 i_y : in std_logic_vector(H_BITS-1 downto 0);
-o_bit : out std_logic);
+o_bit : out std_logic_vector(0 downto 0));
 end memory1;
 
 architecture Behavioral of memory1 is
@@ -195,7 +195,7 @@ begin
 	p0 : process(i_clk) is
 	begin
 		if (rising_edge(i_clk)) then
-			o_bit <= m1(to_integer(unsigned(i_x)))(to_integer(unsigned(i_y)));
+			o_bit(0) <= m1(to_integer(unsigned(i_x)))(to_integer(unsigned(i_y)));
 		end if;
 	end process p0;
 end Behavioral;
