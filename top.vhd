@@ -42,9 +42,11 @@ architecture Behavioral of top is
 constant INPUT_CLOCK : integer := 50_000_000;
 constant BUS_CLOCK : integer := 100_000;
 constant OLED_WIDTH : integer := 128;
-constant OLED_HEIGHT : integer := 32;
+constant OLED_HEIGHT : integer := 4; -- 32 = <0;3> * 8-bit row
 constant OLED_W_BITS : integer := 7; -- 128
-constant OLED_H_BITS : integer := 5; -- 32
+constant OLED_H_BITS : integer := 2; -- 32
+constant BYTE_SIZE : integer := 8;
+constant DIVIDER_CLOCK : integer := 128;
 
 component oled_display is
 generic(
@@ -53,14 +55,16 @@ I2C_CLK : integer;
 WIDTH : integer;
 HEIGHT : integer;
 W_BITS : integer;
-H_BITS : integer);
+H_BITS : integer;
+BYTE_SIZE : integer);
 port(
 signal i_clk : in std_logic;
 signal i_rst : in std_logic;
-signal i_x : in std_logic_vector(OLED_W_BITS-1 downto 0);
-signal i_y : in std_logic_vector(OLED_H_BITS-1 downto 0);
-signal i_bit : in std_logic_vector(0 downto 0);
+signal i_x : in std_logic_vector(W_BITS-1 downto 0);
+signal i_y : in std_logic_vector(H_BITS-1 downto 0);
+signal i_byte : in std_logic_vector(BYTE_SIZE-1 downto 0);
 signal i_all_pixels : in std_logic;
+signal o_display_initialize : out std_logic;
 signal io_sda,io_scl : inout std_logic);
 end component oled_display;
 for all : oled_display use entity WORK.oled_display(Behavioral);
@@ -80,12 +84,13 @@ Generic (
 WIDTH : integer;
 HEIGHT : integer;
 W_BITS : integer;
-H_BITS : integer);
+H_BITS : integer;
+BYTE_SIZE : integer);
 Port (
 i_clk : in std_logic;
 i_x : in std_logic_vector(W_BITS-1 downto 0);
 i_y : in std_logic_vector(H_BITS-1 downto 0);
-o_bit : out std_logic_vector(0 downto 0));
+o_byte : out std_logic_vector(BYTE_SIZE-1 downto 0));
 end component memory1;
 for all : memory1 use entity WORK.memory1(Behavioral);
 
@@ -94,23 +99,16 @@ signal b : std_logic_vector(OLED_H_BITS-1 downto 0) := (others => '0');
 signal rst : std_logic := '0';
 signal all_pixels : std_logic := '0';
 signal clk_1s : std_logic := '0';
-
---constant NV : integer := 4; -- 10
---type t_coord_x is array(0 to NV-1) of std_logic_vector(7 downto 0);
---type t_coord_y is array(0 to NV-1) of std_logic_vector(7 downto 0);
---signal x_coord : t_coord_x := (x"79",x"78",x"66",x"55",x"44",x"33",x"22",x"11",x"05",x"00");
---signal y_coord : t_coord_y := (x"01",x"01",x"01",x"01",x"01",x"01",x"01",x"01",x"01",x"01");
---signal x_coord : t_coord_x := (x"00",x"7F",x"00",x"7F");
---signal y_coord : t_coord_y := (x"00",x"00",x"1F",x"1F");
-signal display_bit : std_logic_vector(0 downto 0) := "0";
+signal display_bit : std_logic_vector(BYTE_SIZE-1 downto 0) := (others => '0');
+signal display_initialize : std_logic;
 
 --constant clk_period : time := 20 ns;
 --signal clk : std_logic := '0';
 --signal btn_1 : std_logic := '0';
 --signal sda,scl : std_logic;
 
-signal i : integer range 0 to OLED_WIDTH-1 := 0;
-signal j : integer range 0 to OLED_HEIGHT-1 := 0;
+signal i : integer range 0 to OLED_WIDTH := 0;
+signal j : integer range 0 to OLED_HEIGHT := 0;
 
 begin
 
@@ -125,7 +123,7 @@ begin
 clk_div : clock_divider
 generic map (
 	g_board_clock => INPUT_CLOCK,
-	g_divider => 256)
+	g_divider => DIVIDER_CLOCK)
 port map (
 	i_clk => clk,
 	o_clk => clk_1s
@@ -138,15 +136,17 @@ generic map (
 	WIDTH => OLED_WIDTH,
 	HEIGHT => OLED_HEIGHT,
 	W_BITS => OLED_W_BITS,
-	H_BITS => OLED_H_BITS)
+	H_BITS => OLED_H_BITS,
+	BYTE_SIZE => BYTE_SIZE)
 port map (
 	i_clk => clk,
 	i_rst => btn_1,
 	i_x => a,
 	i_y => b,
---	i_bit => display_bit,
-	i_bit => "1",
+	i_byte => display_bit,
+--	i_byte => x"FF",
 	i_all_pixels => all_pixels,
+	o_display_initialize => display_initialize,
 	io_sda => sda,
 	io_scl => scl
 );
@@ -156,75 +156,40 @@ generic map (
 	WIDTH => OLED_WIDTH,
 	HEIGHT => OLED_HEIGHT,
 	W_BITS => OLED_W_BITS,
-	H_BITS => OLED_H_BITS)
+	H_BITS => OLED_H_BITS,
+	BYTE_SIZE => BYTE_SIZE)
 port map (
 	i_clk => clk,
 	i_x => a,
 	i_y => b,
-	o_bit => display_bit
+	o_byte => display_bit
 );
 
 p0 : process (clk_1s) is
 begin
-	if (rising_edge(clk_1s)) then
-		if (btn_1 = '1') then
-			all_pixels <= '0';
-			a <= (others => '0');
-			b <= (others => '0');
-			i <= 0;
-			j <= 0;
-		else
-			if (j < OLED_HEIGHT) then
-				if (i < OLED_WIDTH) then
-					a <= std_logic_vector(to_unsigned(i,a'length));
-					b <= std_logic_vector(to_unsigned(j,b'length));
-					i <= i + 1;
-				else
+	if (btn_1 = '1') then
+		all_pixels <= '0';
+		i <= 0;
+		j <= 0;
+	elsif (rising_edge(clk_1s)) then
+		if (display_initialize = '1') then
+			if (i < OLED_WIDTH-1) then
+				if (j < OLED_HEIGHT-1) then
 					j <= j + 1;
-					i <= 0;
+				end if;
+				if (j = OLED_HEIGHT-1) then
+					i <= i + 1;
+					j <= 0;
 				end if;
 			end if;
---			if (i = OLED_WIDTH-1 and j = OLED_HEIGHT-1) then
---				all_pixels <= '1';
---			end if;
+			if (i = OLED_HEIGHT-1 and j = OLED_WIDTH-1) then
+				all_pixels <= '1';
+			end if;
 		end if;
 	end if;
 end process p0;
 
---			f0 : for i in 0 to OLED_WIDTH-1 loop
---				f1 : for j in 0 to OLED_HEIGHT-1 loop
---					a <= std_logic_vector(to_unsigned(i,a'length));
---					b <= std_logic_vector(to_unsigned(j,b'length));
---				end loop f1;
---			end loop f0;
-
---			f0 : while (i < OLED_WIDTH-1) loop
---				f1 : while (j < OLED_HEIGHT-1) loop
---					b <= std_logic_vector(to_unsigned(j,b'length));
---					j <= j + 1;
---				end loop f1;
---				a <= std_logic_vector(to_unsigned(i,a'length));
---				i <= i + 1;
---			end loop f0;
-
---p0 : process (clk_1s) is
---	variable index : integer range 0 to NV-1 := 0;
---begin
---	if (rising_edge(clk_1s)) then
---		if (btn_1 = '1') then
---			all_pixels <= '0';
---			index := 0;
---			a <= (others => '0');
---			b <= (others => '0');
---		else
---			index := index + 1;
---			a <= x_coord(index)(OLED_W_BITS-1 downto 0);
---			b <= y_coord(index)(OLED_H_BITS-1 downto 0);
---			if (index = NV) then
---				all_pixels <= '1';
---			end if;
---		end if;
---	end if;
---end process p0;
+a <= std_logic_vector(to_unsigned(i,a'length));
+b <= std_logic_vector(to_unsigned(j,b'length));
 
 end Behavioral;

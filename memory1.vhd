@@ -34,16 +34,17 @@ Generic (
 WIDTH : integer := 128;
 HEIGHT : integer := 32;
 W_BITS : integer := 7;
-H_BITS : integer := 5);
+H_BITS : integer := 5;
+BYTE_SIZE : integer := 8);
 Port (
 i_clk : in std_logic;
 i_x : in std_logic_vector(W_BITS-1 downto 0);
 i_y : in std_logic_vector(H_BITS-1 downto 0);
-o_bit : out std_logic_vector(0 downto 0));
+o_byte : out std_logic_vector(BYTE_SIZE-1 downto 0));
 end memory1;
 
 architecture Behavioral of memory1 is
-	type array1 is array(0 to WIDTH-1) of std_logic_vector(0 to HEIGHT-1);
+	type array1 is array(0 to WIDTH-1) of std_logic_vector(0 to (BYTE_SIZE*HEIGHT)-1);
 	
 -- https://www.conwaylife.com/patterns/gosperglidergun.cells
 -- !Name: Gosper glider gun
@@ -59,31 +60,6 @@ architecture Behavioral of memory1 is
 -- ..........O.....O.......O
 -- ...........O...O
 -- ............OO
-
---	signal m1 : array1 :=
---	(
---		("111111111111111111111"),
---		("110000001100000011000"),
---		("110000001100000011000"),
---		("110000001100000011000"),
---		("110000001100000011000"),
---		("110000001100000011000"),
---		("110000001100000011000"),
---		("110000001100000011000"),
---		("110000001100000011000"),
---		("110000001100000011000"),
---		("110000001100000011000"),
---		("110000001100000011000"),
---		("110000001100000011000"),
---		("110000001100000011000"),
---		("110000001100000011000"),
---		("110000001100000011000"),
---		("110000001100000011000"),
---		("110000001100000011000"),
---		("110000001100000011000"),
---		("110000001100000011000"),
---		("110000001100000011000")
---	);
 
 	signal m1 : array1 :=
 	(
@@ -219,9 +195,11 @@ architecture Behavioral of memory1 is
 
 begin
 	p0 : process(i_clk) is
+		variable temp_row : std_logic_vector((BYTE_SIZE*HEIGHT)-1 downto 0) := (others => '0');
 	begin
 		if (rising_edge(i_clk)) then
-			o_bit(0) <= m1(to_integer(unsigned(i_x)))(to_integer(unsigned(i_y)));
+			temp_row := m1(to_integer(unsigned(i_x)));
+			o_byte <= temp_row(to_integer(unsigned(i_y))*BYTE_SIZE+(BYTE_SIZE-1) downto to_integer(unsigned(i_y))*BYTE_SIZE);
 		end if;
 	end process p0;
 end Behavioral;
