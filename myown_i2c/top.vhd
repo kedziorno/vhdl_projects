@@ -42,13 +42,13 @@ end top;
 architecture Behavioral of top is
 
 constant INPUT_CLOCK : integer := 50_000_000;
-constant BUS_CLOCK : integer := 100_000;
+constant BUS_CLOCK : integer := 400_000;
 constant OLED_WIDTH : integer := 128;
 constant OLED_HEIGHT : integer := 4; -- 32 = <0;3> * 8-bit row
 constant OLED_W_BITS : integer := 7; -- 128
 constant OLED_H_BITS : integer := 2; -- 32
 constant BYTE_SIZE : integer := 8;
-constant DIVIDER_CLOCK : integer := 128;
+constant DIVIDER_CLOCK : integer := 2048;
 
 component oled_display is
 generic(

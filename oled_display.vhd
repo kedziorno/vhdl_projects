@@ -61,7 +61,7 @@ signal init_display : A_INIT :=
 ,x"40"
 ,x"8D",x"14"
 ,x"20",x"00" -- Set Memory Addressing Mode
-,x"A0",x"C8" -- A0/A1,C0/C8 - start from specify four display corner
+,x"A0",x"C0" -- A0/A1,C0/C8 - start from specify four display corner
 ,x"DA",x"02"
 ,x"81",x"8F" -- contrast
 ,x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E"
