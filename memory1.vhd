@@ -198,8 +198,8 @@ begin
 		variable temp_row : std_logic_vector((BYTE_SIZE*HEIGHT)-1 downto 0) := (others => '0');
 	begin
 		if (rising_edge(i_clk)) then
-			temp_row := m1(to_integer(unsigned(i_y)));
-			o_byte <= temp_row(to_integer(unsigned(i_x))*BYTE_SIZE+(BYTE_SIZE-1) downto to_integer(unsigned(i_x))*BYTE_SIZE);
+			temp_row := m1(to_integer(unsigned(i_x)));
+			o_byte <= temp_row(to_integer(unsigned(i_y))*BYTE_SIZE+(BYTE_SIZE-1) downto to_integer(unsigned(i_y))*BYTE_SIZE);
 		end if;
 	end process p0;
 end Behavioral;
