@@ -102,23 +102,10 @@ signal clk_1s : std_logic := '0';
 signal display_bit : std_logic_vector(BYTE_SIZE-1 downto 0) := (others => '0');
 signal display_initialize : std_logic;
 
---constant clk_period : time := 20 ns;
---signal clk : std_logic := '0';
---signal btn_1 : std_logic := '0';
---signal sda,scl : std_logic;
-
 signal i : integer range 0 to OLED_WIDTH := 0;
 signal j : integer range 0 to OLED_HEIGHT := 0;
 
 begin
-
---	clk_process :process
---	begin
---		clk <= '0';
---		wait for clk_period/2;
---		clk <= '1';
---		wait for clk_period/2;
---	end process;
 	
 clk_div : clock_divider
 generic map (
@@ -143,8 +130,8 @@ port map (
 	i_rst => btn_1,
 	i_x => a,
 	i_y => b,
---	i_byte => display_bit,
-	i_byte => x"FF",
+	i_byte => display_bit,
+--	i_byte => x"FF",
 	i_all_pixels => all_pixels,
 	o_display_initialize => display_initialize,
 	io_sda => sda,
@@ -173,16 +160,16 @@ begin
 		j <= 0;
 	elsif (rising_edge(clk_1s)) then
 		if (display_initialize = '1') then
-			if (i < OLED_HEIGHT-1) then
-				if (j < OLED_WIDTH-1) then
+			if (i < OLED_WIDTH-1) then
+				if (j < OLED_HEIGHT-1) then
 					j <= j + 1;
 				end if;
-				if (j = OLED_WIDTH-1) then
+				if (j = OLED_HEIGHT-1) then
 					i <= i + 1;
 					j <= 0;
 				end if;
 			end if;
-			if (i = OLED_HEIGHT-1 and j = OLED_WIDTH-1) then
+			if (i = OLED_WIDTH-1 and j = OLED_HEIGHT-1) then
 				all_pixels <= '1';
 			end if;
 		end if;
