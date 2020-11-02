@@ -1,0 +1,12 @@
+//! **************************************************************************
+// Written by: Map P.20131013 on Tue Nov 03 16:54:32 2020
+//! **************************************************************************
+
+SCHEMATIC START;
+COMP "clk" LOCATE = SITE "B8" LEVEL 1;
+COMP "sda" LOCATE = SITE "L15" LEVEL 1;
+COMP "scl" LOCATE = SITE "K12" LEVEL 1;
+COMP "btn_1" LOCATE = SITE "B18" LEVEL 1;
+NET "clk_BUFGP/IBUFG" BEL "clk_BUFGP/BUFG.GCLKMUX" USELOCALCONNECT;
+SCHEMATIC END;
+
