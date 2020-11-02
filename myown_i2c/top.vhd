@@ -42,13 +42,13 @@ end top;
 architecture Behavioral of top is
 
 constant INPUT_CLOCK : integer := 50_000_000;
-constant BUS_CLOCK : integer := 100_000; -- increase for speed
+constant BUS_CLOCK : integer := 400_000; -- increase for speed i2c
 constant OLED_WIDTH : integer := 128;
 constant OLED_HEIGHT : integer := 4; -- 32 = <0;3> * 8-bit row
 constant OLED_W_BITS : integer := 8; -- 128
-constant OLED_H_BITS : integer := 8; -- 32
+constant OLED_H_BITS : integer := 8; -- 4
 constant BYTE_SIZE : integer := 8;
-constant DIVIDER_CLOCK : integer := 128; -- increase for speed
+constant DIVIDER_CLOCK : integer := 4; -- increase for speed simulate and i2c
 
 component oled_display is
 generic(
@@ -104,8 +104,8 @@ signal clk_1s : std_logic := '0';
 signal display_bit : std_logic_vector(BYTE_SIZE-1 downto 0) := (others => '0');
 signal display_initialize : std_logic;
 
-signal i : integer range 0 to OLED_WIDTH := 0;
-signal j : integer range 0 to OLED_HEIGHT := 0;
+signal i : integer range 0 to OLED_WIDTH-1 := 0;
+signal j : integer range 0 to OLED_HEIGHT-1 := OLED_HEIGHT-1;
 
 begin
 	
@@ -159,19 +159,17 @@ begin
 	if (btn_1 = '1') then
 		all_pixels <= '0';
 		i <= 0;
-		j <= 0;
+		j <= OLED_HEIGHT-1;
 	elsif (rising_edge(clk_1s)) then
 		if (display_initialize = '1') then
-			if (i < OLED_WIDTH-1) then
-				if (j < OLED_HEIGHT-1) then
-					j <= j + 1;
-				end if;
-				if (j = OLED_HEIGHT-1) then
+			if (j >= 0) then
+				if (i < OLED_WIDTH-1) then
 					i <= i + 1;
-					j <= 0;
+				else
+					j <= j - 1;
+					i <= 0;
 				end if;
-			end if;
-			if (i = OLED_WIDTH-1 and j = OLED_HEIGHT-1) then
+			else
 				all_pixels <= '1';
 			end if;
 		end if;
