@@ -241,7 +241,7 @@ begin
 					i2c_ena <= '0';
 					coord_prev_x <= i_x;
 					coord_prev_y <= i_y;
-					if ((coord_prev_x /= i_x or coord_prev_y /= i_y) and (i_x /= x"00" or i_y /= x"00")) then
+					if (coord_prev_x /= i_x or coord_prev_y /= i_y) then
 						if (counter < 0) then -- wait between transition coord
 							counter <= counter + 1;
 							n_state <= wait1;
