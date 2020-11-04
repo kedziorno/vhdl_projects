@@ -45,9 +45,9 @@ end oled_display;
 
 architecture Behavioral of oled_display is
 
-constant OLED_PAGES_ALL : integer := WIDTH * HEIGHT;
 constant OLED_DATA : integer := to_integer(unsigned'(x"40"));
 constant OLED_COMMAND : integer := to_integer(unsigned'(x"00")); -- 00,80
+constant COUNTER_WAIT1 : integer := 15000;
 
 constant NI_INIT : natural := 26;
 type A_INIT is array (0 to NI_INIT-1) of std_logic_vector(BYTE_SIZE-1 downto 0);
@@ -101,8 +101,6 @@ type state is
 (
 	start, -- initialize oled
 	set_address_1, -- set begin point 0,0
-	clear_display_state, -- clear display
-	set_address_2, -- set begin point 0,0
 	wait1, -- wait after initialize
 	send_character, -- send the some data in loop
 	wait2, -- disable i2c and wait between transition coordination
@@ -119,8 +117,9 @@ SIGNAL i2c_reset   : STD_LOGIC;                     --i2c busy signal
 SIGNAL busy_prev   : STD_LOGIC;                     --previous value of i2c busy signal
 SIGNAL busy_cnt : INTEGER := 0; -- for i2c, count the clk tick when i2c_busy=1
 
-signal counter : integer := 0;
+signal counter : integer range 0 to COUNTER_WAIT1-1 := 0;
 signal coord_prev_x,coord_prev_y : std_logic_vector(H_BITS-1 downto 0) := (others => '0');
+
 begin
 
 c0 : i2c
@@ -197,49 +196,7 @@ begin
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
 								busy_cnt <= 0;
-								n_state <= clear_display_state;
-							end if;
-						when others => null;
-					end case;
-				when clear_display_state =>
-					busy_prev <= i2c_busy;
-					if (busy_prev = '0' and i2c_busy = '1') then
-						busy_cnt <= busy_cnt + 1;
-					end if;
-					case busy_cnt is
-						when 0 =>
-							i2c_ena <= '1'; -- we are busy
-							i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
-							i2c_rw <= '0';
-							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_DATA,BYTE_SIZE));
-						when 1 to OLED_PAGES_ALL+1 =>
-							i2c_data_wr <= x"00"; -- command - FF/allpixels,00/blank,F0/zebra
-						when OLED_PAGES_ALL+2 =>
-							i2c_ena <= '0';
-							if (i2c_busy = '0') then
-								busy_cnt <= 0;
-								n_state <= set_address_2;
-							end if;
-						when others => null;
-					end case;
-				when set_address_2 =>
-					busy_prev <= i2c_busy;
-					if (busy_prev = '0' and i2c_busy = '1') then
-						busy_cnt <= busy_cnt + 1;
-					end if;
-					case busy_cnt is
-						when 0 =>
-							i2c_ena <= '1'; -- we are busy
-							i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
-							i2c_rw <= '0';
-							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,BYTE_SIZE));
-						when 1 to NI_SET_COORDINATION =>
-							i2c_data_wr <= set_coordination_00(busy_cnt-1); -- command
-						when NI_SET_COORDINATION+1 =>
-							i2c_ena <= '0';
-							if (i2c_busy = '0') then
-								busy_cnt <= 0;
-								counter <= 10000000;
+								counter <= COUNTER_WAIT1-1;
 								n_state <= wait1;
 							end if;
 						when others => null;
@@ -267,7 +224,6 @@ begin
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
 								busy_cnt <= 0;
-								counter <= 100;
 								n_state <= wait2;
 							end if;
 						when others => null;
