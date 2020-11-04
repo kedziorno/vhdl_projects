@@ -48,7 +48,7 @@ constant OLED_HEIGHT : integer := 4; -- 32 = <0;3> * 8-bit row
 constant OLED_W_BITS : integer := 8; -- 128
 constant OLED_H_BITS : integer := 8; -- 4
 constant BYTE_SIZE : integer := 8;
-constant DIVIDER_CLOCK : integer := 4; -- increase for speed simulate and i2c
+constant DIVIDER_CLOCK : integer := 512; -- increase for speed simulate and i2c
 
 component oled_display is
 generic(
