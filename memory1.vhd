@@ -195,11 +195,9 @@ architecture Behavioral of memory1 is
 
 begin
 	p0 : process(i_clk) is
-		variable temp_row : std_logic_vector(0 to (BYTE_SIZE*HEIGHT)-1) := (others => '0');
 	begin
 		if (rising_edge(i_clk)) then
-			temp_row := m1(to_integer(unsigned(i_x)));
-			o_byte <= temp_row((to_integer(unsigned(i_y))*BYTE_SIZE) to (to_integer(unsigned(i_y))*BYTE_SIZE)+(BYTE_SIZE-1));
+			o_byte <= m1(to_integer(unsigned(i_x)))((to_integer(unsigned(i_y))*BYTE_SIZE) to (to_integer(unsigned(i_y))*BYTE_SIZE)+(BYTE_SIZE-1));
 		end if;
 	end process p0;
 end Behavioral;
