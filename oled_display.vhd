@@ -54,17 +54,20 @@ type A_INIT is array (0 to NI_INIT-1) of std_logic_vector(BYTE_SIZE-1 downto 0);
 signal init_display : A_INIT :=
 (
  x"AE" -- display off
-,x"D5",x"F0"
-,x"A8" -- 
-,x"1F" -- 00-0f/10-1f - Set Lower Column Start Address for Page Addressing Mode
-,x"D3",x"00"
-,x"40"
-,x"8D",x"14"
+,x"D5",x"80" -- setdisplayclockdiv
+,x"A8",x"1F" -- 00-0f/10-1f - Set Lower Column Start Address for Page Addressing Mode
+,x"D3",x"00" -- display offset
+,x"40"       -- set start line
+,x"8D",x"14" -- chargepump
 ,x"20",x"00" -- Set Memory Addressing Mode
-,x"A0",x"C0" -- A0/A1,C0/C8 - start from specify four display corner
-,x"DA",x"02"
+,x"A1",x"C8" -- A0/A1,C0/C8 - start from specify four display corner - a0|a1 - segremap , c0|c8 - comscandec
+,x"DA",x"02" -- setcompins
 ,x"81",x"8F" -- contrast
-,x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E"
+,x"D9",x"F1" -- precharge
+,x"DB",x"40" -- setvcomdetect
+,x"A4"       -- displayon resume
+,x"A6"       -- normal display
+,x"2E"       -- scroll off
 ,x"AF" -- display on
 );
 
@@ -100,8 +103,9 @@ type state is
 	set_address_1, -- set begin point 0,0
 	clear_display_state, -- clear display
 	set_address_2, -- set begin point 0,0
-	send_character, -- send the some data
-	wait1, -- disable i2c and wait between transition coordination
+	wait1, -- wait after initialize
+	send_character, -- send the some data in loop
+	wait2, -- disable i2c and wait between transition coordination
 	stop -- when index=counter, i2c disable
 );
 
@@ -116,7 +120,7 @@ SIGNAL busy_prev   : STD_LOGIC;                     --previous value of i2c busy
 SIGNAL busy_cnt : INTEGER := 0; -- for i2c, count the clk tick when i2c_busy=1
 
 signal counter : integer := 0;
-signal coord_prev_x,coord_prev_y : std_logic_vector(H_BITS-1 downto 0);
+signal coord_prev_x,coord_prev_y : std_logic_vector(H_BITS-1 downto 0) := (others => '0');
 begin
 
 c0 : i2c
@@ -143,13 +147,16 @@ PORT MAP
 p0 : process (i_clk,i_rst,i_all_pixels) is
 begin
 	if (rising_edge(i_clk)) then
+		c_state <= n_state;
 		if (i_rst = '1') then
 			busy_cnt <= 0;
 			n_state <= start;
 		elsif (i_all_pixels = '1') then
 			n_state <= stop;
 		else
-			c_state <= n_state;
+			if (counter > 0) then
+				counter <= counter - 1;
+			end if;
 			case c_state is
 				when start =>
 					busy_prev <= i2c_busy;
@@ -232,26 +239,16 @@ begin
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
 								busy_cnt <= 0;
+								counter <= 10000000;
 								n_state <= wait1;
-								o_display_initialize <= '1';
 							end if;
 						when others => null;
 					end case;
 				when wait1 =>
 					i2c_ena <= '0';
-					coord_prev_x <= i_x;
-					coord_prev_y <= i_y;
-					if (coord_prev_x /= i_x or coord_prev_y /= i_y) then
-						if (counter < 0) then -- wait between transition coord
-							counter <= counter + 1;
-							n_state <= wait1;
-						else
-							if (i2c_busy = '0') then
-								busy_cnt <= 0;
-								counter <= 0;
-								n_state <= send_character;
-							end if;
-						end if;
+					if (counter = 0) then
+						o_display_initialize <= '1';
+						n_state <= send_character;
 					end if;
 				when send_character =>
 					busy_prev <= i2c_busy;
@@ -270,10 +267,20 @@ begin
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
 								busy_cnt <= 0;
-								n_state <= wait1;
+								counter <= 100;
+								n_state <= wait2;
 							end if;
 						when others => null;
 					end case;
+				when wait2 =>
+					i2c_ena <= '0';
+					coord_prev_x <= i_x;
+					coord_prev_y <= i_y;
+					if (coord_prev_x /= i_x or coord_prev_y /= i_y) then
+						if (counter = 0) then
+							n_state <= send_character;
+						end if;
+					end if;
 				when stop =>
 					i2c_ena <= '0';
 					n_state <= stop;
