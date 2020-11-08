@@ -47,8 +47,8 @@ architecture Behavioral of module_1 is
 	constant NUMBER_BITS : integer := 8;
 	signal send_byte_index : std_logic_vector(NUMBER_BITS-1 downto 0) := x"00";
 
-	signal byte_to_send : std_logic_vector (NUMBER_BITS-1 downto 0) := "01000001";
---	signal byte_to_send : std_logic_vector (NUMBER_BITS-1 downto 0) := "10101010";
+--	signal byte_to_send : std_logic_vector (NUMBER_BITS-1 downto 0) := "01000001";
+	signal byte_to_send : std_logic_vector (NUMBER_BITS-1 downto 0) := "10101010";
 --	signal byte_to_send : std_logic_vector (NUMBER_BITS-1 downto 0) := "01010101";
 --	signal byte_to_send : std_logic_vector (NUMBER_BITS-1 downto 0) := "11111111";
 --	signal byte_to_send : std_logic_vector (NUMBER_BITS-1 downto 0) := "00000000";
