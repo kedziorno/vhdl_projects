@@ -51,6 +51,7 @@ sck : out STD_LOGIC
 =======
 port(
 signal clk : in std_logic;
+signal btn_1 : in std_logic;
 signal sda,scl : inout std_logic
 >>>>>>> add rest files , fix rebase conflicts
 );
@@ -86,6 +87,7 @@ component test_oled is
 port
 (
 signal i_clk : in std_logic;
+signal i_rst : in std_logic;
 signal i_char : in array1;
 signal io_sda,io_scl : inout std_logic
 );
@@ -103,6 +105,7 @@ c0 : test_oled
 port map
 (
 	i_clk => clk,
+	i_rst => btn_1,
 	i_char => font_character,
 	io_sda => sda,
 	io_scl => scl

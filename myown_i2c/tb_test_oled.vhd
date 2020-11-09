@@ -56,6 +56,7 @@ ARCHITECTURE behavior OF tb_test_oled IS
    signal clk : std_logic := '0';
    signal rst : std_logic := '0';
    signal refresh : std_logic := '0';
+
    signal text : array1(0 to 6-1) := (x"30",x"31",x"32",x"33",x"34",x"35"); -- 012345
 
 	--BiDirs
