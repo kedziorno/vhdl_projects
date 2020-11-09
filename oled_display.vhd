@@ -27,13 +27,15 @@ generic
 GLOBAL_CLK : integer := 50_000_000;
 I2C_CLK : integer := 100_000;
 WIDTH : integer := 128;
-HEIGHT : integer := 32);
+HEIGHT : integer := 32;
+W_BITS : integer := 7;
+H_BITS : integer := 5);
 port
 (
 signal i_clk : in std_logic;
 signal i_rst : in std_logic;
-signal i_x : in integer;
-signal i_y : in integer;
+signal i_x : in std_logic_vector(W_BITS-1 downto 0);
+signal i_y : in std_logic_vector(H_BITS-1 downto 0);
 signal i_data : in std_logic;
 signal io_sda,io_scl : inout std_logic);
 end oled_display;
@@ -67,7 +69,7 @@ constant NI_SET_COORDINATION : natural := 6;
 type A_SET_COORDINATION is array (0 to NI_SET_COORDINATION-1) of std_logic_vector(7 downto 0);
 signal set_coordination_00 : A_SET_COORDINATION :=
 (x"21",x"00",std_logic_vector(to_unsigned(WIDTH-1,8))
-,x"22",x"00",std_logic_vector(to_unsigned((HEIGHT + 7) / 8,8)));
+,x"22",x"00",std_logic_vector(to_unsigned((HEIGHT/8)-1,8)));
 
 SIGNAL i2c_ena     : STD_LOGIC;                     --i2c enable signal
 SIGNAL i2c_addr    : STD_LOGIC_VECTOR(6 DOWNTO 0);  --i2c address signal
@@ -224,15 +226,15 @@ begin
 						when 1 =>
 							i2c_data_wr <= x"21";
 						when 2 =>
-							i2c_data_wr <= std_logic_vector(to_unsigned(i_x,8));
+							i2c_data_wr <= std_logic_vector(to_unsigned(to_integer(unsigned(i_x)),8));
 						when 3 =>
 							i2c_data_wr <= std_logic_vector(to_unsigned(WIDTH-1,8));
 						when 4 =>
 							i2c_data_wr <= x"22";
 						when 5 =>
-							i2c_data_wr <= std_logic_vector(to_unsigned(i_y / 8,8));
+							i2c_data_wr <= std_logic_vector(to_unsigned(to_integer(unsigned(i_y)) / 8,8));
 						when 6 =>
-							i2c_data_wr <= std_logic_vector(to_unsigned((HEIGHT + 7) / 8,8));
+							i2c_data_wr <= std_logic_vector(to_unsigned((HEIGHT/8)-1,8));
 						when 7 =>
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
@@ -253,7 +255,7 @@ begin
 							i2c_rw <= '0';
 							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_DATA,8));
 						when 1 =>
-							i2c_data_wr <= std_logic_vector(unsigned'(x"01") sll (i_y mod 8));
+							i2c_data_wr <= std_logic_vector(unsigned'(x"01") sll (to_integer(unsigned(i_y)-1) mod 8));
 						when 2 =>
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
