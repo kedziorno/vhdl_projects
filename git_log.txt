@@ -1,0 +1,53 @@
+commit bd3768793ea02f61d5cb688a765a3d933f3ec976
+Author: kedziorno <kjoblak85@gmail.com>
+Date:   Tue Sep 15 21:14:02 2020 +0200
+
+    reimplement ff_d_gated,add delays to and,or,not - todo check the behaviour of ff_d_gates with new delays
+
+commit 730edcdc940ee688d422488d2ecff08f550d0ed7
+Author: kedziorno <kjoblak85@gmail.com>
+Date:   Tue Sep 15 15:56:30 2020 +0200
+
+    add delay to gates
+
+commit c3a25f087afcf8a1f484752838446dc499049cc2
+Author: kedziorno <kjoblak85@gmail.com>
+Date:   Wed Sep 9 16:59:03 2020 +0200
+
+    add full_adder and tb
+
+commit 728fc5ed339ef3e0f7c51ac3a8c2671bace8951f
+Author: kedziorno <kjoblak85@gmail.com>
+Date:   Wed Sep 9 16:37:11 2020 +0200
+
+    add half_adder and tb
+
+commit 037e657e4d44f32171c98e1f2eca4bea32aa86db
+Author: kedziorno <kjoblak85@gmail.com>
+Date:   Mon Aug 10 02:48:35 2020 +0200
+
+    refac tb_gates
+
+commit 2504dfb899407f83d5b25a34af474c897c976794
+Author: kedziorno <kjoblak85@gmail.com>
+Date:   Mon Aug 10 02:33:30 2020 +0200
+
+    add tb_ for XNOR,FF_SR_GATED,FF_D_GATED
+
+commit 3ea2e7ffe504083f15c9313102c995659f6fc835
+Author: kedziorno <kjoblak85@gmail.com>
+Date:   Sat Aug 8 19:21:57 2020 +0200
+
+    TB_FF_SR
+
+commit 2071df1b58e60f4807f4ceb319cff29ada753195
+Author: kedziorno <kjoblak85@gmail.com>
+Date:   Sat Aug 8 15:46:32 2020 +0200
+
+    add new modules
+
+commit 516134f171fdc8df9423b3b9d6495f8828c0cb13
+Author: kedziorno <kjoblak85@gmail.com>
+Date:   Sat Aug 8 15:30:20 2020 +0200
+
+    initial project with some gates
