@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="/home/user/workspace/vhdl_projects/myown_i2c/power_on_isim_beh1.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="numeric_std" />
+            <top_module name="std_logic_1164" />
+            <top_module name="tb_power_on" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="1" />
+   <wvobject fp_name="group24" type="group">
+      <obj_property name="label">uut</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="group25" type="group">
+         <obj_property name="label">port</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="/tb_power_on/uut/i_clk" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">i_clk</obj_property>
+            <obj_property name="ObjectShortName">i_clk</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/i_reset" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">i_reset</obj_property>
+            <obj_property name="ObjectShortName">i_reset</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/o_sda" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">o_sda</obj_property>
+            <obj_property name="ObjectShortName">o_sda</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/o_scl" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">o_scl</obj_property>
+            <obj_property name="ObjectShortName">o_scl</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject fp_name="group26" type="group">
+         <obj_property name="label">internal</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="/tb_power_on/uut/clock" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">clock</obj_property>
+            <obj_property name="ObjectShortName">clock</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/temp_sda" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">temp_sda</obj_property>
+            <obj_property name="ObjectShortName">temp_sda</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/temp_sck" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">temp_sck</obj_property>
+            <obj_property name="ObjectShortName">temp_sck</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/instruction_index" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">instruction_index[7:0]</obj_property>
+            <obj_property name="ObjectShortName">instruction_index[7:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/instrs" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">instrs[0:26]</obj_property>
+            <obj_property name="ObjectShortName">instrs[0:26]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/c_state" type="other" db_ref_id="1">
+            <obj_property name="ElementShortName">c_state</obj_property>
+            <obj_property name="ObjectShortName">c_state</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/n_state" type="other" db_ref_id="1">
+            <obj_property name="ElementShortName">n_state</obj_property>
+            <obj_property name="ObjectShortName">n_state</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/c_cmode" type="other" db_ref_id="1">
+            <obj_property name="ElementShortName">c_cmode</obj_property>
+            <obj_property name="ObjectShortName">c_cmode</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/n_cmode" type="other" db_ref_id="1">
+            <obj_property name="ElementShortName">n_cmode</obj_property>
+            <obj_property name="ObjectShortName">n_cmode</obj_property>
+         </wvobject>
+      </wvobject>
+   </wvobject>
+</wave_config>

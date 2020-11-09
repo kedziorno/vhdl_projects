@@ -34,7 +34,7 @@ Port(
 clk : in STD_LOGIC;
 rst : in STD_LOGIC;
 sda : out STD_LOGIC;
-sck : out STD_LOGIC
+scl : out STD_LOGIC
 );
 end top;
 
@@ -43,11 +43,10 @@ architecture Behavioral of top is
 component power_on is 
 port
 (
-	signal clk,rst : in std_logic;
-	signal sda,sck : out std_logic
+	signal i_clk,i_rst : in std_logic;
+	signal o_sda,o_scl : out std_logic
 );
 end component power_on;
-
 for all : power_on use entity WORK.power_on(Behavioral);
 
 begin
@@ -55,10 +54,10 @@ begin
 c0 : power_on
 port map
 (
-	clk => clk,
-	rst => rst,
-	sda => sda,
-	sck => sck
+	i_clk => clk,
+	i_rst => rst,
+	o_sda => sda,
+	o_scl => scl
 );
 
 end Behavioral;
