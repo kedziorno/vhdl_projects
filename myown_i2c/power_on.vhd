@@ -31,91 +31,80 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity power_on is 
-port (reset,clk : in std_logic; sda,sck : out std_logic);
+port (clk,rst : in std_logic; sda,sck : out std_logic);
 end power_on;
 
 architecture Behavioral of power_on is
 
-	-- ok - timing look ok,Tsck~19.82us,Tsdastart~4.96us,Tsdastop~4.96(7)us,Tsdalow=sdahigh~19.84us
+	-- ok?? - timing look ok,Tsck~19.82us,Tsdastart~4.96us,Tsdastop~4.96(7)us,Tsdalow=sdahigh~19.84us
 
 	constant INPUT_CLOCK : integer := 50_000_000;
-	constant I2C_CLOCK : integer := 200_000;
+	constant I2C_CLOCK : integer := 400_000;
 	constant INSTRUCTION_MAX : natural := 8;
-	constant BYTES_SEQUENCE_LENGTH : natural := 28;
+	constant BYTES_SEQUENCE_LENGTH : natural := 27;
+	constant NUMBER_BITS : integer := 8;
 
 	type ARRAY_BYTES_SEQUENCE is array (0 to BYTES_SEQUENCE_LENGTH-1) of std_logic_vector(7 downto 0);
 	type state is (sda_start,start,slave_address,slave_address_lastbit,slave_rw,slave_ack,get_instruction,data,data_lastbit,data_ack,stop,sda_stop);
 	type clock_mode is (c0,c1,c2,c3);
 
 	signal clock : std_logic := '0';
-	signal clock_strength : std_logic := '0';
 	signal temp_sda : std_logic := 'Z';
 	signal temp_sck : std_logic := 'Z';
-	signal instruction_index : std_logic_vector(INSTRUCTION_MAX-1 downto 0) := (others => '0');
-	signal Instrs : ARRAY_BYTES_SEQUENCE := (x"00",x"00",x"AE",x"D5",x"F0",x"A8",x"1F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"8F",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E",x"AF");
-	signal c_state,n_state : state := sda_start;
-	signal c_cmode,n_cmode : clock_mode := c0;
+	signal instruction_index : std_logic_vector(NUMBER_BITS-1 downto 0) := x"00";
+	signal Instrs : ARRAY_BYTES_SEQUENCE := (x"00",x"AE",x"D5",x"F0",x"A8",x"1F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"8F",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E",x"AF");
+	signal c_state,n_state : state;
+	signal c_cmode,n_cmode : clock_mode;
 
 begin
 
 	p0 : process (clk) is
-
 		constant I2C_COUNTER_MAX : integer := (INPUT_CLOCK / I2C_CLOCK) / 4;
-		variable count : integer range 0 to I2C_COUNTER_MAX := 0;
-
+		variable count : integer range 0 to I2C_COUNTER_MAX-1:= 0;
 	begin
-
 		if (rising_edge(clk)) then
-			if (count = I2C_COUNTER_MAX*4-1) then
-				count := 0;
-				clock <= '1';
-			else
+			if (count < (I2C_COUNTER_MAX*4)-1) then
 				clock <= '0';
 				count := count + 1;
+			else
+				clock <= '1';
+				count := 0;
+				if (c_state = sda_start) then
+					instruction_index <= (others => '0');
+				end if;
+				if (c_state = get_instruction) then
+					if (to_integer(unsigned(instruction_index)) < BYTES_SEQUENCE_LENGTH) then
+						instruction_index <= std_logic_vector(unsigned(instruction_index) + 1);
+					end if;
+				end if;
 			end if;
 		end if;
-
 	end process p0;
 
-	p1 : process (clock,reset) is
-
+	pa : process (clock,rst) is
 		constant DATA_INDEX_MAX : integer := 8;
 		variable data_index : integer range 0 to DATA_INDEX_MAX := 0;
-
 		constant SLAVE_INDEX_MAX : integer := 7;
 		variable slave_index : integer range 0 to SLAVE_INDEX_MAX := 0;
-
 		constant SDA_WIDTH_MAX : integer := 1;
 		variable sda_width: integer range 0 to SDA_WIDTH_MAX := SDA_WIDTH_MAX;
-
---		constant slave : std_logic_vector(SLAVE_INDEX_MAX-1 downto 0) := "1010101"; -- test pattern
---		constant slave : std_logic_vector(SLAVE_INDEX_MAX-1 downto 0) := "0101010"; -- test pattern
 		constant slave : std_logic_vector(SLAVE_INDEX_MAX-1 downto 0) := "0111100"; -- oled ssd1306 0x3c 0x3d 0x78
-
 	begin
-
-		if (reset = '1') then
-			c_state <= sda_start;
-			c_cmode <= c0;
+		if (rst = '1') then
+			n_state <= sda_start;
+			n_cmode <= c0;
 		elsif (rising_edge(clock)) then
 			c_state <= n_state;
 			c_cmode <= n_cmode;
-			if (c_state = get_instruction) then
-				instruction_index <= std_logic_vector(to_unsigned(to_integer(unsigned(instruction_index))+1,INSTRUCTION_MAX));
-			end if;
 		end if;
 		case c_cmode is
 			when c0 =>
-				clock_strength <= '0';
 				n_cmode <= c1;
 			when c1 =>
-				clock_strength <= '0';
 				n_cmode <= c2;
 			when c2 =>
-				clock_strength <= '1';
 				n_cmode <= c3;
 			when c3 =>
-				clock_strength <= '1';
 				n_cmode <= c0;
 			when others => null;
 		end case;
@@ -205,10 +194,9 @@ begin
 					end if;
 				end if;
 			when get_instruction =>
-				if (to_integer(unsigned(instruction_index)) < BYTES_SEQUENCE_LENGTH-1) then
+				if (to_integer(unsigned(instruction_index)) < BYTES_SEQUENCE_LENGTH) then
 					n_state <= data;
 				else
-					temp_sck <= not clock_strength;
 					n_state <= stop;
 				end if;
 			when data =>
@@ -289,10 +277,13 @@ begin
 			when sda_stop =>
 				temp_sck <= '1';
 				temp_sda <= '1';
-				n_state <= sda_stop;
+				data_index := 0;
+				slave_index := 0;
+				sda_width := SDA_WIDTH_MAX;
+				n_state <= sda_start;
 			when others => null;
 		end case;
-	end process p1;
+	end process pa;
 
 	sda <= '0' when temp_sda = '0' else 'Z';
 	sck <= '0' when temp_sck = '0' else 'Z';
