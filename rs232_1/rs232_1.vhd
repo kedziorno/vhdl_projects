@@ -29,16 +29,16 @@ use IEEE.NUMERIC_STD.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity module_1 is
+entity rs232_1 is
 Port(
 	clk : in  STD_LOGIC_VECTOR (0 downto 0);
 	rst : in  STD_LOGIC_VECTOR (0 downto 0);
 	RsTx : out  STD_LOGIC_VECTOR (0 downto 0);
 	RsRx : in  STD_LOGIC_VECTOR (0 downto 0)
 );
-end module_1;
+end rs232_1;
 
-architecture Behavioral of module_1 is
+architecture Behavioral of rs232_1 is
 	constant CLK_BOARD : integer := 50_000_000;
 	constant BAUD_RATE : integer := 9_600;
 
