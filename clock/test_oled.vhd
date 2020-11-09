@@ -52,10 +52,6 @@ constant NI_SET_COORDINATION : natural := 6;
 type A_SET_COORDINATION is array (0 to NI_SET_COORDINATION-1) of std_logic_vector(7 downto 0);
 signal set_coordination : A_SET_COORDINATION := (x"21",x"00",std_logic_vector(to_unsigned(OLED_WIDTH-1,8)),x"22",x"00",std_logic_vector(to_unsigned(OLED_HEIGHT-1,8)));
 
-constant NI_SCROLL_TO_LEFT : natural := 8;
-type A_SCROLL_TO_LEFT is array (0 to NI_SCROLL_TO_LEFT-1) of std_logic_vector(7 downto 0);
-signal scroll_to_left : A_SCROLL_TO_LEFT := (x"27",x"00",x"00",x"00",x"0F",x"00",x"FF",x"2F");
-
 SIGNAL i2c_ena     : STD_LOGIC;                     --i2c enable signal
 SIGNAL i2c_addr    : STD_LOGIC_VECTOR(6 DOWNTO 0);  --i2c address signal
 SIGNAL i2c_rw      : STD_LOGIC;                     --i2c read/write command signal
@@ -327,27 +323,6 @@ begin
 						when 1 to OLED_PAGES_ALL-i_char'length*6 =>
 							i2c_data_wr <= x"00"; -- command - FF/allpixels,00/blank,F0/zebra
 						when (OLED_PAGES_ALL-i_char'length*6)+1 =>
-							i2c_ena <= '0';
-							if (i2c_busy = '0') then
-								busy_cnt <= 0;
-								n_state <= scroll_left;
-							end if;
-						when others => null;
-					end case;
-				when scroll_left =>
-					busy_prev <= i2c_busy;
-					if (busy_prev = '0' and i2c_busy = '1') then
-						busy_cnt <= busy_cnt + 1;
-					end if;
-					case busy_cnt is
-						when 0 =>
-							i2c_ena <= '1'; -- we are busy
-							i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
-							i2c_rw <= '0';
-							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,8));
-						when 1 to NI_SCROLL_TO_LEFT =>
-							i2c_data_wr <= scroll_to_left(busy_cnt-1); -- command
-						when NI_SCROLL_TO_LEFT+1 =>
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
 								busy_cnt <= 0;
