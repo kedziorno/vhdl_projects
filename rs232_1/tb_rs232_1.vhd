@@ -32,12 +32,12 @@ USE ieee.std_logic_1164.ALL;
 -- arithmetic functions with Signed or Unsigned values
 USE ieee.numeric_std.ALL;
 
-ENTITY tbmodule_1 IS END tbmodule_1;
+ENTITY tb_rs232_1 IS END tb_rs232_1;
 
-ARCHITECTURE behavior OF tbmodule_1 IS 
+ARCHITECTURE behavior OF tb_rs232_1 IS 
 
 	-- Component Declaration for the Unit Under Test (UUT)
-	COMPONENT module_1
+	COMPONENT rs232_1
 	PORT(
 		clk : IN  std_logic_vector(0 downto 0);
 		rst : IN  std_logic_vector(0 downto 0);
@@ -60,7 +60,7 @@ ARCHITECTURE behavior OF tbmodule_1 IS
 BEGIN
 
 	-- Instantiate the Unit Under Test (UUT)
-	uut: module_1 PORT MAP (
+	uut: rs232_1 PORT MAP (
 		clk => clk,
 		rst => rst,
 		RsTx => tx,
@@ -80,7 +80,9 @@ BEGIN
 	stim_proc: process
 	begin
 		-- hold reset state for 100 ns.
-		--wait for 100 ns;
+		rst(0) <= '1';
+		wait for 100 ns;
+		rst(0) <= '0';
 		--wait for clk_period*10;
 		-- insert stimulus here
 		wait;
