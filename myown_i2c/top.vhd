@@ -93,11 +93,9 @@ end component test_oled;
 
 for all : test_oled use entity WORK.test_oled(Behavioral);
 
---signal font_character : std_logic_vector(11 downto 0) := (others => '0');
-signal font_character : array1(0 to 13-1);
---signal text : array1(0 to 13-1) := (x"4B",x"55",x"52",x"57",x"41",x"20",x"4D",x"41",x"43",x"20",x"3A",x"2D",x"29");
-signal text : array1(0 to 13-1) := ("000101110111","000110101001","000110011010","000110110011","000101000101","000010100000","000110000001","000101000101","000101001111","000010100000","000100100010","000011100001","000011001101");
-
+constant TEXT_LENGTH : integer := 26;
+signal font_character : array1(0 to TEXT_LENGTH-1);
+signal text : array1(0 to TEXT_LENGTH-1) := (x"4C",x"6F",x"52",x"65",x"4D",x"20",x"49",x"70",x"53",x"75",x"4D",x"20",x"64",x"4F",x"6C",x"4F",x"72",x"20",x"73",x"49",x"74",x"20",x"41",x"6D",x"45",x"74"); -- Lorem ipsum dolor sit amet
 
 begin
 

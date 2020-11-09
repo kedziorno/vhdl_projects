@@ -11,11 +11,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 
 package p_pkg1 is
-<<<<<<< HEAD
 	type array1 is array(natural range <>) of std_logic_vector(7 downto 0);
-=======
-	type array1 is array(natural range <>) of std_logic_vector(11 downto 0);
->>>>>>> add rest files , fix rebase conflicts
 
 -- type <new_type> is
 --  record
