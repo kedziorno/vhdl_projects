@@ -31,11 +31,12 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity top is
-Port(
-clk : in STD_LOGIC;
-rst : in STD_LOGIC;
-sda : out STD_LOGIC;
-sck : out STD_LOGIC
+port(
+signal clk : in std_logic;
+signal btn_1 : in std_logic;
+signal btn_2 : in std_logic;
+signal btn_3 : in std_logic;
+signal sda,scl : inout std_logic
 );
 end top;
 
@@ -62,6 +63,8 @@ BYTE_SIZE : integer);
 port(
 signal i_clk : in std_logic;
 signal i_rst : in std_logic;
+signal i_clear : in std_logic;
+signal i_draw : in std_logic;
 signal i_x : in std_logic_vector(W_BITS-1 downto 0);
 signal i_y : in std_logic_vector(H_BITS-1 downto 0);
 signal i_byte : in std_logic_vector(BYTE_SIZE-1 downto 0);
@@ -130,6 +133,8 @@ generic map (
 port map (
 	i_clk => clk,
 	i_rst => btn_1,
+	i_clear => btn_2,
+	i_draw => btn_3,
 	i_x => a,
 	i_y => b,
 	i_byte => display_bit,
