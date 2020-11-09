@@ -52,7 +52,7 @@ ARCHITECTURE behavior OF tb_test_oled IS
 
    --Inputs
    signal clk : std_logic := '0';
-   signal char : array1(0 to 1) := ("000101000101","000101111101");
+   signal text : array1(0 to 6-1) := (x"30",x"31",x"32",x"33",x"34",x"35"); -- 012345
 
 	--BiDirs
    signal sda : std_logic;
@@ -66,7 +66,7 @@ BEGIN
 	-- Instantiate the Unit Under Test (UUT)
 	uut: test_oled PORT MAP (
 		i_clk => clk,
-		i_char => char,
+		i_char => text,
 		io_sda => sda,
 		io_scl => scl
 	);
