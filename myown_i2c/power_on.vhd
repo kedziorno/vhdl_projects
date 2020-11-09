@@ -31,7 +31,12 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity power_on is 
-port (clk,rst : in std_logic; sda,sck : out std_logic);
+port (
+	i_clk : in std_logic;
+	i_reset : in std_logic;
+	o_sda : out std_logic;
+	o_scl : out std_logic
+);
 end power_on;
 
 architecture Behavioral of power_on is
@@ -58,11 +63,11 @@ architecture Behavioral of power_on is
 
 begin
 
-	p0 : process (clk) is
+	p0 : process (i_clk) is
 		constant I2C_COUNTER_MAX : integer := (INPUT_CLOCK / I2C_CLOCK) / 4;
 		variable count : integer range 0 to I2C_COUNTER_MAX-1:= 0;
 	begin
-		if (rising_edge(clk)) then
+		if (rising_edge(i_clk)) then
 			if (count < (I2C_COUNTER_MAX*4)-1) then
 				clock <= '0';
 				count := count + 1;
@@ -81,7 +86,7 @@ begin
 		end if;
 	end process p0;
 
-	pa : process (clock,rst) is
+	pa : process (clock,i_reset) is
 		constant DATA_INDEX_MAX : integer := 8;
 		variable data_index : integer range 0 to DATA_INDEX_MAX := 0;
 		constant SLAVE_INDEX_MAX : integer := 7;
@@ -90,7 +95,7 @@ begin
 		variable sda_width: integer range 0 to SDA_WIDTH_MAX := SDA_WIDTH_MAX;
 		constant slave : std_logic_vector(SLAVE_INDEX_MAX-1 downto 0) := "0111100"; -- oled ssd1306 0x3c 0x3d 0x78
 	begin
-		if (rst = '1') then
+		if (i_reset = '1') then
 			n_state <= sda_start;
 			n_cmode <= c0;
 		elsif (rising_edge(clock)) then
@@ -280,12 +285,12 @@ begin
 				data_index := 0;
 				slave_index := 0;
 				sda_width := SDA_WIDTH_MAX;
-				n_state <= sda_start;
+				n_state <= sda_stop;
 			when others => null;
 		end case;
 	end process pa;
 
-	sda <= '0' when temp_sda = '0' else 'Z';
-	sck <= '0' when temp_sck = '0' else 'Z';
+	o_sda <= '0' when temp_sda = '0' else 'Z';
+	o_scl <= '0' when temp_sck = '0' else 'Z';
 
 end Behavioral;
