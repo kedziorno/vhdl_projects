@@ -11,13 +11,14 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 
 package p_memory_content is
-	constant WIDTH : integer := 128;
-	constant HEIGHT : integer := 4;
-	constant WIDTH_BITS : integer := 7;
-	constant HEIGHT_BITS : integer := 2;
+	constant ROWS : integer := 128;
+	constant COLS : integer := 4;
+	constant ROWS_BITS : integer := 7;
+	constant COLS_BITS : integer := 2;
 	constant BYTE_BITS : integer := 8;
-	subtype WORD is std_logic_vector((BYTE_BITS*HEIGHT)-1 downto 0);
-	type MEMORY is array(WIDTH-1 downto 0) of WORD;
+	constant WORD_BITS : integer := COLS*BYTE_BITS;
+	subtype WORD is std_logic_vector(WORD_BITS-1 downto 0);
+	type MEMORY is array(ROWS-1 downto 0) of WORD;
 	constant memory_content : MEMORY :=
 	(	("11111111111100000000000000000000"),
 		("11000000000100000000000000000000"),

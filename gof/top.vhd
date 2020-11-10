@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use WORK.p_memory_content.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -43,11 +44,6 @@ architecture Behavioral of top is
 
 constant INPUT_CLOCK : integer := 50_000_000;
 constant BUS_CLOCK : integer := 400_000; -- increase for speed i2c
-constant OLED_WIDTH : integer := 128;
-constant OLED_HEIGHT : integer := 4; -- 32 = <0;3> * 8-bit row
-constant OLED_W_BITS : integer := 8; -- 128
-constant OLED_H_BITS : integer := 8; -- 4
-constant BYTE_SIZE : integer := 8;
 constant DIVIDER_CLOCK : integer := 1000; -- increase for speed simulate and i2c
 
 component oled_display is
@@ -84,28 +80,24 @@ end component clock_divider;
 for all : clock_divider use entity WORK.clock_divider(Behavioral);
 
 component memory1 is
-Generic (
-W_BITS : integer;
-H_BITS : integer;
-BYTE_SIZE : integer);
-Port (
+Port(
 i_clk : in std_logic;
-i_x : in std_logic_vector(W_BITS-1 downto 0);
-i_y : in std_logic_vector(H_BITS-1 downto 0);
-o_byte : out std_logic_vector(BYTE_SIZE-1 downto 0));
+i_x : in std_logic_vector(ROWS_BITS-1 downto 0);
+i_y : in std_logic_vector(COLS_BITS-1 downto 0);
+o_byte : out std_logic_vector(BYTE_BITS-1 downto 0));
 end component memory1;
 for all : memory1 use entity WORK.memory1(Behavioral);
 
-signal a : std_logic_vector(OLED_W_BITS-1 downto 0) := (others => '0');
-signal b : std_logic_vector(OLED_H_BITS-1 downto 0) := (others => '0');
+signal a : std_logic_vector(ROWS_BITS-1 downto 0) := (others => '0');
+signal b : std_logic_vector(COLS_BITS-1 downto 0) := (others => '0');
 signal rst : std_logic := '0';
 signal all_pixels : std_logic := '0';
 signal clk_1s : std_logic := '0';
-signal display_bit : std_logic_vector(BYTE_SIZE-1 downto 0) := (others => '0');
+signal display_byte : std_logic_vector(BYTE_BITS-1 downto 0) := (others => '0');
 signal display_initialize : std_logic;
 
-signal i : integer range 0 to OLED_WIDTH-1 := 0;
-signal j : integer range 0 to OLED_HEIGHT-1 := 0;
+signal i : integer range 0 to ROWS-1 := 0;
+signal j : integer range 0 to COLS-1 := 0;
 
 begin
 	
@@ -122,11 +114,11 @@ c0 : oled_display
 generic map (
 	GLOBAL_CLK => INPUT_CLOCK,
 	I2C_CLK => BUS_CLOCK,
-	WIDTH => OLED_WIDTH,
-	HEIGHT => OLED_HEIGHT,
-	W_BITS => OLED_W_BITS,
-	H_BITS => OLED_H_BITS,
-	BYTE_SIZE => BYTE_SIZE)
+	WIDTH => ROWS,
+	HEIGHT => COLS,
+	W_BITS => ROWS_BITS,
+	H_BITS => COLS_BITS,
+	BYTE_SIZE => BYTE_BITS)
 port map (
 	i_clk => clk,
 	i_rst => btn_1,
@@ -134,7 +126,7 @@ port map (
 	i_draw => btn_3,
 	i_x => a,
 	i_y => b,
-	i_byte => display_bit,
+	i_byte => display_byte,
 	i_all_pixels => all_pixels,
 	o_display_initialize => display_initialize,
 	io_sda => sda,
@@ -142,15 +134,11 @@ port map (
 );
 
 m1 : memory1
-generic map (
-	W_BITS => OLED_W_BITS,
-	H_BITS => OLED_H_BITS,
-	BYTE_SIZE => BYTE_SIZE)
 port map (
 	i_clk => clk,
 	i_x => a,
 	i_y => b,
-	o_byte => display_bit
+	o_byte => display_byte
 );
 
 p0 : process (clk_1s) is
@@ -161,8 +149,8 @@ begin
 		j <= 0;
 	elsif (rising_edge(clk_1s)) then
 		if (display_initialize = '1') then
-			if (j < OLED_HEIGHT) then
-				if (i < OLED_WIDTH-1) then
+			if (j < COLS) then
+				if (i < ROWS-1) then
 					i <= i + 1;
 				else
 					j <= j + 1;
