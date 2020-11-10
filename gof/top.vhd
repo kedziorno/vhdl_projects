@@ -85,8 +85,6 @@ for all : clock_divider use entity WORK.clock_divider(Behavioral);
 
 component memory1 is
 Generic (
-WIDTH : integer;
-HEIGHT : integer;
 W_BITS : integer;
 H_BITS : integer;
 BYTE_SIZE : integer);
@@ -107,7 +105,7 @@ signal display_bit : std_logic_vector(BYTE_SIZE-1 downto 0) := (others => '0');
 signal display_initialize : std_logic;
 
 signal i : integer range 0 to OLED_WIDTH-1 := 0;
-signal j : integer range 0 to OLED_HEIGHT-1 := OLED_HEIGHT-1;
+signal j : integer range 0 to OLED_HEIGHT-1 := 0;
 
 begin
 	
@@ -145,8 +143,6 @@ port map (
 
 m1 : memory1
 generic map (
-	WIDTH => OLED_WIDTH,
-	HEIGHT => OLED_HEIGHT,
 	W_BITS => OLED_W_BITS,
 	H_BITS => OLED_H_BITS,
 	BYTE_SIZE => BYTE_SIZE)
@@ -162,14 +158,14 @@ begin
 	if (btn_1 = '1') then
 		all_pixels <= '0';
 		i <= 0;
-		j <= OLED_HEIGHT-1;
+		j <= 0;
 	elsif (rising_edge(clk_1s)) then
 		if (display_initialize = '1') then
-			if (j >= 0) then
+			if (j < OLED_HEIGHT) then
 				if (i < OLED_WIDTH-1) then
 					i <= i + 1;
 				else
-					j <= j - 1;
+					j <= j + 1;
 					i <= 0;
 				end if;
 			else
