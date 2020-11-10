@@ -3,10 +3,12 @@
    <wave_state>
    </wave_state>
    <db_ref_list>
-      <db_ref path="/home/user/workspace/vhdl_projects/myown_i2c/power_on_isim_beh1.wdb" id="1" type="auto">
+      <db_ref path="./tb_power_on_isim.beh1.wdb" id="1" type="auto">
          <top_modules>
             <top_module name="numeric_std" />
             <top_module name="std_logic_1164" />
+            <top_module name="std_logic_arith" />
+            <top_module name="std_logic_unsigned" />
             <top_module name="tb_power_on" />
          </top_modules>
       </db_ref>
@@ -38,6 +40,16 @@
       <wvobject fp_name="group26" type="group">
          <obj_property name="label">internal</obj_property>
          <obj_property name="DisplayName">label</obj_property>
+         <wvobject fp_name="/tb_power_on/uut/instrs" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">instrs[0:25]</obj_property>
+            <obj_property name="ObjectShortName">instrs[0:25]</obj_property>
+            <obj_property name="Radix">BINARYRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/instrs" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">instrs[0:25]</obj_property>
+            <obj_property name="ObjectShortName">instrs[0:25]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
          <wvobject fp_name="/tb_power_on/uut/clock" type="logic" db_ref_id="1">
             <obj_property name="ElementShortName">clock</obj_property>
             <obj_property name="ObjectShortName">clock</obj_property>
@@ -50,15 +62,9 @@
             <obj_property name="ElementShortName">temp_sck</obj_property>
             <obj_property name="ObjectShortName">temp_sck</obj_property>
          </wvobject>
-         <wvobject fp_name="/tb_power_on/uut/instruction_index" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">instruction_index[7:0]</obj_property>
-            <obj_property name="ObjectShortName">instruction_index[7:0]</obj_property>
-            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-         </wvobject>
-         <wvobject fp_name="/tb_power_on/uut/instrs" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">instrs[0:26]</obj_property>
-            <obj_property name="ObjectShortName">instrs[0:26]</obj_property>
-            <obj_property name="Radix">HEXRADIX</obj_property>
+         <wvobject fp_name="/tb_power_on/uut/instruction_index" type="other" db_ref_id="1">
+            <obj_property name="ElementShortName">instruction_index</obj_property>
+            <obj_property name="ObjectShortName">instruction_index</obj_property>
          </wvobject>
          <wvobject fp_name="/tb_power_on/uut/c_state" type="other" db_ref_id="1">
             <obj_property name="ElementShortName">c_state</obj_property>
@@ -75,6 +81,50 @@
          <wvobject fp_name="/tb_power_on/uut/n_cmode" type="other" db_ref_id="1">
             <obj_property name="ElementShortName">n_cmode</obj_property>
             <obj_property name="ObjectShortName">n_cmode</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/data_index" type="other" db_ref_id="1">
+            <obj_property name="ElementShortName">data_index</obj_property>
+            <obj_property name="ObjectShortName">data_index</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/slave_index" type="other" db_ref_id="1">
+            <obj_property name="ElementShortName">slave_index</obj_property>
+            <obj_property name="ObjectShortName">slave_index</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/sda_width" type="other" db_ref_id="1">
+            <obj_property name="ElementShortName">sda_width</obj_property>
+            <obj_property name="ObjectShortName">sda_width</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/slave" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">slave[6:0]</obj_property>
+            <obj_property name="ObjectShortName">slave[6:0]</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/input_clock" type="other" db_ref_id="1">
+            <obj_property name="ElementShortName">input_clock</obj_property>
+            <obj_property name="ObjectShortName">input_clock</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/i2c_clock" type="other" db_ref_id="1">
+            <obj_property name="ElementShortName">i2c_clock</obj_property>
+            <obj_property name="ObjectShortName">i2c_clock</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/byte_size" type="other" db_ref_id="1">
+            <obj_property name="ElementShortName">byte_size</obj_property>
+            <obj_property name="ObjectShortName">byte_size</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/i2c_counter_max" type="other" db_ref_id="1">
+            <obj_property name="ElementShortName">i2c_counter_max</obj_property>
+            <obj_property name="ObjectShortName">i2c_counter_max</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/bytes_sequence_length" type="other" db_ref_id="1">
+            <obj_property name="ElementShortName">bytes_sequence_length</obj_property>
+            <obj_property name="ObjectShortName">bytes_sequence_length</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/slave_index_max" type="other" db_ref_id="1">
+            <obj_property name="ElementShortName">slave_index_max</obj_property>
+            <obj_property name="ObjectShortName">slave_index_max</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_power_on/uut/sda_width_max" type="other" db_ref_id="1">
+            <obj_property name="ElementShortName">sda_width_max</obj_property>
+            <obj_property name="ObjectShortName">sda_width_max</obj_property>
          </wvobject>
       </wvobject>
    </wvobject>
