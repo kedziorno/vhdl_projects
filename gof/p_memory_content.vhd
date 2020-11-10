@@ -12,11 +12,13 @@ use IEEE.STD_LOGIC_1164.all;
 
 package p_memory_content is
 	constant ROWS : integer := 128;
-	constant COLS : integer := 4;
 	constant ROWS_BITS : integer := 7;
-	constant COLS_BITS : integer := 2;
+	constant COLS_PIXEL : integer := 32;
+	constant COLS_PIXEL_BITS : integer := 5;
+	constant COLS_BLOCK : integer := 4;
+	constant COLS_BLOCK_BITS : integer := 2;
 	constant BYTE_BITS : integer := 8;
-	constant WORD_BITS : integer := COLS*BYTE_BITS;
+	constant WORD_BITS : integer := COLS_BLOCK*BYTE_BITS;
 	subtype WORD is std_logic_vector(WORD_BITS-1 downto 0);
 	type MEMORY is array(ROWS-1 downto 0) of WORD;
 	constant memory_content : MEMORY :=
