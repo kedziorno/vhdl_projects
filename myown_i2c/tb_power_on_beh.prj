@@ -1,0 +1,2 @@
+vhdl work "power_on.vhd"
+vhdl work "tb_power_on.vhd"
