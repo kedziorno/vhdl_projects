@@ -80,16 +80,22 @@ end component clock_divider;
 for all : clock_divider use entity WORK.clock_divider(Behavioral);
 
 component memory1 is
-Port(
+Port (
 i_clk : in std_logic;
-i_x : in std_logic_vector(ROWS_BITS-1 downto 0);
-i_y : in std_logic_vector(COLS_BITS-1 downto 0);
+i_enable : in std_logic;
+i_write : in std_logic;
+i_row : in std_logic_vector(ROWS_BITS-1 downto 0);
+i_col_pixel : in std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
+i_col_block : in std_logic_vector(COLS_BLOCK_BITS-1 downto 0);
+i_byte : in std_logic_vector(BYTE_BITS-1 downto 0);
+o_bit : out std_logic;
 o_byte : out std_logic_vector(BYTE_BITS-1 downto 0));
 end component memory1;
 for all : memory1 use entity WORK.memory1(Behavioral);
 
-signal a : std_logic_vector(ROWS_BITS-1 downto 0) := (others => '0');
-signal b : std_logic_vector(COLS_BITS-1 downto 0) := (others => '0');
+signal row : std_logic_vector(ROWS_BITS-1 downto 0) := (others => '0');
+signal col_pixel : std_logic_vector(COLS_PIXEL_BITS-1 downto 0) := (others => '0');
+signal col_block : std_logic_vector(COLS_BLOCK_BITS-1 downto 0) := (others => '0');
 signal rst : std_logic := '0';
 signal all_pixels : std_logic := '0';
 signal clk_1s : std_logic := '0';
@@ -97,7 +103,7 @@ signal display_byte : std_logic_vector(BYTE_BITS-1 downto 0) := (others => '0');
 signal display_initialize : std_logic;
 
 signal i : integer range 0 to ROWS-1 := 0;
-signal j : integer range 0 to COLS-1 := 0;
+signal j : integer range 0 to COLS_BLOCK-1 := 0;
 
 begin
 	
@@ -115,17 +121,17 @@ generic map (
 	GLOBAL_CLK => INPUT_CLOCK,
 	I2C_CLK => BUS_CLOCK,
 	WIDTH => ROWS,
-	HEIGHT => COLS,
+	HEIGHT => COLS_BLOCK,
 	W_BITS => ROWS_BITS,
-	H_BITS => COLS_BITS,
+	H_BITS => COLS_BLOCK_BITS,
 	BYTE_SIZE => BYTE_BITS)
 port map (
 	i_clk => clk,
 	i_rst => btn_1,
 	i_clear => btn_2,
 	i_draw => btn_3,
-	i_x => a,
-	i_y => b,
+	i_x => row,
+	i_y => col_block,
 	i_byte => display_byte,
 	i_all_pixels => all_pixels,
 	o_display_initialize => display_initialize,
@@ -136,8 +142,13 @@ port map (
 m1 : memory1
 port map (
 	i_clk => clk,
-	i_x => a,
-	i_y => b,
+	i_enable => '1',
+	i_write => '0',
+	i_row => row,
+	i_col_pixel => col_pixel,
+	i_col_block => col_block,
+	i_byte => (others => 'X'),
+	o_bit => open,
 	o_byte => display_byte
 );
 
@@ -149,7 +160,7 @@ begin
 		j <= 0;
 	elsif (rising_edge(clk_1s)) then
 		if (display_initialize = '1') then
-			if (j < COLS) then
+			if (j < COLS_BLOCK) then
 				if (i < ROWS-1) then
 					i <= i + 1;
 				else
@@ -163,7 +174,7 @@ begin
 	end if;
 end process p0;
 
-a <= std_logic_vector(to_unsigned(i,a'length));
-b <= std_logic_vector(to_unsigned(j,b'length));
+row <= std_logic_vector(to_unsigned(i,row'length));
+col_block <= std_logic_vector(to_unsigned(j,col_block'length));
 
 end Behavioral;
