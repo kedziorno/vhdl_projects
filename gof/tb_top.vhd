@@ -43,6 +43,8 @@ ARCHITECTURE behavior OF tb_top IS
     PORT(
          clk : IN  std_logic;
          btn_1 : IN  std_logic;
+         btn_2 : IN  std_logic;
+         btn_3 : IN  std_logic;
          sda : INOUT  std_logic;
          scl : INOUT  std_logic
         );
@@ -52,6 +54,8 @@ ARCHITECTURE behavior OF tb_top IS
    --Inputs
    signal clk : std_logic := '0';
    signal btn_1 : std_logic := '0';
+   signal btn_2 : std_logic := '0';
+   signal btn_3 : std_logic := '0';
 
 	--BiDirs
    signal sda : std_logic;
@@ -66,6 +70,8 @@ BEGIN
    uut: top PORT MAP (
           clk => clk,
           btn_1 => btn_1,
+          btn_2 => btn_2,
+          btn_3 => btn_3,
           sda => sda,
           scl => scl
         );
@@ -84,9 +90,9 @@ BEGIN
    stim_proc: process
    begin		
       -- hold reset state for 100 ns.
-		btn_1 <= '1';
+	btn_1 <= '1';
       wait for 100 ns;	
-		btn_1 <= '0';
+	btn_1 <= '0';
       wait for clk_period*10;
 
       -- insert stimulus here 
