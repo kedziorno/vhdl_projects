@@ -123,7 +123,8 @@ SIGNAL busy_prev   : STD_LOGIC;                     --previous value of i2c busy
 SIGNAL busy_cnt : INTEGER := 0; -- for i2c, count the clk tick when i2c_busy=1
 
 signal counter : integer range 0 to COUNTER_WAIT1-1 := 0;
-signal coord_prev_x,coord_prev_y : std_logic_vector(H_BITS-1 downto 0) := (others => '0');
+signal coord_prev_x : std_logic_vector(W_BITS-1 downto 0) := (others => '0');
+signal coord_prev_y : std_logic_vector(H_BITS-1 downto 0) := (others => '0');
 
 begin
 
