@@ -82,7 +82,7 @@ begin
 					end case;
 					t_col <= v0 & v1 & v2 & v3;
 					m1(to_integer(unsigned(t_row))) <= t_col;
-				elsif (i_write = '0') then
+				else
 					case to_integer(unsigned(t_col_block)) is
 						when 0 =>
 							t_byte <= v0;
