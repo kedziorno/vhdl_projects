@@ -124,14 +124,17 @@
       <wvobject fp_name="/tb_top/uut/m1/i_row" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">i_row[6:0]</obj_property>
          <obj_property name="ObjectShortName">i_row[6:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/m1/i_col_pixel" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">i_col_pixel[4:0]</obj_property>
-         <obj_property name="ObjectShortName">i_col_pixel[4:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/m1/i_col_block" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">i_col_block[1:0]</obj_property>
          <obj_property name="ObjectShortName">i_col_block[1:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/m1/i_col_pixel" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">i_col_pixel[4:0]</obj_property>
+         <obj_property name="ObjectShortName">i_col_pixel[4:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/m1/i_byte" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">i_byte[7:0]</obj_property>
