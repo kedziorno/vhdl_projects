@@ -93,132 +93,206 @@ BEGIN
 	-- Stimulus process
 	stim_proc: process
 	begin
-		-- output bute from row 3-10 and col 3
-		wait for 10*i_clk_period;
-		i_enable <= '1';
 		wait for i_clk_period;
+		
+		-- enable module
+		i_enable <= '1';
+		
+		--
+		-- output byte from row 3-10 and col 3
+		--
+
+		-- 10000000
 		i_row <= std_logic_vector(to_unsigned(3,7));
 		i_col_block <= std_logic_vector(to_unsigned(3,2));
 		wait for i_clk_period;
+		
+		-- 01000000
 		i_row <= std_logic_vector(to_unsigned(4,7));
 		i_col_block <= std_logic_vector(to_unsigned(3,2));
 		wait for i_clk_period;
+		
+		-- 00100000
 		i_row <= std_logic_vector(to_unsigned(5,7));
 		i_col_block <= std_logic_vector(to_unsigned(3,2));
 		wait for i_clk_period;
+		
+		-- 00010000
 		i_row <= std_logic_vector(to_unsigned(6,7));
 		i_col_block <= std_logic_vector(to_unsigned(3,2));
 		wait for i_clk_period;
+		
+		-- 00001000
 		i_row <= std_logic_vector(to_unsigned(7,7));
 		i_col_block <= std_logic_vector(to_unsigned(3,2));
 		wait for i_clk_period;
+		
+		-- 00000100
 		i_row <= std_logic_vector(to_unsigned(8,7));
 		i_col_block <= std_logic_vector(to_unsigned(3,2));
 		wait for i_clk_period;
+		
+		-- 00000010
 		i_row <= std_logic_vector(to_unsigned(9,7));
 		i_col_block <= std_logic_vector(to_unsigned(3,2));
 		wait for i_clk_period;
+		
+		-- 00000001
 		i_row <= std_logic_vector(to_unsigned(10,7));
 		i_col_block <= std_logic_vector(to_unsigned(3,2));
-		wait for 10*i_clk_period;
-		i_enable <= '0';
-		-- 12 random pixels - first/last two have 0 and rest have 1
-		wait for 10*i_clk_period;
-		i_enable <= '1';
 		wait for i_clk_period;
+		
+		-- disable module
+		i_enable <= '0';
+		
+		-- better visible in simulation
+		i_row <= "UUUUUUU";
+		i_col_block <= "UU";
+
+		wait for 10*i_clk_period;
+
+		-- enable module
+		i_enable <= '1';
+
+		--
+		-- 12 random pixels - first/last two have 0 and rest have 1
+		--
+
 		i_row <= std_logic_vector(to_unsigned(123,7));
 		i_col_pixel <= std_logic_vector(to_unsigned(13,5));
 		wait for i_clk_period;
+
 		i_row <= std_logic_vector(to_unsigned(29,7));
 		i_col_pixel <= std_logic_vector(to_unsigned(25,5));
 		wait for i_clk_period;
+
 		i_row <= std_logic_vector(to_unsigned(127,7));
 		i_col_pixel <= std_logic_vector(to_unsigned(31,5));
 		wait for i_clk_period;
+
 		i_row <= std_logic_vector(to_unsigned(116,7));
 		i_col_pixel <= std_logic_vector(to_unsigned(20,5));
 		wait for i_clk_period;
+
 		i_row <= std_logic_vector(to_unsigned(43,7));
 		i_col_pixel <= std_logic_vector(to_unsigned(9,5));
 		wait for i_clk_period;
+
 		i_row <= std_logic_vector(to_unsigned(116,7));
 		i_col_pixel <= std_logic_vector(to_unsigned(31,5));
 		wait for i_clk_period;
+
 		i_row <= std_logic_vector(to_unsigned(96,7));
 		i_col_pixel <= std_logic_vector(to_unsigned(0,5));
 		wait for i_clk_period;
+
 		i_row <= std_logic_vector(to_unsigned(65,7));
 		i_col_pixel <= std_logic_vector(to_unsigned(31,5));
 		wait for i_clk_period;
+
 		i_row <= std_logic_vector(to_unsigned(62,7));
 		i_col_pixel <= std_logic_vector(to_unsigned(28,5));
 		wait for i_clk_period;
+
 		i_row <= std_logic_vector(to_unsigned(43,7));
 		i_col_pixel <= std_logic_vector(to_unsigned(9,5));
 		wait for i_clk_period;
+
 		i_row <= std_logic_vector(to_unsigned(29,7));
 		i_col_pixel <= std_logic_vector(to_unsigned(2,5));
 		wait for i_clk_period;
+
 		i_row <= std_logic_vector(to_unsigned(19,7));
 		i_col_pixel <= std_logic_vector(to_unsigned(16,5));
-		wait for 10*i_clk_period;
-		i_enable <= '0';
-		-- 3 writes block byte in random positions
-		wait for 10*i_clk_period;
-		i_enable <= '1';
 		wait for i_clk_period;
+
+		-- disable module
+		i_enable <= '0';
+
+		-- better visible in simulation
+		i_row <= "UUUUUUU";
+		i_col_pixel <= "UUUUU";
+
+		wait for 10*i_clk_period;
+		
+		-- 3 writes block byte in random positions
+		
+		-- enable and write to module
+		i_enable <= '1';
 		i_write <= '1';
-		wait for i_clk_period; -- write 0 where we have ones
+		
+		-- write 0 where we have ones
 		i_row <= std_logic_vector(to_unsigned(0,7));
 		i_col_block <= std_logic_vector(to_unsigned(3,2));
-		i_byte <= x"00";
+		i_byte <= x"55";
 		wait for i_clk_period;
+		
 		i_row <= std_logic_vector(to_unsigned(0,7));
 		i_col_block <= std_logic_vector(to_unsigned(2,2));
-		i_byte <= x"00";
-		wait for i_clk_period; -- write 1 where we have zeros
+		i_byte <= x"AA";
+		wait for i_clk_period;
+		
+		-- write 1 where we have zeros
 		i_row <= std_logic_vector(to_unsigned(65,7));
 		i_col_block <= std_logic_vector(to_unsigned(2,2));
-		i_byte <= x"FF";
+		i_byte <= x"55";
 		wait for i_clk_period;
+		
 		i_row <= std_logic_vector(to_unsigned(65,7));
 		i_col_block <= std_logic_vector(to_unsigned(1,2));
-		i_byte <= x"FF";
-		wait for i_clk_period; -- write 16bit 01...01 to random
+		i_byte <= x"AA";
+		wait for i_clk_period;
+		
+		-- write 16bit 01...01 to random
 		i_row <= std_logic_vector(to_unsigned(117,7));
 		i_col_block <= std_logic_vector(to_unsigned(2,2));
-		i_byte <= "01010101";
+		i_byte <= x"55";
 		wait for i_clk_period;
+		
 		i_row <= std_logic_vector(to_unsigned(117,7));
 		i_col_block <= std_logic_vector(to_unsigned(1,2));
-		i_byte <= "10101010";
-		wait for i_clk_period; -- disable write
-		i_write <= '0';
-		wait for 10*i_clk_period;
+		i_byte <= x"AA";
+		wait for i_clk_period;
+		
+		-- disable write
 		i_enable <= '0';
+		i_write <= '0';
+		i_row <= "UUUUUUU";
+		i_col_block <= "UU";
+		i_byte <= "UUUUUUUU";
+		
 		-- check the writes
 		wait for 10*i_clk_period;
 		i_enable <= '1';
-		wait for i_clk_period;
+		
 		i_row <= std_logic_vector(to_unsigned(0,7));
 		i_col_block <= std_logic_vector(to_unsigned(3,2));
 		wait for i_clk_period;
+		
 		i_row <= std_logic_vector(to_unsigned(0,7));
 		i_col_block <= std_logic_vector(to_unsigned(2,2));
 		wait for i_clk_period;
+		
 		i_row <= std_logic_vector(to_unsigned(65,7));
 		i_col_block <= std_logic_vector(to_unsigned(2,2));
 		wait for i_clk_period;
+		
 		i_row <= std_logic_vector(to_unsigned(65,7));
 		i_col_block <= std_logic_vector(to_unsigned(1,2));
 		wait for i_clk_period;
+		
 		i_row <= std_logic_vector(to_unsigned(117,7));
 		i_col_block <= std_logic_vector(to_unsigned(2,2));
 		wait for i_clk_period;
+		
 		i_row <= std_logic_vector(to_unsigned(117,7));
 		i_col_block <= std_logic_vector(to_unsigned(1,2));
-		wait for 10*i_clk_period;
+		wait for i_clk_period;
+		
 		i_enable <= '0';
+		i_row <= "UUUUUUU";
+		i_col_block <= "UU";
+		
 		wait;
 	end process;
 
