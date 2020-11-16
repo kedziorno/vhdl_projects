@@ -1,4 +1,3 @@
 vhdl work "p_memory_content.vhd"
 vhdl work "memory1.vhd"
-vhdl work "tb_memory1.vhd"
 vhdl work "tb_memory2.vhd"

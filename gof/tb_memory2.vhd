@@ -108,10 +108,9 @@ BEGIN
 				end if;
 			end if;
 		end if;
-			i_row <= std_logic_vector(to_unsigned(i,i_row'length));
-	i_col_block <= std_logic_vector(to_unsigned(j,i_col_block'length));
-
 	end process p0;
 
+	i_row <= std_logic_vector(to_unsigned(i,i_row'length));
+	i_col_block <= std_logic_vector(to_unsigned(j,i_col_block'length));
 
 END;

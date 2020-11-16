@@ -44,10 +44,10 @@ o_byte : out std_logic_vector(BYTE_BITS-1 downto 0));
 end memory1;
 
 architecture Behavioral of memory1 is
+	signal m1 : MEMORY := memory_content;
 begin
 
 	p0 : process(i_clk) is
-		variable m1 : MEMORY := memory_content;
 		variable t_row : std_logic_vector(ROWS_BITS-1 downto 0);
 		variable t_col_pixel : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
 		variable t_col_block : std_logic_vector(COLS_BLOCK_BITS-1 downto 0);
@@ -82,7 +82,7 @@ begin
 						when others => null;
 					end case;
 					t_col := v3 & v2 & v1 & v0;
-					m1(to_integer(unsigned(t_row))) := t_col;
+					m1(to_integer(unsigned(t_row))) <= t_col;
 				else
 					case to_integer(unsigned(t_col_block)) is
 						when 0 =>
