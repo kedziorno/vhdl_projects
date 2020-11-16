@@ -34,22 +34,25 @@ entity memory1 is
 Port (
 i_clk : in std_logic;
 i_enable : in std_logic;
-i_write : in std_logic;
+i_write_byte : in std_logic;
+i_write_bit : in std_logic;
 i_row : in std_logic_vector(ROWS_BITS-1 downto 0);
 i_col_pixel : in std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
 i_col_block : in std_logic_vector(COLS_BLOCK_BITS-1 downto 0);
 i_byte : in std_logic_vector(BYTE_BITS-1 downto 0);
-o_bit : out std_logic;
-o_byte : out std_logic_vector(BYTE_BITS-1 downto 0));
+i_bit : in std_logic;
+o_byte : out std_logic_vector(BYTE_BITS-1 downto 0);
+o_bit : out std_logic);
 end memory1;
 
 architecture Behavioral of memory1 is
 	signal m1 : MEMORY := memory_content;
+	signal obyte : std_logic_vector(BYTE_BITS-1 downto 0);
+	signal obit : std_logic;
 begin
 
-	p0 : process(i_clk) is
+	process_byte : process(i_clk) is
 		variable t_row : std_logic_vector(ROWS_BITS-1 downto 0);
-		variable t_col_pixel : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
 		variable t_col_block : std_logic_vector(COLS_BLOCK_BITS-1 downto 0);
 		variable t_col : std_logic_vector(WORD_BITS-1 downto 0);
 		variable t_byte : std_logic_vector(BYTE_BITS-1 downto 0);
@@ -61,7 +64,6 @@ begin
 		if (rising_edge(i_clk)) then
 			t_row := i_row;
 			t_col := m1(to_integer(unsigned(t_row)));
-			t_col_pixel := i_col_pixel;
 			t_col_block := i_col_block;
 			t_byte := i_byte;
 			v0 := t_col((1*BYTE_BITS)-1 downto 0*BYTE_BITS);
@@ -69,7 +71,7 @@ begin
 			v2 := t_col((3*BYTE_BITS)-1 downto 2*BYTE_BITS);
 			v3 := t_col((4*BYTE_BITS)-1 downto 3*BYTE_BITS);
 			if (i_enable = '1') then
-				if (i_write = '1') then
+				if (i_write_byte = '1') then
 					case to_integer(unsigned(t_col_block)) is
 						when 0 =>
 							v0 := t_byte;
@@ -98,8 +100,29 @@ begin
 				end if;
 			end if;
 		end if;
-		o_byte <= t_byte; -- when (i_enable = '1' and i_write = '0') else "ZZZZZZZZ";
-		o_bit <= m1(to_integer(unsigned(t_row)))(to_integer(unsigned(t_col_pixel))); -- when (i_enable = '1' and i_write = '0') else 'Z';
-	end process p0;
+		obyte <= t_byte;
+	end process process_byte;
+
+	o_byte <= obyte;
+
+	process_bit : process (i_clk) is
+		variable t_row : std_logic_vector(ROWS_BITS-1 downto 0);
+		variable t_col_pixel : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
+		variable t_bit : std_logic;
+	begin
+		if (rising_edge(i_clk)) then
+			t_row := i_row;
+			t_col_pixel := i_col_pixel;
+			t_bit := i_bit;
+			if (i_enable = '1') then
+				if (i_write_bit = '1') then
+					m1(to_integer(unsigned(t_row)))(to_integer(unsigned(t_col_pixel))) <= t_bit;
+				end if;
+			end if;
+		end if;
+		obit <= m1(to_integer(unsigned(t_row)))(to_integer(unsigned(t_col_pixel)));
+	end process process_bit;
+
+	o_bit <= obit;
 
 end Behavioral;
