@@ -99,6 +99,8 @@ begin
 						when others => null;
 					end case;
 				end if;
+			else
+				t_byte := "ZZZZZZZZ";
 			end if;
 		end if;
 		obyte <= t_byte;
@@ -118,10 +120,13 @@ begin
 			if (i_enable_bit = '1') then
 				if (i_write_bit = '1') then
 					m1(to_integer(unsigned(t_row)))(to_integer(unsigned(t_col_pixel))) <= t_bit;
+				else
+					obit <= m1(to_integer(unsigned(t_row)))(to_integer(unsigned(t_col_pixel)));
 				end if;
+			else
+				obit <= 'Z';
 			end if;
 		end if;
-		obit <= m1(to_integer(unsigned(t_row)))(to_integer(unsigned(t_col_pixel)));
 	end process process_bit;
 
 	o_bit <= obit;
