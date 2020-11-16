@@ -83,13 +83,15 @@ component memory1 is
 Port (
 i_clk : in std_logic;
 i_enable : in std_logic;
-i_write : in std_logic;
+i_write_byte : in std_logic;
+i_write_bit : in std_logic;
 i_row : in std_logic_vector(ROWS_BITS-1 downto 0);
 i_col_pixel : in std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
 i_col_block : in std_logic_vector(COLS_BLOCK_BITS-1 downto 0);
 i_byte : in std_logic_vector(BYTE_BITS-1 downto 0);
-o_bit : out std_logic;
-o_byte : out std_logic_vector(BYTE_BITS-1 downto 0));
+i_bit : in std_logic;
+o_byte : out std_logic_vector(BYTE_BITS-1 downto 0);
+o_bit : out std_logic);
 end component memory1;
 for all : memory1 use entity WORK.memory1(Behavioral);
 
@@ -143,13 +145,15 @@ m1 : memory1
 port map (
 	i_clk => clk,
 	i_enable => '1',
-	i_write => '0',
+	i_write_byte => '0',
+	i_write_bit => '0',
 	i_row => row,
 	i_col_pixel => col_pixel,
 	i_col_block => col_block,
 	i_byte => (others => 'X'),
-	o_bit => open,
-	o_byte => display_byte
+	i_bit => 'X',
+	o_byte => display_byte,
+	o_bit => open
 );
 
 p0 : process (clk_1s) is
