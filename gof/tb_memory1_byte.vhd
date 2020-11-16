@@ -41,7 +41,8 @@ ARCHITECTURE behavior OF tb_memory1_byte IS
 	COMPONENT memory1
 	PORT(
 		i_clk : in std_logic;
-		i_enable : in std_logic;
+		i_enable_byte : in std_logic;
+		i_enable_bit : in std_logic;
 		i_write_byte : in std_logic;
 		i_write_bit : in std_logic;
 		i_row : in std_logic_vector(ROWS_BITS-1 downto 0);
@@ -55,7 +56,8 @@ ARCHITECTURE behavior OF tb_memory1_byte IS
 
 	--Inputs
 	signal i_clk : std_logic;
-	signal i_enable : std_logic;
+	signal i_enable_byte : std_logic;
+	signal i_enable_bit : std_logic;
 	signal i_write_byte : std_logic;
 	signal i_write_bit : std_logic;
 	signal i_row : std_logic_vector(6 downto 0);
@@ -76,7 +78,8 @@ BEGIN
 	-- Instantiate the Unit Under Test (UUT)
 	uut: memory1 PORT MAP (
 		i_clk => i_clk,
-		i_enable => i_enable,
+		i_enable_byte => i_enable_byte,
+		i_enable_bit => i_enable_bit,
 		i_write_byte => i_write_byte,
 		i_write_bit => i_write_bit,
 		i_row => i_row,
@@ -107,7 +110,7 @@ BEGIN
 		--
 
 		-- enable module
-		i_enable <= '1';
+		i_enable_byte <= '1';
 
 		-- 10000000
 		i_row <= std_logic_vector(to_unsigned(3,7));
@@ -150,7 +153,7 @@ BEGIN
 		wait for i_clk_period;
 		
 		-- disable module
-		i_enable <= 'U';
+		i_enable_byte <= 'U';
 		
 		-- better visible in simulation
 		i_row <= "UUUUUUU";
@@ -161,7 +164,7 @@ BEGIN
 		-- 3 writes block byte in random positions
 		
 		-- enable and write to module
-		i_enable <= '1';
+		i_enable_byte <= '1';
 		i_write_byte <= '1';
 		
 		-- write 0 where we have ones
@@ -198,7 +201,7 @@ BEGIN
 		wait for i_clk_period;
 		
 		-- disable write
-		i_enable <= 'U';
+		i_enable_byte <= 'U';
 		i_write_byte <= 'U';
 		i_row <= "UUUUUUU";
 		i_col_block <= "UU";
@@ -207,7 +210,7 @@ BEGIN
 		wait for 10*i_clk_period;
 
 		-- check the writes
-		i_enable <= '1';
+		i_enable_byte <= '1';
 		
 		i_row <= std_logic_vector(to_unsigned(0,7));
 		i_col_block <= std_logic_vector(to_unsigned(3,2));
@@ -233,7 +236,7 @@ BEGIN
 		i_col_block <= std_logic_vector(to_unsigned(1,2));
 		wait for i_clk_period;
 		
-		i_enable <= 'U';
+		i_enable_byte <= 'U';
 		i_row <= "UUUUUUU";
 		i_col_block <= "UU";
 		

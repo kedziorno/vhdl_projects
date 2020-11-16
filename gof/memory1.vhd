@@ -33,7 +33,8 @@ use IEEE.NUMERIC_STD.ALL;
 entity memory1 is
 Port (
 i_clk : in std_logic;
-i_enable : in std_logic;
+i_enable_byte : in std_logic;
+i_enable_bit : in std_logic;
 i_write_byte : in std_logic;
 i_write_bit : in std_logic;
 i_row : in std_logic_vector(ROWS_BITS-1 downto 0);
@@ -70,7 +71,7 @@ begin
 			v1 := t_col((2*BYTE_BITS)-1 downto 1*BYTE_BITS);
 			v2 := t_col((3*BYTE_BITS)-1 downto 2*BYTE_BITS);
 			v3 := t_col((4*BYTE_BITS)-1 downto 3*BYTE_BITS);
-			if (i_enable = '1') then
+			if (i_enable_byte = '1') then
 				if (i_write_byte = '1') then
 					case to_integer(unsigned(t_col_block)) is
 						when 0 =>
@@ -114,7 +115,7 @@ begin
 			t_row := i_row;
 			t_col_pixel := i_col_pixel;
 			t_bit := i_bit;
-			if (i_enable = '1') then
+			if (i_enable_bit = '1') then
 				if (i_write_bit = '1') then
 					m1(to_integer(unsigned(t_row)))(to_integer(unsigned(t_col_pixel))) <= t_bit;
 				end if;
