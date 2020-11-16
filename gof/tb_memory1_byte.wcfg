@@ -23,9 +23,9 @@
          <obj_property name="ElementShortName">i_clk</obj_property>
          <obj_property name="ObjectShortName">i_clk</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb_memory1_byte/i_enable" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">i_enable</obj_property>
-         <obj_property name="ObjectShortName">i_enable</obj_property>
+      <wvobject fp_name="/tb_memory1_byte/i_enable_byte" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_enable_byte</obj_property>
+         <obj_property name="ObjectShortName">i_enable_byte</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_memory1_byte/i_write_byte" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">i_write_byte</obj_property>

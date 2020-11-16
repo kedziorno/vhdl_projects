@@ -41,7 +41,8 @@ ARCHITECTURE behavior OF tb_memory1_bit IS
 	COMPONENT memory1
 	PORT(
 		i_clk : in std_logic;
-		i_enable : in std_logic;
+		i_enable_byte : in std_logic;
+		i_enable_bit : in std_logic;
 		i_write_byte : in std_logic;
 		i_write_bit : in std_logic;
 		i_row : in std_logic_vector(ROWS_BITS-1 downto 0);
@@ -55,7 +56,8 @@ ARCHITECTURE behavior OF tb_memory1_bit IS
 
 	--Inputs
 	signal i_clk : std_logic;
-	signal i_enable : std_logic;
+	signal i_enable_byte : std_logic;
+	signal i_enable_bit : std_logic;
 	signal i_write_byte : std_logic;
 	signal i_write_bit : std_logic;
 	signal i_row : std_logic_vector(6 downto 0);
@@ -76,7 +78,8 @@ BEGIN
 	-- Instantiate the Unit Under Test (UUT)
 	uut: memory1 PORT MAP (
 		i_clk => i_clk,
-		i_enable => i_enable,
+		i_enable_byte => i_enable_byte,
+		i_enable_bit => i_enable_bit,
 		i_write_byte => i_write_byte,
 		i_write_bit => i_write_bit,
 		i_row => i_row,
@@ -107,7 +110,7 @@ BEGIN
 		--
 
 		-- enable module
-		i_enable <= '1';
+		i_enable_bit <= '1';
 
 		i_row <= std_logic_vector(to_unsigned(123,7));
 		i_col_pixel <= std_logic_vector(to_unsigned(13,5));
@@ -158,7 +161,7 @@ BEGIN
 		wait for i_clk_period;
 
 		-- disable module
-		i_enable <= '0';
+		i_enable_bit <= '0';
 
 		-- better visible in simulation
 		i_row <= "UUUUUUU";
