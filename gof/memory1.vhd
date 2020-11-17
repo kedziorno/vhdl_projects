@@ -119,7 +119,7 @@ begin
 			t_bit := i_bit;
 			if (i_enable_bit = '1') then
 				if (i_write_bit = '1') then
-					m1(to_integer(unsigned(t_row)))(to_integer(unsigned(t_col_pixel))) <= t_bit;
+					--m1(to_integer(unsigned(t_row)))(to_integer(unsigned(t_col_pixel))) <= t_bit; -- disable to fix synthesis and display
 				else
 					obit <= m1(to_integer(unsigned(t_row)))(to_integer(unsigned(t_col_pixel)));
 				end if;
