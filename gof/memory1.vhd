@@ -47,7 +47,7 @@ o_bit : out std_logic);
 end memory1;
 
 architecture Behavioral of memory1 is
-	signal m1 : MEMORY := memory_content;
+	shared variable m1 : MEMORY := memory_content;
 	signal obyte : std_logic_vector(BYTE_BITS-1 downto 0);
 	signal obit : std_logic;
 begin
@@ -85,7 +85,7 @@ begin
 						when others => null;
 					end case;
 					t_col := v3 & v2 & v1 & v0;
-					m1(to_integer(unsigned(t_row))) <= t_col;
+					m1(to_integer(unsigned(t_row))) := t_col;
 				else
 					case to_integer(unsigned(t_col_block)) is
 						when 0 =>
@@ -112,16 +112,53 @@ begin
 		variable t_row : std_logic_vector(ROWS_BITS-1 downto 0);
 		variable t_col_pixel : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
 		variable t_bit : std_logic;
+		variable t_col : std_logic_vector(WORD_BITS-1 downto 0);
+		variable v0 : std_logic_vector(BYTE_BITS-1 downto 0);
+		variable v1 : std_logic_vector(BYTE_BITS-1 downto 0);
+		variable v2 : std_logic_vector(BYTE_BITS-1 downto 0);
+		variable v3 : std_logic_vector(BYTE_BITS-1 downto 0);
+		variable t_col_p1 : integer;
+		variable t_col_p2 : integer;
 	begin
 		if (rising_edge(i_clk)) then
 			t_row := i_row;
 			t_col_pixel := i_col_pixel;
 			t_bit := i_bit;
+			t_col_p1 := to_integer(unsigned(t_col_pixel)) / BYTE_BITS;
+			t_col_p2 := to_integer(unsigned(t_col_pixel)) mod BYTE_BITS;
+			t_col := m1(to_integer(unsigned(t_row)));
+			v0 := t_col((1*BYTE_BITS)-1 downto 0*BYTE_BITS);
+			v1 := t_col((2*BYTE_BITS)-1 downto 1*BYTE_BITS);
+			v2 := t_col((3*BYTE_BITS)-1 downto 2*BYTE_BITS);
+			v3 := t_col((4*BYTE_BITS)-1 downto 3*BYTE_BITS);
 			if (i_enable_bit = '1') then
 				if (i_write_bit = '1') then
-					--m1(to_integer(unsigned(t_row)))(to_integer(unsigned(t_col_pixel))) <= t_bit; -- disable to fix synthesis and display
+					case t_col_p1 is
+						when 0 =>
+							v0(t_col_p2) := t_bit;
+						when 1 =>
+							v1(t_col_p2) := t_bit;
+						when 2 =>
+							v2(t_col_p2) := t_bit;
+						when 3 =>
+							v3(t_col_p2) := t_bit;
+						when others => null;
+					end case;
+					t_col := v3 & v2 & v1 & v0;
+					m1(to_integer(unsigned(t_row))) := t_col;
 				else
-					obit <= m1(to_integer(unsigned(t_row)))(to_integer(unsigned(t_col_pixel)));
+					case t_col_p1 is
+						when 0 =>
+							t_bit := v0(t_col_p2);
+						when 1 =>
+							t_bit := v1(t_col_p2);
+						when 2 =>
+							t_bit := v2(t_col_p2);
+						when 3 =>
+							t_bit := v3(t_col_p2);
+						when others => null;
+					end case;
+					obit <= t_bit;
 				end if;
 			else
 				obit <= 'Z';
