@@ -33,6 +33,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity memory1 is
 Port (
 i_clk : in std_logic;
+i_reset : in std_logic;
 i_enable_byte : in std_logic;
 i_enable_bit : in std_logic;
 i_write_byte : in std_logic;
@@ -86,17 +87,21 @@ begin
 					m1(to_integer(unsigned(t_row))) := t_col;
 					o_byte <= "ZZZZZZZZ";
 				else
-					case to_integer(unsigned(t_col_block)) is
-						when 0 =>
-							t_byte := v0;
-						when 1 =>
-							t_byte := v1;
-						when 2 =>
-							t_byte := v2;
-						when 3 =>
-							t_byte := v3;
-						when others => null;
-					end case;
+					if (i_reset = '1') then
+						t_byte := (others => '0');
+					else
+						case to_integer(unsigned(t_col_block)) is
+							when 0 =>
+								t_byte := v0;
+							when 1 =>
+								t_byte := v1;
+							when 2 =>
+								t_byte := v2;
+							when 3 =>
+								t_byte := v3;
+							when others => null;
+						end case;
+					end if;
 					o_byte <= t_byte;
 				end if;
 			else
@@ -145,17 +150,21 @@ begin
 					m1(to_integer(unsigned(t_row))) := t_col;
 					o_bit <= 'Z';
 				else
-					case t_col_p1 is
-						when 0 =>
-							t_bit := v0(t_col_p2);
-						when 1 =>
-							t_bit := v1(t_col_p2);
-						when 2 =>
-							t_bit := v2(t_col_p2);
-						when 3 =>
-							t_bit := v3(t_col_p2);
-						when others => null;
-					end case;
+					if (i_reset = '1') then
+						t_bit := '0';
+					else
+						case t_col_p1 is
+							when 0 =>
+								t_bit := v0(t_col_p2);
+							when 1 =>
+								t_bit := v1(t_col_p2);
+							when 2 =>
+								t_bit := v2(t_col_p2);
+							when 3 =>
+								t_bit := v3(t_col_p2);
+							when others => null;
+						end case;
+					end if;
 					o_bit <= t_bit;
 				end if;
 			else

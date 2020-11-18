@@ -23,6 +23,10 @@
          <obj_property name="ElementShortName">i_clk</obj_property>
          <obj_property name="ObjectShortName">i_clk</obj_property>
       </wvobject>
+      <wvobject fp_name="/tb_memory1_bit/i_reset" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_reset</obj_property>
+         <obj_property name="ObjectShortName">i_reset</obj_property>
+      </wvobject>
       <wvobject fp_name="/tb_memory1_bit/i_enable_bit" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">i_enable_bit</obj_property>
          <obj_property name="ObjectShortName">i_enable_bit</obj_property>

@@ -41,6 +41,7 @@ ARCHITECTURE behavior OF tb_memory1_bit IS
 	COMPONENT memory1
 	PORT(
 		i_clk : in std_logic;
+		i_reset : in std_logic;
 		i_enable_byte : in std_logic;
 		i_enable_bit : in std_logic;
 		i_write_byte : in std_logic;
@@ -56,6 +57,7 @@ ARCHITECTURE behavior OF tb_memory1_bit IS
 
 	--Inputs - leave bit options and set default byte to 0
 	signal i_clk : std_logic;
+	signal i_reset : std_logic;
 	signal i_enable_byte : std_logic := '0';
 	signal i_enable_bit : std_logic;
 	signal i_write_byte : std_logic := '0';
@@ -78,6 +80,7 @@ BEGIN
 	-- Instantiate the Unit Under Test (UUT)
 	uut: memory1 PORT MAP (
 		i_clk => i_clk,
+		i_reset => i_reset,
 		i_enable_byte => i_enable_byte,
 		i_enable_bit => i_enable_bit,
 		i_write_byte => i_write_byte,
@@ -103,6 +106,9 @@ BEGIN
 	-- Stimulus process
 	stim_proc: process
 	begin
+		i_reset <= '1';
+		wait for i_clk_period;
+		i_reset <= '0';
 		wait for i_clk_period;
 
 		--
