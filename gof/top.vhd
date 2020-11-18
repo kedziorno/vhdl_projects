@@ -82,6 +82,7 @@ for all : clock_divider use entity WORK.clock_divider(Behavioral);
 component memory1 is
 Port (
 i_clk : in std_logic;
+i_reset : in std_logic;
 i_enable_byte : in std_logic;
 i_enable_bit : in std_logic;
 i_write_byte : in std_logic;
@@ -145,6 +146,7 @@ port map (
 m1 : memory1
 port map (
 	i_clk => clk,
+	i_reset => '0',
 	i_enable_byte => '1',
 	i_enable_bit => '0',
 	i_write_byte => '0',
