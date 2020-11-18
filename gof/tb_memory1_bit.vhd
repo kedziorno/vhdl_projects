@@ -54,20 +54,20 @@ ARCHITECTURE behavior OF tb_memory1_bit IS
 		o_bit : out std_logic);
 	END COMPONENT;
 
-	--Inputs
+	--Inputs - leave bit options and set default byte to 0
 	signal i_clk : std_logic;
-	signal i_enable_byte : std_logic;
+	signal i_enable_byte : std_logic := '0';
 	signal i_enable_bit : std_logic;
-	signal i_write_byte : std_logic;
+	signal i_write_byte : std_logic := '0';
 	signal i_write_bit : std_logic;
 	signal i_row : std_logic_vector(6 downto 0);
 	signal i_col_pixel : std_logic_vector(4 downto 0);
-	signal i_col_block : std_logic_vector(1 downto 0);
-	signal i_byte : std_logic_vector(7 downto 0);
+	signal i_col_block : std_logic_vector(1 downto 0) := (others => '0');
+	signal i_byte : std_logic_vector(7 downto 0) := (others => '0');
 	signal i_bit : std_logic;
 
-	--Outputs
-	signal o_byte : std_logic_vector(7 downto 0);
+	--Outputs - leave bit options and set default byte to 0
+	signal o_byte : std_logic_vector(7 downto 0) := (others => '0');
 	signal o_bit : std_logic;
 
 	-- Clock period definitions

@@ -117,8 +117,8 @@ begin
 		variable v1 : std_logic_vector(BYTE_BITS-1 downto 0);
 		variable v2 : std_logic_vector(BYTE_BITS-1 downto 0);
 		variable v3 : std_logic_vector(BYTE_BITS-1 downto 0);
-		variable t_col_p1 : integer;
-		variable t_col_p2 : integer;
+		variable t_col_p1 : integer range 0 to COLS_PIXEL_BITS-1;
+		variable t_col_p2 : integer range 0 to BYTE_BITS-1;
 	begin
 		if (rising_edge(i_clk)) then
 			t_row := i_row;
