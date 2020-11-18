@@ -48,8 +48,6 @@ end memory1;
 
 architecture Behavioral of memory1 is
 	shared variable m1 : MEMORY := memory_content;
-	signal obyte : std_logic_vector(BYTE_BITS-1 downto 0);
-	signal obit : std_logic;
 begin
 
 	process_byte : process(i_clk) is
@@ -86,6 +84,7 @@ begin
 					end case;
 					t_col := v3 & v2 & v1 & v0;
 					m1(to_integer(unsigned(t_row))) := t_col;
+					o_byte <= "ZZZZZZZZ";
 				else
 					case to_integer(unsigned(t_col_block)) is
 						when 0 =>
@@ -98,15 +97,13 @@ begin
 							t_byte := v3;
 						when others => null;
 					end case;
+					o_byte <= t_byte;
 				end if;
 			else
-				t_byte := "ZZZZZZZZ";
+				o_byte <= "ZZZZZZZZ";
 			end if;
 		end if;
-		obyte <= t_byte;
 	end process process_byte;
-
-	o_byte <= obyte;
 
 	process_bit : process (i_clk) is
 		variable t_row : std_logic_vector(ROWS_BITS-1 downto 0);
@@ -146,6 +143,7 @@ begin
 					end case;
 					t_col := v3 & v2 & v1 & v0;
 					m1(to_integer(unsigned(t_row))) := t_col;
+					o_bit <= 'Z';
 				else
 					case t_col_p1 is
 						when 0 =>
@@ -158,14 +156,12 @@ begin
 							t_bit := v3(t_col_p2);
 						when others => null;
 					end case;
-					obit <= t_bit;
+					o_bit <= t_bit;
 				end if;
 			else
-				obit <= 'Z';
+				o_bit <= 'Z';
 			end if;
 		end if;
 	end process process_bit;
-
-	o_bit <= obit;
 
 end Behavioral;
