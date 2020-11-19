@@ -14,10 +14,14 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="3" />
+   <WVObjectSize size="9" />
    <wave_markers>
       <marker time="513999990000000" label="" />
    </wave_markers>
+   <wvobject fp_name="/tb_top/uut/clk_1s" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_1s</obj_property>
+      <obj_property name="ObjectShortName">clk_1s</obj_property>
+   </wvobject>
    <wvobject fp_name="group47" type="group">
       <obj_property name="label">ports</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -109,6 +113,26 @@
          <obj_property name="ElementShortName">counter</obj_property>
          <obj_property name="ObjectShortName">counter</obj_property>
       </wvobject>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/cstate1" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">cstate1</obj_property>
+      <obj_property name="ObjectShortName">cstate1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/nstate1" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">nstate1</obj_property>
+      <obj_property name="ObjectShortName">nstate1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/countalive" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">countalive</obj_property>
+      <obj_property name="ObjectShortName">countalive</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/spx" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">spx</obj_property>
+      <obj_property name="ObjectShortName">spx</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/spy" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">spy</obj_property>
+      <obj_property name="ObjectShortName">spy</obj_property>
    </wvobject>
    <wvobject fp_name="group99" type="group">
       <obj_property name="label">memory</obj_property>
