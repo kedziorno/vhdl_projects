@@ -105,9 +105,44 @@ signal all_pixels : std_logic := '0';
 signal clk_1s : std_logic := '0';
 signal display_byte : std_logic_vector(BYTE_BITS-1 downto 0) := (others => '0');
 signal display_initialize : std_logic;
+signal o_bit : std_logic;
 
-signal i : integer range 0 to ROWS-1 := 0;
-signal j : integer range 0 to COLS_BLOCK-1 := 0;
+procedure GetCellAt(
+	variable i_row : in integer;
+	variable i_col : in integer;
+	variable o_row : out integer;
+	variable o_col : out integer
+) is begin
+	if (i_row < 0) then
+		o_row := 0;
+	end if;
+	if (i_col < 0) then
+		o_col := 0;
+	end if;
+	if (i_row >= ROWS-1) then
+		o_row := ROWS-1;
+	end if;
+	if (i_col >= COLS_PIXEL-1) then
+		o_col := COLS_PIXEL-1;
+	end if;
+end GetCellAt;
+
+shared variable pX : integer range 0 to ROWS-1 := 0;
+shared variable pY : integer range 0 to COLS_BLOCK-1 := 0;
+
+signal spX : integer range 0 to ROWS-1 := 0;
+signal spY : integer range 0 to COLS_BLOCK-1 := 0;
+
+signal i_mem_e_byte : std_logic;
+signal i_mem_e_bit : std_logic;
+
+signal countAlive : integer := 0;
+
+type state1 is (idle,mem_enable,calculate,mem_disable);
+signal cstate1,nstate1 : state1;
+
+type state2 is (idle);
+signal cstate2,nstate2 : state2;
 
 begin
 	
@@ -147,8 +182,8 @@ m1 : memory1
 port map (
 	i_clk => clk,
 	i_reset => '0',
-	i_enable_byte => '1',
-	i_enable_bit => '0',
+	i_enable_byte => i_mem_e_byte,
+	i_enable_bit => i_mem_e_bit,
 	i_write_byte => '0',
 	i_write_bit => '0',
 	i_row => row,
@@ -157,23 +192,109 @@ port map (
 	i_byte => (others => 'X'),
 	i_bit => 'X',
 	o_byte => display_byte,
-	o_bit => open
+	o_bit => o_bit
 );
+
+gof_logic_fsm : process (clk_1s) is
+begin
+	if (rising_edge(clk_1s)) then
+		cstate1 <= nstate1;
+	end if;
+end process gof_logic_fsm;
+
+gof_logic : process (cstate1) is
+	variable ppX : integer := pX;
+	variable ppY : integer := pY;
+	variable ppXm1 : integer := ppX-1;
+	variable ppXp1 : integer := ppX+1;
+	variable ppYm1 : integer := ppY-1;
+	variable ppYp1 : integer := ppY+1;
+	variable oppX : integer;
+	variable oppY : integer;
+begin
+	case cstate1 is
+		when idle =>
+			nstate1 <= mem_enable;
+		when mem_enable =>
+			nstate1 <= calculate;
+			i_mem_e_byte <= '0';
+			i_mem_e_bit <= '1';
+		when calculate =>
+			nstate1 <= mem_disable;
+			if (pY /= 0) then
+				GetCellAt(ppX,ppYm1,oppX,oppY);
+				if (o_bit = '1') then
+					countAlive <= countAlive + 1;
+				end if;
+			end if;
+			if (pY /= COLS_PIXEL-1) then
+				GetCellAt(ppX,ppYp1,oppX,oppY);
+				if (o_bit = '1') then
+					countAlive <= countAlive + 1;
+				end if;
+			end if;
+			if (pX /= ROWS-1) then
+				GetCellAt(ppXp1,ppY,oppX,oppY);
+				if (o_bit = '1') then
+					countAlive <= countAlive + 1;
+				end if;
+			end if;
+			if (pX /= 0) then
+				GetCellAt(ppXm1,ppY,oppX,oppY);
+				if (o_bit = '1') then
+					countAlive <= countAlive + 1;
+				end if;
+			end if;
+			if ((pX /= 0) and (pY /= 0)) then
+				GetCellAt(ppXm1,ppYm1,oppX,oppY);
+				if (o_bit = '1') then
+					countAlive <= countAlive + 1;
+				end if;
+			end if;
+			if ((pX /= ROWS-1) and (pY /= 0)) then
+				GetCellAt(ppXp1,ppYm1,oppX,oppY);
+				if (o_bit = '1') then
+					countAlive <= countAlive + 1;
+				end if;
+			end if;
+			if ((pX /= 0) and (pY /= COLS_PIXEL-1)) then
+				GetCellAt(ppXm1,ppYp1,oppX,oppY);
+				if (o_bit = '1') then
+					countAlive <= countAlive + 1;
+				end if;
+			end if;
+			if ((pX /= ROWS-1) and (pY /= COLS_PIXEL-1)) then
+				GetCellAt(ppXp1,ppYp1,oppX,oppY);
+				if (o_bit = '1') then
+					countAlive <= countAlive + 1;
+				end if;
+			end if;
+		when mem_disable =>
+			nstate1 <= idle;
+			i_mem_e_byte <= '1';
+			i_mem_e_bit <= '0';
+		when others => null;
+	end case;
+	pX := oppX;
+	pY := oppY;
+	spX <= oppX;
+	spY <= oppY;
+end process gof_logic;
 
 p0 : process (clk_1s) is
 begin
 	if (btn_1 = '1') then
 		all_pixels <= '0';
-		i <= 0;
-		j <= 0;
+		pX := 0;
+		pY := 0;
 	elsif (rising_edge(clk_1s)) then
 		if (display_initialize = '1') then
-			if (j < COLS_BLOCK) then
-				if (i < ROWS-1) then
-					i <= i + 1;
+			if (pY < COLS_BLOCK) then
+				if (pX < ROWS-1) then
+					pX := pX + 1;
 				else
-					j <= j + 1;
-					i <= 0;
+					pY := pY + 1;
+					pX := 0;
 				end if;
 			else
 				all_pixels <= '1';
@@ -182,7 +303,7 @@ begin
 	end if;
 end process p0;
 
-row <= std_logic_vector(to_unsigned(i,row'length));
-col_block <= std_logic_vector(to_unsigned(j,col_block'length));
+row <= std_logic_vector(to_unsigned(pX,row'length));
+col_block <= std_logic_vector(to_unsigned(pY,col_block'length));
 
 end Behavioral;
