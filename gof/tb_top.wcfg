@@ -15,10 +15,6 @@
       </db_ref>
    </db_ref_list>
    <WVObjectSize size="5" />
-   <wave_markers>
-      <marker time="513999990000000" label="" />
-      <marker time="129999990000000" label="" />
-   </wave_markers>
    <wvobject fp_name="/tb_top/uut/clk_1s" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">clk_1s</obj_property>
       <obj_property name="ObjectShortName">clk_1s</obj_property>
