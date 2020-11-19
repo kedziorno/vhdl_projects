@@ -108,27 +108,34 @@ signal display_initialize : std_logic;
 signal o_bit : std_logic;
 
 procedure GetCellAt(
-	variable i_row : in integer;
-	variable i_col : in integer;
-	variable o_row : out integer;
-	variable o_col : out integer
+	signal i_row : in integer;
+	signal i_col : in integer;
+	signal o_row : out integer;
+	signal o_col : out integer
 ) is begin
-	if (i_row < 0) then
-		o_row := 0;
+	report "getcellat" severity note;
+	if (i_row <= 0) then
+		report "i_row <= MIN : "&integer'image(i_row) severity note;
+		o_row <= 0;
 	end if;
-	if (i_col < 0) then
-		o_col := 0;
+	if (i_col <= 0) then
+		report "i_col <= MIN : "&integer'image(i_col) severity note;
+		o_col <= 0;
 	end if;
 	if (i_row >= ROWS-1) then
-		o_row := ROWS-1;
+		report "i_row >= MAX-1 : "&integer'image(i_row) severity note;
+		o_row <= ROWS-1;
 	end if;
 	if (i_col >= COLS_PIXEL-1) then
-		o_col := COLS_PIXEL-1;
+		report "i_col >= MAX-1 : "&integer'image(i_col) severity note;
+		o_col <= COLS_PIXEL-1;
 	end if;
 end GetCellAt;
 
-shared variable pX : integer range 0 to ROWS-1 := 0;
-shared variable pY : integer range 0 to COLS_BLOCK-1 := 0;
+--shared variable pX : integer range 0 to ROWS-1 := 0;
+--shared variable pY : integer range 0 to COLS_BLOCK-1 := 0;
+signal pX : integer range 0 to ROWS-1 := 0;
+signal pY : integer range 0 to COLS_BLOCK-1 := 0;
 
 signal spX : integer range 0 to ROWS-1 := 0;
 signal spY : integer range 0 to COLS_BLOCK-1 := 0;
@@ -138,12 +145,26 @@ signal i_mem_e_bit : std_logic;
 
 signal countAlive : integer := 0;
 
-type state1 is (idle,mem_enable,calculate,mem_disable);
+--type state1 is (idle,mem_enable,c1,c2,c3,c4,c5,c6,c7,c8,mem_disable,stop);
+type state1 is (idle,mem_enable,calculate,mem_disable,stop);
 signal cstate1,nstate1 : state1;
 
-type state2 is (idle);
+type state2 is (idle,display_is_initialize,update_row,update_col,stop);
 signal cstate2,nstate2 : state2;
 
+signal ppX : integer range 0 to ROWS-1 := pX;
+signal ppY : integer range 0 to COLS_BLOCK-1 := pY;
+--signal ppXm1 : integer;
+--signal ppXp1 : integer;
+--signal ppYm1 : integer;
+--signal ppYp1 : integer;
+--signal ppXm1 : integer range 0 to ROWS-1 := ppX-1;
+--signal ppXp1 : integer range 0 to ROWS-1 := ppX+1;
+--signal ppYm1 : integer range 0 to COLS_BLOCK-1 := ppY-1;
+--signal ppYp1 : integer range 0 to COLS_BLOCK-1 := ppY+1;
+--signal oppX : integer;
+--signal oppY : integer;
+	
 begin
 	
 clk_div : clock_divider
@@ -182,8 +203,10 @@ m1 : memory1
 port map (
 	i_clk => clk,
 	i_reset => '0',
-	i_enable_byte => i_mem_e_byte,
-	i_enable_bit => i_mem_e_bit,
+--	i_enable_byte => i_mem_e_byte,
+	i_enable_byte => '1',
+--	i_enable_bit => i_mem_e_bit,
+	i_enable_bit => '0',
 	i_write_byte => '0',
 	i_write_bit => '0',
 	i_row => row,
@@ -195,112 +218,156 @@ port map (
 	o_bit => o_bit
 );
 
-gof_logic_fsm : process (clk_1s) is
-begin
-	if (rising_edge(clk_1s)) then
-		cstate1 <= nstate1;
-	end if;
-end process gof_logic_fsm;
+--gof_logic_fsm : process (clk_1s) is
+--begin
+--	if (rising_edge(clk_1s)) then
+--		cstate1 <= nstate1;
+--	end if;
+--end process gof_logic_fsm;
+--
+--gof_logic : process (cstate1) is
+--	
+--begin
+--	case cstate1 is
+--		when idle =>
+--			nstate1 <= mem_enable;
+--		when mem_enable =>
+--			nstate1 <= calculate;
+--		--	nstate1 <= c1;
+--			i_mem_e_byte <= '0';
+--			i_mem_e_bit <= '1';
+--		when calculate =>
+--			nstate1 <= mem_disable;
+--		--when c1 =>
+--		--	nstate1 <= c2;
+--			if (ppY /= 0) then
+--				GetCellAt(ppX,ppYm1,oppX,oppY);
+--				if (o_bit = '1') then
+--					countAlive <= countAlive + 1;
+--				end if;
+--			end if;
+--		--when c2 =>
+--		--	nstate1 <= c3;
+--			if (ppY /= COLS_PIXEL-1) then
+--				GetCellAt(ppX,ppYp1,oppX,oppY);
+--				if (o_bit = '1') then
+--					countAlive <= countAlive + 1;
+--				end if;
+--			end if;
+--		--when c3 =>
+--		--	nstate1 <= c4;
+--			if (ppX /= ROWS-1) then
+--				GetCellAt(ppXp1,ppY,oppX,oppY);
+--				if (o_bit = '1') then
+--					countAlive <= countAlive + 1;
+--				end if;
+--			end if;
+--		--when c4 =>
+--		--	nstate1 <= c5;
+--			if (ppX /= 0) then
+--				GetCellAt(ppXm1,ppY,oppX,oppY);
+--				if (o_bit = '1') then
+--					countAlive <= countAlive + 1;
+--				end if;
+--			end if;
+--		--when c5 =>
+--		--	nstate1 <= c6;
+--			if ((ppX /= 0) and (ppY /= 0)) then
+--				GetCellAt(ppXm1,ppYm1,oppX,oppY);
+--				if (o_bit = '1') then
+--					countAlive <= countAlive + 1;
+--				end if;
+--			end if;
+--		--when c6 =>
+--		--	nstate1 <= c7;
+--			if ((ppX /= ROWS-1) and (ppY /= 0)) then
+--				GetCellAt(ppXp1,ppYm1,oppX,oppY);
+--				if (o_bit = '1') then
+--					countAlive <= countAlive + 1;
+--				end if;
+--			end if;
+--		--when c7 =>
+--		--	nstate1 <= c8;
+--			if ((ppX /= 0) and (ppY /= COLS_PIXEL-1)) then
+--				GetCellAt(ppXm1,ppYp1,oppX,oppY);
+--				if (o_bit = '1') then
+--					countAlive <= countAlive + 1;
+--				end if;
+--			end if;
+--		--when c8 =>
+--		--	nstate1 <= mem_disable;
+--			if ((ppX /= ROWS-1) and (ppY /= COLS_PIXEL-1)) then
+--				GetCellAt(ppXp1,ppYp1,oppX,oppY);
+--				if (o_bit = '1') then
+--					countAlive <= countAlive + 1;
+--				end if;
+--			end if;
+--		when mem_disable =>
+--			nstate1 <= idle;
+--			i_mem_e_byte <= '1';
+--			i_mem_e_bit <= '0';
+--		when others => null;
+--	end case;
+--	pX := oppX;
+--	pY := oppY;
+--	spX <= oppX;
+--	spY <= oppY;
+--	ppXm1 <= ppX-1;
+--	ppXp1 <= ppX+1;
+--	ppYm1 <= ppY-1;
+--	ppYp1 <= ppY+1;
+--end process gof_logic;
 
-gof_logic : process (cstate1) is
-	variable ppX : integer := pX;
-	variable ppY : integer := pY;
-	variable ppXm1 : integer := ppX-1;
-	variable ppXp1 : integer := ppX+1;
-	variable ppYm1 : integer := ppY-1;
-	variable ppYp1 : integer := ppY+1;
-	variable oppX : integer;
-	variable oppY : integer;
-begin
-	case cstate1 is
-		when idle =>
-			nstate1 <= mem_enable;
-		when mem_enable =>
-			nstate1 <= calculate;
-			i_mem_e_byte <= '0';
-			i_mem_e_bit <= '1';
-		when calculate =>
-			nstate1 <= mem_disable;
-			if (pY /= 0) then
-				GetCellAt(ppX,ppYm1,oppX,oppY);
-				if (o_bit = '1') then
-					countAlive <= countAlive + 1;
-				end if;
-			end if;
-			if (pY /= COLS_PIXEL-1) then
-				GetCellAt(ppX,ppYp1,oppX,oppY);
-				if (o_bit = '1') then
-					countAlive <= countAlive + 1;
-				end if;
-			end if;
-			if (pX /= ROWS-1) then
-				GetCellAt(ppXp1,ppY,oppX,oppY);
-				if (o_bit = '1') then
-					countAlive <= countAlive + 1;
-				end if;
-			end if;
-			if (pX /= 0) then
-				GetCellAt(ppXm1,ppY,oppX,oppY);
-				if (o_bit = '1') then
-					countAlive <= countAlive + 1;
-				end if;
-			end if;
-			if ((pX /= 0) and (pY /= 0)) then
-				GetCellAt(ppXm1,ppYm1,oppX,oppY);
-				if (o_bit = '1') then
-					countAlive <= countAlive + 1;
-				end if;
-			end if;
-			if ((pX /= ROWS-1) and (pY /= 0)) then
-				GetCellAt(ppXp1,ppYm1,oppX,oppY);
-				if (o_bit = '1') then
-					countAlive <= countAlive + 1;
-				end if;
-			end if;
-			if ((pX /= 0) and (pY /= COLS_PIXEL-1)) then
-				GetCellAt(ppXm1,ppYp1,oppX,oppY);
-				if (o_bit = '1') then
-					countAlive <= countAlive + 1;
-				end if;
-			end if;
-			if ((pX /= ROWS-1) and (pY /= COLS_PIXEL-1)) then
-				GetCellAt(ppXp1,ppYp1,oppX,oppY);
-				if (o_bit = '1') then
-					countAlive <= countAlive + 1;
-				end if;
-			end if;
-		when mem_disable =>
-			nstate1 <= idle;
-			i_mem_e_byte <= '1';
-			i_mem_e_bit <= '0';
-		when others => null;
-	end case;
-	pX := oppX;
-	pY := oppY;
-	spX <= oppX;
-	spY <= oppY;
-end process gof_logic;
-
-p0 : process (clk_1s) is
+p0_fsm : process (clk_1s) is
 begin
 	if (btn_1 = '1') then
 		all_pixels <= '0';
-		pX := 0;
-		pY := 0;
+		pX <= 0;
+		pY <= 0;
+		cstate2 <= display_is_initialize;
 	elsif (rising_edge(clk_1s)) then
-		if (display_initialize = '1') then
-			if (pY < COLS_BLOCK) then
-				if (pX < ROWS-1) then
-					pX := pX + 1;
-				else
-					pY := pY + 1;
-					pX := 0;
-				end if;
-			else
-				all_pixels <= '1';
+		cstate2 <= nstate2;
+		if (cstate2 = update_row) then
+			if (pX < ROWS-1) then
+				pX <= pX + 1;
+			end if;
+		end if;
+		if (cstate2 = update_col) then
+			if (pY < COLS_BLOCK-1) then
+				pY <= pY + 1;
+				pX <= 0;
 			end if;
 		end if;
 	end if;
+end process p0_fsm;
+
+p0 : process (cstate2,clk_1s) is
+begin
+	case (cstate2) is
+		when idle =>
+			if (display_initialize = '0') then
+				nstate2 <= idle;
+			else
+				nstate2 <= display_is_initialize;
+			end if;
+		when display_is_initialize =>
+			nstate2 <= update_row;
+		when update_row =>
+			if (pX < ROWS-1) then
+				nstate2 <= update_row;
+			else
+				nstate2 <= update_col;
+			end if;
+		when update_col =>
+			if (pY < COLS_BLOCK-1) then
+				nstate2 <= update_row;
+			else
+				nstate2 <= stop;
+			end if;
+		when stop =>
+			nstate2 <= stop;
+		when others => null;
+	end case;
 end process p0;
 
 row <= std_logic_vector(to_unsigned(pX,row'length));
