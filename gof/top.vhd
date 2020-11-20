@@ -44,7 +44,7 @@ architecture Behavioral of top is
 
 constant INPUT_CLOCK : integer := 50_000_000;
 constant BUS_CLOCK : integer := 100_000; -- increase for speed i2c
-constant DIVIDER_CLOCK : integer := 3000; -- increase for speed simulate and i2c
+constant DIVIDER_CLOCK : integer := 10_000; -- increase for speed simulate and i2c
 
 component oled_display is
 generic(
@@ -239,7 +239,8 @@ begin
 		case cstate is
 			when idle =>
 				if (display_initialize = '1') then
-					cstate <= display_is_initialize;
+--					cstate <= display_is_initialize;
+					cstate <= reset_counters_1;
 				else
 					cstate <= idle;
 				end if;
@@ -293,6 +294,8 @@ begin
 					if (o_bit = '1') then
 						countAlive <= countAlive + 1;
 					end if;
+--					ppX <= oppX;
+--					ppYp <= oppY;
 				end if;
 			when c2 =>
 				cstate <= c3;
@@ -302,6 +305,8 @@ begin
 					if (o_bit = '1') then
 						countAlive <= countAlive + 1;
 					end if;
+--					ppX <= oppX;
+--					ppYp <= oppY;
 				end if;
 			when c3 =>
 				cstate <= c4;
@@ -311,6 +316,8 @@ begin
 					if (o_bit = '1') then
 						countAlive <= countAlive + 1;
 					end if;
+--					ppX <= oppX;
+--					ppYp <= oppY;
 				end if;
 			when c4 =>
 				cstate <= c5;
@@ -320,6 +327,8 @@ begin
 					if (o_bit = '1') then
 						countAlive <= countAlive + 1;
 					end if;
+--					ppX <= oppX;
+--					ppYp <= oppY;
 				end if;
 			when c5 =>
 				cstate <= c6;
@@ -329,6 +338,8 @@ begin
 					if (o_bit = '1') then
 						countAlive <= countAlive + 1;
 					end if;
+--					ppX <= oppX;
+--					ppYp <= oppY;
 				end if;
 			when c6 =>
 				cstate <= c7;
@@ -338,6 +349,8 @@ begin
 					if (o_bit = '1') then
 						countAlive <= countAlive + 1;
 					end if;
+--					ppX <= oppX;
+--					ppYp <= oppY;
 				end if;
 			when c7 =>
 				cstate <= c8;
@@ -347,6 +360,8 @@ begin
 					if (o_bit = '1') then
 						countAlive <= countAlive + 1;
 					end if;
+--					ppX <= oppX;
+--					ppYp <= oppY;
 				end if;
 			when c8 =>
 				cstate <= memory_disable_bit;
@@ -356,17 +371,22 @@ begin
 					if (o_bit = '1') then
 						countAlive <= countAlive + 1;
 					end if;
+--					ppX <= oppX;
+--					ppYp <= oppY;
 				end if;
 			when memory_disable_bit =>
 				cstate <= check_counters_2;
 				i_mem_e_bit <= '0';
 			when check_counters_2 =>
-				if (ppX < ROWS-1 and ppYp < COLS_PIXEL-1) then
-	--				ppX <= ppX + 1;
-	--				ppYp <= ppYp + 1;
-	--				ppX := ppX + 1;
-	--				ppYp := ppYp + 1;
+				if (ppX < ROWS-1) then
+					if (ppYp < COLS_PIXEL-1) then
+						ppYp <= ppYp + 1;
+					else
+						ppX <= ppX + 1;
+						ppYp <= 0;
+					end if;
 					cstate <= memory_enable_bit;
+					countAlive <= 0;
 				else
 					cstate <= stop;
 				end if;
