@@ -3,7 +3,7 @@
    <wave_state>
    </wave_state>
    <db_ref_list>
-      <db_ref path="./tb_top_isim.beh1.wdb" id="1" type="auto">
+      <db_ref path="./tb_top_isim.beh.wdb" id="1" type="auto">
          <top_modules>
             <top_module name="numeric_std" />
             <top_module name="p_memory_content" />
@@ -118,25 +118,13 @@
          <obj_property name="ElementShortName">display_initialize</obj_property>
          <obj_property name="ObjectShortName">display_initialize</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb_top/uut/cstate1" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">cstate1</obj_property>
-         <obj_property name="ObjectShortName">cstate1</obj_property>
-      </wvobject>
       <wvobject fp_name="/tb_top/uut/countalive" type="other" db_ref_id="1">
          <obj_property name="ElementShortName">countalive</obj_property>
          <obj_property name="ObjectShortName">countalive</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb_top/uut/spx" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">spx</obj_property>
-         <obj_property name="ObjectShortName">spx</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/spyp" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">spyp</obj_property>
-         <obj_property name="ObjectShortName">spyp</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/spyb" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">spyb</obj_property>
-         <obj_property name="ObjectShortName">spyb</obj_property>
+      <wvobject fp_name="/tb_top/uut/cstate" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">cstate</obj_property>
+         <obj_property name="ObjectShortName">cstate</obj_property>
       </wvobject>
    </wvobject>
    <wvobject fp_name="group99" type="group">

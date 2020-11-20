@@ -43,8 +43,8 @@ end top;
 architecture Behavioral of top is
 
 constant INPUT_CLOCK : integer := 50_000_000;
-constant BUS_CLOCK : integer := 400_000; -- increase for speed i2c
-constant DIVIDER_CLOCK : integer := 1000; -- increase for speed simulate and i2c
+constant BUS_CLOCK : integer := 100_000; -- increase for speed i2c
+constant DIVIDER_CLOCK : integer := 3000; -- increase for speed simulate and i2c
 
 component oled_display is
 generic(
@@ -160,7 +160,7 @@ check_counters_2,
 stop);
 signal cstate : state;
 
-constant W : integer := 15000;
+constant W : integer := 1;
 signal waiting : integer range W-1 downto 0 := 0;
 signal ppX : integer range 0 to ROWS-1 := 1;
 signal ppYb : integer range 0 to COLS_BLOCK-1 := 1;
@@ -226,7 +226,7 @@ port map (
 	o_bit => o_bit
 );
 
-gof_logic : process (clk,i_reset) is
+gof_logic : process (clk_1s,i_reset) is
 begin
 	if (i_reset = '1') then
 		all_pixels <= '0';
@@ -234,7 +234,7 @@ begin
 		ppYb <= 0;
 		ppYp <= 0;
 		cstate <= idle;
-	elsif (rising_edge(clk)) then
+	elsif (rising_edge(clk_1s)) then
 		cstate <= cstate;
 		case cstate is
 			when idle =>
@@ -278,6 +278,7 @@ begin
 				i_mem_e_byte <= '0';
 			when reset_counters_1 =>
 				cstate <= memory_enable_bit;
+				all_pixels <= '1';
 				ppX <= 0;
 				ppYb <= 0;
 				ppYp <= 0;
