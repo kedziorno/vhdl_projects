@@ -127,13 +127,13 @@ procedure GetCellAt(
 	else
 		o_col := i_col;
 	end if;
-	if (i_row >= ROWS) then
+	if (i_row > ROWS-1) then
 		--report "i_row >= MAX-1 : "&integer'image(i_row) severity note;
 		o_row := ROWS-1;
 	else
 		o_row := i_row;
 	end if;
-	if (i_col >= COLS_PIXEL) then
+	if (i_col > COLS_PIXEL-1) then
 		--report "i_col >= MAX-1 : "&integer'image(i_col) severity note;
 		o_col := COLS_PIXEL-1;
 	else
@@ -232,12 +232,12 @@ variable waiting : integer range W-1 downto 0 := 0;
 variable vppX : integer range 0 to ROWS-1 := 0;
 variable vppYb : integer range 0 to COLS_BLOCK-1 := 0;
 variable vppYp : integer range 0 to COLS_PIXEL-1 := 0;
-variable ppXm1 : integer range -1 to ROWS := ppX-1;
-variable ppXp1 : integer range -1 to ROWS := ppX+1;
-variable ppYm1 : integer range -1 to COLS_PIXEL := ppYp-1;
-variable ppYp1 : integer range -1 to COLS_PIXEL := ppYp+1;
-variable oppX : integer range 0 to ROWS-1;
-variable oppY : integer range 0 to COLS_PIXEL-1;
+variable vppXm1 : integer range -1 to ROWS := ppX-1;
+variable vppXp1 : integer range -1 to ROWS := ppX+1;
+variable vppYm1 : integer range -1 to COLS_PIXEL := ppYp-1;
+variable vppYp1 : integer range -1 to COLS_PIXEL := ppYp+1;
+variable voppX : integer range 0 to ROWS-1;
+variable voppY : integer range 0 to COLS_PIXEL-1;
 variable vcountAlive : integer := 0;
 begin
 	if (i_reset = '1') then
@@ -300,108 +300,108 @@ begin
 				i_mem_e_bit <= '1';
 			when c1 =>
 				cstate <= c2;
-				if (vppYp /= 0) then
-					GetCellAt(vppX,ppYm1,oppX,oppY);
-					row <= std_logic_vector(to_unsigned(oppX,7));
-					col_pixel <= std_logic_vector(to_unsigned(oppY,5));
-	--				report "ppy /= 0 : "&integer'image(ppX)&" , ppy /= 0 : "&integer'image(ppYm1)&" , ppy /= 0 : "&integer'image(oppX)&" , ppy /= 0 : "&integer'image(oppY) severity note;
+				--if (vppYp /= 0) then
+					GetCellAt(vppX,vppYm1,voppX,voppY);
+					row <= std_logic_vector(to_unsigned(voppX,7));
+					col_pixel <= std_logic_vector(to_unsigned(voppY,5));
+	--				report "ppy /= 0 : "&integer'image(ppX)&" , ppy /= 0 : "&integer'image(vppYm1)&" , ppy /= 0 : "&integer'image(voppX)&" , ppy /= 0 : "&integer'image(voppY) severity note;
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
---					ppX <= oppX;
---					ppYp <= oppY;
-				end if;
+--					ppX <= voppX;
+--					ppYp <= voppY;
+				--end if;
 			when c2 =>
 				cstate <= c3;
-				if (vppYp /= COLS_PIXEL-1) then
-					GetCellAt(vppX,ppYp1,oppX,oppY);
-					row <= std_logic_vector(to_unsigned(oppX,7));
-					col_pixel <= std_logic_vector(to_unsigned(oppY,5));
-	--				report "ppy /= COL_PIXEL-1 : "&integer'image(ppX)&" , ppy /= COL_PIXEL-1 : "&integer'image(ppYp1)&" , ppy /= COL_PIXEL-1 : "&integer'image(oppX)&" , ppy /= COL_PIXEL-1 : "&integer'image(oppY) severity note;
+				--if (vppYp /= COLS_PIXEL-1) then
+					GetCellAt(vppX,vppYp1,voppX,voppY);
+					row <= std_logic_vector(to_unsigned(voppX,7));
+					col_pixel <= std_logic_vector(to_unsigned(voppY,5));
+	--				report "ppy /= COL_PIXEL-1 : "&integer'image(ppX)&" , ppy /= COL_PIXEL-1 : "&integer'image(vppYp1)&" , ppy /= COL_PIXEL-1 : "&integer'image(voppX)&" , ppy /= COL_PIXEL-1 : "&integer'image(voppY) severity note;
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
---					ppX <= oppX;
---					ppYp <= oppY;
-				end if;
+--					ppX <= voppX;
+--					ppYp <= voppY;
+				--end if;
 			when c3 =>
 				cstate <= c4;
-				if (vppX /= ROWS-1) then
-					GetCellAt(ppXp1,vppYp,oppX,oppY);
-					row <= std_logic_vector(to_unsigned(oppX,7));
-					col_pixel <= std_logic_vector(to_unsigned(oppY,5));
-	--				report "ppx /= ROWS-1 : "&integer'image(ppXp1)&" , ppx /= ROWS-1 : "&integer'image(ppY)&" , ppx /= ROWS-1 : "&integer'image(oppX)&" , ppx /= ROWS-1 : "&integer'image(oppY) severity note;
+				--if (vppX /= ROWS-1) then
+					GetCellAt(vppXp1,vppYp,voppX,voppY);
+					row <= std_logic_vector(to_unsigned(voppX,7));
+					col_pixel <= std_logic_vector(to_unsigned(voppY,5));
+	--				report "ppx /= ROWS-1 : "&integer'image(vppXp1)&" , ppx /= ROWS-1 : "&integer'image(ppY)&" , ppx /= ROWS-1 : "&integer'image(voppX)&" , ppx /= ROWS-1 : "&integer'image(voppY) severity note;
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
---					ppX <= oppX;
---					ppYp <= oppY;
-				end if;
+--					ppX <= voppX;
+--					ppYp <= voppY;
+				--end if;
 			when c4 =>
 				cstate <= c5;
-				if (vppX /= 0) then
-					GetCellAt(ppXm1,vppYp,oppX,oppY);
-					row <= std_logic_vector(to_unsigned(oppX,7));
-					col_pixel <= std_logic_vector(to_unsigned(oppY,5));
-	--				report "ppx /= 0 : "&integer'image(ppXm1)&" , ppx /= 0 : "&integer'image(ppY)&" , ppx /= 0 : "&integer'image(oppX)&" , ppx /= 0 : "&integer'image(oppY) severity note;
+				--if (vppX /= 0) then
+					GetCellAt(vppXm1,vppYp,voppX,voppY);
+					row <= std_logic_vector(to_unsigned(voppX,7));
+					col_pixel <= std_logic_vector(to_unsigned(voppY,5));
+	--				report "ppx /= 0 : "&integer'image(vppXm1)&" , ppx /= 0 : "&integer'image(ppY)&" , ppx /= 0 : "&integer'image(voppX)&" , ppx /= 0 : "&integer'image(voppY) severity note;
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
---					ppX <= oppX;
---					ppYp <= oppY;
-				end if;
+--					ppX <= voppX;
+--					ppYp <= voppY;
+				--end if;
 			when c5 =>
 				cstate <= c6;
-				if ((vppX /= 0) and (vppYp /= 0)) then
-					GetCellAt(ppXm1,ppYm1,oppX,oppY);
-					row <= std_logic_vector(to_unsigned(oppX,7));
-					col_pixel <= std_logic_vector(to_unsigned(oppY,5));
-	--				report "ppx /= 0 & ppy /= 0 : "&integer'image(ppXm1)&" , ppx /= 0 & ppy /= 0 : "&integer'image(ppYm1)&" , ppx /= 0 & ppy /= 0 : "&integer'image(oppX)&" , ppx /= 0 & ppy /= 0 : "&integer'image(oppY) severity note;
+				--if ((vppX /= 0) and (vppYp /= 0)) then
+					GetCellAt(vppXm1,vppYm1,voppX,voppY);
+					row <= std_logic_vector(to_unsigned(voppX,7));
+					col_pixel <= std_logic_vector(to_unsigned(voppY,5));
+	--				report "ppx /= 0 & ppy /= 0 : "&integer'image(vppXm1)&" , ppx /= 0 & ppy /= 0 : "&integer'image(vppYm1)&" , ppx /= 0 & ppy /= 0 : "&integer'image(voppX)&" , ppx /= 0 & ppy /= 0 : "&integer'image(voppY) severity note;
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
---					ppX <= oppX;
---					ppYp <= oppY;
-				end if;
+--					ppX <= voppX;
+--					ppYp <= voppY;
+				--end if;
 			when c6 =>
 				cstate <= c7;
-				if ((vppX /= ROWS-1) and (vppYp /= 0)) then
-					GetCellAt(ppXp1,ppYm1,oppX,oppY);
-					row <= std_logic_vector(to_unsigned(oppX,7));
-					col_pixel <= std_logic_vector(to_unsigned(oppY,5));
-	--				report "ppx /= ROWS-1 & ppy /= 0 : "&integer'image(ppXp1)&" , ppx /= ROWS-1 & ppy /= 0 : "&integer'image(ppYm1)&" , ppx /= ROWS-1 & ppy /= 0 : "&integer'image(oppX)&" , ppx /= ROWS-1 & ppy /= 0 : "&integer'image(oppY) severity note;
+				--if ((vppX /= ROWS-1) and (vppYp /= 0)) then
+					GetCellAt(vppXp1,vppYm1,voppX,voppY);
+					row <= std_logic_vector(to_unsigned(voppX,7));
+					col_pixel <= std_logic_vector(to_unsigned(voppY,5));
+	--				report "ppx /= ROWS-1 & ppy /= 0 : "&integer'image(vppXp1)&" , ppx /= ROWS-1 & ppy /= 0 : "&integer'image(vppYm1)&" , ppx /= ROWS-1 & ppy /= 0 : "&integer'image(voppX)&" , ppx /= ROWS-1 & ppy /= 0 : "&integer'image(voppY) severity note;
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
---					ppX <= oppX;
---					ppYp <= oppY;
-				end if;
+--					ppX <= voppX;
+--					ppYp <= voppY;
+				--end if;
 			when c7 =>
 				cstate <= c8;
-				if ((vppX /= 0) and (vppYp /= COLS_PIXEL-1)) then
-					GetCellAt(ppXm1,ppYp1,oppX,oppY);
-					row <= std_logic_vector(to_unsigned(oppX,7));
-					col_pixel <= std_logic_vector(to_unsigned(oppY,5));
-	--				report "ppx /= 0 & ppy /= COLS_PIXEL-1 : "&integer'image(ppXm1)&" , ppx /= 0 & ppy /= COLS_PIXEL-1 : "&integer'image(ppYp1)&" , ppx /= 0 & ppy /= COLS_PIXEL-1 : "&integer'image(oppX)&" , ppx /= 0 & ppy /= COLS_PIXEL-1 : "&integer'image(oppY) severity note;
+				--if ((vppX /= 0) and (vppYp /= COLS_PIXEL-1)) then
+					GetCellAt(vppXm1,vppYp1,voppX,voppY);
+					row <= std_logic_vector(to_unsigned(voppX,7));
+					col_pixel <= std_logic_vector(to_unsigned(voppY,5));
+	--				report "ppx /= 0 & ppy /= COLS_PIXEL-1 : "&integer'image(vppXm1)&" , ppx /= 0 & ppy /= COLS_PIXEL-1 : "&integer'image(vppYp1)&" , ppx /= 0 & ppy /= COLS_PIXEL-1 : "&integer'image(voppX)&" , ppx /= 0 & ppy /= COLS_PIXEL-1 : "&integer'image(voppY) severity note;
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
---					ppX <= oppX;
---					ppYp <= oppY;
-				end if;
+--					ppX <= voppX;
+--					ppYp <= voppY;
+				--end if;
 			when c8 =>
 				cstate <= memory_disable_bit;
-				if ((vppX /= ROWS-1) and (vppYp /= COLS_PIXEL-1)) then
-					GetCellAt(ppXp1,ppYp1,oppX,oppY);
-					row <= std_logic_vector(to_unsigned(oppX,7));
-					col_pixel <= std_logic_vector(to_unsigned(oppY,5));
-	--				report "ppx /= ROWS-1 & ppy /= COLS_PIXEL-1 : "&integer'image(ppXp1)&" , ppx /= ROWS-1 & ppy /= COLS_PIXEL-1 : "&integer'image(ppYp1)&" , ppx /= ROWS-1 & ppy /= COLS_PIXEL-1 : "&integer'image(oppX)&" , ppx /= ROWS-1 & ppy /= COLS_PIXEL-1 : "&integer'image(oppY) severity note;
+				--if ((vppX /= ROWS-1) and (vppYp /= COLS_PIXEL-1)) then
+					GetCellAt(vppXp1,vppYp1,voppX,voppY);
+					row <= std_logic_vector(to_unsigned(voppX,7));
+					col_pixel <= std_logic_vector(to_unsigned(voppY,5));
+	--				report "ppx /= ROWS-1 & ppy /= COLS_PIXEL-1 : "&integer'image(vppXp1)&" , ppx /= ROWS-1 & ppy /= COLS_PIXEL-1 : "&integer'image(vppYp1)&" , ppx /= ROWS-1 & ppy /= COLS_PIXEL-1 : "&integer'image(voppX)&" , ppx /= ROWS-1 & ppy /= COLS_PIXEL-1 : "&integer'image(voppY) severity note;
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
---					ppX <= oppX;
---					ppYp <= oppY;
-				end if;
+--					ppX <= voppX;
+--					ppYp <= voppY;
+				--end if;
 			when memory_disable_bit =>
 				cstate <= check_counters_2;
 				i_mem_e_bit <= '0';
@@ -424,6 +424,14 @@ begin
 		end case;
 	end if;
 	countAlive <= vcountALive;
+	ppX <= vppX;
+	ppYp <= vppYp;
+	ppXm1 <= vppXm1;
+	ppXp1 <= vppXp1;
+	ppYm1 <= vppYm1;
+	ppYp1 <= vppYp1;
+	oppX <= voppX;
+	oppY <= voppY;
 end process gof_logic;
 
 --row <= std_logic_vector(to_unsigned(ppX,row'length));

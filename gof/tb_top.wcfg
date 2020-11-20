@@ -137,6 +137,30 @@
             <obj_property name="ElementShortName">ppyp</obj_property>
             <obj_property name="ObjectShortName">ppyp</obj_property>
          </wvobject>
+         <wvobject fp_name="/tb_top/uut/ppxm1" type="other" db_ref_id="1">
+            <obj_property name="ElementShortName">ppxm1</obj_property>
+            <obj_property name="ObjectShortName">ppxm1</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_top/uut/ppxp1" type="other" db_ref_id="1">
+            <obj_property name="ElementShortName">ppxp1</obj_property>
+            <obj_property name="ObjectShortName">ppxp1</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_top/uut/ppym1" type="other" db_ref_id="1">
+            <obj_property name="ElementShortName">ppym1</obj_property>
+            <obj_property name="ObjectShortName">ppym1</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_top/uut/ppyp1" type="other" db_ref_id="1">
+            <obj_property name="ElementShortName">ppyp1</obj_property>
+            <obj_property name="ObjectShortName">ppyp1</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_top/uut/oppx" type="other" db_ref_id="1">
+            <obj_property name="ElementShortName">oppx</obj_property>
+            <obj_property name="ObjectShortName">oppx</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_top/uut/oppy" type="other" db_ref_id="1">
+            <obj_property name="ElementShortName">oppy</obj_property>
+            <obj_property name="ObjectShortName">oppy</obj_property>
+         </wvobject>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/countalive" type="other" db_ref_id="1">
          <obj_property name="ElementShortName">countalive</obj_property>
