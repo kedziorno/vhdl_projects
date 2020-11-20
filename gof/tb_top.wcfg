@@ -3,7 +3,7 @@
    <wave_state>
    </wave_state>
    <db_ref_list>
-      <db_ref path="./tb_top_isim.beh.wdb" id="1" type="auto">
+      <db_ref path="./tb_top_isim.beh1.wdb" id="1" type="auto">
          <top_modules>
             <top_module name="numeric_std" />
             <top_module name="p_memory_content" />
@@ -122,18 +122,6 @@
          <obj_property name="ElementShortName">cstate1</obj_property>
          <obj_property name="ObjectShortName">cstate1</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb_top/uut/nstate1" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">nstate1</obj_property>
-         <obj_property name="ObjectShortName">nstate1</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/cstate2" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">cstate2</obj_property>
-         <obj_property name="ObjectShortName">cstate2</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/nstate2" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">nstate2</obj_property>
-         <obj_property name="ObjectShortName">nstate2</obj_property>
-      </wvobject>
       <wvobject fp_name="/tb_top/uut/countalive" type="other" db_ref_id="1">
          <obj_property name="ElementShortName">countalive</obj_property>
          <obj_property name="ObjectShortName">countalive</obj_property>
@@ -142,41 +130,13 @@
          <obj_property name="ElementShortName">spx</obj_property>
          <obj_property name="ObjectShortName">spx</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb_top/uut/spy" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">spy</obj_property>
-         <obj_property name="ObjectShortName">spy</obj_property>
+      <wvobject fp_name="/tb_top/uut/spyp" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">spyp</obj_property>
+         <obj_property name="ObjectShortName">spyp</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb_top/uut/ppx" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">ppx</obj_property>
-         <obj_property name="ObjectShortName">ppx</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/ppy" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">ppy</obj_property>
-         <obj_property name="ObjectShortName">ppy</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/ppxm1" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">ppxm1</obj_property>
-         <obj_property name="ObjectShortName">ppxm1</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/ppxp1" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">ppxp1</obj_property>
-         <obj_property name="ObjectShortName">ppxp1</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/ppym1" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">ppym1</obj_property>
-         <obj_property name="ObjectShortName">ppym1</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/ppyp1" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">ppyp1</obj_property>
-         <obj_property name="ObjectShortName">ppyp1</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/oppx" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">oppx</obj_property>
-         <obj_property name="ObjectShortName">oppx</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/oppy" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">oppy</obj_property>
-         <obj_property name="ObjectShortName">oppy</obj_property>
+      <wvobject fp_name="/tb_top/uut/spyb" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">spyb</obj_property>
+         <obj_property name="ObjectShortName">spyb</obj_property>
       </wvobject>
    </wvobject>
    <wvobject fp_name="group99" type="group">
