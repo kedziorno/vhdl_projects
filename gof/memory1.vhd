@@ -68,8 +68,8 @@ begin
 			t_byte := i_byte;
 			v0 := t_col((1*BYTE_BITS)-1 downto 0*BYTE_BITS);
 			v1 := t_col((2*BYTE_BITS)-1 downto 1*BYTE_BITS);
-			--v2 := t_col((3*BYTE_BITS)-1 downto 2*BYTE_BITS);
-			--v3 := t_col((4*BYTE_BITS)-1 downto 3*BYTE_BITS);
+--			v2 := t_col((3*BYTE_BITS)-1 downto 2*BYTE_BITS);
+--			v3 := t_col((4*BYTE_BITS)-1 downto 3*BYTE_BITS);
 			if (i_enable_byte = '1') then
 				if (i_write_byte = '1') then
 					case to_integer(unsigned(t_col_block)) is
