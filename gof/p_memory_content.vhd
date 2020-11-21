@@ -15,12 +15,14 @@ package p_memory_content is
 	constant ROWS_BITS : integer := 4; --7;
 	constant COLS_PIXEL : integer := 16; --32;
 	constant COLS_PIXEL_BITS : integer := 4; --5;
-	constant COLS_BLOCK : integer := 2; --4;
-	constant COLS_BLOCK_BITS : integer := 1; --2;
+	constant COLS_BLOCK : integer := 2;
+	constant COLS_BLOCK_BITS : integer := 1;
 	constant BYTE_BITS : integer := 8;
 	constant WORD_BITS : integer := COLS_BLOCK*BYTE_BITS;
+	
 	subtype WORD is std_logic_vector(WORD_BITS-1 downto 0);
 	type MEMORY is array(ROWS-1 downto 0) of WORD;
+	
 	type LiveSubArray is array(WORD_BITS-1 downto 0) of std_logic_vector(2 downto 0);
 	type LiveArrayType is array(ROWS-1 downto 0) of LiveSubArray;
 	signal LiveArray : LiveArrayType := (others => (others => "000"));
@@ -33,15 +35,15 @@ package p_memory_content is
 		("0001000000001000"),
 		("0000000000000000"),
 		("0000000000000000"),
-		("0000000000001000"),
-		("0001000000001000"),
-		("0001000000001000"),
-		("0001000000000000"),
+		("0001110000111000"),
+		("0011100000011100"),
 		("0000000000000000"),
 		("0000000000000000"),
-		("0001000000001000"),
-		("0001000000001000"),
-		("0001000000001000"),
+		("0011000000001100"),
+		("0011000000001100"),
+		("0000110000110000"),
+		("0000110000110000"),
+		("0000000000000000"),
 		("0000000000000000")
 	);
 	
