@@ -157,11 +157,15 @@ c2,c3,c4,c5,c6,c7,c8,
 memory_disable_bit,
 store_count_alive,
 check_counters_2,
+update_row1,
+update_col1,
 reset_counters1,
 memory_enable_bit1,
 enable_write_to_memory,
 get_alive,
 write_count_alive,
+update_row2,
+update_col2,
 disable_write_to_memory,
 stop);
 signal cstate : state;
@@ -246,8 +250,6 @@ variable vppYp1 : natural range 0 to COLS_PIXEL-1;
 variable voppX : natural range 0 to ROWS-1;
 variable voppY : natural range 0 to COLS_PIXEL-1;
 variable vcountAlive : integer := 0;
-type LiveArrayType is array(0 to ROWS-1,0 to COLS_PIXEL-1) of integer range 0 to 7;
-variable LiveArray : LiveArrayType;
 variable CellAlive : boolean;
 begin
 	if (i_reset = '1') then
@@ -281,6 +283,8 @@ begin
 				else
 					waiting := waiting - 1;
 				end if;
+				row <= ppX;
+				col_block <= ppYb;
 			when update_row =>
 				if (vppX < ROWS-1) then
 					vppX := vppX + 1;
@@ -327,6 +331,7 @@ begin
 				if (vppYp1 > COLS_PIXEL-1) then
 					vppYp1 := COLS_PIXEL-1;
 				end if;
+				vcountAlive := 0;
 			when c1 =>
 				cstate <= c2;
 				if (vppYp /= 0) then
@@ -411,20 +416,23 @@ begin
 				cstate <= store_count_alive;
 				i_mem_e_bit <= '0';
 			when store_count_alive =>
-				cstate <= check_counters_2;
-				LiveArray(vppX,vppYp) := vcountAlive;
-			when check_counters_2 =>
+				cstate <= update_row1;
+				LiveArray(vppX)(vppYp) <= std_logic_vector(to_unsigned(vcountAlive,3));
+			when update_row1 =>
 				if (vppX < ROWS-1) then
-					if (vppYp < COLS_PIXEL-1) then
-						vppYp := vppYp + 1;
-					else
-						vppX := vppX + 1;
-						vppYp := 0;
-					end if;
+					vppX := vppX + 1;
 					cstate <= memory_enable_bit;
-					vcountAlive := 0;
+				else
+					cstate <= update_col1;
+				end if;
+			when update_col1 =>
+				if (vppYp < COLS_PIXEL-1) then
+					vppYp := vppYp + 1;
+					cstate <= memory_enable_bit;
+					vppX := 0;
 				else
 					cstate <= reset_counters1;
+					vppYp := 0;
 				end if;
 			when reset_counters1 =>
 				cstate <= memory_enable_bit1;
@@ -447,43 +455,48 @@ begin
 				cstate <= write_count_alive;
 				i_mem_write_bit <= '1';
 			when write_count_alive =>
-				slivearray <= std_logic_vector(to_unsigned(LiveArray(vppX,vppYp),3));
-				if (vppX < ROWS-1) then
-					if (vppYp < COLS_PIXEL-1) then
-						vppYp := vppYp + 1;
-						row <= std_logic_vector(to_unsigned(vppX,7));
-						col_pixel <= std_logic_vector(to_unsigned(vppYp,5));
-						if (CellAlive = true) then
-							if ((LiveArray(vppX,vppYp) = 2) or (LiveArray(vppX,vppYp) = 3)) then
-								i_bit <= '1';
-							else
-								i_bit <= '0';
-							end if;
-						else
-							if ((LiveArray(vppX,vppYp) = 3)) then
-								i_bit <= '1';
-							else
-								i_bit <= '0';
-							end if;
-						end if;
+				cstate <= update_row2;
+				slivearray <= LiveArray(vppX)(vppYp);
+				row <= std_logic_vector(to_unsigned(vppX,7));
+				col_pixel <= std_logic_vector(to_unsigned(vppYp,5));
+				if (CellAlive = true) then
+					if ((to_integer(unsigned(LiveArray(vppX)(vppYp))) = 2) or (to_integer(unsigned(LiveArray(vppX)(vppYp))) = 3)) then
+						i_bit <= '1';
 					else
-						vppX := vppX + 1;
-						vppYp := 0;
+						i_bit <= '0';
 					end if;
 				else
+					if (to_integer(unsigned(LiveArray(vppX)(vppYp))) = 3) then
+						i_bit <= '1';
+					else
+						i_bit <= '0';
+					end if;
+				end if;
+			when update_row2 =>
+				if (vppX < ROWS-1) then
+					vppX := vppX + 1;
+					cstate <= write_count_alive;
+				else
+					cstate <= update_col2;
+				end if;
+			when update_col2 =>
+				if (vppYp < COLS_PIXEL-1) then
+					vppYp := vppYp + 1;
+					cstate <= write_count_alive;
+					vppX := 0;
+				else
 					cstate <= disable_write_to_memory;
+					vppYp := 0;
 				end if;
 			when disable_write_to_memory =>
 				cstate <= stop;
 				i_mem_write_bit <= '0';
+				i_mem_e_bit <= '0';
 			when stop =>
 				all_pixels <= '0';
 				cstate <= idle;
 			when others => null;
-		end case;
---		col_pixel <= ppYp;
-		row <= ppX;
-		col_block <= ppYb;
+		end case;		
 	end if;
 	countAlive <= std_logic_vector(to_unsigned(vcountALive,3));
 	ppX <= std_logic_vector(to_unsigned(vppX,ROWS_BITS));

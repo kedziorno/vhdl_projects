@@ -75,8 +75,8 @@ BEGIN
    uut: top 
 	GENERIC MAP (
 		INPUT_CLOCK => 50_000_000,
-		BUS_CLOCK => 100_000,
-		DIVIDER_CLOCK => 1_000
+		BUS_CLOCK => 100_000_00,
+		DIVIDER_CLOCK => 1_000_00
 		)
 	PORT MAP (
 		clk => clk,

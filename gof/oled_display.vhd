@@ -156,7 +156,7 @@ begin
 		c_state <= n_state;
 		if (i_rst = '1') then
 			busy_cnt <= 0;
-			n_state <= start;
+			n_state <= idle;
 		elsif (i_clear = '1') then
 			busy_cnt <= 0;
 			n_state <= set_address_2;
