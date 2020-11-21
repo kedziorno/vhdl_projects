@@ -16,14 +16,14 @@ then
 	exit;
 fi
 
-map -intstyle ise -p xc3s1200e-fg320-4 -cm balanced -ir off -pr off -c 100 -o top_map.ncd top.ngd top.pcf
+map -intstyle ise -p xc3s1200e-fg320-4 -ol std -timing -cm balanced -ir off -pr off -o top_map.ncd top.ngd top.pcf
 if [ $? -ne 0 ];
 then
 	echo "error on map";
 	exit;
 fi
 
-par -w -intstyle ise -ol high -t 1 top_map.ncd top.ncd top.pcf
+par -w -intstyle ise -ol std -rl std -t 1 top_map.ncd top.ncd top.pcf
 if [ $? -ne 0 ];
 then
 	echo "error on par";
