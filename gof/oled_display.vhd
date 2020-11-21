@@ -41,7 +41,7 @@ signal i_x : in std_logic_vector(W_BITS-1 downto 0);
 signal i_y : in std_logic_vector(H_BITS-1 downto 0);
 signal i_byte : in std_logic_vector(BYTE_SIZE-1 downto 0);
 signal i_all_pixels : in std_logic;
-signal o_display_initialize : out std_logic;
+signal o_display_initialize : inout std_logic;
 signal io_sda,io_scl : inout std_logic);
 end oled_display;
 
@@ -102,6 +102,7 @@ for all : i2c use entity WORK.i2c_master(logic);
 
 type state is 
 (
+	idle,
 	start, -- initialize oled
 	set_address_1, -- set begin point 0,0
 	wait1, -- wait after initialize
@@ -169,6 +170,16 @@ begin
 				counter <= counter - 1;
 			end if;
 			case c_state is
+				when idle =>
+					if (i_all_pixels = '1') then
+						n_state <= idle;
+					else
+						if (o_display_initialize = '1') then
+							n_state <= wait1;
+						else
+							n_state <= start;
+						end if;
+					end if;
 				when start =>
 					busy_prev <= i2c_busy;
 					if (busy_prev = '0' and i2c_busy = '1') then
@@ -251,7 +262,7 @@ begin
 					end if;
 				when stop =>
 					i2c_ena <= '0';
-					n_state <= stop;
+					n_state <= idle;
 				when set_address_2 =>
 					busy_prev <= i2c_busy;
 					if (busy_prev = '0' and i2c_busy = '1') then

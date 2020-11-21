@@ -40,14 +40,19 @@ ARCHITECTURE behavior OF tb_top IS
     -- Component Declaration for the Unit Under Test (UUT)
  
     COMPONENT top
+	 GENERIC(
+			INPUT_CLOCK : integer;
+			BUS_CLOCK : integer;
+			DIVIDER_CLOCK : integer
+			);
     PORT(
-         clk : IN  std_logic;
-         btn_1 : IN  std_logic;
-         btn_2 : IN  std_logic;
-         btn_3 : IN  std_logic;
-         sda : INOUT  std_logic;
-         scl : INOUT  std_logic
-        );
+			clk : IN  std_logic;
+			btn_1 : IN  std_logic;
+			btn_2 : IN  std_logic;
+			btn_3 : IN  std_logic;
+			sda : INOUT  std_logic;
+			scl : INOUT  std_logic
+			);
     END COMPONENT;
     
 
@@ -67,14 +72,20 @@ ARCHITECTURE behavior OF tb_top IS
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
-   uut: top PORT MAP (
-          clk => clk,
-          btn_1 => btn_1,
-          btn_2 => btn_2,
-          btn_3 => btn_3,
-          sda => sda,
-          scl => scl
-        );
+   uut: top 
+	GENERIC MAP (
+		INPUT_CLOCK => 50_000_000,
+		BUS_CLOCK => 100_000,
+		DIVIDER_CLOCK => 1_000
+		)
+	PORT MAP (
+		clk => clk,
+		btn_1 => btn_1,
+		btn_2 => btn_2,
+		btn_3 => btn_3,
+		sda => sda,
+		scl => scl
+		);
 
    -- Clock process definitions
    clk_process :process
