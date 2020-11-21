@@ -113,7 +113,7 @@ type state is
 	stop -- when index=counter, i2c disable
 );
 
-signal c_state,n_state : state := start;
+signal c_state : state := idle;
 SIGNAL i2c_ena     : STD_LOGIC;                     --i2c enable signal
 SIGNAL i2c_addr    : STD_LOGIC_VECTOR(6 DOWNTO 0);  --i2c address signal
 SIGNAL i2c_rw      : STD_LOGIC;                     --i2c read/write command signal
@@ -153,18 +153,17 @@ PORT MAP
 p0 : process (i_clk,i_rst,i_all_pixels) is
 begin
 	if (rising_edge(i_clk)) then
-		c_state <= n_state;
 		if (i_rst = '1') then
 			busy_cnt <= 0;
-			n_state <= idle;
+			c_state <= idle;
 		elsif (i_clear = '1') then
 			busy_cnt <= 0;
-			n_state <= set_address_2;
+			c_state <= set_address_2;
 		elsif (i_draw = '1') then
 			busy_cnt <= 0;
-			n_state <= set_address_1;
+			c_state <= set_address_1;
 		elsif (i_all_pixels = '1') then
-			n_state <= stop;
+			c_state <= stop;
 		else
 			if (counter > 0) then
 				counter <= counter - 1;
@@ -172,12 +171,12 @@ begin
 			case c_state is
 				when idle =>
 					if (i_all_pixels = '1') then
-						n_state <= idle;
+						c_state <= idle;
 					else
 						if (o_display_initialize = '1') then
-							n_state <= wait1;
+							c_state <= wait1;
 						else
-							n_state <= start;
+							c_state <= start;
 						end if;
 					end if;
 				when start =>
@@ -198,7 +197,7 @@ begin
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
 								busy_cnt <= 0;
-								n_state <= set_address_1;
+								c_state <= set_address_1;
 							end if;
 						when others => null;
 					end case;
@@ -220,7 +219,7 @@ begin
 							if (i2c_busy = '0') then
 								busy_cnt <= 0;
 								counter <= COUNTER_WAIT1-1;
-								n_state <= wait1;
+								c_state <= wait1;
 							end if;
 						when others => null;
 					end case;
@@ -228,7 +227,7 @@ begin
 					i2c_ena <= '0';
 					if (counter = 0) then
 						o_display_initialize <= '1';
-						n_state <= send_character;
+						c_state <= send_character;
 					end if;
 				when send_character =>
 					busy_prev <= i2c_busy;
@@ -247,7 +246,7 @@ begin
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
 								busy_cnt <= 0;
-								n_state <= wait2;
+								c_state <= wait2;
 							end if;
 						when others => null;
 					end case;
@@ -257,12 +256,12 @@ begin
 					coord_prev_y <= i_y;
 					if (coord_prev_x /= i_x or coord_prev_y /= i_y) then
 						if (counter = 0) then
-							n_state <= send_character;
+							c_state <= send_character;
 						end if;
 					end if;
 				when stop =>
 					i2c_ena <= '0';
-					n_state <= idle;
+					c_state <= idle;
 				when set_address_2 =>
 					busy_prev <= i2c_busy;
 					if (busy_prev = '0' and i2c_busy = '1') then
@@ -280,7 +279,7 @@ begin
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
 								busy_cnt <= 0;
-								n_state <= clear_display_state;
+								c_state <= clear_display_state;
 							end if;
 						when others => null;
 					end case;
@@ -301,7 +300,7 @@ begin
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
 							busy_cnt <= 0;
-								n_state <= stop;
+								c_state <= stop;
 							end if;
 						when others => null;
 					end case;
