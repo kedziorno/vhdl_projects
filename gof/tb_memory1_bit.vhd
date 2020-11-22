@@ -109,7 +109,7 @@ BEGIN
 		i_reset <= '1';
 		wait for i_clk_period;
 		i_reset <= '0';
-		wait for i_clk_period;
+		wait for i_clk_period+i_clk_period/2; -- from rising edge
 
 		--
 		-- 12 random pixels - first/last two have 0 and rest have 1

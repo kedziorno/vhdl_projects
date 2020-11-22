@@ -56,6 +56,16 @@
             <obj_property name="ElementShortName">o_bit</obj_property>
             <obj_property name="ObjectShortName">o_bit</obj_property>
          </wvobject>
+         <wvobject fp_name="/tb_memory1_bit/uut/t_col_p1" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">t_col_p1[1:0]</obj_property>
+            <obj_property name="ObjectShortName">t_col_p1[1:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/tb_memory1_bit/uut/t_col_p2" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">t_col_p2[2:0]</obj_property>
+            <obj_property name="ObjectShortName">t_col_p2[2:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
       </wvobject>
    </wvobject>
 </wave_config>
