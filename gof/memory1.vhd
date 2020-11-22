@@ -52,8 +52,8 @@ architecture Behavioral of memory1 is
 	signal t_row : std_logic_vector(ROWS_BITS-1 downto 0);
 	signal t_col_block : std_logic_vector(COLS_BLOCK_BITS-1 downto 0);
 	signal t_col_pixel : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
-	signal t_col_p1 : integer range 0 to COLS_PIXEL_BITS-1;
-	signal t_col_p2 : integer range 0 to BYTE_BITS-1;
+	signal t_col_p1 : std_logic_vector(1 downto 0);
+	signal t_col_p2 : std_logic_vector(2 downto 0);
 begin
 
 	process_byte : process(i_clk) is
@@ -124,9 +124,10 @@ begin
 		variable t_col : std_logic_vector(WORD_BITS-1 downto 0);
 		variable t_bit : std_logic;
 	begin
+			t_col_p1 <= std_logic_vector(to_unsigned(to_integer(unsigned(i_col_pixel)) / BYTE_BITS,2));
+			t_col_p2 <= std_logic_vector(to_unsigned(to_integer(unsigned(i_col_pixel)) mod BYTE_BITS,3));
+
 		if (rising_edge(i_clk)) then
-			t_col_p1 <= to_integer(unsigned(i_col_pixel)) / BYTE_BITS;
-			t_col_p2 <= to_integer(unsigned(i_col_pixel)) mod BYTE_BITS;
 			t_col := m1(to_integer(unsigned(i_row)));
 			v0 := t_col((1*BYTE_BITS)-1 downto 0*BYTE_BITS);
 			v1 := t_col((2*BYTE_BITS)-1 downto 1*BYTE_BITS);
@@ -134,33 +135,32 @@ begin
 --			v3 := t_col((4*BYTE_BITS)-1 downto 3*BYTE_BITS);
 			if (i_enable_bit = '1') then
 				if (i_write_bit = '1') then
-					case t_col_p1 is
+					case to_integer(unsigned(t_col_p1)) is
 						when 0 =>
-							v0(t_col_p2) := i_bit;
+							v0(to_integer(unsigned(t_col_p2))) := i_bit;
 						when 1 =>
-							v1(t_col_p2) := i_bit;
+							v1(to_integer(unsigned(t_col_p2))) := i_bit;
 						when 2 =>
-							v2(t_col_p2) := i_bit;
+							v2(to_integer(unsigned(t_col_p2))) := i_bit;
 						when 3 =>
-							v3(t_col_p2) := i_bit;
+							v3(to_integer(unsigned(t_col_p2))) := i_bit;
 						when others => null;
 					end case;
-					t_col := v3 & v2 & v1 & v0;
-					m1(to_integer(unsigned(i_row))) := t_col;
+					m1(to_integer(unsigned(i_row))) := v3 & v2 & v1 & v0;
 					o_bit <= 'Z';
 				else
 					if (i_reset = '1') then
 						o_bit <= '0';
 					else
-						case t_col_p1 is
+						case to_integer(unsigned(t_col_p1)) is
 							when 0 =>
-								t_bit := v0(t_col_p2);
+								t_bit := v0(to_integer(unsigned(t_col_p2)));
 							when 1 =>
-								t_bit := v1(t_col_p2);
---							when 2 =>
---								t_bit := v2(t_col_p2);
---							when 3 =>
---								t_bit := v3(t_col_p2);
+								t_bit := v1(to_integer(unsigned(t_col_p2)));
+							when 2 =>
+								t_bit := v2(to_integer(unsigned(t_col_p2)));
+							when 3 =>
+								t_bit := v3(to_integer(unsigned(t_col_p2)));
 							when others => null;
 						end case;
 						o_bit <= t_bit;
