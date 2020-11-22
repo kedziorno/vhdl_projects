@@ -49,9 +49,9 @@ end memory1;
 
 architecture Behavioral of memory1 is
 	shared variable m1 : MEMORY := memory_content;
-	signal t_row : std_logic_vector(ROWS_BITS-1 downto 0);
-	signal t_col_block : std_logic_vector(COLS_BLOCK_BITS-1 downto 0);
-	signal t_col_pixel : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
+	signal t_row : std_logic_vector(ROWS_BITS-1 downto 0) := (others => '0');
+	signal t_col_block : std_logic_vector(COLS_BLOCK_BITS-1 downto 0) := (others => '0');
+	signal t_col_pixel : std_logic_vector(COLS_PIXEL_BITS-1 downto 0) := (others => '0');
 	signal t_col_p1 : std_logic_vector(1 downto 0);
 	signal t_col_p2 : std_logic_vector(2 downto 0);
 begin
