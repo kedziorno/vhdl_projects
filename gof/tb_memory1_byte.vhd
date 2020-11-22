@@ -109,7 +109,7 @@ BEGIN
 		i_reset <= '1';
 		wait for i_clk_period;
 		i_reset <= '0';
-		wait for i_clk_period;
+		wait for i_clk_period+i_clk_period/2;
 
 		--
 		-- output byte from row 3-10 and col 3
