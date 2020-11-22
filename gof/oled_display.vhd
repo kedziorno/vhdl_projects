@@ -113,7 +113,7 @@ type state is
 	stop -- when index=counter, i2c disable
 );
 
-signal c_state : state := idle;
+signal c_state : state := start;
 SIGNAL i2c_ena     : STD_LOGIC;                     --i2c enable signal
 SIGNAL i2c_addr    : STD_LOGIC_VECTOR(6 DOWNTO 0);  --i2c address signal
 SIGNAL i2c_rw      : STD_LOGIC;                     --i2c read/write command signal
@@ -176,13 +176,11 @@ begin
 					c_state <= idle;
 				else
 					if (o_display_initialize = '1') then
-						c_state <= wait1;
+						c_state <= set_address_1;
 					else
 						c_state <= start;
 					end if;
 				end if;
-										c_state <= start;
-
 			when start =>
 				busy_prev <= i2c_busy;
 				if (busy_prev = '0' and i2c_busy = '1') then
@@ -202,6 +200,7 @@ begin
 						if (i2c_busy = '0') then
 							busy_cnt <= 0;
 							c_state <= set_address_1;
+							o_display_initialize <= '1';
 						end if;
 					when others => null;
 				end case;
@@ -230,7 +229,6 @@ begin
 			when wait1 =>
 				i2c_ena <= '0';
 				if (counter = 0) then
-					o_display_initialize <= '1';
 					c_state <= send_character;
 				end if;
 			when send_character =>

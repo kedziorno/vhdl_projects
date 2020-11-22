@@ -72,7 +72,7 @@ begin
 			t_col_block := i_col_block;
 			t_byte := i_byte;
 			v0 := t_col((1*BYTE_BITS)-1 downto 0*BYTE_BITS);
-			v1 := t_col((2*BYTE_BITS)-1 downto 1*BYTE_BITS);
+--			v1 := t_col((2*BYTE_BITS)-1 downto 1*BYTE_BITS);
 --			v2 := t_col((3*BYTE_BITS)-1 downto 2*BYTE_BITS);
 --			v3 := t_col((4*BYTE_BITS)-1 downto 3*BYTE_BITS);
 			if (i_enable_byte = '1') then
@@ -80,8 +80,8 @@ begin
 					case to_integer(unsigned(t_col_block)) is
 						when 0 =>
 							v0 := t_byte;
-						when 1 =>
-							v1 := t_byte;
+--						when 1 =>
+--							v1 := t_byte;
 --						when 2 =>
 --							v2 := t_byte;
 --						when 3 =>
@@ -89,7 +89,7 @@ begin
 						when others => null;
 					end case;
 --					t_col := v3 & v2 & v1 & v0;
-					t_col := v1 & v0;
+					t_col := v0;
 					m1(to_integer(unsigned(t_row))) := t_col;
 					o_byte <= "ZZZZZZZZ";
 				else
@@ -99,8 +99,8 @@ begin
 						case to_integer(unsigned(t_col_block)) is
 							when 0 =>
 								t_byte := v0;
-							when 1 =>
-								t_byte := v1;
+--							when 1 =>
+--								t_byte := v1;
 --							when 2 =>
 --								t_byte := v2;
 --							when 3 =>
@@ -111,7 +111,7 @@ begin
 					o_byte <= t_byte;
 				end if;
 			else
-				o_byte <= "ZZZZZZZZ";
+				o_byte <= "00000000";
 			end if;
 		end if;
 	end process process_byte;
@@ -130,7 +130,7 @@ begin
 		if (rising_edge(i_clk)) then
 			t_col := m1(to_integer(unsigned(i_row)));
 			v0 := t_col((1*BYTE_BITS)-1 downto 0*BYTE_BITS);
-			v1 := t_col((2*BYTE_BITS)-1 downto 1*BYTE_BITS);
+--			v1 := t_col((2*BYTE_BITS)-1 downto 1*BYTE_BITS);
 --			v2 := t_col((3*BYTE_BITS)-1 downto 2*BYTE_BITS);
 --			v3 := t_col((4*BYTE_BITS)-1 downto 3*BYTE_BITS);
 			if (i_enable_bit = '1') then
@@ -138,8 +138,8 @@ begin
 					case to_integer(unsigned(t_col_p1)) is
 						when 0 =>
 							v0(to_integer(unsigned(t_col_p2))) := i_bit;
-						when 1 =>
-							v1(to_integer(unsigned(t_col_p2))) := t_bit;
+--						when 1 =>
+--							v1(to_integer(unsigned(t_col_p2))) := t_bit;
 --						when 2 =>
 --							v2(to_integer(unsigned(t_col_p2))) := t_bit;
 --						when 3 =>
@@ -147,7 +147,7 @@ begin
 						when others => null;
 					end case;
 --					t_col := v3 & v2 & v1 & v0;
-					t_col := v1 & v0;
+					t_col := v0;
 					m1(to_integer(unsigned(t_row))) := t_col;
 					o_bit <= 'Z';
 				else
@@ -157,8 +157,8 @@ begin
 						case to_integer(unsigned(t_col_p1)) is
 							when 0 =>
 								t_bit := v0(to_integer(unsigned(t_col_p2)));
-							when 1 =>
-								t_bit := v1(to_integer(unsigned(t_col_p2)));
+--							when 1 =>
+--								t_bit := v1(to_integer(unsigned(t_col_p2)));
 --							when 2 =>
 --								t_bit := v2(to_integer(unsigned(t_col_p2)));
 --							when 3 =>
