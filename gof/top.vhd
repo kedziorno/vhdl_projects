@@ -454,6 +454,7 @@ begin
 			when disable_write_to_memory =>
 				cstate <= update_row2;
 				i_mem_write_bit <= '0';
+				i_bit <= '0';
 			when update_row2 =>
 				if (vppX < ROWS-1) then
 					vppX := vppX + 1;
