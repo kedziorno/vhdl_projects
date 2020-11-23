@@ -11,7 +11,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="5" />
+   <WVObjectSize size="7" />
    <wvobject fp_name="/tb_clock_divider/uut/i_clk" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">i_clk</obj_property>
       <obj_property name="ObjectShortName">i_clk</obj_property>
@@ -31,6 +31,16 @@
    <wvobject fp_name="/tb_clock_divider/uut/debug_counter" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">debug_counter[31:0]</obj_property>
       <obj_property name="ObjectShortName">debug_counter[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_clock_divider/uut/dt1" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dt1[31:0]</obj_property>
+      <obj_property name="ObjectShortName">dt1[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_clock_divider/uut/dt2" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dt2[31:0]</obj_property>
+      <obj_property name="ObjectShortName">dt2[31:0]</obj_property>
       <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
 </wave_config>

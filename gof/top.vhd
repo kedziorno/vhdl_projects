@@ -71,13 +71,11 @@ end component oled_display;
 for all : oled_display use entity WORK.oled_display(Behavioral);
 	
 component clock_divider is
-Generic(
-g_board_clock : integer;
-g_divider : integer);
 Port(
-i_clk : in  STD_LOGIC;
-i_divider : in integer;
-o_clk : out  STD_LOGIC
+i_clk : in STD_LOGIC;
+i_board_clock : in INTEGER;
+i_divider : in INTEGER;
+o_clk : out STD_LOGIC
 );
 end component clock_divider;
 for all : clock_divider use entity WORK.clock_divider(Behavioral);
@@ -164,6 +162,8 @@ signal slivearray : std_logic_vector(2 downto 0);
 signal CellAlive : std_logic;
 signal LiveArray : LiveArrayType;
 signal CD : integer := DIVIDER_CLOCK;
+signal CD_DISPLAY : integer := DIVIDER_CLOCK;
+signal CD_CALCULATE : integer := DIVIDER_CLOCK*100;
 
 function To_Std_Logic(x_vot : BOOLEAN) return std_ulogic is
 begin
@@ -179,11 +179,9 @@ begin
 i_reset <= btn_1;
 
 clk_div : clock_divider
-generic map (
-	g_board_clock => INPUT_CLOCK,
-	g_divider => CD)
 port map (
 	i_clk => clk,
+	i_board_clock => INPUT_CLOCK,
 	i_divider => CD,
 	o_clk => clk_1s
 );
@@ -261,7 +259,7 @@ begin
 				vppX := 0;
 				vppYb := 0;
 				vppYp := 0;
-				CD <= 10000000;
+				CD <= CD_DISPLAY;
 			when memory_enable_byte =>
 				cstate <= waitone;
 				i_mem_e_byte <= '1';
@@ -307,7 +305,7 @@ begin
 				vppX := 0;
 				vppYb := 0;
 				vppYp := 0;
-				CD <= 20000000;
+				CD <= CD_CALCULATE;
 			when check_coordinations =>
 				cstate <= memory_enable_bit;
 				vppXm1 := vppX-1;

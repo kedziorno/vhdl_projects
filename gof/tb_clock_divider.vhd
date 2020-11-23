@@ -86,11 +86,11 @@ begin
 	wait for 100 ns;
 	wait for i_clk_period*10;
 	-- insert stimulus here
-	CD <= 10;
+	CD <= 40;
 	wait for 100 ms;
 	CD <= 100;
 	wait for 100 ms;
-	CD <= 10;
+	CD <= 40;
 	wait for 100 ms;
 	CD <= 100;
 	wait;
