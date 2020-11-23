@@ -30,36 +30,38 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity clock_divider is
-Generic(
-g_board_clock : REAL;
-g_divider : REAL);
 Port(
-i_clk : in  STD_LOGIC;
+i_clk : in STD_LOGIC;
+i_board_clock : in REAL;
 i_divider : in REAL;
-o_clk : out  STD_LOGIC
+o_clk : out STD_LOGIC
 );
 end clock_divider;
 
 architecture Behavioral of clock_divider is
-	constant clk_div : REAL := g_board_clock / i_divider;
 	signal scd : std_logic_vector(31 downto 0);
 begin
 
 p0 : process (i_clk) is
 	variable clk_out : std_logic;
-	variable counter : REAL := 1.0e0;
+	variable counter : REAL := 0.0e0;
+	variable clk_div : REAL := i_board_clock / i_divider;
 begin
 	if (rising_edge(i_clk)) then
-		if (counter = clk_div-1.0e0) then
+		if (counter = 0.0e0) then
+			report "bc: "&real'image(i_board_clock)&" , dc: "&real'image(i_divider * 1.0) severity note;
+			report "clk div: "&real'image(clk_div) severity note;
+		end if;
+		if (counter = (i_board_clock / i_divider)-1.0e0) then
 			clk_out := '1';
-			counter := 1.0e0;
+			counter := 0.0e0;
 		else
 			clk_out := '0';
 			counter := counter + 1.0e0;
 		end if;
 	end if;
 	o_clk <= clk_out;
-	--scd <= std_logic_vector(to_unsigned(INTEGER(counter * 1.0),32));
+	scd <= std_logic_vector(to_unsigned(INTEGER(counter * 1.0),32));
 end process p0;
 
 end Behavioral;

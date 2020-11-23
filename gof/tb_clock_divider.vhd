@@ -37,43 +37,35 @@ END tb_clock_divider;
 
 ARCHITECTURE behavior OF tb_clock_divider IS 
 
-constant BC : REAL := 5.0e7;
-constant CD : REAL := 2.0e0;
+signal BC : REAL := 5.0e7;
 
 COMPONENT clock_divider
-GENERIC(
-	g_board_clock : REAL;
-	g_divider : REAL
-);
 PORT(
-	i_clk : IN  std_logic;
-	i_divider : IN  REAL;
-	o_clk : OUT  std_logic
+	i_clk : IN std_logic;
+	i_board_clock : IN REAL;
+	i_divider : IN REAL;
+	o_clk : OUT std_logic
 );
 END COMPONENT;
 
 --Inputs
 signal i_clk : std_logic;
-signal i_divider : REAL;
 
 --Outputs
 signal o_clk : std_logic;
 
 -- Clock period definitions
---constant i_clk_half_period : time := (0.5e15 / 50_000_000) * 1 fs;
---constant i_clk_period : time := 2 * clk_half_period;
 constant i_clk_period : time := (1.0e9/BC) * 1 ns;
+
+signal CD : REAL;
 
 BEGIN
 
 -- Instantiate the Unit Under Test (UUT)
-uut: clock_divider 
-GENERIC MAP (
-	g_board_clock => BC,
-	g_divider => CD
-)
+uut: clock_divider
 PORT MAP (
 	i_clk => i_clk,
+	i_board_clock => BC,
 	i_divider => CD,
 	o_clk => o_clk
 );
@@ -94,6 +86,14 @@ begin
 	wait for 100 ns;
 	wait for i_clk_period*10;
 	-- insert stimulus here
+	BC <= 5.0e7;
+	CD <= 10.0e0;
+	wait for 100 ms;
+	CD <= 100.0e0;
+	wait for 100 ms;
+	CD <= 10.0e0;
+	wait for 100 ms;
+	CD <= 100.0e0;
 	wait;
 end process;
 
