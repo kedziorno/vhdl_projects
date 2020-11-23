@@ -32,36 +32,34 @@ use IEEE.NUMERIC_STD.ALL;
 entity clock_divider is
 Port(
 i_clk : in STD_LOGIC;
-i_board_clock : in REAL;
-i_divider : in REAL;
+i_board_clock : in INTEGER;
+i_divider : in INTEGER;
 o_clk : out STD_LOGIC
 );
 end clock_divider;
 
 architecture Behavioral of clock_divider is
-	signal scd : std_logic_vector(31 downto 0);
+	signal debug_counter : std_logic_vector(31 downto 0);
 begin
 
 p0 : process (i_clk) is
 	variable clk_out : std_logic;
-	variable counter : REAL := 0.0e0;
-	variable clk_div : REAL := i_board_clock / i_divider;
+	variable counter : INTEGER := 0;
 begin
 	if (rising_edge(i_clk)) then
-		if (counter = 0.0e0) then
-			report "bc: "&real'image(i_board_clock)&" , dc: "&real'image(i_divider * 1.0) severity note;
-			report "clk div: "&real'image(clk_div) severity note;
+		if (counter = 0) then
+			report "bc: "&integer'image(i_board_clock)&" , dc: "&integer'image(i_divider) severity note;
 		end if;
-		if (counter = (i_board_clock / i_divider)-1.0e0) then
+		if (counter = ((i_board_clock / i_divider) - 1)) then
 			clk_out := '1';
-			counter := 0.0e0;
+			counter := 0;
 		else
 			clk_out := '0';
-			counter := counter + 1.0e0;
+			counter := counter + 1;
 		end if;
 	end if;
 	o_clk <= clk_out;
-	scd <= std_logic_vector(to_unsigned(INTEGER(counter * 1.0),32));
+	debug_counter <= std_logic_vector(to_unsigned(counter,32));
 end process p0;
 
 end Behavioral;
