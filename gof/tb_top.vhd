@@ -71,7 +71,7 @@ ARCHITECTURE behavior OF tb_top IS
    signal scl : std_logic;
 
    -- Clock period definitions 
-	constant clk_period : time := 20 ns;
+	constant clk_period : time := (1_000_000_000 / IC) * 1 ns;
  
 BEGIN
  
@@ -104,15 +104,13 @@ BEGIN
    -- Stimulus process
    stim_proc: process
    begin		
-      -- hold reset state for 100 ns.
-	btn_1 <= '1';
-      wait for 100 ns;	
-	btn_1 <= '0';
-      wait for clk_period*10;
-
-      -- insert stimulus here 
-
-      wait;
+		-- hold reset state for 100 ns.
+		btn_1 <= '1';
+		wait for 100 ns;
+		btn_1 <= '0';
+		wait for clk_period*10;
+		-- insert stimulus here
+		wait;
    end process;
 
 END;

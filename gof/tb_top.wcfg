@@ -14,14 +14,14 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="6" />
+   <WVObjectSize size="12" />
+   <wvobject fp_name="/tb_top/clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
    <wvobject fp_name="/tb_top/uut/clk_1s" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">clk_1s</obj_property>
       <obj_property name="ObjectShortName">clk_1s</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb_top/uut/clk_div/clk_div" type="other" db_ref_id="1">
-      <obj_property name="ElementShortName">clk_div</obj_property>
-      <obj_property name="ObjectShortName">clk_div</obj_property>
    </wvobject>
    <wvobject fp_name="group47" type="group">
       <obj_property name="label">ports</obj_property>
@@ -255,5 +255,30 @@
          <obj_property name="ElementShortName">i_bit</obj_property>
          <obj_property name="ObjectShortName">i_bit</obj_property>
       </wvobject>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/clk_div/i_clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_clk</obj_property>
+      <obj_property name="ObjectShortName">i_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/clk_div/i_board_clock" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">i_board_clock</obj_property>
+      <obj_property name="ObjectShortName">i_board_clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/clk_div/i_divider" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">i_divider</obj_property>
+      <obj_property name="ObjectShortName">i_divider</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/clk_div/o_clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_clk</obj_property>
+      <obj_property name="ObjectShortName">o_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/clk_div/debug_counter" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">debug_counter[31:0]</obj_property>
+      <obj_property name="ObjectShortName">debug_counter[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/cd" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">cd</obj_property>
+      <obj_property name="ObjectShortName">cd</obj_property>
    </wvobject>
 </wave_config>
