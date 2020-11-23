@@ -37,14 +37,14 @@ END tb_clock_divider;
 
 ARCHITECTURE behavior OF tb_clock_divider IS 
 
-signal BC : REAL := 5.0e7;
+signal BC : INTEGER := 50_000_000;
 
 COMPONENT clock_divider
 PORT(
-	i_clk : IN std_logic;
-	i_board_clock : IN REAL;
-	i_divider : IN REAL;
-	o_clk : OUT std_logic
+	i_clk : IN STD_LOGIC;
+	i_board_clock : IN INTEGER;
+	i_divider : IN INTEGER;
+	o_clk : OUT STD_LOGIC
 );
 END COMPONENT;
 
@@ -55,9 +55,9 @@ signal i_clk : std_logic;
 signal o_clk : std_logic;
 
 -- Clock period definitions
-constant i_clk_period : time := (1.0e9/BC) * 1 ns;
+constant i_clk_period : time := (1_000_000_000 / BC) * 1 ns;
 
-signal CD : REAL;
+signal CD : INTEGER; -- divider
 
 BEGIN
 
@@ -86,14 +86,13 @@ begin
 	wait for 100 ns;
 	wait for i_clk_period*10;
 	-- insert stimulus here
-	BC <= 5.0e7;
-	CD <= 10.0e0;
+	CD <= 10;
 	wait for 100 ms;
-	CD <= 100.0e0;
+	CD <= 100;
 	wait for 100 ms;
-	CD <= 10.0e0;
+	CD <= 10;
 	wait for 100 ms;
-	CD <= 100.0e0;
+	CD <= 100;
 	wait;
 end process;
 

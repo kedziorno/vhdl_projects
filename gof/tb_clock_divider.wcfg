@@ -28,9 +28,9 @@
       <obj_property name="ElementShortName">o_clk</obj_property>
       <obj_property name="ObjectShortName">o_clk</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb_clock_divider/uut/scd" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">scd[31:0]</obj_property>
-      <obj_property name="ObjectShortName">scd[31:0]</obj_property>
+   <wvobject fp_name="/tb_clock_divider/uut/debug_counter" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">debug_counter[31:0]</obj_property>
+      <obj_property name="ObjectShortName">debug_counter[31:0]</obj_property>
       <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
 </wave_config>
