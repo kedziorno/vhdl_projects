@@ -76,6 +76,7 @@ g_board_clock : integer;
 g_divider : integer);
 Port(
 i_clk : in  STD_LOGIC;
+i_divider : in integer;
 o_clk : out  STD_LOGIC
 );
 end component clock_divider;
@@ -162,7 +163,7 @@ signal countAlive : std_logic_vector(2 downto 0);
 signal slivearray : std_logic_vector(2 downto 0);
 signal CellAlive : std_logic;
 signal LiveArray : LiveArrayType;
-
+signal CD : integer := DIVIDER_CLOCK;
 
 function To_Std_Logic(x_vot : BOOLEAN) return std_ulogic is
 begin
@@ -180,9 +181,10 @@ i_reset <= btn_1;
 clk_div : clock_divider
 generic map (
 	g_board_clock => INPUT_CLOCK,
-	g_divider => DIVIDER_CLOCK)
+	g_divider => CD)
 port map (
 	i_clk => clk,
+	i_divider => CD,
 	o_clk => clk_1s
 );
 
@@ -259,6 +261,7 @@ begin
 				vppX := 0;
 				vppYb := 0;
 				vppYp := 0;
+				CD <= 10000000;
 			when memory_enable_byte =>
 				cstate <= waitone;
 				i_mem_e_byte <= '1';
@@ -304,6 +307,7 @@ begin
 				vppX := 0;
 				vppYb := 0;
 				vppYp := 0;
+				CD <= 20000000;
 			when check_coordinations =>
 				cstate <= memory_enable_bit;
 				vppXm1 := vppX-1;
