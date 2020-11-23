@@ -127,7 +127,8 @@ reset_counters_1,
 check_coordinations,
 reset_count_alive,
 memory_enable_bit,
-c1,c2,c3,c4,c5,c6,c7,c8,
+set_c1,c1,set_c2,c2,set_c3,c3,set_c4,c4,set_c5,c5,set_c6,c6,set_c7,c7,set_c8,c8,
+waitfor,
 memory_disable_bit,
 store_count_alive,
 update_row1,
@@ -137,6 +138,7 @@ memory_enable_bit1,
 get_alive,
 get_alive1,
 enable_write_to_memory,
+set_coords_to_write,
 write_count_alive,
 disable_write_to_memory,
 update_row2,
@@ -321,89 +323,117 @@ begin
 					vppYp1 := COLS_PIXEL-1;
 				end if;
 			when memory_enable_bit =>
-				cstate <= c1;
+				cstate <= reset_count_alive;
 				i_mem_e_bit <= '1';
+			when reset_count_alive =>
+				cstate <= set_c1;
+				vcountAlive := 0;
+				countAlive <= "000";
+			when set_c1 =>
+				cstate <= c1;
+				row <= ppX;
+				col_pixel <= ppYm1;
 			when c1 =>
-				cstate <= c2;
+				cstate <= set_c2;
 				if (vppYp /= 0) then
-					row <= ppX;
-					col_pixel <= ppYm1;
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
+					countAlive <= std_logic_vector(to_unsigned(vcountALive,3));
 				end if;
+			when set_c2 =>
+				cstate <= c2;
+				row <= ppX;
+				col_pixel <= ppYp1;
 			when c2 =>
+				cstate <= set_c3;
+				if (vppYp /= COLS_PIXEL-1) then	
+					if (o_bit = '1') then
+						vcountAlive := vcountAlive + 1;
+					end if;
+					countAlive <= std_logic_vector(to_unsigned(vcountALive,3));
+				end if;
+			when set_c3 =>
 				cstate <= c3;
-				if (vppYp /= COLS_PIXEL-1) then
-					row <= ppX;
-					col_pixel <= ppYp1;
-					if (o_bit = '1') then
-						vcountAlive := vcountAlive + 1;
-					end if;
-				end if;
+				row <= ppXp1;
+				col_pixel <= ppYp;	
 			when c3 =>
-				cstate <= c4;
+				cstate <= set_c4;
 				if (vppX /= ROWS-1) then
-					row <= ppXp1;
-					col_pixel <= ppYp;
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
+					countAlive <= std_logic_vector(to_unsigned(vcountALive,3));
 				end if;
+			when set_c4 =>
+				cstate <= c4;
+				row <= ppXm1;
+				col_pixel <= ppYp;	
 			when c4 =>
-				cstate <= c5;
+				cstate <= set_c5;
 				if (vppX /= 0) then
-					row <= ppXm1;
-					col_pixel <= ppYp;
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
+					countAlive <= std_logic_vector(to_unsigned(vcountALive,3));
 				end if;
+			when set_c5 =>
+				cstate <= c5;
+				row <= ppXm1;
+				col_pixel <= ppYm1;	
 			when c5 =>
-				cstate <= c6;
+				cstate <= set_c6;
 				if ((vppX /= 0) and (vppYp /= 0)) then
-					row <= ppXm1;
-					col_pixel <= ppYm1;
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
+					countAlive <= std_logic_vector(to_unsigned(vcountALive,3));
 				end if;
+			when set_c6 =>
+				cstate <= c6;
+				row <= ppXp1;
+				col_pixel <= ppYm1;	
 			when c6 =>
-				cstate <= c7;
+				cstate <= set_c7;
 				if ((vppX /= ROWS-1) and (vppYp /= 0)) then
-					row <= ppXp1;
-					col_pixel <= ppYm1;
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
+					countAlive <= std_logic_vector(to_unsigned(vcountALive,3));
 				end if;
+			when set_c7 =>
+				cstate <= c7;
+				row <= ppXm1;
+				col_pixel <= ppYp1;	
 			when c7 =>
-				cstate <= c8;
+				cstate <= set_c8;
 				if ((vppX /= 0) and (vppYp /= COLS_PIXEL-1)) then
-					row <= ppXm1;
-					col_pixel <= ppYp1;
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
+					countAlive <= std_logic_vector(to_unsigned(vcountALive,3));
 				end if;
+			when set_c8 =>
+				cstate <= c8;
+				row <= ppXp1;
+				col_pixel <= ppYp1;	
 			when c8 =>
-				cstate <= memory_disable_bit;
+				cstate <= waitfor;
 				if ((vppX /= ROWS-1) and (vppYp /= COLS_PIXEL-1)) then
-					row <= ppXp1;
-					col_pixel <= ppYp1;
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
+					countAlive <= std_logic_vector(to_unsigned(vcountALive,3));
 				end if;
+			when waitfor =>
+				cstate <= memory_disable_bit;
+				countAlive <= std_logic_vector(to_unsigned(vcountALive,3));
 			when memory_disable_bit =>
 				cstate <= store_count_alive;
 				i_mem_e_bit <= '0';
 			when store_count_alive =>
-				cstate <= reset_count_alive;
-				LiveArray(vppX)(vppYp) <= std_logic_vector(to_unsigned(vcountAlive,3));
-			when reset_count_alive =>
 				cstate <= update_row1;
-				vcountAlive := 0;
+				LiveArray(vppX)(vppYp) <= countAlive;
 			when update_row1 =>
 				if (vppX < ROWS-1) then
 					vppX := vppX + 1;
@@ -448,8 +478,6 @@ begin
 				i_mem_write_bit <= '1';
 			when write_count_alive =>
 				cstate <= disable_write_to_memory;
-				row <= ppX;
-				col_pixel <= ppYp;
 				if (vCellAlive = true) then
 					if ((to_integer(unsigned(LiveArray(vppX)(vppYp))) = 2) or (to_integer(unsigned(LiveArray(vppX)(vppYp))) = 3)) then
 						i_bit <= '1';
@@ -486,7 +514,7 @@ begin
 			when disable_memory =>
 				cstate <= stop;
 				i_mem_e_bit <= '0';
-				
+				i_bit <= '0';
 				
 				
 			when stop =>
@@ -499,7 +527,6 @@ begin
 		end case;		
 	end if;
 	CellAlive <= To_Std_Logic(vCellAlive);
-	countAlive <= std_logic_vector(to_unsigned(vcountALive,3));
 	ppX <= std_logic_vector(to_unsigned(vppX,ROWS_BITS));
 	ppYp <= std_logic_vector(to_unsigned(vppYp,COLS_PIXEL_BITS));
 	ppYb <= std_logic_vector(to_unsigned(vppYb,COLS_BLOCK_BITS));

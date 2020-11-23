@@ -11,11 +11,11 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 
 package p_memory_content is
-	constant ROWS : integer := 8; --128;
-	constant ROWS_BITS : integer := 3; --7;
-	constant COLS_PIXEL : integer := 8; --32;
-	constant COLS_PIXEL_BITS : integer := 3; --5;
-	constant COLS_BLOCK : integer := 1;
+	constant ROWS : integer := 16; --128;
+	constant ROWS_BITS : integer := 4; --7;
+	constant COLS_PIXEL : integer := 16; --32;
+	constant COLS_PIXEL_BITS : integer := 4; --5;
+	constant COLS_BLOCK : integer := 2;
 	constant COLS_BLOCK_BITS : integer := 1;
 	constant BYTE_BITS : integer := 8;
 	constant WORD_BITS : integer := COLS_BLOCK*BYTE_BITS;
@@ -28,14 +28,22 @@ package p_memory_content is
 	
 	constant memory_content : MEMORY :=
 	(
-		("00000000"),
-		("00000000"),
-		("00000000"),
-		("00111000"),
-		("00000000"),
-		("00000000"),
-		("00000000"),
-		("00000000")
+		("0000000000000000"), -- F
+		("0001000000001000"),
+		("0001000000001000"),
+		("0001000000001000"),
+		("0000000000000000"),
+		("0000000000000000"),
+		("0001110000111000"),
+		("0011100000011100"), -- 8
+		("0000000000000000"), -- 7
+		("0000000000000000"),
+		("0011000000001100"),
+		("0011000000001100"),
+		("0000110000000000"),
+		("0000110000000000"),
+		("0000000000000000"), -- 1
+		("0000000000000000")  -- 0
 	);
 	
 --	constant memory_content : MEMORY :=
