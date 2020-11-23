@@ -36,9 +36,13 @@ ENTITY tb_top IS
 END tb_top;
  
 ARCHITECTURE behavior OF tb_top IS 
- 
+
+	constant IC : integer := 50_000_000;
+	constant BC : integer := 100_000;
+	constant DC : integer := 1_000;
+
     -- Component Declaration for the Unit Under Test (UUT)
- 
+
     COMPONENT top
 	 GENERIC(
 			INPUT_CLOCK : integer;
@@ -66,17 +70,17 @@ ARCHITECTURE behavior OF tb_top IS
    signal sda : std_logic;
    signal scl : std_logic;
 
-   -- Clock period definitions
-   constant clk_period : time := 20 ns;
+   -- Clock period definitions 
+	constant clk_period : time := 20 ns;
  
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
    uut: top 
 	GENERIC MAP (
-		INPUT_CLOCK => 50_000_000,
-		BUS_CLOCK => 100_000_00,
-		DIVIDER_CLOCK => 1_000_00
+		INPUT_CLOCK => IC,
+		BUS_CLOCK => BC,
+		DIVIDER_CLOCK => DC
 		)
 	PORT MAP (
 		clk => clk,

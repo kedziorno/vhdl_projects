@@ -35,12 +35,14 @@ g_board_clock : integer;
 g_divider : integer);
 Port(
 i_clk : in  STD_LOGIC;
+i_divider : in integer;
 o_clk : out  STD_LOGIC
 );
 end clock_divider;
 
 architecture Behavioral of clock_divider is
-	constant clk_div   : integer := g_board_clock / g_divider;
+	constant clk_div   : integer := g_board_clock / i_divider;
+	signal scd : std_logic_vector(31 downto 0);
 begin
 
 p0 : process (i_clk) is
@@ -57,6 +59,7 @@ begin
 		end if;
 	end if;
 	o_clk <= clk_out;
+	scd <= std_logic_vector(to_unsigned(counter,32));
 end process p0;
 
 end Behavioral;
