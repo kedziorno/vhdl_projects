@@ -50,7 +50,7 @@ architecture Behavioral of oled_display is
 constant OLED_PAGES_ALL : integer := WIDTH * HEIGHT;
 constant OLED_DATA : integer := to_integer(unsigned'(x"40"));
 constant OLED_COMMAND : integer := to_integer(unsigned'(x"00")); -- 00,80
-constant COUNTER_WAIT1 : integer := 15000;
+constant COUNTER_WAIT1 : integer := 1;
 
 constant NI_INIT : natural := 26;
 type A_INIT is array (0 to NI_INIT-1) of std_logic_vector(BYTE_SIZE-1 downto 0);
