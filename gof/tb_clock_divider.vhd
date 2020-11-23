@@ -37,33 +37,32 @@ END tb_clock_divider;
 
 ARCHITECTURE behavior OF tb_clock_divider IS 
 
-constant BC : integer := 50_000_000;
-constant CD : integer := 1_000;
+constant BC : REAL := 5.0e7;
+constant CD : REAL := 2.0e0;
 
 COMPONENT clock_divider
 GENERIC(
-	g_board_clock : integer;
-	g_divider : integer
+	g_board_clock : REAL;
+	g_divider : REAL
 );
 PORT(
 	i_clk : IN  std_logic;
-	i_divider : IN  integer;
+	i_divider : IN  REAL;
 	o_clk : OUT  std_logic
 );
 END COMPONENT;
 
 --Inputs
 signal i_clk : std_logic;
-signal i_divider : integer;
+signal i_divider : REAL;
 
 --Outputs
 signal o_clk : std_logic;
 
 -- Clock period definitions
---	constant i_clk_half_period : time := (0.5e15 / 50_000_000) * 1 fs;
---	constant i_clk_period : time := 2 * clk_half_period; 
--- constant i_clk_period : time := time'val(IC);
-constant i_clk_period : time := 10 ns;
+--constant i_clk_half_period : time := (0.5e15 / 50_000_000) * 1 fs;
+--constant i_clk_period : time := 2 * clk_half_period;
+constant i_clk_period : time := (1.0e9/BC) * 1 ns;
 
 BEGIN
 
@@ -75,7 +74,7 @@ GENERIC MAP (
 )
 PORT MAP (
 	i_clk => i_clk,
-	i_divider => i_divider,
+	i_divider => CD,
 	o_clk => o_clk
 );
 
