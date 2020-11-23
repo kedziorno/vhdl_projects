@@ -31,35 +31,35 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity clock_divider is
 Generic(
-g_board_clock : integer;
-g_divider : integer);
+g_board_clock : REAL;
+g_divider : REAL);
 Port(
 i_clk : in  STD_LOGIC;
-i_divider : in integer;
+i_divider : in REAL;
 o_clk : out  STD_LOGIC
 );
 end clock_divider;
 
 architecture Behavioral of clock_divider is
-	constant clk_div   : integer := g_board_clock / i_divider;
+	constant clk_div : REAL := g_board_clock / i_divider;
 	signal scd : std_logic_vector(31 downto 0);
 begin
 
 p0 : process (i_clk) is
 	variable clk_out : std_logic;
-	variable counter : integer := 0;
+	variable counter : REAL := 1.0e0;
 begin
 	if (rising_edge(i_clk)) then
-		if (counter = clk_div-1) then
+		if (counter = clk_div-1.0e0) then
 			clk_out := '1';
-			counter := 0;
+			counter := 1.0e0;
 		else
 			clk_out := '0';
-			counter := counter + 1;
+			counter := counter + 1.0e0;
 		end if;
 	end if;
 	o_clk <= clk_out;
-	scd <= std_logic_vector(to_unsigned(counter,32));
+	--scd <= std_logic_vector(to_unsigned(INTEGER(counter * 1.0),32));
 end process p0;
 
 end Behavioral;

@@ -11,7 +11,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="12" />
+   <WVObjectSize size="11" />
    <wvobject fp_name="/tb_clock_divider/i_clk" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">i_clk</obj_property>
       <obj_property name="ObjectShortName">i_clk</obj_property>
@@ -28,10 +28,6 @@
       <obj_property name="ElementShortName">i_clk_period</obj_property>
       <obj_property name="ObjectShortName">i_clk_period</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb_clock_divider/o_clk_period" type="other" db_ref_id="1">
-      <obj_property name="ElementShortName">o_clk_period</obj_property>
-      <obj_property name="ObjectShortName">o_clk_period</obj_property>
-   </wvobject>
    <wvobject fp_name="/tb_clock_divider/uut/i_clk" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">i_clk</obj_property>
       <obj_property name="ObjectShortName">i_clk</obj_property>
@@ -47,6 +43,7 @@
    <wvobject fp_name="/tb_clock_divider/uut/scd" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">scd[31:0]</obj_property>
       <obj_property name="ObjectShortName">scd[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_clock_divider/uut/g_board_clock" type="other" db_ref_id="1">
       <obj_property name="ElementShortName">g_board_clock</obj_property>
