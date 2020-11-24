@@ -50,7 +50,7 @@ architecture Behavioral of oled_display is
 constant OLED_PAGES_ALL : integer := WIDTH * HEIGHT;
 constant OLED_DATA : integer := to_integer(unsigned'(x"40"));
 constant OLED_COMMAND : integer := to_integer(unsigned'(x"00")); -- 00,80
-constant COUNTER_WAIT1 : integer := 1;
+constant COUNTER_WAIT1 : integer := 10;
 
 constant NI_INIT : natural := 26;
 type A_INIT is array (0 to NI_INIT-1) of std_logic_vector(BYTE_SIZE-1 downto 0);
@@ -108,6 +108,7 @@ type state is
 	wait1, -- wait after initialize
 	send_character, -- send the some data in loop
 	wait2, -- disable i2c and wait between transition coordination
+	wait3,
 	set_address_2, -- set begin point 0,0
 	clear_display_state, -- clear display
 	stop -- when index=counter, i2c disable
@@ -215,6 +216,19 @@ begin
 						i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 						i2c_rw <= '0';
 						i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,BYTE_SIZE));
+--					when 1 =>
+--						i2c_data_wr <= x"20";
+--					when 2 =>
+--						i2c_data_wr <= x"00"; -- "0000000"&i_y; -- XXX
+--					when 3 =>
+--						i2c_data_wr <= std_logic_vector(to_unsigned(WIDTH-1,BYTE_SIZE));
+--					when 4 =>
+--						i2c_data_wr <= x"21";
+--					when 5 =>
+--						i2c_data_wr <= x"00"; -- "0000"&i_x; -- XXX
+--					when 6 =>
+--						i2c_data_wr <= std_logic_vector(to_unsigned(HEIGHT-1,BYTE_SIZE));
+--					when 7 =>
 					when 1 to NI_SET_COORDINATION =>
 						i2c_data_wr <= set_coordination_00(busy_cnt-1); -- command
 					when NI_SET_COORDINATION+1 =>
@@ -256,10 +270,13 @@ begin
 				i2c_ena <= '0';
 				coord_prev_x <= i_x;
 				coord_prev_y <= i_y;
+				busy_cnt <= 0;
 				if (coord_prev_x /= i_x or coord_prev_y /= i_y) then
 					if (counter = 0) then
 						c_state <= send_character;
 					end if;
+--				else
+--					c_state <= stop;
 				end if;
 			when stop =>
 				i2c_ena <= '0';
