@@ -121,6 +121,7 @@ memory_enable_byte,
 waitone,
 update_row,
 update_col,
+set_cd_calculate,
 memory_disable_byte,
 reset_counters_1,
 check_coordinations,
@@ -254,22 +255,23 @@ begin
 				else
 					cstate <= idle;
 				end if;
+				all_pixels <= '0';
 			when display_is_initialize =>
 				cstate <= memory_enable_byte;
 				vppX := 0;
 				vppYb := 0;
 				vppYp := 0;
-				CD <= CD_DISPLAY;
 			when memory_enable_byte =>
 				cstate <= waitone;
 				i_mem_e_byte <= '1';
 				waiting := W-1;
+				CD <= CD_DISPLAY;
 			when waitone =>
-				if (waiting = 0) then
+				--if (waiting = 0) then
 					cstate <= update_row;
-				else
-					waiting := waiting - 1;
-				end if;
+				--else
+					--waiting := waiting - 1;
+				--end if;
 				row <= ppX;
 				col_block <= ppYb;
 			when update_row =>
@@ -287,17 +289,15 @@ begin
 					waiting := W-1;
 					vppX := 0;
 				else
-					cstate <= memory_disable_byte;
+					cstate <= set_cd_calculate;
 					vppYb := 0;
 				end if;
+			when set_cd_calculate =>
+				cstate <= memory_disable_byte;
+				CD <= CD_CALCULATE;
 			when memory_disable_byte =>
 				cstate <= reset_counters_1;
 				i_mem_e_byte <= '0';
-				
-				
-				
-				
-				
 			-- calculate cells
 			when reset_counters_1 =>
 				cstate <= check_coordinations;
@@ -305,7 +305,6 @@ begin
 				vppX := 0;
 				vppYb := 0;
 				vppYp := 0;
-				CD <= CD_CALCULATE;
 			when check_coordinations =>
 				cstate <= memory_enable_bit;
 				vppXm1 := vppX-1;
@@ -452,9 +451,7 @@ begin
 					cstate <= reset_counters1;
 					vppYp := 0;
 				end if;
-			
-			
-			
+			-- store bits in memory
 			when reset_counters1 =>
 				cstate <= memory_enable_bit1;
 				vppX := 0;
@@ -517,14 +514,9 @@ begin
 				cstate <= stop;
 				i_mem_e_bit <= '0';
 				i_bit <= '0';
-				
-				
+			-- end
 			when stop =>
-				all_pixels <= '0';
 				cstate <= idle;
-				
-				
-				
 			when others => null;
 		end case;		
 	end if;
@@ -537,7 +529,4 @@ begin
 	ppYm1 <= std_logic_vector(to_unsigned(vppYm1,COLS_PIXEL_BITS));
 	ppYp1 <= std_logic_vector(to_unsigned(vppYp1,COLS_PIXEL_BITS));
 end process gof_logic;
-
-
-
 end Behavioral;
