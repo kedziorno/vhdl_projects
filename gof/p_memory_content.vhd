@@ -23,27 +23,27 @@ package p_memory_content is
 	subtype WORD is std_logic_vector(WORD_BITS-1 downto 0);
 	type MEMORY is array(ROWS-1 downto 0) of WORD;
 	
-	type LiveSubArray is array(0 to WORD_BITS-1) of std_logic_vector(2 downto 0);
-	type LiveArrayType is array(0 to ROWS-1) of LiveSubArray;
+	type LiveSubArray is array(WORD_BITS-1 downto 0) of std_logic_vector(2 downto 0);
+	type LiveArrayType is array(ROWS-1 downto 0) of LiveSubArray;
 	
 	constant memory_content : MEMORY :=
 	(
-		("1111111111111111"), -- F
-		("1001000000001001"),
-		("1001000000001001"),
-		("1001000110001001"),
-		("1000000110000001"),
-		("1000000110000001"),
-		("1001110110111001"),
-		("1011100000011101"), -- 8
-		("1000000110000001"), -- 7
-		("1000000110000001"),
-		("1011000110001101"),
-		("1011000110001101"),
-		("1000110000110001"),
-		("1000110000110001"),
-		("1000000000000001"), -- 1
-		("1111111111111111")  -- 0
+		("0000000000000000"),
+		("0010000000000100"),
+		("0010000000000100"),
+		("0010000000000100"),
+		("0000000000000000"),
+		("0000000000000000"),
+		("0000000000000000"),
+		("0000000000000000"),
+		("0000000000000000"),
+		("0000000000000000"),
+		("0000000000000000"),
+		("0000000000000000"),
+		("0010000000000100"),
+		("0010000000000100"),
+		("0010000000000100"),
+		("0000000000000000")
 	);
 	
 --	constant memory_content : MEMORY :=

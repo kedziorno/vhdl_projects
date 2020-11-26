@@ -51,8 +51,8 @@ component oled_display is
 generic(
 GLOBAL_CLK : integer;
 I2C_CLK : integer;
-WIDTH : integer;
-HEIGHT : integer;
+WIDTH_O : integer;
+HEIGHT_O : integer;
 W_BITS : integer;
 H_BITS : integer;
 BYTE_SIZE : integer);
@@ -191,8 +191,8 @@ c0 : oled_display
 generic map (
 	GLOBAL_CLK => INPUT_CLOCK,
 	I2C_CLK => BUS_CLOCK,
-	WIDTH => ROWS,
-	HEIGHT => COLS_BLOCK,
+	WIDTH_O => ROWS,
+	HEIGHT_O => COLS_BLOCK,
 	W_BITS => ROWS_BITS,
 	H_BITS => COLS_BLOCK_BITS,
 	BYTE_SIZE => BYTE_BITS)
@@ -267,11 +267,11 @@ begin
 				waiting := W-1;
 				CD <= CD_DISPLAY;
 			when waitone =>
-				--if (waiting = 0) then
+				if (waiting = 0) then
 					cstate <= update_row;
-				--else
-					--waiting := waiting - 1;
-				--end if;
+				else
+					waiting := waiting - 1;
+				end if;
 				row <= ppX;
 				col_block <= ppYb;
 			when update_row =>
@@ -509,6 +509,7 @@ begin
 				else
 					cstate <= disable_memory;
 					vppYp := 0;
+					vppYb := 0;
 				end if;
 			when disable_memory =>
 				cstate <= stop;

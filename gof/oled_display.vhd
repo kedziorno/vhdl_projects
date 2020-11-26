@@ -26,8 +26,8 @@ generic
 (
 GLOBAL_CLK : integer := 50_000_000;
 I2C_CLK : integer := 100_000;
-WIDTH : integer := 128;
-HEIGHT : integer := 32;
+WIDTH_O : integer := 128;
+HEIGHT_O : integer := 32;
 W_BITS : integer := 7;
 H_BITS : integer := 5;
 BYTE_SIZE : integer := 8);
@@ -46,6 +46,9 @@ signal io_sda,io_scl : inout std_logic);
 end oled_display;
 
 architecture Behavioral of oled_display is
+
+constant WIDTH : integer := 128; -- XXX
+constant HEIGHT : integer := 4; -- XXX
 
 constant OLED_PAGES_ALL : integer := WIDTH * HEIGHT;
 constant OLED_DATA : integer := to_integer(unsigned'(x"40"));
@@ -157,14 +160,6 @@ begin
 	if (i_rst = '1') then
 		c_state <= idle;
 	elsif (rising_edge(i_clk)) then
-		if (i_clear = '1') then
-			busy_cnt <= 0;
-			c_state <= set_address_2;
-		end if;
-		if (i_draw = '1') then
-			busy_cnt <= 0;
-			c_state <= wait0;
-		end if;
 		if (i_all_pixels = '1') then
 			c_state <= stop;
 		end if;
@@ -201,18 +196,60 @@ begin
 						i2c_ena <= '0';
 						if (i2c_busy = '0') then
 							busy_cnt <= 0;
+							c_state <= set_address_2;
+						end if;
+					when others => null;
+				end case;
+			when set_address_2 =>
+				busy_prev <= i2c_busy;
+				if (busy_prev = '0' and i2c_busy = '1') then
+					busy_cnt <= busy_cnt + 1;
+				end if;
+				case busy_cnt is
+					when 0 =>
+						i2c_ena <= '1'; -- we are busy
+						i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
+						i2c_rw <= '0';
+						i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,BYTE_SIZE));
+					when 1 to NI_SET_COORDINATION =>
+						i2c_data_wr <= set_coordination_00(busy_cnt-1); -- command
+					when NI_SET_COORDINATION+1 =>
+						i2c_ena <= '0';
+						if (i2c_busy = '0') then
+							busy_cnt <= 0;
+							c_state <= clear_display_state;
+						end if;
+					when others => null;
+				end case;
+			when clear_display_state =>
+				busy_prev <= i2c_busy;
+				if (busy_prev = '0' and i2c_busy = '1') then
+					busy_cnt <= busy_cnt + 1;
+				end if;
+				case busy_cnt is
+					when 0 =>
+						i2c_ena <= '1'; -- we are busy
+						i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
+						i2c_rw <= '0';
+						i2c_data_wr <= std_logic_vector(to_unsigned(OLED_DATA,BYTE_SIZE));
+					when 1 to OLED_PAGES_ALL => -- XXX
+						i2c_data_wr <= x"00"; -- command - FF/allpixels,00/blank,F0/zebra
+					when OLED_PAGES_ALL+1 => -- XXX
+						i2c_ena <= '0';
+						if (i2c_busy = '0') then
+						busy_cnt <= 0;
 							c_state <= wait0;
-							o_display_initialize <= '1';
 						end if;
 					when others => null;
 				end case;
 			when wait0 =>
+				o_display_initialize <= '1';
 				if (i_byte /= "ZZZZZZZZ") then
 					c_state <= set_address_1;
 				end if;
 			when set_address_1 =>
-				coord_prev_x <= "0000";
-				coord_prev_y <= "0";
+				coord_prev_x <= std_logic_vector(to_unsigned(0,W_BITS));
+				coord_prev_y <= std_logic_vector(to_unsigned(0,H_BITS));
 				busy_prev <= i2c_busy;
 				if (busy_prev = '0' and i2c_busy = '1') then
 					busy_cnt <= busy_cnt + 1;
@@ -287,12 +324,18 @@ begin
 						i2c_rw <= '0';
 						i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,BYTE_SIZE));
 					when 1 =>
-						i2c_data_wr <= x"22";
+						i2c_data_wr <= x"21";
 					when 2 =>
-						i2c_data_wr <= "0000000"&i_y; -- XXX
+						i2c_data_wr <= std_logic_vector(to_unsigned(0,BYTE_SIZE-W_BITS))&i_x; -- XXX
 					when 3 =>
-						i2c_data_wr <= std_logic_vector(to_unsigned(HEIGHT-1,BYTE_SIZE));
+						i2c_data_wr <= std_logic_vector(to_unsigned(WIDTH-1,BYTE_SIZE));
 					when 4 =>
+						i2c_data_wr <= x"22";
+					when 5 =>
+						i2c_data_wr <= std_logic_vector(to_unsigned(0,BYTE_SIZE-H_BITS))&i_y; -- XXX
+					when 6 =>
+						i2c_data_wr <= std_logic_vector(to_unsigned(HEIGHT-1,BYTE_SIZE));
+					when 7 =>
 						i2c_ena <= '0';
 						if (i2c_busy = '0') then
 							busy_cnt <= 0;
@@ -304,48 +347,6 @@ begin
 			when stop =>
 				i2c_ena <= '0';
 				c_state <= idle;
-			when set_address_2 =>
-				busy_prev <= i2c_busy;
-				if (busy_prev = '0' and i2c_busy = '1') then
-					busy_cnt <= busy_cnt + 1;
-				end if;
-				case busy_cnt is
-					when 0 =>
-						i2c_ena <= '1'; -- we are busy
-						i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
-						i2c_rw <= '0';
-						i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,BYTE_SIZE));
-					when 1 to NI_SET_COORDINATION =>
-						i2c_data_wr <= set_coordination_00(busy_cnt-1); -- command
-					when NI_SET_COORDINATION+1 =>
-						i2c_ena <= '0';
-						if (i2c_busy = '0') then
-							busy_cnt <= 0;
-							c_state <= clear_display_state;
-						end if;
-					when others => null;
-				end case;
-			when clear_display_state =>
-				busy_prev <= i2c_busy;
-				if (busy_prev = '0' and i2c_busy = '1') then
-					busy_cnt <= busy_cnt + 1;
-				end if;
-				case busy_cnt is
-					when 0 =>
-						i2c_ena <= '1'; -- we are busy
-						i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
-						i2c_rw <= '0';
-						i2c_data_wr <= std_logic_vector(to_unsigned(OLED_DATA,BYTE_SIZE));
-					when 1 to OLED_PAGES_ALL =>
-						i2c_data_wr <= x"00"; -- command - FF/allpixels,00/blank,F0/zebra
-					when OLED_PAGES_ALL+1 =>
-						i2c_ena <= '0';
-						if (i2c_busy = '0') then
-						busy_cnt <= 0;
-							c_state <= stop;
-						end if;
-					when others => null;
-				end case;
 			when others => null;
 		end case;
 	end if;
