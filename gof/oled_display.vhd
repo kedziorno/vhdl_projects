@@ -307,9 +307,9 @@ begin
 					if (coord_prev_y /= i_y) then
 						c_state <= wait3;
 					else
-					if (coord_prev_x /= i_x) then
-						c_state <= send_character;
-					end if;
+						if (coord_prev_x /= i_x) then
+							c_state <= send_character;
+						end if;
 					end if;
 				end if;				
 			when wait3 =>
