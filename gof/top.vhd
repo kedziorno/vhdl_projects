@@ -162,8 +162,8 @@ signal slivearray : std_logic_vector(2 downto 0);
 signal CellAlive : std_logic;
 signal LiveArray : LiveArrayType;
 signal CD : integer := DIVIDER_CLOCK;
-signal CD_DISPLAY : integer := DIVIDER_CLOCK;
-signal CD_CALCULATE : integer := DIVIDER_CLOCK*100;
+signal CD_DISPLAY : integer := DIVIDER_CLOCK*10; -- XXX
+signal CD_CALCULATE : integer := DIVIDER_CLOCK*10000; -- XXX
 
 function To_Std_Logic(x_vot : BOOLEAN) return std_ulogic is
 begin
