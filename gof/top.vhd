@@ -226,17 +226,17 @@ port map (
 );
 
 gof_logic : process (clk_1s,i_reset) is
-constant W : integer := 1;
-variable waiting : integer range W-1 downto 0 := 0;
-variable vppX : natural range 0 to ROWS-1;
-variable vppYb : natural range 0 to COLS_BLOCK-1;
-variable vppYp : natural range 0 to COLS_PIXEL-1;
-variable vppXm1 : integer range -1 to ROWS-1;
-variable vppXp1 : integer range 0 to ROWS;
-variable vppYm1 : integer range -1 to COLS_PIXEL-1;
-variable vppYp1 : integer range 0 to COLS_PIXEL;
-variable vcountAlive : integer;
-variable vCellAlive : boolean;
+	constant W : integer := 1;
+	variable waiting : integer range W-1 downto 0 := 0;
+	variable vppX : natural range 0 to ROWS-1;
+	variable vppYb : natural range 0 to COLS_BLOCK-1;
+	variable vppYp : natural range 0 to COLS_PIXEL-1;
+	variable vppXm1 : integer range -1 to ROWS-1;
+	variable vppXp1 : integer range 0 to ROWS;
+	variable vppYm1 : integer range -1 to COLS_PIXEL-1;
+	variable vppYp1 : integer range 0 to COLS_PIXEL;
+	variable vcountAlive : integer;
+	variable vCellAlive : boolean;
 begin
 	if (i_reset = '1') then
 		all_pixels <= '0';
@@ -528,4 +528,5 @@ begin
 	ppYm1 <= std_logic_vector(to_unsigned(vppYm1,COLS_PIXEL_BITS));
 	ppYp1 <= std_logic_vector(to_unsigned(vppYp1,COLS_PIXEL_BITS));
 end process gof_logic;
+
 end Behavioral;
