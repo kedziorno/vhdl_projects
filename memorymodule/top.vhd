@@ -32,6 +32,11 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity top is
+Generic (
+g_board_clock : integer := G_BOARD_CLOCK;
+g_clock_divider : integer := 3;
+g_lcd_clock_divider : integer := G_LCDClockDivider
+);
 Port (
 i_clock : in std_logic;
 io_MemOE : inout std_logic;
@@ -68,6 +73,9 @@ architecture Behavioral of top is
 	for all : clock_divider use entity WORK.clock_divider(Behavioral);
 
 	component lcd_display is
+	Generic (
+		LCDClockDivider : integer := G_LCDClockDivider
+	);
 	Port (
 		i_clock : in std_logic;
 		i_LCDChar : LCDHex;
@@ -84,7 +92,7 @@ begin
 
 	c_clock_divider : clock_divider
 	Generic Map (
-		g_divider => 1
+		g_divider => g_clock_divider
 	)
 	Port Map (
 		i_clock => i_clock,
@@ -102,12 +110,15 @@ begin
 	scroll_left : process (o_clock) is
 		type hex_table is array(15 downto 0) of std_logic_vector(G_HalfHex-1 downto 0);
 		variable hex : hex_table := (x"0",x"1",x"2",x"3",x"4",x"5",x"6",x"7",x"8",x"9",x"a",x"b",x"c",x"d",x"e",x"f");
-		constant scroll_length : integer := hex'length-1;
+		variable i : integer range 0 to hex'length := 0;
 	begin
 		if (rising_edge(o_clock)) then
-			l0 : for i in 0 to scroll_length-1 loop
-				LCDChar <= LCDChar(G_LCDAnode-2 downto 0)&hex(i);
-			end loop l0;
+			if (i < hex'length) then
+				LCDChar <= hex(i)&LCDChar(G_LCDAnode-1 downto 1);
+				i := i + 1;
+			else
+				i := 0;
+			end if;
 		end if;
 	end process scroll_left;
 

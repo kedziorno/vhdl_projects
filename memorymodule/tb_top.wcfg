@@ -13,10 +13,88 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="8" />
-   <wave_markers>
-      <marker time="6257050000000" label="" />
-   </wave_markers>
+   <WVObjectSize size="28" />
+   <wvobject fp_name="/tb_top/uut/i_clock" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_clock</obj_property>
+      <obj_property name="ObjectShortName">i_clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/o_clock" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_clock</obj_property>
+      <obj_property name="ObjectShortName">o_clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/o_seg" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">o_seg[6:0]</obj_property>
+      <obj_property name="ObjectShortName">o_seg[6:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/o_an" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">o_an[3:0]</obj_property>
+      <obj_property name="ObjectShortName">o_an[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/lcdchar" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">lcdchar[3:0]</obj_property>
+      <obj_property name="ObjectShortName">lcdchar[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/io_memoe" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">io_memoe</obj_property>
+      <obj_property name="ObjectShortName">io_memoe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/io_memwr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">io_memwr</obj_property>
+      <obj_property name="ObjectShortName">io_memwr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/io_ramadv" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">io_ramadv</obj_property>
+      <obj_property name="ObjectShortName">io_ramadv</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/io_ramcs" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">io_ramcs</obj_property>
+      <obj_property name="ObjectShortName">io_ramcs</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/io_ramclk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">io_ramclk</obj_property>
+      <obj_property name="ObjectShortName">io_ramclk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/io_ramcre" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">io_ramcre</obj_property>
+      <obj_property name="ObjectShortName">io_ramcre</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/io_ramlb" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">io_ramlb</obj_property>
+      <obj_property name="ObjectShortName">io_ramlb</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/io_ramub" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">io_ramub</obj_property>
+      <obj_property name="ObjectShortName">io_ramub</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/io_ramwait" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">io_ramwait</obj_property>
+      <obj_property name="ObjectShortName">io_ramwait</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/io_memadr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">io_memadr[23:0]</obj_property>
+      <obj_property name="ObjectShortName">io_memadr[23:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/io_memdb" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">io_memdb[15:0]</obj_property>
+      <obj_property name="ObjectShortName">io_memdb[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/i_sw" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">i_sw[7:0]</obj_property>
+      <obj_property name="ObjectShortName">i_sw[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/i_btn" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">i_btn[3:0]</obj_property>
+      <obj_property name="ObjectShortName">i_btn[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/o_dp" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_dp</obj_property>
+      <obj_property name="ObjectShortName">o_dp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/o_led" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">o_led[7:0]</obj_property>
+      <obj_property name="ObjectShortName">o_led[7:0]</obj_property>
+   </wvobject>
    <wvobject fp_name="/tb_top/clk" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
