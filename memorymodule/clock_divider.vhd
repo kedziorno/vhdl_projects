@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use WORK.p_globals.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -31,7 +32,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity clock_divider is
 Generic(
-	g_board_clock : integer;
+	g_board_clock : integer := G_BOARD_CLOCK;
 	g_divider : integer
 );
 Port(
