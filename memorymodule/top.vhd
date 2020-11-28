@@ -56,6 +56,17 @@ end top;
 
 architecture Behavioral of top is
 
+	component clock_divider is
+	Generic (
+		g_divider : integer
+	);
+	Port (
+		i_clock : in STD_LOGIC;
+		o_clock : out STD_LOGIC
+	);
+	end component clock_divider;
+	for all : clock_divider use entity WORK.clock_divider(Behavioral);
+
 	component lcd_display is
 	Port (
 		i_clock : in std_logic;
@@ -66,9 +77,19 @@ architecture Behavioral of top is
 	end component lcd_display;
 	for all : lcd_display use entity WORK.lcd_display(Behavioral);
 
-	signal LCDChar : LCDHex := (x"D",x"C",x"B",x"A");
+	signal LCDChar : LCDHex;
+	signal o_clock : std_logic;
 
 begin
+
+	c_clock_divider : clock_divider
+	Generic Map (
+		g_divider => 1
+	)
+	Port Map (
+		i_clock => i_clock,
+		o_clock => o_clock
+	);
 
 	c_lcd_display : lcd_display
 	Port Map (
@@ -77,6 +98,18 @@ begin
 		o_anode => o_an,
 		o_segment => o_seg
 	);
+
+	scroll_left : process (o_clock) is
+		type hex_table is array(15 downto 0) of std_logic_vector(G_HalfHex-1 downto 0);
+		variable hex : hex_table := (x"0",x"1",x"2",x"3",x"4",x"5",x"6",x"7",x"8",x"9",x"a",x"b",x"c",x"d",x"e",x"f");
+		constant scroll_length : integer := hex'length-1;
+	begin
+		if (rising_edge(o_clock)) then
+			l0 : for i in 0 to scroll_length-1 loop
+				LCDChar <= LCDChar(G_LCDAnode-2 downto 0)&hex(i);
+			end loop l0;
+		end if;
+	end process scroll_left;
 
 	o_Led <= i_sw;
 	o_dp <= '1'; -- off all dot points
