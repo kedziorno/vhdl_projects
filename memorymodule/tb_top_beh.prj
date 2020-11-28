@@ -1,0 +1,4 @@
+vhdl work "top.vhd"
+vhdl work "tb_top.vhd"
+vhdl work "memorymodule.vhd"
+
