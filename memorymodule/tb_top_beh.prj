@@ -1,4 +1,5 @@
 vhdl work "top.vhd"
 vhdl work "tb_top.vhd"
 vhdl work "memorymodule.vhd"
+vhdl work "clock_divider.vhd"
 
