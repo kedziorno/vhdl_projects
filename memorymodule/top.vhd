@@ -31,44 +31,70 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity top is
 Port (
-clk : in std_logic;
-MemOE : inout std_logic;
-MemWR : inout std_logic;
-RamAdv : inout std_logic;
-RamCS : inout std_logic;
-RamClk : inout std_logic;
-RamCRE : inout std_logic;
-RamLB : inout std_logic;
-RamUB : inout std_logic;
-RamWait : inout std_logic;
-MemAdr : inout std_logic_vector(23 downto 0);
-MemDB : inout std_logic_vector(15 downto 0);
-seg : out std_logic_vector(6 downto 0);
-dp : out std_logic;
-an : out std_logic_vector(3 downto 0);
-Led : out std_logic_vector(7 downto 0);
-sw : in std_logic_vector(7 downto 0);
-btn : in std_logic_vector(3 downto 0)
+i_clock : in std_logic;
+io_MemOE : inout std_logic;
+io_MemWR : inout std_logic;
+io_RamAdv : inout std_logic;
+io_RamCS : inout std_logic;
+io_RamClk : inout std_logic;
+io_RamCRE : inout std_logic;
+io_RamLB : inout std_logic;
+io_RamUB : inout std_logic;
+io_RamWait : inout std_logic;
+io_MemAdr : inout std_logic_vector(23 downto 0);
+io_MemDB : inout std_logic_vector(15 downto 0);
+i_sw : in std_logic_vector(7 downto 0);
+i_btn : in std_logic_vector(3 downto 0);
+o_seg : out std_logic_vector(6 downto 0);
+o_dp : out std_logic;
+o_an : out std_logic_vector(3 downto 0);
+o_Led : out std_logic_vector(7 downto 0)
 );
 end top;
 
 architecture Behavioral of top is
+	constant BOARD_CLOCK : integer := 50_000_000;
+	constant DIVIDER1 : integer := 1_000_000;
 
+	component clock_divider is
+	Generic(
+		g_board_clock : integer;
+		g_divider : integer
+	);
+	Port(
+		i_clock : in STD_LOGIC;
+		o_clock : out STD_LOGIC
+	);
+	end component clock_divider;
+	for all : clock_divider use entity work.clock_divider(Behavioral);
+ 
+	signal clock_divider_1 : std_logic;
+	
 begin
-	Led <= sw;
-	an <= btn;
-	seg <= sw(6 downto 0);
-	dp <= '1';
-	MemOE <= 'Z';
-	MemWR <= 'Z';
-	RamAdv <= 'Z';
-	RamCS <= 'Z';
-	RamClk <= 'Z';
-	RamCRE <= 'Z';
-	RamLB <= 'Z';
-	RamUB <= 'Z';
-	RamWait <= 'Z';
-	MemDB <= (others => 'Z');
-	MemAdr <= (others => 'Z');
+	c_clock_divider_1 : clock_divider
+	Generic Map (
+		g_board_clock => BOARD_CLOCK,
+		g_divider => DIVIDER1
+	)
+	Port Map (
+		i_clock => i_clock,
+		o_clock => clock_divider_1
+	);
+
+	o_Led <= i_sw;
+	o_an <= i_btn;
+	o_seg <= i_sw(6 downto 0);
+	o_dp <= '1';
+	io_MemOE <= 'Z';
+	io_MemWR <= 'Z';
+	io_RamAdv <= 'Z';
+	io_RamCS <= 'Z';
+	io_RamClk <= 'Z';
+	io_RamCRE <= 'Z';
+	io_RamLB <= 'Z';
+	io_RamUB <= 'Z';
+	io_RamWait <= 'Z';
+	io_MemDB <= (others => 'Z');
+	io_MemAdr <= (others => 'Z');
 end Behavioral;
 
