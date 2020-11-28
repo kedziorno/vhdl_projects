@@ -39,6 +39,11 @@ END tb_top;
 ARCHITECTURE behavior OF tb_top IS 
 
 	component top is
+	Generic (
+		g_board_clock : integer := G_BOARD_CLOCK;
+		g_clock_divider : integer := 100;
+		g_lcd_clock_divider : integer := 50_000_000
+	);
 	Port (
 		i_clock : in std_logic;
 		io_MemOE : inout std_logic;

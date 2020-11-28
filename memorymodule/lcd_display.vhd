@@ -32,6 +32,9 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity lcd_display is
+Generic (
+	LCDClockDivider : integer := G_LCDClockDivider
+);
 Port (
 	i_clock : in std_logic;
 	i_LCDChar : LCDHex;
@@ -61,7 +64,7 @@ begin
 	c_clock_divider_1 : clock_divider
 	Generic Map (
 		g_board_clock => G_BOARD_CLOCK,
-		g_divider => G_LCDClockDivider
+		g_divider => LCDClockDivider
 	)
 	Port Map (
 		i_clock => i_clock,
@@ -69,7 +72,7 @@ begin
 	);
 
 	p0 : process (clock_divider_1) is
-		variable count : integer range 0 to G_LCDAnode-1 := 0;
+		variable count : integer range 0 to G_LCDAnode := 0;
 	begin
 		if (rising_edge(clock_divider_1)) then
 			case count is
@@ -84,7 +87,7 @@ begin
 				when others =>
 					o_anode(G_LCDAnode-1 downto 0) <= "1111";
 			end case;
-			if (count < G_LCDAnode) then
+			if (count < G_LCDAnode-1) then
 				count := count + 1;
 			else
 				count := 0;
@@ -93,7 +96,7 @@ begin
 	end process p0;
 
 	p1 : process (clock_divider_1) is
-		variable count : integer range 0 to G_LCDAnode-1 := 0;
+		variable count : integer range 0 to G_LCDAnode := 0;
 	begin
 		if (rising_edge(clock_divider_1)) then
 			case to_integer(unsigned(i_LCDChar(count))) is
@@ -115,7 +118,7 @@ begin
 				when 15 => o_segment <= "0001110"; -- f
 				when others => null;
 			end case;
-			if (count < G_LCDAnode) then
+			if (count < G_LCDAnode-1) then
 				count := count + 1;
 			else
 				count := 0;
