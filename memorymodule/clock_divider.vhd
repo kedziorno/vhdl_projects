@@ -31,11 +31,11 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity clock_divider is
-Generic(
+Generic (
 	g_board_clock : integer := G_BOARD_CLOCK;
 	g_divider : integer
 );
-Port(
+Port (
 	i_clock : in STD_LOGIC;
 	o_clock : out STD_LOGIC
 );

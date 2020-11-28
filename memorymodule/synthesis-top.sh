@@ -37,6 +37,8 @@ else
 					then
 						echo "error on bitgen";
 						exit;
+					else
+						ls -l top.bit
 					fi
 				fi
 			fi
