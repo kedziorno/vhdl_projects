@@ -39,15 +39,15 @@ g_lcd_clock_divider : integer := G_LCDClockDivider
 );
 Port (
 i_clock : in std_logic;
+i_RamClk : in std_logic;
 io_MemOE : inout std_logic;
 io_MemWR : inout std_logic;
 io_RamAdv : inout std_logic;
 io_RamCS : inout std_logic;
-io_RamClk : inout std_logic;
 io_RamCRE : inout std_logic;
 io_RamLB : inout std_logic;
 io_RamUB : inout std_logic;
-io_RamWait : inout std_logic;
+io_RamWait : in std_logic;
 io_MemAdr : inout std_logic_vector(G_MemoryAddress-1 downto 0);
 io_MemDB : inout std_logic_vector(G_MemoryData-1 downto 0);
 i_sw : in std_logic_vector(G_Switch-1 downto 0);
@@ -85,6 +85,23 @@ architecture Behavioral of top is
 	end component lcd_display;
 	for all : lcd_display use entity WORK.lcd_display(Behavioral);
 
+	component memorymodule is
+	Port (
+		i_RamClk : in std_logic;
+		io_MemOE : inout std_logic;
+		io_MemWR : inout std_logic;
+		io_RamAdv : inout std_logic;
+		io_RamCS : inout std_logic;
+		io_RamCRE : inout std_logic;
+		io_RamLB : inout std_logic;
+		io_RamUB : inout std_logic;
+		io_RamWait : in std_logic;
+		io_MemAdr : inout std_logic_vector(G_MemoryAddress-1 downto 0);
+		io_MemDB : inout std_logic_vector(G_MemoryData-1 downto 0)
+	);
+	end component memorymodule;
+	for all : memorymodule use entity WORK.memorymodule(behavioral);
+
 	signal LCDChar : LCDHex;
 	signal o_clock : std_logic;
 
@@ -107,34 +124,24 @@ begin
 		o_segment => o_seg
 	);
 
-	scroll_left : process (o_clock) is
-		type hex_table is array(15 downto 0) of std_logic_vector(G_HalfHex-1 downto 0);
-		variable hex : hex_table := (x"0",x"1",x"2",x"3",x"4",x"5",x"6",x"7",x"8",x"9",x"a",x"b",x"c",x"d",x"e",x"f");
-		variable i : integer range 0 to hex'length := 0;
-	begin
-		if (rising_edge(o_clock)) then
-			if (i < hex'length) then
-				LCDChar <= hex(i)&LCDChar(G_LCDAnode-1 downto 1);
-				i := i + 1;
-			else
-				i := 0;
-			end if;
-		end if;
-	end process scroll_left;
+	M45W8MW16 : memorymodule
+	Port Map (
+		i_RamClk => i_clock,
+		io_MemOE => io_MemOE,
+		io_MemWR => io_MemWR,
+		io_RamAdv => io_RamAdv,
+		io_RamCS => io_RamCS,
+		io_RamCRE => io_RamCRE,
+		io_RamLB => io_RamLB,
+		io_RamUB => io_RamUB,
+		io_RamWait => io_RamWait,
+		io_MemAdr => io_MemAdr,
+		io_MemDB => io_MemDB
+	);
+
+	LCDChar <= (io_MemDB(15 downto 12),io_MemDB(11 downto 8),io_MemDB(7 downto 4),io_MemDB(3 downto 0));
 
 	o_Led <= i_sw;
 	o_dp <= '1'; -- off all dot points
-	io_MemOE <= 'Z';
-	io_MemWR <= 'Z';
-	io_RamAdv <= 'Z';
-	io_RamCS <= 'Z';
-	io_RamClk <= 'Z';
-	io_RamCRE <= 'Z';
-	io_RamLB <= 'Z';
-	io_RamUB <= 'Z';
-	io_RamWait <= 'Z';
-	io_MemDB <= (others => 'Z');
-	io_MemAdr <= (others => 'Z');
 
 end Behavioral;
-

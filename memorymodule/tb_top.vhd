@@ -46,11 +46,11 @@ ARCHITECTURE behavior OF tb_top IS
 	);
 	Port (
 		i_clock : in std_logic;
+		i_RamClk : in std_logic;
 		io_MemOE : inout std_logic;
 		io_MemWR : inout std_logic;
 		io_RamAdv : inout std_logic;
 		io_RamCS : inout std_logic;
-		io_RamClk : inout std_logic;
 		io_RamCRE : inout std_logic;
 		io_RamLB : inout std_logic;
 		io_RamUB : inout std_logic;
@@ -77,22 +77,34 @@ ARCHITECTURE behavior OF tb_top IS
 	signal an : std_logic_vector(G_LCDAnode-1 downto 0);
 	signal Led : std_logic_vector(G_Led-1 downto 0);
 
+	signal RamClk : std_logic;
+	signal MemOE : std_logic;
+	signal MemWR : std_logic;
+	signal RamAdv : std_logic;
+	signal RamCS : std_logic;
+	signal RamCRE : std_logic;
+	signal RamLB : std_logic;
+	signal RamUB : std_logic;
+	signal RamWait : std_logic;
+	signal MemAdr : std_logic_vector(G_MemoryAddress-1 downto 0) := (others => 'Z');
+	signal MemDB : std_logic_vector(G_MemoryData-1 downto 0) := (others => 'Z');
+
 BEGIN
 
 	uut : top
 	Port Map (
 		i_clock => clk,
-		io_MemOE => open,
-		io_MemWR => open,
-		io_RamAdv => open,
-		io_RamCS => open,
-		io_RamClk => open,
-		io_RamCRE => open,
-		io_RamLB => open,
-		io_RamUB => open,
-		io_RamWait => open,
-		io_MemAdr => open,
-		io_MemDB => open,
+		i_RamClk => clk,
+		io_MemOE => MemOE,
+		io_MemWR => MemWR,
+		io_RamAdv => RamAdv,
+		io_RamCS => RamCS,
+		io_RamCRE => RamCRE,
+		io_RamLB => RamLB,
+		io_RamUB => RamUB,
+		io_RamWait => RamWait,
+		io_MemAdr => MemAdr,
+		io_MemDB => MemDB,
 		i_sw => sw,
 		i_btn => btn,
 		o_seg => seg,
@@ -101,7 +113,7 @@ BEGIN
 		o_Led => led
 	);
 
-	clk_process :process
+	clk_process : process
 	begin
 		clk <= '0';
 		wait for clk_period/2;
@@ -112,9 +124,15 @@ BEGIN
 	stim_proc: process
 	begin
 		-- hold reset state for 100 ns.
-		-- wait for 100 ns;
-		-- wait for clk_period*10;
+		--wait for 100 ns;
+		--wait for clk_period*10;
 		-- insert stimulus here
+		
+		-- enable ram module
+		wait for clk_period;
+		RamCS <= '1';
+		wait for clk_period;
+		RamCS <= '0';
 		wait;
 	end process;
 
