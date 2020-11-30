@@ -46,15 +46,12 @@ ARCHITECTURE behavior OF tb_top IS
 	);
 	Port (
 		i_clock : in std_logic;
-		i_RamClk : in std_logic;
 		io_MemOE : inout std_logic;
 		io_MemWR : inout std_logic;
 		io_RamAdv : inout std_logic;
 		io_RamCS : inout std_logic;
-		io_RamCRE : inout std_logic;
 		io_RamLB : inout std_logic;
 		io_RamUB : inout std_logic;
-		io_RamWait : inout std_logic;
 		io_MemAdr : inout std_logic_vector(G_MemoryAddress-1 downto 0);
 		io_MemDB : inout std_logic_vector(G_MemoryData-1 downto 0);
 		i_sw : in std_logic_vector(G_Switch-1 downto 0);
@@ -77,15 +74,12 @@ ARCHITECTURE behavior OF tb_top IS
 	signal an : std_logic_vector(G_LCDAnode-1 downto 0);
 	signal Led : std_logic_vector(G_Led-1 downto 0);
 
-	signal RamClk : std_logic;
 	signal MemOE : std_logic;
 	signal MemWR : std_logic;
 	signal RamAdv : std_logic;
 	signal RamCS : std_logic;
-	signal RamCRE : std_logic;
 	signal RamLB : std_logic;
 	signal RamUB : std_logic;
-	signal RamWait : std_logic;
 	signal MemAdr : std_logic_vector(G_MemoryAddress-1 downto 0) := (others => 'Z');
 	signal MemDB : std_logic_vector(G_MemoryData-1 downto 0) := (others => 'Z');
 
@@ -94,15 +88,12 @@ BEGIN
 	uut : top
 	Port Map (
 		i_clock => clk,
-		i_RamClk => clk,
 		io_MemOE => MemOE,
 		io_MemWR => MemWR,
 		io_RamAdv => RamAdv,
 		io_RamCS => RamCS,
-		io_RamCRE => RamCRE,
 		io_RamLB => RamLB,
 		io_RamUB => RamUB,
-		io_RamWait => RamWait,
 		io_MemAdr => MemAdr,
 		io_MemDB => MemDB,
 		i_sw => sw,

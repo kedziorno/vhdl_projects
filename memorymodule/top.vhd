@@ -39,15 +39,12 @@ g_lcd_clock_divider : integer := G_LCDClockDivider
 );
 Port (
 i_clock : in std_logic;
-i_RamClk : in std_logic;
 io_MemOE : inout std_logic;
 io_MemWR : inout std_logic;
 io_RamAdv : inout std_logic;
 io_RamCS : inout std_logic;
-io_RamCRE : inout std_logic;
 io_RamLB : inout std_logic;
 io_RamUB : inout std_logic;
-io_RamWait : in std_logic;
 io_MemAdr : inout std_logic_vector(G_MemoryAddress-1 downto 0);
 io_MemDB : inout std_logic_vector(G_MemoryData-1 downto 0);
 i_sw : in std_logic_vector(G_Switch-1 downto 0);
@@ -87,23 +84,23 @@ architecture Behavioral of top is
 
 	component memorymodule is
 	Port (
-		i_RamClk : in std_logic;
+		i_clock : in std_logic;
 		io_MemOE : inout std_logic;
 		io_MemWR : inout std_logic;
 		io_RamAdv : inout std_logic;
 		io_RamCS : inout std_logic;
-		io_RamCRE : inout std_logic;
 		io_RamLB : inout std_logic;
 		io_RamUB : inout std_logic;
-		io_RamWait : in std_logic;
 		io_MemAdr : inout std_logic_vector(G_MemoryAddress-1 downto 0);
-		io_MemDB : inout std_logic_vector(G_MemoryData-1 downto 0)
+		io_MemDB : inout std_logic_vector(G_MemoryData-1 downto 0);
+		o_MemDB : out std_logic_vector(G_MemoryData-1 downto 0)
 	);
 	end component memorymodule;
 	for all : memorymodule use entity WORK.memorymodule(behavioral);
 
 	signal LCDChar : LCDHex;
 	signal o_clock : std_logic;
+	signal o_MemDB : std_logic_vector(G_MemoryData-1 downto 0);
 
 begin
 
@@ -126,19 +123,19 @@ begin
 
 	M45W8MW16 : memorymodule
 	Port Map (
-		i_RamClk => i_clock,
+		i_clock => i_clock,
 		io_MemOE => io_MemOE,
 		io_MemWR => io_MemWR,
 		io_RamAdv => io_RamAdv,
 		io_RamCS => io_RamCS,
-		io_RamCRE => io_RamCRE,
 		io_RamLB => io_RamLB,
 		io_RamUB => io_RamUB,
-		io_RamWait => io_RamWait,
 		io_MemAdr => io_MemAdr,
-		io_MemDB => io_MemDB
+		io_MemDB => io_MemDB,
+		o_MemDB => o_MemDB
 	);
 
+--	LCDChar <= (o_MemDB(15 downto 12),o_MemDB(11 downto 8),o_MemDB(7 downto 4),o_MemDB(3 downto 0));
 	LCDChar <= (io_MemDB(15 downto 12),io_MemDB(11 downto 8),io_MemDB(7 downto 4),io_MemDB(3 downto 0));
 
 	o_Led <= i_sw;
