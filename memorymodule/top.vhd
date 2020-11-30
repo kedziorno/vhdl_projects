@@ -85,6 +85,12 @@ architecture Behavioral of top is
 	component memorymodule is
 	Port (
 		i_clock : in std_logic;
+		i_enable : in std_logic;
+		i_write : in std_logic;
+		i_read : in std_logic;
+		i_MemAdr : in std_logic_vector(G_MemoryAddress-1 downto 0);
+		i_MemDB : in std_logic_vector(G_MemoryData-1 downto 0);
+		o_MemDB : out std_logic_vector(G_MemoryData-1 downto 0);
 		io_MemOE : out std_logic;
 		io_MemWR : out std_logic;
 		io_RamAdv : out std_logic;
@@ -92,15 +98,19 @@ architecture Behavioral of top is
 		io_RamLB : out std_logic;
 		io_RamUB : out std_logic;
 		io_MemAdr : out std_logic_vector(G_MemoryAddress-1 downto 0);
-		io_MemDB : inout std_logic_vector(G_MemoryData-1 downto 0);
-		o_MemDB : out std_logic_vector(G_MemoryData-1 downto 0)
+		io_MemDB : inout std_logic_vector(G_MemoryData-1 downto 0)
 	);
 	end component memorymodule;
 	for all : memorymodule use entity WORK.memorymodule(behavioral);
 
 	signal LCDChar : LCDHex;
 	signal o_clock : std_logic;
-	signal MemDB_out : std_logic_vector(G_MemoryData-1 downto 0);
+	signal i_enable : std_logic;
+	signal i_write : std_logic;
+	signal i_read : std_logic;
+	signal i_MemAdr : std_logic_vector(G_MemoryAddress-1 downto 0);
+	signal i_MemDB : std_logic_vector(G_MemoryData-1 downto 0);
+	signal o_MemDB : std_logic_vector(G_MemoryData-1 downto 0);
 
 begin
 
@@ -124,6 +134,12 @@ begin
 	M45W8MW16 : memorymodule
 	Port Map (
 		i_clock => i_clock,
+		i_enable => i_enable,
+		i_write => i_write,
+		i_read => i_read,
+		i_MemAdr => i_MemAdr,
+		i_MemDB => i_MemDB,
+		o_MemDB => o_MemDB,
 		io_MemOE => io_MemOE,
 		io_MemWR => io_MemWR,
 		io_RamAdv => io_RamAdv,
@@ -131,12 +147,10 @@ begin
 		io_RamLB => io_RamLB,
 		io_RamUB => io_RamUB,
 		io_MemAdr => io_MemAdr,
-		io_MemDB => io_MemDB,
-		o_MemDB => MemDB_out
+		io_MemDB => io_MemDB
 	);
 
---	LCDChar <= (o_MemDB(15 downto 12),o_MemDB(11 downto 8),o_MemDB(7 downto 4),o_MemDB(3 downto 0));
-	LCDChar <= (MemDB_out(15 downto 12),MemDB_out(11 downto 8),MemDB_out(7 downto 4),MemDB_out(3 downto 0));
+	LCDChar <= (o_MemDB(3 downto 0),o_MemDB(7 downto 4),o_MemDB(11 downto 8),o_MemDB(15 downto 12));
 
 	o_Led <= i_sw;
 	o_dp <= '1'; -- off all dot points
