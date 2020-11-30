@@ -249,6 +249,10 @@
          <obj_property name="ObjectShortName">io_memdb[15:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
+      <wvobject fp_name="/tb_top/uut/M45W8MW16/o_memdb" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">o_memdb[15:0]</obj_property>
+         <obj_property name="ObjectShortName">o_memdb[15:0]</obj_property>
+      </wvobject>
       <wvobject fp_name="/tb_top/uut/M45W8MW16/io_ramadv" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">io_ramadv</obj_property>
          <obj_property name="ObjectShortName">io_ramadv</obj_property>
@@ -264,26 +268,6 @@
       <wvobject fp_name="/tb_top/uut/M45W8MW16/cstate" type="other" db_ref_id="1">
          <obj_property name="ElementShortName">cstate</obj_property>
          <obj_property name="ObjectShortName">cstate</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/M45W8MW16/memoe" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">memoe</obj_property>
-         <obj_property name="ObjectShortName">memoe</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/M45W8MW16/memwr" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">memwr</obj_property>
-         <obj_property name="ObjectShortName">memwr</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/M45W8MW16/ramadv" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">ramadv</obj_property>
-         <obj_property name="ObjectShortName">ramadv</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/M45W8MW16/ramcs" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">ramcs</obj_property>
-         <obj_property name="ObjectShortName">ramcs</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/M45W8MW16/memadr" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">memadr[23:0]</obj_property>
-         <obj_property name="ObjectShortName">memadr[23:0]</obj_property>
       </wvobject>
    </wvobject>
 </wave_config>

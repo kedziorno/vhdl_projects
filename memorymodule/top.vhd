@@ -85,13 +85,13 @@ architecture Behavioral of top is
 	component memorymodule is
 	Port (
 		i_clock : in std_logic;
-		io_MemOE : inout std_logic;
-		io_MemWR : inout std_logic;
-		io_RamAdv : inout std_logic;
-		io_RamCS : inout std_logic;
-		io_RamLB : inout std_logic;
-		io_RamUB : inout std_logic;
-		io_MemAdr : inout std_logic_vector(G_MemoryAddress-1 downto 0);
+		io_MemOE : out std_logic;
+		io_MemWR : out std_logic;
+		io_RamAdv : out std_logic;
+		io_RamCS : out std_logic;
+		io_RamLB : out std_logic;
+		io_RamUB : out std_logic;
+		io_MemAdr : out std_logic_vector(G_MemoryAddress-1 downto 0);
 		io_MemDB : inout std_logic_vector(G_MemoryData-1 downto 0);
 		o_MemDB : out std_logic_vector(G_MemoryData-1 downto 0)
 	);
@@ -100,7 +100,7 @@ architecture Behavioral of top is
 
 	signal LCDChar : LCDHex;
 	signal o_clock : std_logic;
-	signal o_MemDB : std_logic_vector(G_MemoryData-1 downto 0);
+	signal MemDB_out : std_logic_vector(G_MemoryData-1 downto 0);
 
 begin
 
@@ -132,11 +132,11 @@ begin
 		io_RamUB => io_RamUB,
 		io_MemAdr => io_MemAdr,
 		io_MemDB => io_MemDB,
-		o_MemDB => o_MemDB
+		o_MemDB => MemDB_out
 	);
 
 --	LCDChar <= (o_MemDB(15 downto 12),o_MemDB(11 downto 8),o_MemDB(7 downto 4),o_MemDB(3 downto 0));
-	LCDChar <= (io_MemDB(15 downto 12),io_MemDB(11 downto 8),io_MemDB(7 downto 4),io_MemDB(3 downto 0));
+	LCDChar <= (MemDB_out(15 downto 12),MemDB_out(11 downto 8),MemDB_out(7 downto 4),MemDB_out(3 downto 0));
 
 	o_Led <= i_sw;
 	o_dp <= '1'; -- off all dot points

@@ -120,10 +120,10 @@ BEGIN
 		-- insert stimulus here
 		
 		-- enable ram module
-		wait for clk_period;
-		RamCS <= '1';
-		wait for clk_period;
-		RamCS <= '0';
+--		wait for clk_period;
+--		RamCS <= '1';
+--		wait for clk_period;
+--		RamCS <= '0';
 		wait;
 	end process;
 

@@ -33,13 +33,13 @@ use WORK.p_globals.ALL;
 entity memorymodule is
 Port (
 i_clock : in std_logic;
-io_MemOE : inout std_logic;
-io_MemWR : inout std_logic;
-io_RamAdv : inout std_logic;
-io_RamCS : inout std_logic;
-io_RamLB : inout std_logic;
-io_RamUB : inout std_logic;
-io_MemAdr : inout std_logic_vector(G_MemoryAddress-1 downto 0);
+io_MemOE : out std_logic;
+io_MemWR : out std_logic;
+io_RamAdv : out std_logic;
+io_RamCS : out std_logic;
+io_RamLB : out std_logic;
+io_RamUB : out std_logic;
+io_MemAdr : out std_logic_vector(G_MemoryAddress-1 downto 0);
 io_MemDB : inout std_logic_vector(G_MemoryData-1 downto 0);
 o_MemDB : out std_logic_vector(G_MemoryData-1 downto 0)
 );
@@ -66,15 +66,15 @@ architecture Behavioral of memorymodule is
 	);
 	signal cstate : state;
 
-	signal MemOE : std_logic := '1';
-	signal MemWR : std_logic := '1';
-	signal RamAdv : std_logic := '1';
-	signal RamCS : std_logic;
-	signal RamLB : std_logic := '0';
-	signal RamUB : std_logic := '0';
-	signal MemAdr : std_logic_vector(G_MemoryAddress-1 downto 0);
-	signal MemDB_in : std_logic_vector(G_MemoryData-1 downto 0);
-	signal MemDB_out : std_logic_vector(G_MemoryData-1 downto 0);
+--	signal MemOE : std_logic := '1';
+--	signal MemWR : std_logic := '1';
+--	signal RamAdv : std_logic := '1';
+--	signal RamCS : std_logic;
+--	signal RamLB : std_logic := '0';
+--	signal RamUB : std_logic := '0';
+--	signal MemAdr : std_logic_vector(G_MemoryAddress-1 downto 0);
+--	signal MemDB_in : std_logic_vector(G_MemoryData-1 downto 0);
+--	signal MemDB_out : std_logic_vector(G_MemoryData-1 downto 0);
 
 begin
 
@@ -108,30 +108,38 @@ begin
 			end if;
 			case cstate is
 				when idle =>
-					if (RamCS = '1') then
-						cstate <= idle;
-					else
-						cstate <= wait0;
-						RamAdv <= '0';
+					--if (io_RamCS = '1') then
+					--	cstate <= idle;
+					--else
+						cstate <= csw_enable; --setup_read; --wait0;
+						io_RamAdv <= '1';
 						w0 := cw0;
-					end if;
+						io_RamCS <= '1';
+						io_RamLB <= '1';
+						io_RamUB <= '1';
+						io_MemOE <= '1';
+						io_MemWR <= '1';
+					--end if;
 				when wait0 =>
 					if (w0 = 0) then
 						cstate <= csw_disable;
-						--RamLB <= '0';
-						--RamUB <= '0';
-						io_MemAdr <= x"AAAAAA";
-						MemDB_in <= x"3333";
+						io_RamLB <= '0';
+						io_RamUB <= '0';
+--						io_MemAdr <= (others => 'Z');
+						io_MemAdr <= x"222222";
+--						io_MemDB <= (others => 'Z');
+						io_MemDB <= x"ABCD";
 					else
 						cstate <= wait0;
 					end if;
 				when csw_disable =>
 					cstate <= setup_write;
-					MemOE <= '1';
-					MemWR <= '1';
+					io_RamCS <= '0';
+					io_MemOE <= '1';
+					io_MemWR <= '1';
 				when setup_write =>
 					cstate <= write_enable;
-					MemWR <= '0';
+					io_MemWR <= '0';
 					w1 := cw1;
 				when write_enable =>
 					cstate <= wait1;
@@ -152,30 +160,32 @@ begin
 					end if;
 				when write_disable =>
 					cstate <= csw_enable;
-					--MemAdr <= (others => 'Z');
-					--MemDB <= (others => 'Z');
 					w3 := cw3;
 				when csw_enable =>
-					cstate <= wait3;
-					MemDB_out <= io_MemDB;
-					--RamLB <= '1';
-					--RamUB <= '1';
-					RamCS <= '1';
-					MemWR <= '1';
+					cstate <= wait3; --stop; --wait3;
+					io_RamLB <= '1';
+					io_RamUB <= '1';
+					io_RamCS <= '1';
+					io_MemWR <= '1';
+					io_MemDB <= (others => 'Z');
+					io_MemAdr <= (others => 'Z');
 				when wait3 =>
 					if (w3 = 0) then
 						cstate <= setup_read;
+						io_MemAdr <= x"999999";
+						io_MemDB <= (others => 'Z');
 					else
 						cstate <= wait3;
 					end if;
 				when setup_read =>
-					io_MemAdr <= x"AAAAAA";
+--					io_MemAdr <= (others => 'Z');
 					cstate <= wait4;
-					RamCS <= '0';
-					--RamLB <= '0';
-					--RamUB <= '0';
-					MemOE <= '0';
-					MemWR <= '1';
+					io_RamAdv <= '0';
+					io_RamCS <= '0';
+					io_RamLB <= '0';
+					io_RamUB <= '0';
+					io_MemOE <= '0';
+					io_MemWR <= '1';
 					w4 := cw4;
 				when wait4 =>
 					if (w4 = 0) then
@@ -185,32 +195,31 @@ begin
 					end if;
 				when read1 =>
 					cstate <= stop;
-					--o_MemDB <= io_MemDB;
+					o_MemDB <= io_MemDB;
 				when stop =>
-					cstate <= idle;
-					--MemAdr <= (others => 'Z');
-					RamCS <= '1';
-					MemOE <= '1';
-					--RamLB <= '1';
-					--RamUB <= '1';
+					cstate <= stop;
+					io_MemAdr <= (others => 'Z');
+					io_RamCS <= '1';
+					io_MemOE <= '1';
+					io_RamLB <= '1';
+					io_RamUB <= '1';
 				when others => null;
 			end case;
 		end if;
 	end process p0;
 
-	io_MemOE <= '1' when MemOE = '1' else '0' when MemOE = '0' else 'Z';
-	io_MemWR <= '1' when MemWR = '1' else '0' when MemWR = '0' else 'Z';
-	io_RamAdv <= '1' when RamAdv = '1' else '0' when RamAdv = '0' else 'Z';
-	io_RamCS <= '1' when RamCS = '1' else '0' when RamCS = '0' else 'Z';
-	io_RamLB <= '1' when RamLB = '1' else '0' when RamLB = '0' else 'Z';
-	io_RamUB <= '1' when RamUB = '1' else '0' when RamUB = '0' else 'Z';
+--	io_MemOE <= '1' when MemOE = '1' else '0' when MemOE = '0' else 'Z';
+--	io_MemWR <= '1' when MemWR = '1' else '0' when MemWR = '0' else 'Z';
+--	io_RamAdv <= '1' when RamAdv = '1' else '0' when RamAdv = '0' else 'Z';
+--	io_RamCS <= '1' when RamCS = '1' else '0' when RamCS = '0' else 'Z';
+--	io_RamLB <= '1' when RamLB = '1' else '0' when RamLB = '0' else 'Z';
+--	io_RamUB <= '1' when RamUB = '1' else '0' when RamUB = '0' else 'Z';
 --	io_MemAdr <= MemAdr when (io_RamCS = '0') else (others => 'Z');
 --	io_MemAdr <= MemAdr;
 --	io_MemDB <= MemDB_out when (io_RamCS = '0' and MemWR = '1' and MemOE = '0') else MemDB_in when (io_RamCS = '0' and MemWR = '0' and MemOE = '1') else (others => 'Z');
 --	io_MemDB <= MemDB_in when (io_RamCS = '0' and io_MemOE = '1') else MemDB_out when (io_RamCS = '0' and io_MemWR = '1') else (others => 'Z');
-	io_MemDB <= MemDB_in when (io_RamCS = '0' and io_MemOE = '1') else (others => 'Z');
+--	io_MemDB <= MemDB_in when (io_RamCS = '0' and io_MemOE = '1') else (others => 'Z');
 --	io_MemDB <= MemDB_in;
---	io_MemAdr <= MemAdr;
 --	io_MemDB <= MemDB;
 
 end Behavioral;
