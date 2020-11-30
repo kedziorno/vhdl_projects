@@ -1,0 +1,7 @@
+vhdl work "p_globals.vhd"
+vhdl work "clock_divider.vhd"
+vhdl work "p_lcd_display.vhd"
+vhdl work "lcd_display.vhd"
+vhdl work "memorymodule.vhd"
+vhdl work "tb_memorymodule.vhd"
+

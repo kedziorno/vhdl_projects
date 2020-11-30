@@ -63,6 +63,7 @@ architecture Behavioral of memorymodule is
 	csw_enable,
 	read_setup,
 	read1,
+	wait2,
 	stop
 	);
 	signal cstate : state;
@@ -70,7 +71,7 @@ architecture Behavioral of memorymodule is
 begin
 
 	p0 : process (i_clock) is
-		constant cw : integer := 1;
+		constant cw : integer := 3;
 		variable w : integer range 0 to cw := 0;
 	begin
 		if (rising_edge(i_clock)) then
@@ -99,7 +100,7 @@ begin
 					elsif (i_read = '1') then
 						cstate <= read_setup;
 					else
-						cstate <= idle;
+						cstate <= start;
 					end if;
 					io_RamCS <= '1';
 					io_RamLB <= '1';
@@ -136,24 +137,33 @@ begin
 					end if;
 				when write_disable =>
 					cstate <= csw_enable;
-					io_MemWR <= '1';
 				when csw_enable =>
 					cstate <= stop;
 					io_RamCS <= '1';
+					io_MemWR <= '1';
 				when read_setup =>
 					if (w = 0) then
 						cstate <= read1;
 						io_RamAdv <= '0';
+						io_RamCS <= '0';
 						io_RamLB <= '0';
 						io_RamUB <= '0';
+						io_MemOE <= '0';
 						io_MemAdr <= i_MemAdr;
 						io_MemDB <= (others => 'Z');
 					else
 						cstate <= read_setup;
 					end if;
 				when read1 =>
-					cstate <= stop;
+					cstate <= wait2;
 					o_MemDB <= io_MemDB;
+					w := cw;
+				when wait2 =>
+					if (w = 0) then
+						cstate <= stop;
+					else
+						cstate <= wait2;
+					end if;
 				when stop =>
 					cstate <= idle;
 					io_RamAdv <= '1';
@@ -168,19 +178,4 @@ begin
 		end if;
 	end process p0;
 
---	io_MemOE <= '1' when MemOE = '1' else '0' when MemOE = '0' else 'Z';
---	io_MemWR <= '1' when MemWR = '1' else '0' when MemWR = '0' else 'Z';
---	io_RamAdv <= '1' when RamAdv = '1' else '0' when RamAdv = '0' else 'Z';
---	io_RamCS <= '1' when RamCS = '1' else '0' when RamCS = '0' else 'Z';
---	io_RamLB <= '1' when RamLB = '1' else '0' when RamLB = '0' else 'Z';
---	io_RamUB <= '1' when RamUB = '1' else '0' when RamUB = '0' else 'Z';
---	io_MemAdr <= MemAdr when (io_RamCS = '0') else (others => 'Z');
---	io_MemAdr <= MemAdr;
---	io_MemDB <= MemDB_out when (io_RamCS = '0' and MemWR = '1' and MemOE = '0') else MemDB_in when (io_RamCS = '0' and MemWR = '0' and MemOE = '1') else (others => 'Z');
---	io_MemDB <= MemDB_in when (io_RamCS = '0' and io_MemOE = '1') else MemDB_out when (io_RamCS = '0' and io_MemWR = '1') else (others => 'Z');
---	io_MemDB <= MemDB_in when (io_RamCS = '0' and io_MemOE = '1') else (others => 'Z');
---	io_MemDB <= MemDB_in;
---	io_MemDB <= MemDB;
-
 end Behavioral;
-

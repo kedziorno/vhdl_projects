@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="./tb_memorymodule_isim.beh.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="p_globals" />
+            <top_module name="std_logic_1164" />
+            <top_module name="tb_memorymodule" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="16" />
+   <wvobject fp_name="/tb_memorymodule/uut/i_clock" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_clock</obj_property>
+      <obj_property name="ObjectShortName">i_clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_memorymodule/uut/cstate" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">cstate</obj_property>
+      <obj_property name="ObjectShortName">cstate</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_memorymodule/uut/i_enable" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_enable</obj_property>
+      <obj_property name="ObjectShortName">i_enable</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_memorymodule/uut/i_write" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_write</obj_property>
+      <obj_property name="ObjectShortName">i_write</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_memorymodule/uut/i_read" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">i_read</obj_property>
+      <obj_property name="ObjectShortName">i_read</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_memorymodule/uut/io_ramadv" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">io_ramadv</obj_property>
+      <obj_property name="ObjectShortName">io_ramadv</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_memorymodule/uut/io_ramcs" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">io_ramcs</obj_property>
+      <obj_property name="ObjectShortName">io_ramcs</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_memorymodule/uut/io_memoe" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">io_memoe</obj_property>
+      <obj_property name="ObjectShortName">io_memoe</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_memorymodule/uut/io_memwr" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">io_memwr</obj_property>
+      <obj_property name="ObjectShortName">io_memwr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_memorymodule/uut/io_memadr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">io_memadr[23:0]</obj_property>
+      <obj_property name="ObjectShortName">io_memadr[23:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_memorymodule/uut/io_memdb" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">io_memdb[15:0]</obj_property>
+      <obj_property name="ObjectShortName">io_memdb[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_memorymodule/uut/io_ramlb" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">io_ramlb</obj_property>
+      <obj_property name="ObjectShortName">io_ramlb</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_memorymodule/uut/io_ramub" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">io_ramub</obj_property>
+      <obj_property name="ObjectShortName">io_ramub</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_memorymodule/uut/i_memadr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">i_memadr[23:0]</obj_property>
+      <obj_property name="ObjectShortName">i_memadr[23:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_memorymodule/uut/i_memdb" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">i_memdb[15:0]</obj_property>
+      <obj_property name="ObjectShortName">i_memdb[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_memorymodule/uut/o_memdb" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">o_memdb[15:0]</obj_property>
+      <obj_property name="ObjectShortName">o_memdb[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+</wave_config>
