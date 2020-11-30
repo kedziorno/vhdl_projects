@@ -111,7 +111,7 @@ begin
 					--if (io_RamCS = '1') then
 					--	cstate <= idle;
 					--else
-						cstate <= csw_enable; --setup_read; --wait0;
+						cstate <= wait0; --csw_enable; --setup_read; --wait0;
 						io_RamAdv <= '1';
 						w0 := cw0;
 						io_RamCS <= '1';
@@ -123,6 +123,7 @@ begin
 				when wait0 =>
 					if (w0 = 0) then
 						cstate <= csw_disable;
+						io_RamAdv <= '0';
 						io_RamLB <= '0';
 						io_RamUB <= '0';
 --						io_MemAdr <= (others => 'Z');
@@ -162,7 +163,7 @@ begin
 					cstate <= csw_enable;
 					w3 := cw3;
 				when csw_enable =>
-					cstate <= wait3; --stop; --wait3;
+					cstate <= stop; --stop; --wait3;
 					io_RamLB <= '1';
 					io_RamUB <= '1';
 					io_RamCS <= '1';
