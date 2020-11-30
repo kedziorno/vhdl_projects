@@ -71,7 +71,7 @@ architecture Behavioral of top is
 
 	component lcd_display is
 	Generic (
-		LCDClockDivider : integer := G_LCDClockDivider
+		LCDClockDivider : integer := g_lcd_clock_divider
 	);
 	Port (
 		i_clock : in std_logic;
@@ -112,6 +112,18 @@ architecture Behavioral of top is
 	signal i_MemDB : std_logic_vector(G_MemoryData-1 downto 0);
 	signal o_MemDB : std_logic_vector(G_MemoryData-1 downto 0);
 
+	type test_state is (
+	start,
+	wait1,enable_module1,enable_write1,data_write1,disable_write1,disable_module1,
+	wait2,enable_module2,enable_write2,data_write2,disable_write2,disable_module2,
+	wait3,enable_module3,enable_write3,data_write3,disable_write3,disable_module3,
+	wait4,enable_display1,read1_display1,read_display1,read0_display1,disable_display1,
+	wait5,enable_display2,read1_display2,read_display2,read0_display2,disable_display2,
+	wait6,enable_display3,read1_display3,read_display3,read0_display3,disable_display3,
+	wait7,stop
+	);
+	signal ts : test_state;
+
 begin
 
 	c_clock_divider : clock_divider
@@ -149,6 +161,165 @@ begin
 		io_MemAdr => io_MemAdr,
 		io_MemDB => io_MemDB
 	);
+
+	p0 : process (o_clock) is
+		constant waiting : integer := 1; -- decrease for simulation speed
+		variable w : integer range 0 to waiting := 0;
+	begin
+		if (rising_edge(o_clock)) then
+			if (w > 0) then
+				w := w - 1;
+			end if;
+			case ts is
+				when start =>
+					ts <= wait1;
+					w := waiting;
+					
+				when wait1 =>
+					if (w = 0) then
+						ts <= enable_module1;
+					end if;
+				
+				when enable_module1 =>
+					ts <= enable_write1;
+					i_enable <= '1';
+				when enable_write1 =>
+					ts <= data_write1;
+					i_write <= '1';
+				when data_write1 =>
+					ts <= disable_write1;
+					i_MemAdr <= x"111111";
+					i_MemDB <= x"1234";				
+				when disable_write1 =>
+					ts <= disable_module1;
+					i_write <= '0';
+				when disable_module1 =>
+					ts <= wait2;
+					i_enable <= '0';
+					w := waiting;
+					
+				when wait2 =>
+					if (w = 0) then
+						ts <= enable_module2;
+					end if;
+					
+				when enable_module2 =>
+					ts <= enable_write2;
+					i_enable <= '1';
+				when enable_write2 =>
+					ts <= data_write2;
+					i_write <= '1';
+				when data_write2 =>
+					ts <= disable_write2;
+					i_MemAdr <= x"222222";
+					i_MemDB <= x"5678";				
+				when disable_write2 =>
+					ts <= disable_module2;
+					i_write <= '0';
+				when disable_module2 =>
+					ts <= wait3;
+					i_enable <= '0';
+					w := waiting;
+					
+				when wait3 =>
+					if (w = 0) then
+						ts <= enable_module3;
+					end if;
+					
+				when enable_module3 =>
+					ts <= enable_write3;
+					i_enable <= '1';
+				when enable_write3 =>
+					ts <= data_write3;
+					i_write <= '1';
+				when data_write3 =>
+					ts <= disable_write3;
+					i_MemAdr <= x"333333";
+					i_MemDB <= x"9ABC";				
+				when disable_write3 =>
+					ts <= disable_module3;
+					i_write <= '0';
+				when disable_module3 =>
+					ts <= wait4;
+					i_enable <= '0';
+					w := waiting;
+					
+				when wait4 =>
+					if (w = 0) then
+						ts <= enable_display1;
+					end if;
+					
+				when enable_display1 =>
+					ts <= read1_display1;
+					i_enable <= '1';
+				when read1_display1 =>
+					ts <= read_display1;
+					i_read <= '1';
+				when read_display1 =>
+					ts <= read0_display1;
+					i_MemAdr <= x"111111";
+				when read0_display1 =>
+					ts <= disable_display1;
+					i_read <= '0';
+				when disable_display1 =>
+					ts <= wait5;
+					i_enable <= '0';
+					w := waiting;
+					
+				when wait5 =>
+					if (w = 0) then
+						ts <= enable_display2;
+					end if;
+					
+				when enable_display2 =>
+					ts <= read1_display2;
+					i_enable <= '1';
+				when read1_display2 =>
+					ts <= read_display2;
+					i_read <= '1';
+				when read_display2 =>
+					ts <= read0_display2;
+					i_MemAdr <= x"222222";
+				when read0_display2 =>
+					ts <= disable_display2;
+					i_read <= '0';
+				when disable_display2 =>
+					ts <= wait6;
+					i_enable <= '0';
+					w := waiting;
+					
+				when wait6 =>
+					if (w = 0) then
+						ts <= enable_display3;
+					end if;
+					
+				when enable_display3 =>
+					ts <= read1_display3;
+					i_enable <= '1';
+				when read1_display3 =>
+					ts <= read_display3;
+					i_read <= '1';
+				when read_display3 =>
+					ts <= read0_display3;
+					i_MemAdr <= x"333333";
+				when read0_display3 =>
+					ts <= disable_display3;
+					i_read <= '0';
+				when disable_display3 =>
+					ts <= wait7;
+					i_enable <= '0';
+					w := waiting;
+					
+				when wait7 =>
+					if (w = 0) then
+						ts <= stop;
+					end if;
+					
+				when stop =>
+					ts <= enable_display1;
+			end case;
+		end if;
+	end process p0;
 
 	LCDChar <= (o_MemDB(3 downto 0),o_MemDB(7 downto 4),o_MemDB(11 downto 8),o_MemDB(15 downto 12));
 

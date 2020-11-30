@@ -87,6 +87,10 @@
    <wvobject fp_name="group88" type="group">
       <obj_property name="label">uut</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_top/uut/ts" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">ts</obj_property>
+         <obj_property name="ObjectShortName">ts</obj_property>
+      </wvobject>
       <wvobject fp_name="/tb_top/uut/i_clock" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">i_clock</obj_property>
          <obj_property name="ObjectShortName">i_clock</obj_property>
@@ -118,10 +122,12 @@
       <wvobject fp_name="/tb_top/uut/io_memadr" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">io_memadr[23:0]</obj_property>
          <obj_property name="ObjectShortName">io_memadr[23:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/io_memdb" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">io_memdb[15:0]</obj_property>
          <obj_property name="ObjectShortName">io_memdb[15:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/i_sw" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">i_sw[7:0]</obj_property>
@@ -202,6 +208,7 @@
       <wvobject fp_name="/tb_top/uut/c_lcd_display/i_lcdchar" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">i_lcdchar[3:0]</obj_property>
          <obj_property name="ObjectShortName">i_lcdchar[3:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/c_lcd_display/o_anode" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">o_anode[3:0]</obj_property>
@@ -242,14 +249,17 @@
       <wvobject fp_name="/tb_top/uut/M45W8MW16/i_memadr" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">i_memadr[23:0]</obj_property>
          <obj_property name="ObjectShortName">i_memadr[23:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/M45W8MW16/i_memdb" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">i_memdb[15:0]</obj_property>
          <obj_property name="ObjectShortName">i_memdb[15:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/M45W8MW16/o_memdb" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">o_memdb[15:0]</obj_property>
          <obj_property name="ObjectShortName">o_memdb[15:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/M45W8MW16/io_memoe" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">io_memoe</obj_property>
@@ -278,10 +288,12 @@
       <wvobject fp_name="/tb_top/uut/M45W8MW16/io_memadr" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">io_memadr[23:0]</obj_property>
          <obj_property name="ObjectShortName">io_memadr[23:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/M45W8MW16/io_memdb" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">io_memdb[15:0]</obj_property>
          <obj_property name="ObjectShortName">io_memdb[15:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/M45W8MW16/cstate" type="other" db_ref_id="1">
          <obj_property name="ElementShortName">cstate</obj_property>
