@@ -11,6 +11,13 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 
 package p_memory_content is
+	constant G_BOARD_CLOCK : integer := 50_000_000;
+	constant G_BUS_CLOCK : integer := 100_000;
+	constant G_ClockDivider : integer := 1000;
+	constant G_MemoryAddress : integer := 24;
+	constant G_MemoryData : integer := 16;
+	constant G_HalfHex : integer := 4;
+	constant G_FullHex : integer := G_HalfHex*2;
 	constant ROWS : integer := 32; --128;
 	constant ROWS_BITS : integer := 5; --7;
 	constant COLS_PIXEL : integer := 32; --32;

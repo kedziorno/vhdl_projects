@@ -32,16 +32,26 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity top is
 generic(
-INPUT_CLOCK : integer := 50_000_000;
-BUS_CLOCK : integer := 100_000; -- increase for speed i2c
-DIVIDER_CLOCK : integer := 1_000
+INPUT_CLOCK : integer := G_BOARD_CLOCK;
+BUS_CLOCK : integer := G_BUS_CLOCK; -- increase for speed i2c
+DIVIDER_CLOCK : integer := G_ClockDivider
 );
 port(
 signal clk : in std_logic;
 signal btn_1 : in std_logic;
 signal btn_2 : in std_logic;
 signal btn_3 : in std_logic;
-signal sda,scl : inout std_logic
+signal sda,scl : inout std_logic;
+signal io_MemOE : inout std_logic;
+signal io_MemWR : inout std_logic;
+signal io_RamAdv : inout std_logic;
+signal io_RamCS : inout std_logic;
+signal io_RamCRE : inout std_logic;
+signal io_RamLB : inout std_logic;
+signal io_RamUB : inout std_logic;
+signal io_RamWait : inout std_logic;
+signal io_MemAdr : inout std_logic_vector(G_MemoryAddress-1 downto 0);
+signal io_MemDB : inout std_logic_vector(G_MemoryData-1 downto 0)
 );
 end top;
 
@@ -80,22 +90,43 @@ o_clk : out STD_LOGIC
 end component clock_divider;
 for all : clock_divider use entity WORK.clock_divider(Behavioral);
 
-component memory1 is
+--component memory is
+--Port (
+--i_clk : in std_logic;
+--i_enable_byte : in std_logic;
+--i_enable_bit : in std_logic;
+--i_write_byte : in std_logic;
+--i_write_bit : in std_logic;
+--i_row : in std_logic_vector(ROWS_BITS-1 downto 0);
+--i_col_pixel : in std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
+--i_col_block : in std_logic_vector(COLS_BLOCK_BITS-1 downto 0);
+--i_byte : in std_logic_vector(BYTE_BITS-1 downto 0);
+--i_bit : in std_logic;
+--o_byte : out std_logic_vector(BYTE_BITS-1 downto 0);
+--o_bit : out std_logic);
+--end component memory1;
+--for all : memory1 use entity WORK.memory1(Behavioral);
+
+component memorymodule is
 Port (
-i_clk : in std_logic;
-i_enable_byte : in std_logic;
-i_enable_bit : in std_logic;
-i_write_byte : in std_logic;
-i_write_bit : in std_logic;
-i_row : in std_logic_vector(ROWS_BITS-1 downto 0);
-i_col_pixel : in std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
-i_col_block : in std_logic_vector(COLS_BLOCK_BITS-1 downto 0);
-i_byte : in std_logic_vector(BYTE_BITS-1 downto 0);
-i_bit : in std_logic;
-o_byte : out std_logic_vector(BYTE_BITS-1 downto 0);
-o_bit : out std_logic);
-end component memory1;
-for all : memory1 use entity WORK.memory1(Behavioral);
+i_clock : in std_logic;
+i_enable : in std_logic;
+i_write : in std_logic;
+i_read : in std_logic;
+i_MemAdr : in std_logic_vector(G_MemoryAddress-1 downto 0);
+i_MemDB : in std_logic_vector(G_MemoryData-1 downto 0);
+o_MemDB : out std_logic_vector(G_MemoryData-1 downto 0);
+io_MemOE : out std_logic;
+io_MemWR : out std_logic;
+io_RamAdv : out std_logic;
+io_RamCS : out std_logic;
+io_RamLB : out std_logic;
+io_RamUB : out std_logic;
+io_MemAdr : out std_logic_vector(G_MemoryAddress-1 downto 0);
+io_MemDB : inout std_logic_vector(G_MemoryData-1 downto 0)
+);
+end component memorymodule;
+for all : memorymodule use entity WORK.memorymodule(Behavioral);
 
 signal row : std_logic_vector(ROWS_BITS-1 downto 0) := (others => '0');
 signal col_pixel : std_logic_vector(COLS_PIXEL_BITS-1 downto 0) := (others => '0');
@@ -146,6 +177,12 @@ disable_memory,
 stop);
 signal cstate : state;
 
+signal i_enable : std_logic;
+signal i_write : std_logic;
+signal i_read : std_logic;
+signal i_MemAdr : std_logic_vector(G_MemoryAddress-1 downto 0);
+signal i_MemDB : std_logic_vector(G_MemoryData-1 downto 0);
+signal o_MemDB : std_logic_vector(G_MemoryData-1 downto 0);
 constant W : integer := 1;
 signal waiting : integer range W-1 downto 0 := 0;
 signal ppX : std_logic_vector(ROWS_BITS-1 downto 0);
@@ -209,20 +246,38 @@ port map (
 	io_scl => scl
 );
 
-m1 : memory1
-port map (
-	i_clk => clk,
-	i_enable_byte => i_mem_e_byte,
-	i_enable_bit => i_mem_e_bit,
-	i_write_byte => '0',
-	i_write_bit => i_mem_write_bit,
-	i_row => row,
-	i_col_pixel => col_pixel,
-	i_col_block => col_block,
-	i_byte => (others => 'X'),
-	i_bit => i_bit,
-	o_byte => display_byte,
-	o_bit => o_bit
+--m1 : memory1
+--port map (
+--	i_clk => clk,
+--	i_enable_byte => i_mem_e_byte,
+--	i_enable_bit => i_mem_e_bit,
+--	i_write_byte => '0',
+--	i_write_bit => i_mem_write_bit,
+--	i_row => row,
+--	i_col_pixel => col_pixel,
+--	i_col_block => col_block,
+--	i_byte => (others => 'X'),
+--	i_bit => i_bit,
+--	o_byte => display_byte,
+--	o_bit => o_bit
+--);
+
+mm : memorymodule PORT MAP (
+	i_clock => clk,
+	i_enable => i_enable,
+	i_write => i_write,
+	i_read => i_read,
+	i_MemAdr => i_MemAdr,
+	i_MemDB => i_MemDB,
+	o_MemDB => o_MemDB,
+	io_MemOE => io_MemOE,
+	io_MemWR => io_MemWR,
+	io_RamAdv => io_RamAdv,
+	io_RamCS => io_RamCS,
+	io_RamLB => io_RamLB,
+	io_RamUB => io_RamUB,
+	io_MemAdr => io_MemAdr,
+	io_MemDB => io_MemDB
 );
 
 gof_logic : process (clk_1s,i_reset) is
