@@ -36,6 +36,7 @@ i_clock : in std_logic;
 i_enable : in std_logic;
 i_write : in std_logic;
 i_read : in std_logic;
+o_busy : out std_logic;
 i_MemAdr : in std_logic_vector(G_MemoryAddress-1 downto 0);
 i_MemDB : in std_logic_vector(G_MemoryData-1 downto 0);
 o_MemDB : out std_logic_vector(G_MemoryData-1 downto 0);
@@ -97,6 +98,7 @@ begin
 				when start =>
 					if (i_write = '1') then
 						cstate <= write_setup;
+						o_busy <= '1';
 					elsif (i_read = '1') then
 						cstate <= read_setup;
 					else
@@ -166,6 +168,7 @@ begin
 					end if;
 				when stop =>
 					cstate <= idle;
+					o_busy <= '0';
 					io_RamAdv <= '1';
 					io_RamCS <= '1';
 					io_MemOE <= '1';
