@@ -27,19 +27,20 @@
 --------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
- 
+use WORK.p_memory_content.ALL;
+
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
- 
+
 ENTITY tb_top IS
 END tb_top;
- 
-ARCHITECTURE behavior OF tb_top IS 
 
-	constant IC : integer := 50_000_000;
-	constant BC : integer := 100_000;
-	constant DC : integer := 1_000;
+ARCHITECTURE behavior OF tb_top IS
+
+	constant IC : integer := G_BOARD_CLOCK;
+	constant BC : integer := G_BUS_CLOCK;
+	constant DC : integer := G_ClockDivider;
 
     -- Component Declaration for the Unit Under Test (UUT)
 
