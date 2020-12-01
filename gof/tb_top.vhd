@@ -44,22 +44,39 @@ ARCHITECTURE behavior OF tb_top IS
 
     -- Component Declaration for the Unit Under Test (UUT)
 
-    COMPONENT top
-	 GENERIC(
-			INPUT_CLOCK : integer;
-			BUS_CLOCK : integer;
-			DIVIDER_CLOCK : integer
-			);
-    PORT(
-			clk : IN  std_logic;
-			btn_1 : IN  std_logic;
-			btn_2 : IN  std_logic;
-			btn_3 : IN  std_logic;
-			sda : INOUT  std_logic;
-			scl : INOUT  std_logic
-			);
-    END COMPONENT;
-    
+	COMPONENT top
+	generic(
+		INPUT_CLOCK : integer := G_BOARD_CLOCK;
+		BUS_CLOCK : integer := G_BUS_CLOCK; -- increase for speed i2c
+		DIVIDER_CLOCK : integer := G_ClockDivider
+	);
+	port(
+		signal clk : in std_logic;
+		signal btn_1 : in std_logic;
+		signal btn_2 : in std_logic;
+		signal btn_3 : in std_logic;
+		signal sda,scl : inout std_logic;
+		signal io_MemOE : inout std_logic;
+		signal io_MemWR : inout std_logic;
+		signal io_RamAdv : inout std_logic;
+		signal io_RamCS : inout std_logic;
+		signal io_RamCRE : inout std_logic;
+		signal io_RamLB : inout std_logic;
+		signal io_RamUB : inout std_logic;
+		signal io_RamWait : inout std_logic;
+		signal io_MemAdr : inout std_logic_vector(G_MemoryAddress-1 downto 0);
+		signal io_MemDB : inout std_logic_vector(G_MemoryData-1 downto 0)
+	);
+	END COMPONENT;
+
+	signal MemOE : std_logic;
+	signal MemWR : std_logic;
+	signal RamAdv : std_logic;
+	signal RamCS : std_logic;
+	signal RamLB : std_logic;
+	signal RamUB : std_logic;
+	signal MemAdr : std_logic_vector(G_MemoryAddress-1 downto 0) := (others => 'Z');
+	signal MemDB : std_logic_vector(G_MemoryData-1 downto 0) := (others => 'Z');
 
    --Inputs
    signal clk : std_logic := '0';
@@ -73,9 +90,9 @@ ARCHITECTURE behavior OF tb_top IS
 
    -- Clock period definitions 
 	constant clk_period : time := (1_000_000_000 / IC) * 1 ns;
- 
+
 BEGIN
- 
+
 	-- Instantiate the Unit Under Test (UUT)
    uut: top 
 	GENERIC MAP (
@@ -89,7 +106,15 @@ BEGIN
 		btn_2 => btn_2,
 		btn_3 => btn_3,
 		sda => sda,
-		scl => scl
+		scl => scl,
+		io_MemOE => MemOE,
+		io_MemWR => MemWR,
+		io_RamAdv => RamAdv,
+		io_RamCS => RamCS,
+		io_RamLB => RamLB,
+		io_RamUB => RamUB,
+		io_MemAdr => MemAdr,
+		io_MemDB => MemDB
 		);
 
    -- Clock process definitions
