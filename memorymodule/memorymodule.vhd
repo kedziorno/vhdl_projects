@@ -56,15 +56,15 @@ architecture Behavioral of memorymodule is
 	idle,
 	start,
 	write_setup,
+	read_setup,
 	csw_disable,
 	write_enable,
 	wait1,
 	write_disable,
 	csw_enable,
-	read_setup,
+	stop,
 	read1,
-	wait2,
-	stop
+	wait2
 	);
 	signal cstate : state;
 

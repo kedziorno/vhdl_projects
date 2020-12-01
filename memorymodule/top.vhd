@@ -34,7 +34,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity top is
 Generic (
 g_board_clock : integer := G_BOARD_CLOCK;
-g_clock_divider : integer := 3;
+g_clock_divider : integer := 1;
 g_lcd_clock_divider : integer := G_LCDClockDivider
 );
 Port (
@@ -60,7 +60,7 @@ architecture Behavioral of top is
 
 	component clock_divider is
 	Generic (
-		g_divider : integer
+		g_divider : integer := g_clock_divider
 	);
 	Port (
 		i_clock : in STD_LOGIC;
@@ -127,9 +127,6 @@ architecture Behavioral of top is
 begin
 
 	c_clock_divider : clock_divider
-	Generic Map (
-		g_divider => g_clock_divider
-	)
 	Port Map (
 		i_clock => i_clock,
 		o_clock => o_clock
@@ -162,11 +159,13 @@ begin
 		io_MemDB => io_MemDB
 	);
 
-	p0 : process (o_clock) is
-		constant waiting : integer := 1; -- decrease for simulation speed
+	p0 : process (i_clock,o_MemDB) is
+		constant waiting : integer := g_board_clock / g_clock_divider; -- decrease for simulation speed
 		variable w : integer range 0 to waiting := 0;
+		variable t : std_logic_vector(G_MemoryData-1 downto 0);
+		variable tz : std_logic_vector(G_MemoryData-1 downto 0) := (others => 'Z');
 	begin
-		if (rising_edge(o_clock)) then
+		if (rising_edge(i_clock)) then
 			if (w > 0) then
 				w := w - 1;
 			end if;
@@ -319,9 +318,12 @@ begin
 					ts <= enable_display1;
 			end case;
 		end if;
+		if (o_MemDB /= tz) then
+			t := o_MemDB;
+		end if;
+		LCDChar <= (t(3 downto 0),t(7 downto 4),t(11 downto 8),t(15 downto 12));
 	end process p0;
 
-	LCDChar <= (o_MemDB(3 downto 0),o_MemDB(7 downto 4),o_MemDB(11 downto 8),o_MemDB(15 downto 12));
 
 	o_Led <= i_sw;
 	o_dp <= '1'; -- off all dot points

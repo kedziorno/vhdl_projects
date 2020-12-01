@@ -33,7 +33,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity clock_divider is
 Generic (
 	g_board_clock : integer := G_BOARD_CLOCK;
-	g_divider : integer
+	g_divider : integer := 1
 );
 Port (
 	i_clock : in STD_LOGIC;
@@ -42,7 +42,6 @@ Port (
 end clock_divider;
 
 architecture Behavioral of clock_divider is
-	constant clock_divider : integer := g_board_clock / g_divider;
 begin
 
 p0 : process (i_clock) is
@@ -50,7 +49,7 @@ p0 : process (i_clock) is
 	variable counter : integer := 0;
 begin
 	if (rising_edge(i_clock)) then
-		if (counter = clock_divider-1) then
+		if (counter = (g_board_clock / g_divider) - 1) then
 			clock_out := '1';
 			counter := 0;
 		else

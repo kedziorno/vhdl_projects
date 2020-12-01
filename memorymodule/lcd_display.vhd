@@ -97,9 +97,15 @@ begin
 
 	p1 : process (clock_divider_1) is
 		variable count : integer range 0 to G_LCDAnode := 0;
+		variable converted_lcdhex : LCDHex;
 	begin
 		if (rising_edge(clock_divider_1)) then
-			case to_integer(unsigned(i_LCDChar(count))) is
+			if (Is_X(i_LCDChar(count))) then
+				converted_lcdhex := (x"0",x"0",x"0",x"0");
+			else
+				converted_lcdhex := i_LCDChar;
+			end if;
+			case to_integer(unsigned(converted_lcdhex(count))) is
 				when 0 => o_segment <= "1000000"; -- 0
 				when 1 => o_segment <= "1111001"; -- 1
 				when 2 => o_segment <= "0100100"; -- 2

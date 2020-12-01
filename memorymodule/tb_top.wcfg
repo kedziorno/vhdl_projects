@@ -14,86 +14,24 @@
       </db_ref>
    </db_ref_list>
    <WVObjectSize size="5" />
-   <wvobject fp_name="group64" type="group">
-      <obj_property name="label">tb_top</obj_property>
-      <obj_property name="DisplayName">label</obj_property>
-      <wvobject fp_name="/tb_top/clk" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">clk</obj_property>
-         <obj_property name="ObjectShortName">clk</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/sw" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">sw[7:0]</obj_property>
-         <obj_property name="ObjectShortName">sw[7:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/btn" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">btn[3:0]</obj_property>
-         <obj_property name="ObjectShortName">btn[3:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/seg" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">seg[6:0]</obj_property>
-         <obj_property name="ObjectShortName">seg[6:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/dp" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">dp</obj_property>
-         <obj_property name="ObjectShortName">dp</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/an" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">an[3:0]</obj_property>
-         <obj_property name="ObjectShortName">an[3:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/led" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">led[7:0]</obj_property>
-         <obj_property name="ObjectShortName">led[7:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/memoe" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">memoe</obj_property>
-         <obj_property name="ObjectShortName">memoe</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/memwr" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">memwr</obj_property>
-         <obj_property name="ObjectShortName">memwr</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/ramadv" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">ramadv</obj_property>
-         <obj_property name="ObjectShortName">ramadv</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/ramcs" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">ramcs</obj_property>
-         <obj_property name="ObjectShortName">ramcs</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/ramlb" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">ramlb</obj_property>
-         <obj_property name="ObjectShortName">ramlb</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/ramub" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">ramub</obj_property>
-         <obj_property name="ObjectShortName">ramub</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/memadr" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">memadr[23:0]</obj_property>
-         <obj_property name="ObjectShortName">memadr[23:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/memdb" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">memdb[15:0]</obj_property>
-         <obj_property name="ObjectShortName">memdb[15:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/clk_period" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">clk_period</obj_property>
-         <obj_property name="ObjectShortName">clk_period</obj_property>
-      </wvobject>
-   </wvobject>
+   <wave_markers>
+      <marker time="0" label="" />
+      <marker time="140000690000000" label="" />
+   </wave_markers>
    <wvobject fp_name="group88" type="group">
       <obj_property name="label">uut</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <wvobject fp_name="/tb_top/uut/ts" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">ts</obj_property>
-         <obj_property name="ObjectShortName">ts</obj_property>
-      </wvobject>
       <wvobject fp_name="/tb_top/uut/i_clock" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">i_clock</obj_property>
          <obj_property name="ObjectShortName">i_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/o_clock" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_clock</obj_property>
+         <obj_property name="ObjectShortName">o_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/ts" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">ts</obj_property>
+         <obj_property name="ObjectShortName">ts</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/io_memoe" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">io_memoe</obj_property>
@@ -129,49 +67,17 @@
          <obj_property name="ObjectShortName">io_memdb[15:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb_top/uut/i_sw" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">i_sw[7:0]</obj_property>
-         <obj_property name="ObjectShortName">i_sw[7:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/i_btn" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">i_btn[3:0]</obj_property>
-         <obj_property name="ObjectShortName">i_btn[3:0]</obj_property>
-      </wvobject>
       <wvobject fp_name="/tb_top/uut/o_seg" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">o_seg[6:0]</obj_property>
          <obj_property name="ObjectShortName">o_seg[6:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/o_dp" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">o_dp</obj_property>
-         <obj_property name="ObjectShortName">o_dp</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/o_an" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">o_an[3:0]</obj_property>
          <obj_property name="ObjectShortName">o_an[3:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb_top/uut/o_led" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">o_led[7:0]</obj_property>
-         <obj_property name="ObjectShortName">o_led[7:0]</obj_property>
-      </wvobject>
       <wvobject fp_name="/tb_top/uut/lcdchar" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">lcdchar[3:0]</obj_property>
          <obj_property name="ObjectShortName">lcdchar[3:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/o_clock" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">o_clock</obj_property>
-         <obj_property name="ObjectShortName">o_clock</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/g_board_clock" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">g_board_clock</obj_property>
-         <obj_property name="ObjectShortName">g_board_clock</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/g_clock_divider" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">g_clock_divider</obj_property>
-         <obj_property name="ObjectShortName">g_clock_divider</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/g_lcd_clock_divider" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">g_lcd_clock_divider</obj_property>
-         <obj_property name="ObjectShortName">g_lcd_clock_divider</obj_property>
       </wvobject>
    </wvobject>
    <wvobject fp_name="group94" type="group">
@@ -185,21 +91,21 @@
          <obj_property name="ElementShortName">o_clock</obj_property>
          <obj_property name="ObjectShortName">o_clock</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb_top/uut/c_clock_divider/g_board_clock" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">g_board_clock</obj_property>
-         <obj_property name="ObjectShortName">g_board_clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="group90" type="group">
+      <obj_property name="label">cd_lcd</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_top/uut/c_lcd_display/c_clock_divider_1/i_clock" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clock</obj_property>
+         <obj_property name="ObjectShortName">i_clock</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb_top/uut/c_clock_divider/g_divider" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">g_divider</obj_property>
-         <obj_property name="ObjectShortName">g_divider</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/c_clock_divider/clock_divider" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">clock_divider</obj_property>
-         <obj_property name="ObjectShortName">clock_divider</obj_property>
+      <wvobject fp_name="/tb_top/uut/c_lcd_display/c_clock_divider_1/o_clock" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_clock</obj_property>
+         <obj_property name="ObjectShortName">o_clock</obj_property>
       </wvobject>
    </wvobject>
    <wvobject fp_name="group101" type="group">
-      <obj_property name="label">lcdd</obj_property>
+      <obj_property name="label">lcd_lcd</obj_property>
       <obj_property name="DisplayName">label</obj_property>
       <wvobject fp_name="/tb_top/uut/c_lcd_display/i_clock" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">i_clock</obj_property>
@@ -221,10 +127,6 @@
       <wvobject fp_name="/tb_top/uut/c_lcd_display/clock_divider_1" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">clock_divider_1</obj_property>
          <obj_property name="ObjectShortName">clock_divider_1</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/c_lcd_display/lcdclockdivider" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">lcdclockdivider</obj_property>
-         <obj_property name="ObjectShortName">lcdclockdivider</obj_property>
       </wvobject>
    </wvobject>
    <wvobject fp_name="group84" type="group">
