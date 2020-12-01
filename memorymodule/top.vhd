@@ -34,7 +34,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity top is
 Generic (
 g_board_clock : integer := G_BOARD_CLOCK;
-g_clock_divider : integer := 1;
+g_clock_divider : integer := G_ClockDivider;
 g_lcd_clock_divider : integer := G_LCDClockDivider
 );
 Port (
@@ -111,6 +111,7 @@ architecture Behavioral of top is
 	signal i_MemAdr : std_logic_vector(G_MemoryAddress-1 downto 0);
 	signal i_MemDB : std_logic_vector(G_MemoryData-1 downto 0);
 	signal o_MemDB : std_logic_vector(G_MemoryData-1 downto 0);
+	signal o_MemDB_p : std_logic_vector(G_MemoryData-1 downto 0);
 
 	type test_state is (
 	start,
@@ -142,7 +143,7 @@ begin
 
 	M45W8MW16 : memorymodule
 	Port Map (
-		i_clock => i_clock,
+		i_clock => o_clock,
 		i_enable => i_enable,
 		i_write => i_write,
 		i_read => i_read,
@@ -159,20 +160,22 @@ begin
 		io_MemDB => io_MemDB
 	);
 
-	p0 : process (i_clock,o_MemDB) is
-		constant waiting : integer := g_board_clock / g_clock_divider; -- decrease for simulation speed
-		variable w : integer range 0 to waiting := 0;
+	p0 : process (o_clock,o_MemDB) is
+		constant waiting_for_write : integer := 10;
+		constant waiting : integer := 1; --g_board_clock / g_clock_divider; -- decrease for simulation speed
+		variable w : integer := 0;
 		variable t : std_logic_vector(G_MemoryData-1 downto 0);
 		variable tz : std_logic_vector(G_MemoryData-1 downto 0) := (others => 'Z');
+		variable t0 : std_logic_vector(G_MemoryData-1 downto 0) := (others => '0');
 	begin
-		if (rising_edge(i_clock)) then
+		if (rising_edge(o_clock)) then
 			if (w > 0) then
 				w := w - 1;
 			end if;
 			case ts is
 				when start =>
 					ts <= wait1;
-					w := waiting;
+					w := waiting_for_write;
 					
 				when wait1 =>
 					if (w = 0) then
@@ -195,7 +198,7 @@ begin
 				when disable_module1 =>
 					ts <= wait2;
 					i_enable <= '0';
-					w := waiting;
+					w := waiting_for_write;
 					
 				when wait2 =>
 					if (w = 0) then
@@ -218,7 +221,7 @@ begin
 				when disable_module2 =>
 					ts <= wait3;
 					i_enable <= '0';
-					w := waiting;
+					w := waiting_for_write;
 					
 				when wait3 =>
 					if (w = 0) then
@@ -318,12 +321,17 @@ begin
 					ts <= enable_display1;
 			end case;
 		end if;
-		if (o_MemDB /= tz) then
-			t := o_MemDB;
-		end if;
-		LCDChar <= (t(3 downto 0),t(7 downto 4),t(11 downto 8),t(15 downto 12));
+--		o_MemDB_p <= o_MemDB;
+--		if (o_MemDB /= tz and o_MemDB /= t0) then
+--			t := o_MemDB;
+--		end if;
+--		if (o_MemDB_p /= o_MemDB) then
+--			LCDChar <= (o_MemDB(3 downto 0),o_MemDB(7 downto 4),o_MemDB(11 downto 8),o_MemDB(15 downto 12));
+--		end if;
+--		LCDChar <= (t(3 downto 0),t(7 downto 4),t(11 downto 8),t(15 downto 12));
 	end process p0;
 
+	LCDChar <= (o_MemDB(3 downto 0),o_MemDB(7 downto 4),o_MemDB(11 downto 8),o_MemDB(15 downto 12));
 
 	o_Led <= i_sw;
 	o_dp <= '1'; -- off all dot points

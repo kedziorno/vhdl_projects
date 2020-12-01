@@ -7,6 +7,7 @@ package p_globals is
 	constant G_LCDSegment : integer := 7;
 	constant G_LCDAnode : integer := 4;
 	constant G_LCDClockDivider : integer := 200;
+	constant G_ClockDivider : integer := 10;
 	constant G_MemoryAddress : integer := 24;
 	constant G_MemoryData : integer := 16;
 	constant G_Switch : integer := 8;
