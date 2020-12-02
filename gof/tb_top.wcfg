@@ -17,7 +17,6 @@
    <WVObjectSize size="8" />
    <wave_markers>
       <marker time="2000090000000" label="" />
-      <marker time="3146950000000" label="" />
       <marker time="49771930000000" label="" />
    </wave_markers>
    <wvobject fp_name="/tb_top/clk" type="logic" db_ref_id="1">
@@ -205,6 +204,11 @@
          <obj_property name="ElementShortName">i2c_data_wr[7:0]</obj_property>
          <obj_property name="ObjectShortName">i2c_data_wr[7:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/c0/i2c_data_wr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">i2c_data_wr[7:0]</obj_property>
+         <obj_property name="ObjectShortName">i2c_data_wr[7:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/c0/i2c_busy" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">i2c_busy</obj_property>
