@@ -146,7 +146,7 @@ signal i_mem_write_bit : std_logic;
 signal i_bit : std_logic;
 
 type state is (
-set_cd_memorycopy,enable_memory_module,enable_write_fh,copy_first_halfword,disable_write_fh,memory_wait,enable_write_sh,copy_second_halfword,disable_write_sh,disable_memory_module,check_ranges_write,
+set_cd_memorycopy,enable_memory_module,enable_write_fh,copy_first_halfword,disable_write_fh,memory_wait_fh,enable_write_sh,copy_second_halfword,disable_write_sh,memory_wait_sh,disable_memory_module,check_ranges_write,
 idle,
 display_is_initialize,
 enble_memory_module_read,enable_read_memory_fh,read_fh,disable_read_memory_fh,send_fh1,send_fh2,enable_read_memory_sh,read_sh,disable_read_memory_sh,send_sh1,send_sh2,disable_memory_module_read,check_ranges_read,
@@ -269,7 +269,7 @@ port map (
 --);
 
 mm : memorymodule PORT MAP (
-	i_clock => clk,
+	i_clock => clk_1s,
 	i_enable => i_enable,
 	i_write => i_write,
 	i_read => i_read,
@@ -318,7 +318,7 @@ begin
 			-- copy memory content
 			when set_cd_memorycopy =>
 				cstate <= enable_memory_module;
-				CD <= CD_COPYMEMORY;
+				CD <= CD_CALCULATE;
 			when enable_memory_module =>
 				cstate <= enable_write_fh;
 				i_enable <= '1';
@@ -330,11 +330,11 @@ begin
 				i_MemAdr <= std_logic_vector(to_unsigned(startAddress + 0,G_MemoryAddress));
 				i_MemDB <= m1(rowIndex)(31 downto 16);
 			when disable_write_fh =>
-				cstate <= memory_wait;
+				cstate <= memory_wait_fh;
 				i_write <= '0';
-			when memory_wait =>
+			when memory_wait_fh =>
 				if (o_membusy = '1') then
-					cstate <= memory_wait;
+					cstate <= memory_wait_fh;
 				else
 					cstate <= enable_write_sh;
 				end if;
@@ -346,8 +346,14 @@ begin
 				i_MemAdr <= std_logic_vector(to_unsigned(startAddress + 1,G_MemoryAddress));
 				i_MemDB <= m1(rowIndex)(15 downto 0);
 			when disable_write_sh =>
-				cstate <= disable_memory_module;
+				cstate <= memory_wait_sh;
 				i_write <= '0';
+			when memory_wait_sh =>
+				if (o_membusy = '1') then
+					cstate <= memory_wait_sh;
+				else
+					cstate <= disable_memory_module;
+				end if;
 			when disable_memory_module =>
 				cstate <= check_ranges_write;
 				i_enable <= '0';
@@ -378,10 +384,11 @@ begin
 				startAddress := 0;
 				rowIndex := ROWS-1;
 				copyWordsIndex := copyWords - 1;
-			
+				CD <= CD_DISPLAY;
 			when enble_memory_module_read =>
 				cstate <= enable_read_memory_fh;
 				i_enable <= '1';
+				--all_pixels <= '0';
 			when enable_read_memory_fh =>
 				cstate <= read_fh;
 				i_read <= '1';
@@ -394,9 +401,13 @@ begin
 				i_read <= '0';
 			when send_fh1 =>
 				cstate <= send_fh2;
+				row <= std_logic_vector(to_unsigned(rowIndex,ROWS_BITS));
+				col_block <= std_logic_vector(to_unsigned(0,COLS_BLOCK_BITS));
 				display_byte <= o_Mem1(15 downto 8);
 			when send_fh2 =>
 				cstate <= enable_read_memory_sh;
+				row <= std_logic_vector(to_unsigned(rowIndex,ROWS_BITS));
+				col_block <= std_logic_vector(to_unsigned(1,COLS_BLOCK_BITS));
 				display_byte <= o_Mem1(7 downto 0);
 			when enable_read_memory_sh =>
 				cstate <= read_sh;
@@ -410,13 +421,18 @@ begin
 				i_read <= '0';
 			when send_sh1 =>
 				cstate <= send_sh2;
+				row <= std_logic_vector(to_unsigned(rowIndex,ROWS_BITS));
+				col_block <= std_logic_vector(to_unsigned(2,COLS_BLOCK_BITS));
 				display_byte <= o_Mem2(15 downto 8);
 			when send_sh2 =>
 				cstate <= disable_memory_module_read;
+				row <= std_logic_vector(to_unsigned(rowIndex,ROWS_BITS));
+				col_block <= std_logic_vector(to_unsigned(3,COLS_BLOCK_BITS));
 				display_byte <= o_Mem2(7 downto 0);
 			when disable_memory_module_read =>
 				cstate <= check_ranges_read;
 				i_enable <= '0';
+				--all_pixels <= '1';
 			when check_ranges_read =>
 				if (copyWordsIndex > 0) then
 					startAddress := startAddress + 2;
@@ -426,7 +442,7 @@ begin
 					end if;
 					cstate <= enble_memory_module_read;
 				else
-					cstate <= reset_counters_1;
+					cstate <= memory_enable_byte;
 				end if;
 			
 --			when memory_enable_byte =>
@@ -465,7 +481,7 @@ begin
 --				CD <= CD_CALCULATE;
 --			when memory_disable_byte =>
 --				cstate <= reset_counters_1;
---				i_mem_e_byte <= '0';
+--				--i_mem_e_byte <= '0';
 				
 				
 				
