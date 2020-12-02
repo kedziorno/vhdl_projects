@@ -90,7 +90,7 @@ o_clk : out STD_LOGIC
 end component clock_divider;
 for all : clock_divider use entity WORK.clock_divider(Behavioral);
 
---component memory is
+--component memory1 is
 --Port (
 --i_clk : in std_logic;
 --i_enable_byte : in std_logic;
@@ -146,19 +146,10 @@ signal i_mem_write_bit : std_logic;
 signal i_bit : std_logic;
 
 type state is (
-set_cd_memorycopy,
-enable_memory_module,
-enable_write_fh,
-copy_first_halfword,
-disable_write_fh,
-memory_wait,
-enable_write_sh,
-copy_second_halfword,
-disable_write_sh,
-disable_memory_module,
-check_ranges,
+set_cd_memorycopy,enable_memory_module,enable_write_fh,copy_first_halfword,disable_write_fh,memory_wait,enable_write_sh,copy_second_halfword,disable_write_sh,disable_memory_module,check_ranges_write,
 idle,
 display_is_initialize,
+enble_memory_module_read,enable_read_memory_fh,read_fh,disable_read_memory_fh,send_fh1,send_fh2,enable_read_memory_sh,read_sh,disable_read_memory_sh,send_sh1,send_sh2,disable_memory_module_read,check_ranges_read,
 memory_enable_byte,
 waitone,
 update_row,
@@ -261,7 +252,7 @@ port map (
 	io_scl => scl
 );
 
---m1 : memory1
+--mm1 : memory1
 --port map (
 --	i_clk => clk,
 --	i_enable_byte => i_mem_e_byte,
@@ -313,6 +304,8 @@ gof_logic : process (clk_1s,i_reset) is
 	variable copyWords : integer := (ROWS*COLS_PIXEL)/2;
 	variable copyWordsIndex : integer := copyWords - 1;
 	variable rowIndex : integer range ROWS downto 0 := ROWS-1;
+	variable o_Mem1 : MemoryDataByte;
+	variable o_Mem2 : MemoryDataByte;
 begin
 	if (i_reset = '1') then
 		all_pixels <= '0';
@@ -356,9 +349,9 @@ begin
 				cstate <= disable_memory_module;
 				i_write <= '0';
 			when disable_memory_module =>
-				cstate <= check_ranges;
+				cstate <= check_ranges_write;
 				i_enable <= '0';
-			when check_ranges =>
+			when check_ranges_write =>
 				if (copyWordsIndex > 0) then
 					startAddress := startAddress + 2;
 					copyWordsIndex := copyWordsIndex - 1;
@@ -377,48 +370,105 @@ begin
 					cstate <= idle;
 				end if;
 			when display_is_initialize =>
-				cstate <= memory_enable_byte;
+				cstate <= enble_memory_module_read;
 				vppX := 0;
 				vppYb := 0;
 				vppYp := 0;
 				all_pixels <= '0';
-			when memory_enable_byte =>
-				cstate <= waitone;
-				i_mem_e_byte <= '1';
-				waiting := W-1;
-				CD <= CD_DISPLAY;
-			when waitone =>
-				if (waiting = 0) then
-					cstate <= update_row;
+				startAddress := 0;
+				rowIndex := ROWS-1;
+				copyWordsIndex := copyWords - 1;
+			
+			when enble_memory_module_read =>
+				cstate <= enable_read_memory_fh;
+				i_enable <= '1';
+			when enable_read_memory_fh =>
+				cstate <= read_fh;
+				i_read <= '1';
+			when read_fh =>
+				cstate <= disable_read_memory_fh;
+				i_MemAdr <= std_logic_vector(to_unsigned(startAddress + 0,G_MemoryAddress));
+				o_Mem1 := o_MemDB;
+			when disable_read_memory_fh =>
+				cstate <= send_fh1;
+				i_read <= '0';
+			when send_fh1 =>
+				cstate <= send_fh2;
+				display_byte <= o_Mem1(15 downto 8);
+			when send_fh2 =>
+				cstate <= enable_read_memory_sh;
+				display_byte <= o_Mem1(7 downto 0);
+			when enable_read_memory_sh =>
+				cstate <= read_sh;
+				i_read <= '1';
+			when read_sh =>
+				cstate <= disable_read_memory_sh;
+				i_MemAdr <= std_logic_vector(to_unsigned(startAddress + 1,G_MemoryAddress));
+				o_Mem2 := o_MemDB;
+			when disable_read_memory_sh =>
+				cstate <= send_sh1;
+				i_read <= '0';
+			when send_sh1 =>
+				cstate <= send_sh2;
+				display_byte <= o_Mem2(15 downto 8);
+			when send_sh2 =>
+				cstate <= disable_memory_module_read;
+				display_byte <= o_Mem2(7 downto 0);
+			when disable_memory_module_read =>
+				cstate <= check_ranges_read;
+				i_enable <= '0';
+			when check_ranges_read =>
+				if (copyWordsIndex > 0) then
+					startAddress := startAddress + 2;
+					copyWordsIndex := copyWordsIndex - 1;
+					if (rowIndex > 0) then
+						rowIndex := rowIndex - 1;
+					end if;
+					cstate <= enble_memory_module_read;
 				else
-					waiting := waiting - 1;
+					cstate <= reset_counters_1;
 				end if;
-				row <= ppX;
-				col_block <= ppYb;
-			when update_row =>
-				if (vppX < ROWS-1) then
-					vppX := vppX + 1;
-					cstate <= waitone;
-					waiting := W-1;
-				else
-					cstate <= update_col;
-				end if;
-			when update_col =>
-				if (vppYb < COLS_BLOCK-1) then
-					vppYb := vppYb + 1;
-					cstate <= waitone;
-					waiting := W-1;
-					vppX := 0;
-				else
-					cstate <= set_cd_calculate;
-					vppYb := 0;
-				end if;
-			when set_cd_calculate =>
-				cstate <= memory_disable_byte;
-				CD <= CD_CALCULATE;
-			when memory_disable_byte =>
-				cstate <= reset_counters_1;
-				i_mem_e_byte <= '0';
+			
+--			when memory_enable_byte =>
+--				cstate <= waitone;
+--				--i_mem_e_byte <= '1';
+--				waiting := W-1;
+--				CD <= CD_DISPLAY;
+--			when waitone =>
+--				if (waiting = 0) then
+--					cstate <= update_row;
+--				else
+--					waiting := waiting - 1;
+--				end if;
+--				row <= ppX;
+--				col_block <= ppYb;
+--			when update_row =>
+--				if (vppX < ROWS-1) then
+--					vppX := vppX + 1;
+--					cstate <= waitone;
+--					waiting := W-1;
+--				else
+--					cstate <= update_col;
+--				end if;
+--			when update_col =>
+--				if (vppYb < COLS_BLOCK-1) then
+--					vppYb := vppYb + 1;
+--					cstate <= waitone;
+--					waiting := W-1;
+--					vppX := 0;
+--				else
+--					cstate <= set_cd_calculate;
+--					vppYb := 0;
+--				end if;
+--			when set_cd_calculate =>
+--				cstate <= memory_disable_byte;
+--				CD <= CD_CALCULATE;
+--			when memory_disable_byte =>
+--				cstate <= reset_counters_1;
+--				i_mem_e_byte <= '0';
+				
+				
+				
 			-- calculate cells
 			when reset_counters_1 =>
 				cstate <= check_coordinations;
