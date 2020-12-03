@@ -75,6 +75,7 @@ signal i_x : in std_logic_vector(W_BITS-1 downto 0);
 signal i_y : in std_logic_vector(H_BITS-1 downto 0);
 signal i_byte : in std_logic_vector(BYTE_SIZE-1 downto 0);
 signal i_all_pixels : in std_logic;
+signal o_busy : out std_logic;
 signal o_display_initialize : inout std_logic;
 signal io_sda,io_scl : inout std_logic);
 end component oled_display;
@@ -147,9 +148,17 @@ signal i_bit : std_logic;
 
 type state is (
 set_cd_memorycopy,enable_memory_module,enable_write_fh,copy_first_halfword,disable_write_fh,memory_wait_fh,enable_write_sh,copy_second_halfword,disable_write_sh,memory_wait_sh,disable_memory_module,check_ranges_write,
+
 idle,
 display_is_initialize,
-enble_memory_module_read,enable_read_memory_fh,read_fh,disable_read_memory_fh,send_fh1,send_fh2,enable_read_memory_sh,read_sh,disable_read_memory_sh,send_sh1,send_sh2,disable_memory_module_read,check_ranges_read,
+
+enable_memory_module_read_fh,enable_read_memory_fh,read_fh,store_fh,disable_read_memory_fh,disable_memory_module_read_fh,
+send_fh1,send_fh1_waitdisplay,send_fh2,send_fh2_waitdisplay,
+enable_memory_module_read_sh,enable_read_memory_sh,read_sh,store_sh,disable_read_memory_sh,disable_memory_module_read_sh,
+send_sh1,send_sh1_waitdisplay,send_sh2,send_sh2_waitdisplay,
+wait_two_reads,
+check_ranges_read,
+
 memory_enable_byte,
 waitone,
 update_row,
@@ -185,6 +194,7 @@ signal i_enable : std_logic;
 signal i_write : std_logic;
 signal i_read : std_logic;
 signal o_membusy : std_logic;
+signal o_disbusy : std_logic;
 signal i_MemAdr : std_logic_vector(G_MemoryAddress-1 downto 0);
 signal i_MemDB : std_logic_vector(G_MemoryData-1 downto 0);
 signal o_MemDB : std_logic_vector(G_MemoryData-1 downto 0);
@@ -247,6 +257,7 @@ port map (
 	i_y => col_block,
 	i_byte => display_byte,
 	i_all_pixels => all_pixels,
+	o_busy => o_disbusy,
 	o_display_initialize => display_initialize,
 	io_sda => sda,
 	io_scl => scl
@@ -269,7 +280,7 @@ port map (
 --);
 
 mm : memorymodule PORT MAP (
-	i_clock => clk_1s,
+	i_clock => clk,
 	i_enable => i_enable,
 	i_write => i_write,
 	i_read => i_read,
@@ -287,9 +298,9 @@ mm : memorymodule PORT MAP (
 	io_MemDB => io_MemDB
 );
 
-gof_logic : process (clk_1s,i_reset) is
-	constant W : integer := 1;
-	variable waiting : integer range W-1 downto 0 := 0;
+gof_logic : process (clk,i_reset) is
+	constant W : integer := 10;
+	variable waiting : integer range W downto 0 := W;
 	variable vppX : natural range 0 to ROWS-1;
 	variable vppYb : natural range 0 to COLS_BLOCK-1;
 	variable vppYp : natural range 0 to COLS_PIXEL-1;
@@ -301,7 +312,7 @@ gof_logic : process (clk_1s,i_reset) is
 	variable vCellAlive : boolean;
 	variable m1 : MEMORY := memory_content;
 	variable startAddress : integer := 0;
-	variable copyWords : integer := (ROWS*COLS_PIXEL)/2;
+	variable copyWords : integer := (ROWS*(COLS_PIXEL/G_MemoryData));
 	variable copyWordsIndex : integer := copyWords - 1;
 	variable rowIndex : integer range ROWS downto 0 := ROWS-1;
 	variable o_Mem1 : MemoryDataByte;
@@ -313,7 +324,10 @@ begin
 		vppYb := 0;
 		vppYp := 0;
 		cstate <= set_cd_memorycopy;
-	elsif (rising_edge(clk_1s)) then
+	elsif (rising_edge(clk)) then
+		if (waiting > 0) then
+			waiting := waiting - 1;
+		end if;
 		case cstate is
 			-- copy memory content
 			when set_cd_memorycopy =>
@@ -376,7 +390,7 @@ begin
 					cstate <= idle;
 				end if;
 			when display_is_initialize =>
-				cstate <= enble_memory_module_read;
+				cstate <= enable_memory_module_read_fh;
 				vppX := 0;
 				vppYb := 0;
 				vppYp := 0;
@@ -385,54 +399,96 @@ begin
 				rowIndex := ROWS-1;
 				copyWordsIndex := copyWords - 1;
 				CD <= CD_DISPLAY;
-			when enble_memory_module_read =>
+				
+			when enable_memory_module_read_fh =>
 				cstate <= enable_read_memory_fh;
 				i_enable <= '1';
-				--all_pixels <= '0';
 			when enable_read_memory_fh =>
 				cstate <= read_fh;
 				i_read <= '1';
 			when read_fh =>
-				cstate <= disable_read_memory_fh;
+				cstate <= store_fh;
 				i_MemAdr <= std_logic_vector(to_unsigned(startAddress + 0,G_MemoryAddress));
+			when store_fh =>
+				cstate <= disable_read_memory_fh;
 				o_Mem1 := o_MemDB;
 			when disable_read_memory_fh =>
-				cstate <= send_fh1;
+				cstate <= disable_memory_module_read_fh;
 				i_read <= '0';
-			when send_fh1 =>
-				cstate <= send_fh2;
-				row <= std_logic_vector(to_unsigned(rowIndex,ROWS_BITS));
-				col_block <= std_logic_vector(to_unsigned(0,COLS_BLOCK_BITS));
-				display_byte <= o_Mem1(15 downto 8);
-			when send_fh2 =>
+			when disable_memory_module_read_fh =>
+				cstate <= wait_two_reads;
+				i_enable <= '0';
+				waiting := W;
+			when wait_two_reads =>
+				if (waiting = 0) then
+					cstate <= enable_memory_module_read_sh;
+				else
+					cstate <= wait_two_reads;
+				end if;
+			when enable_memory_module_read_sh =>
 				cstate <= enable_read_memory_sh;
-				row <= std_logic_vector(to_unsigned(rowIndex,ROWS_BITS));
-				col_block <= std_logic_vector(to_unsigned(1,COLS_BLOCK_BITS));
-				display_byte <= o_Mem1(7 downto 0);
+				i_enable <= '1';
 			when enable_read_memory_sh =>
 				cstate <= read_sh;
 				i_read <= '1';
 			when read_sh =>
-				cstate <= disable_read_memory_sh;
+				cstate <= store_sh;
 				i_MemAdr <= std_logic_vector(to_unsigned(startAddress + 1,G_MemoryAddress));
+			when store_sh =>
+				cstate <= disable_read_memory_sh;
 				o_Mem2 := o_MemDB;
 			when disable_read_memory_sh =>
-				cstate <= send_sh1;
+				cstate <= disable_memory_module_read_sh;
 				i_read <= '0';
+			when disable_memory_module_read_sh =>
+				cstate <= send_fh1;
+				i_enable <= '0';
+				
+			when send_fh1 =>
+				cstate <= send_fh1_waitdisplay;
+				row <= std_logic_vector(to_unsigned(rowIndex,ROWS_BITS));
+				col_block <= std_logic_vector(to_unsigned(0,COLS_BLOCK_BITS));
+				display_byte <= o_Mem1(15 downto 8);
+			when send_fh1_waitdisplay =>
+				if (o_disbusy = '1') then
+					cstate <= send_fh1_waitdisplay;
+				else
+					cstate <= send_fh2;
+				end if;
+			when send_fh2 =>
+				cstate <= send_fh2_waitdisplay;
+				row <= std_logic_vector(to_unsigned(rowIndex,ROWS_BITS));
+				col_block <= std_logic_vector(to_unsigned(1,COLS_BLOCK_BITS));
+				display_byte <= o_Mem1(7 downto 0);
+			when send_fh2_waitdisplay =>
+				if (o_disbusy = '1') then
+					cstate <= send_fh2_waitdisplay;
+				else
+					cstate <= send_sh1;
+				end if;
 			when send_sh1 =>
-				cstate <= send_sh2;
+				cstate <= send_sh1_waitdisplay;
 				row <= std_logic_vector(to_unsigned(rowIndex,ROWS_BITS));
 				col_block <= std_logic_vector(to_unsigned(2,COLS_BLOCK_BITS));
 				display_byte <= o_Mem2(15 downto 8);
+			when send_sh1_waitdisplay =>
+				if (o_disbusy = '1') then
+					cstate <= send_sh1_waitdisplay;
+				else
+					cstate <= send_sh2;
+				end if;
 			when send_sh2 =>
-				cstate <= disable_memory_module_read;
+				cstate <= send_sh2_waitdisplay;
 				row <= std_logic_vector(to_unsigned(rowIndex,ROWS_BITS));
 				col_block <= std_logic_vector(to_unsigned(3,COLS_BLOCK_BITS));
 				display_byte <= o_Mem2(7 downto 0);
-			when disable_memory_module_read =>
-				cstate <= check_ranges_read;
-				i_enable <= '0';
-				--all_pixels <= '1';
+			when send_sh2_waitdisplay =>
+				if (o_disbusy = '1') then
+					cstate <= send_sh2_waitdisplay;
+				else
+					cstate <= check_ranges_read;
+				end if;
+				
 			when check_ranges_read =>
 				if (copyWordsIndex > 0) then
 					startAddress := startAddress + 2;
@@ -440,7 +496,7 @@ begin
 					if (rowIndex > 0) then
 						rowIndex := rowIndex - 1;
 					end if;
-					cstate <= enble_memory_module_read;
+					cstate <= enable_memory_module_read_fh;
 				else
 					cstate <= memory_enable_byte;
 				end if;

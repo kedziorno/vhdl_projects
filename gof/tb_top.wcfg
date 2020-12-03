@@ -14,10 +14,11 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="8" />
+   <WVObjectSize size="9" />
    <wave_markers>
       <marker time="2000090000000" label="" />
       <marker time="49771930000000" label="" />
+      <marker time="66170000000" label="" />
    </wave_markers>
    <wvobject fp_name="/tb_top/clk" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">clk</obj_property>
@@ -30,6 +31,10 @@
    <wvobject fp_name="/tb_top/uut/cstate" type="other" db_ref_id="1">
       <obj_property name="ElementShortName">cstate</obj_property>
       <obj_property name="ObjectShortName">cstate</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/o_disbusy" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">o_disbusy</obj_property>
+      <obj_property name="ObjectShortName">o_disbusy</obj_property>
    </wvobject>
    <wvobject fp_name="group136" type="group">
       <obj_property name="label">uut</obj_property>
@@ -152,20 +157,14 @@
    <wvobject fp_name="group87" type="group">
       <obj_property name="label">display</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <wvobject fp_name="/tb_top/uut/c0/coord_prev_x" type="array" db_ref_id="1">
-         <obj_property name="DisplayName">label</obj_property>
-         <obj_property name="ElementShortName">coord_prev_x[6:0]</obj_property>
-         <obj_property name="ObjectShortName">coord_prev_x[6:0]</obj_property>
-         <obj_property name="label">coord_prev_x[6:0]</obj_property>
+      <wvobject fp_name="/tb_top/uut/c0/i_clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clk</obj_property>
+         <obj_property name="ObjectShortName">i_clk</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/c0/i_x" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">i_x[6:0]</obj_property>
          <obj_property name="ObjectShortName">i_x[6:0]</obj_property>
          <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/c0/coord_prev_y" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">coord_prev_y[1:0]</obj_property>
-         <obj_property name="ObjectShortName">coord_prev_y[1:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/c0/i_y" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">i_y[1:0]</obj_property>
