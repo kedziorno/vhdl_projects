@@ -74,6 +74,8 @@ begin
 	p0 : process (i_clock) is
 		constant cw : integer := 3;
 		variable w : integer range 0 to cw := 0;
+		variable t : std_logic_vector(G_MemoryData-1 downto 0);
+		variable tz : std_logic_vector(G_MemoryData-1 downto 0) := (others => 'Z');
 	begin
 		if (rising_edge(i_clock)) then
 			if (w > 0) then
@@ -158,7 +160,11 @@ begin
 					end if;
 				when read1 =>
 					cstate <= wait2;
-					o_MemDB <= io_MemDB;
+					if (io_MemDB /= tz) then
+						t := io_MemDB;
+					else
+						t := (others => '0');
+					end if;
 					w := cw;
 				when wait2 =>
 					if (w = 0) then
@@ -179,6 +185,7 @@ begin
 				when others => null;
 			end case;
 		end if;
+		o_MemDB <= t;
 	end process p0;
 
 end Behavioral;
