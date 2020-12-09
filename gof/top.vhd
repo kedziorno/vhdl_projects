@@ -124,6 +124,7 @@ io_RamAdv : out std_logic;
 io_RamCS : out std_logic;
 io_RamLB : out std_logic;
 io_RamUB : out std_logic;
+io_RamCRE : out std_logic;
 io_MemAdr : out std_logic_vector(G_MemoryAddress-1 downto 0);
 io_MemDB : inout std_logic_vector(G_MemoryData-1 downto 0)
 );
@@ -294,6 +295,7 @@ mm : memorymodule PORT MAP (
 	io_RamCS => io_RamCS,
 	io_RamLB => io_RamLB,
 	io_RamUB => io_RamUB,
+	io_RamCRE => io_RamCRE,
 	io_MemAdr => io_MemAdr,
 	io_MemDB => io_MemDB
 );

@@ -3,7 +3,7 @@
    <wave_state>
    </wave_state>
    <db_ref_list>
-      <db_ref path="./tb_top_isim.beh.wdb" id="1" type="auto">
+      <db_ref path="/home/user/workspace/vhdl_projects/gof/memorymodule_isim_beh.wdb" id="1" type="auto">
          <top_modules>
             <top_module name="numeric_std" />
             <top_module name="p_memory_content" />
@@ -19,6 +19,7 @@
       <marker time="2000090000000" label="" />
       <marker time="49771930000000" label="" />
       <marker time="66170000000" label="" />
+      <marker time="50523390000000" label="" />
    </wave_markers>
    <wvobject fp_name="/tb_top/clk" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">clk</obj_property>
@@ -55,6 +56,10 @@
          <obj_property name="ElementShortName">io_memoe</obj_property>
          <obj_property name="ObjectShortName">io_memoe</obj_property>
       </wvobject>
+      <wvobject fp_name="/tb_top/uut/io_ramcs" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">io_ramcs</obj_property>
+         <obj_property name="ObjectShortName">io_ramcs</obj_property>
+      </wvobject>
       <wvobject fp_name="/tb_top/uut/io_memwr" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">io_memwr</obj_property>
          <obj_property name="ObjectShortName">io_memwr</obj_property>
@@ -63,10 +68,6 @@
          <obj_property name="ElementShortName">io_ramadv</obj_property>
          <obj_property name="ObjectShortName">io_ramadv</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb_top/uut/io_ramcs" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">io_ramcs</obj_property>
-         <obj_property name="ObjectShortName">io_ramcs</obj_property>
-      </wvobject>
       <wvobject fp_name="/tb_top/uut/io_ramlb" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">io_ramlb</obj_property>
          <obj_property name="ObjectShortName">io_ramlb</obj_property>
@@ -74,6 +75,10 @@
       <wvobject fp_name="/tb_top/uut/io_ramub" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">io_ramub</obj_property>
          <obj_property name="ObjectShortName">io_ramub</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/io_ramcre" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">io_ramcre</obj_property>
+         <obj_property name="ObjectShortName">io_ramcre</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/io_memadr" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">io_memadr[23:0]</obj_property>
@@ -293,25 +298,17 @@
    <wvobject fp_name="group74" type="group">
       <obj_property name="label">mm</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_top/uut/mm/cstate" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">cstate</obj_property>
+         <obj_property name="ObjectShortName">cstate</obj_property>
+      </wvobject>
       <wvobject fp_name="/tb_top/uut/mm/i_clock" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">i_clock</obj_property>
          <obj_property name="ObjectShortName">i_clock</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb_top/uut/mm/i_enable" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">i_enable</obj_property>
-         <obj_property name="ObjectShortName">i_enable</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/mm/i_write" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">i_write</obj_property>
-         <obj_property name="ObjectShortName">i_write</obj_property>
-      </wvobject>
       <wvobject fp_name="/tb_top/uut/mm/i_read" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">i_read</obj_property>
          <obj_property name="ObjectShortName">i_read</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/mm/o_busy" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">o_busy</obj_property>
-         <obj_property name="ObjectShortName">o_busy</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/mm/i_memadr" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">i_memadr[23:0]</obj_property>
@@ -328,6 +325,22 @@
          <obj_property name="ObjectShortName">o_memdb[15:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
+      <wvobject fp_name="/tb_top/uut/mm/i_enable" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_enable</obj_property>
+         <obj_property name="ObjectShortName">i_enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/mm/i_write" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_write</obj_property>
+         <obj_property name="ObjectShortName">i_write</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/mm/o_busy" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_busy</obj_property>
+         <obj_property name="ObjectShortName">o_busy</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/mm/io_ramcs" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">io_ramcs</obj_property>
+         <obj_property name="ObjectShortName">io_ramcs</obj_property>
+      </wvobject>
       <wvobject fp_name="/tb_top/uut/mm/io_memoe" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">io_memoe</obj_property>
          <obj_property name="ObjectShortName">io_memoe</obj_property>
@@ -340,10 +353,6 @@
          <obj_property name="ElementShortName">io_ramadv</obj_property>
          <obj_property name="ObjectShortName">io_ramadv</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb_top/uut/mm/io_ramcs" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">io_ramcs</obj_property>
-         <obj_property name="ObjectShortName">io_ramcs</obj_property>
-      </wvobject>
       <wvobject fp_name="/tb_top/uut/mm/io_ramlb" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">io_ramlb</obj_property>
          <obj_property name="ObjectShortName">io_ramlb</obj_property>
@@ -351,6 +360,10 @@
       <wvobject fp_name="/tb_top/uut/mm/io_ramub" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">io_ramub</obj_property>
          <obj_property name="ObjectShortName">io_ramub</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/io_ramcre" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">io_ramcre</obj_property>
+         <obj_property name="ObjectShortName">io_ramcre</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/mm/io_memadr" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">io_memadr[23:0]</obj_property>
@@ -366,10 +379,6 @@
          <obj_property name="ElementShortName">io_memdb[15:0]</obj_property>
          <obj_property name="ObjectShortName">io_memdb[15:0]</obj_property>
          <obj_property name="Radix">BINARYRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/mm/cstate" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">cstate</obj_property>
-         <obj_property name="ObjectShortName">cstate</obj_property>
       </wvobject>
    </wvobject>
 </wave_config>

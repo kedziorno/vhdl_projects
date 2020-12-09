@@ -45,6 +45,7 @@ io_MemWR : out std_logic;
 io_RamAdv : out std_logic;
 io_RamCS : out std_logic;
 io_RamLB : out std_logic;
+io_RamCRE : out std_logic;
 io_RamUB : out std_logic;
 io_MemAdr : out std_logic_vector(G_MemoryAddress-1 downto 0);
 io_MemDB : inout std_logic_vector(G_MemoryData-1 downto 0)
@@ -72,7 +73,7 @@ architecture Behavioral of memorymodule is
 begin
 
 	p0 : process (i_clock) is
-		constant cw : integer := 3;
+		constant cw : integer := 6;
 		variable w : integer range 0 to cw := 0;
 		variable t : std_logic_vector(G_MemoryData-1 downto 0);
 		variable tz : std_logic_vector(G_MemoryData-1 downto 0) := (others => 'Z');
@@ -91,6 +92,7 @@ begin
 					io_RamCS <= 'Z';
 					io_RamLB <= 'Z';
 					io_RamUB <= 'Z';
+					io_RamCRE <= 'Z';
 					io_MemOE <= 'Z';
 					io_MemWR <= 'Z';
 					io_RamAdv <= 'Z';
@@ -100,38 +102,37 @@ begin
 				when start =>
 					if (i_write = '1') then
 						cstate <= write_setup;
-						o_busy <= '1';
 					elsif (i_read = '1') then
 						cstate <= read_setup;
 					else
 						cstate <= start;
 					end if;
 					io_RamCS <= '1';
+					io_MemWR <= '1';
 					io_RamLB <= '1';
 					io_RamUB <= '1';
+					io_RamCRE <= '1';
 					io_MemOE <= '1';
-					io_MemWR <= '1';
 					io_RamAdv <= '1';
-					w := cw;
+					io_MemAdr <= i_MemAdr;
+					io_MemDB <= i_MemDB;
+					--w := cw;
 				when write_setup =>
 					if (w = 0) then
-						cstate <= csw_disable;
+						cstate <= write_enable;
+						o_busy <= '1';
 						io_RamAdv <= '0';
 						io_RamLB <= '0';
 						io_RamUB <= '0';
-						io_MemAdr <= i_MemAdr;
-						io_MemDB <= i_MemDB;
+						io_RamCRE <= '0';
+						io_MemOE <= '1';
 					else
 						cstate <= write_setup;
 					end if;
-				when csw_disable =>
-					cstate <= write_enable;
-					io_RamCS <= '0';
-					io_MemOE <= '1';
-					io_MemWR <= '1';
 				when write_enable =>
 					cstate <= wait1;
 					io_MemWR <= '0';
+					io_RamCS <= '0';
 					w := cw;
 				when wait1 =>
 					if (w = 0) then
@@ -140,8 +141,6 @@ begin
 						cstate <= wait1;
 					end if;
 				when write_disable =>
-					cstate <= csw_enable;
-				when csw_enable =>
 					cstate <= stop;
 					io_RamCS <= '1';
 					io_MemWR <= '1';
@@ -152,6 +151,7 @@ begin
 						io_RamCS <= '0';
 						io_RamLB <= '0';
 						io_RamUB <= '0';
+						io_RamCRE <= '0';
 						io_MemOE <= '0';
 						io_MemAdr <= i_MemAdr;
 						io_MemDB <= (others => 'Z');
@@ -176,12 +176,10 @@ begin
 					cstate <= idle;
 					o_busy <= '0';
 					io_RamAdv <= '1';
-					io_RamCS <= '1';
 					io_MemOE <= '1';
 					io_RamLB <= '1';
 					io_RamUB <= '1';
-					io_MemDB <= (others => 'Z');
-					io_MemAdr <= (others => 'Z');
+					io_RamCRE <= '1';
 				when others => null;
 			end case;
 		end if;
