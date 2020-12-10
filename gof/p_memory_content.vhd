@@ -14,7 +14,7 @@ package p_memory_content is
 
 	constant G_BOARD_CLOCK : integer := 50_000_000;
 	constant G_BUS_CLOCK : integer := 100_000;
-	constant G_ClockDivider : integer := 1000;
+	constant G_ClockDivider : integer := 10;
 	constant G_MemoryAddress : integer := 24;
 	constant G_MemoryData : integer := 16;
 	subtype MemoryAddress is std_logic_vector(G_MemoryAddress-1 downto 0);
@@ -29,7 +29,12 @@ package p_memory_content is
 	constant COLS_BLOCK_BITS : integer := 2;
 	constant BYTE_BITS : integer := 8;
 	constant WORD_BITS : integer := COLS_BLOCK*BYTE_BITS;
-
+	constant G_LCDSegment : integer := 7;
+	constant G_LCDAnode : integer := 4;
+	constant G_LCDClockDivider : integer := 200;
+	constant G_Button : integer := 4;
+	constant G_Led : integer := 8;
+	type LCDHex is array(G_LCDAnode-1 downto 0) of std_logic_vector(G_HalfHex-1 downto 0);
 	subtype WORD is std_logic_vector(WORD_BITS-1 downto 0);
 	type MEMORY is array(ROWS-1 downto 0) of WORD;
 
