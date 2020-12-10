@@ -3,7 +3,7 @@
    <wave_state>
    </wave_state>
    <db_ref_list>
-      <db_ref path="/home/user/workspace/vhdl_projects/gof/memorymodule_isim_beh.wdb" id="1" type="auto">
+      <db_ref path="./tb_top_isim.beh.wdb" id="1" type="auto">
          <top_modules>
             <top_module name="numeric_std" />
             <top_module name="p_memory_content" />
@@ -16,10 +16,11 @@
    </db_ref_list>
    <WVObjectSize size="9" />
    <wave_markers>
-      <marker time="2000090000000" label="" />
-      <marker time="49771930000000" label="" />
-      <marker time="66170000000" label="" />
-      <marker time="50523390000000" label="" />
+      <marker time="148570000000" label="" />
+      <marker time="50523350000000" label="" />
+      <marker time="190000000" label="" />
+      <marker time="357094870000000" label="" />
+      <marker time="204410470000000" label="" />
    </wave_markers>
    <wvobject fp_name="/tb_top/clk" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">clk</obj_property>

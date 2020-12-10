@@ -59,11 +59,9 @@ architecture Behavioral of memorymodule is
 	start,
 	write_setup,
 	read_setup,
-	csw_disable,
 	write_enable,
 	wait1,
 	write_disable,
-	csw_enable,
 	stop,
 	read1,
 	wait2
@@ -71,6 +69,11 @@ architecture Behavioral of memorymodule is
 	signal cstate : state;
 
 begin
+
+	io_RamLB <= '0';
+	io_RamUB <= '0';
+	io_RamCRE <= '0';
+	io_RamAdv <= '0';
 
 	p0 : process (i_clock) is
 		constant cw : integer := 6;
@@ -89,13 +92,9 @@ begin
 					else
 						cstate <= idle;
 					end if;
-					io_RamCS <= 'Z';
-					io_RamLB <= 'Z';
-					io_RamUB <= 'Z';
-					io_RamCRE <= 'Z';
-					io_MemOE <= 'Z';
-					io_MemWR <= 'Z';
-					io_RamAdv <= 'Z';
+					io_RamCS <= '1';
+					io_MemOE <= '1';
+					io_MemWR <= '1';
 					io_MemAdr <= (others => 'Z');
 					io_MemDB <= (others => 'Z');
 					o_MemDB <= (others => 'Z');
@@ -109,23 +108,14 @@ begin
 					end if;
 					io_RamCS <= '1';
 					io_MemWR <= '1';
-					io_RamLB <= '1';
-					io_RamUB <= '1';
-					io_RamCRE <= '1';
 					io_MemOE <= '1';
-					io_RamAdv <= '1';
-					io_MemAdr <= i_MemAdr;
-					io_MemDB <= i_MemDB;
-					--w := cw;
 				when write_setup =>
 					if (w = 0) then
 						cstate <= write_enable;
 						o_busy <= '1';
-						io_RamAdv <= '0';
-						io_RamLB <= '0';
-						io_RamUB <= '0';
-						io_RamCRE <= '0';
 						io_MemOE <= '1';
+						io_MemAdr <= i_MemAdr;
+						io_MemDB <= i_MemDB;
 					else
 						cstate <= write_setup;
 					end if;
@@ -147,11 +137,7 @@ begin
 				when read_setup =>
 					if (w = 0) then
 						cstate <= read1;
-						io_RamAdv <= '0';
 						io_RamCS <= '0';
-						io_RamLB <= '0';
-						io_RamUB <= '0';
-						io_RamCRE <= '0';
 						io_MemOE <= '0';
 						io_MemAdr <= i_MemAdr;
 						io_MemDB <= (others => 'Z');
@@ -160,11 +146,7 @@ begin
 					end if;
 				when read1 =>
 					cstate <= wait2;
-					if (io_MemDB /= tz) then
-						t := io_MemDB;
-					else
-						t := (others => '0');
-					end if;
+					o_MemDB <= io_MemDB;
 					w := cw;
 				when wait2 =>
 					if (w = 0) then
@@ -175,15 +157,14 @@ begin
 				when stop =>
 					cstate <= idle;
 					o_busy <= '0';
-					io_RamAdv <= '1';
+					io_RamCS <= '1';
 					io_MemOE <= '1';
-					io_RamLB <= '1';
-					io_RamUB <= '1';
-					io_RamCRE <= '1';
+					io_MemAdr <= (others => 'Z');
+					io_MemDB <= (others => 'Z');
+					o_MemDB <= (others => 'Z');
 				when others => null;
 			end case;
 		end if;
-		o_MemDB <= t;
 	end process p0;
 
 end Behavioral;
