@@ -113,6 +113,7 @@ type state is
 	wait1, -- wait after initialize
 	send_character, -- send the some data in loop
 	wait2, -- disable i2c and wait between transition coordination
+	wait3,
 	set_coordinations,
 	set_address_2, -- set begin point 0,0
 	clear_display_state, -- clear display
@@ -244,9 +245,9 @@ begin
 					when others => null;
 				end case;
 			when wait0 =>
-				if (i_byte /= "ZZZZZZZZ") then
-					c_state <= set_address_1;
-				end if;
+					if (i_byte /= "ZZZZZZZZ") then
+						c_state <= set_address_1;
+					end if;
 			when set_address_1 =>
 				coord_prev_x <= std_logic_vector(to_unsigned(0,W_BITS));
 				coord_prev_y <= std_logic_vector(to_unsigned(0,H_BITS));
@@ -272,44 +273,11 @@ begin
 					when others => null;
 				end case;
 			when wait1 =>
-				if (counter = 0) then
-					c_state <= set_coordinations;
-					o_busy <= '1';
+				if (i_draw = '1') then
+					c_state <= send_character;
 				else
 					c_state <= wait1;
 				end if;
-			when set_coordinations =>
-				c_state <= send_character;
---				busy_prev <= i2c_busy;
---				if (busy_prev = '0' and i2c_busy = '1') then
---					busy_cnt <= busy_cnt + 1;
---				end if;
---				case busy_cnt is
---					when 0 =>
---						i2c_ena <= '1'; -- we are busy
---						i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
---						i2c_rw <= '0';
---						--i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,BYTE_SIZE));
---					when 1 =>
---						--i2c_data_wr <= x"21";
---					when 2 =>
---						--i2c_data_wr <= std_logic_vector(to_unsigned(0,BYTE_SIZE-W_BITS))&i_x; -- XXX
---					when 3 =>
---						--i2c_data_wr <= std_logic_vector(to_unsigned(WIDTH-1,BYTE_SIZE));
---					when 4 =>
---						--i2c_data_wr <= x"22";
---					when 5 =>
---						--i2c_data_wr <= std_logic_vector(to_unsigned(0,BYTE_SIZE-H_BITS))&i_y; -- XXX
---					when 6 =>
---						--i2c_data_wr <= std_logic_vector(to_unsigned(HEIGHT-1,BYTE_SIZE));
---					when 7 =>
---						i2c_ena <= '0';
---						if (i2c_busy = '0') then
---							busy_cnt <= 0;
---							c_state <= send_character;
---						end if;
---					when others => null;
---				end case;
 			when send_character =>
 				busy_prev <= i2c_busy;
 				if (busy_prev = '0' and i2c_busy = '1') then
@@ -321,6 +289,7 @@ begin
 						i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 						i2c_rw <= '0';
 						i2c_data_wr <= std_logic_vector(to_unsigned(OLED_DATA,BYTE_SIZE));
+						o_busy <= '1';
 					when 1 =>
 						i2c_data_wr <= i_byte;
 					when 2 =>
@@ -328,17 +297,59 @@ begin
 						if (i2c_busy = '0') then
 							busy_cnt <= 0;
 							c_state <= wait2;
+							o_busy <= '0';
 						end if;
 					when others => null;
 				end case;
 			when wait2 =>
+				i2c_ena <= '0';
+				o_busy <= '0';
+				coord_prev_x <= i_x;
+				coord_prev_y <= i_y;
+				busy_cnt <= 0;
 				if (counter = 0) then
-					c_state <= wait1;
-					o_busy <= '0';
-					counter <= COUNTER_WAIT1;
-				else
-					c_state <= wait2;
+					if (coord_prev_y /= i_y) then
+						c_state <= wait3;
+					else
+						if (coord_prev_x /= i_x) then
+							c_state <= send_character;
+						end if;
+					end if;
+				end if;   
+			when wait3 =>
+				busy_prev <= i2c_busy;
+				if (busy_prev = '0' and i2c_busy = '1') then
+					busy_cnt <= busy_cnt + 1;
 				end if;
+				case busy_cnt is
+					when 0 =>
+						i2c_ena <= '1'; -- we are busy
+						i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
+						i2c_rw <= '0';
+						i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,BYTE_SIZE));
+						o_busy <= '1';
+					when 1 =>
+						i2c_data_wr <= x"21";
+					when 2 =>
+						i2c_data_wr <= std_logic_vector(to_unsigned(0,BYTE_SIZE-W_BITS))&i_x; -- XXX
+					when 3 =>
+						i2c_data_wr <= std_logic_vector(to_unsigned(WIDTH-1,BYTE_SIZE));
+					when 4 =>
+						i2c_data_wr <= x"22";
+					when 5 =>
+					i2c_data_wr <= std_logic_vector(to_unsigned(0,BYTE_SIZE-H_BITS))&i_y; -- XXX
+					when 6 =>
+						i2c_data_wr <= std_logic_vector(to_unsigned(HEIGHT-1,BYTE_SIZE));
+					when 7 =>
+						i2c_ena <= '0';
+						if (i2c_busy = '0') then
+							busy_cnt <= 0;
+							counter <= COUNTER_WAIT1-1;
+							c_state <= wait1;
+							o_busy <= '0';
+						end if;
+					when others => null;
+				end case;
 			when stop =>
 				i2c_ena <= '0';
 				c_state <= idle;
