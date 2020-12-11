@@ -233,7 +233,25 @@ signal LCDChar : LCDHex;
 begin
 
 i_reset <= btn_1;
-LCDChar <= (o_MemDB(3 downto 0),o_MemDB(7 downto 4),o_MemDB(11 downto 8),o_MemDB(15 downto 12));
+
+pa : process (clk_1s) is
+	variable flag : boolean := false;
+	variable counter : integer := 0;
+begin
+	if (rising_edge(clk_1s)) then
+		if (flag) then
+			LCDChar <= (io_MemDB(3 downto 0),io_MemDB(7 downto 4),io_MemDB(11 downto 8),io_MemDB(15 downto 12));
+		else
+			LCDChar <= (io_MemAdr(3 downto 0),io_MemAdr(7 downto 4),io_MemAdr(11 downto 8),io_MemAdr(15 downto 12));
+		end if;
+		if (counter < 1) then
+			counter := counter + 1;
+		else
+			flag := not flag;
+			counter := 0;
+		end if;
+	end if;
+end process pa;
 
 c_lcd_display : lcd_display
 Port Map (
@@ -340,7 +358,7 @@ begin
 			when copy_first_halfword =>
 				cstate <= disable_write_fh;
 				i_MemAdr <= std_logic_vector(to_unsigned(startAddress + 0,G_MemoryAddress));
-				i_MemDB <= m1(rowIndex)(16 to 31);
+				i_MemDB <= m1(rowIndex)(0 to 15);
 			when disable_write_fh =>
 				cstate <= memory_wait_fh;
 				i_write <= '0';
@@ -356,7 +374,7 @@ begin
 			when copy_second_halfword =>
 				cstate <= disable_write_sh;
 				i_MemAdr <= std_logic_vector(to_unsigned(startAddress + 1,G_MemoryAddress));
-				i_MemDB <= m1(rowIndex)(0 to 15);
+				i_MemDB <= m1(rowIndex)(16 to 31);
 			when disable_write_sh =>
 				cstate <= memory_wait_sh;
 				i_write <= '0';
@@ -380,6 +398,7 @@ begin
 			when idle =>
 				if (display_initialize = '1') then
 					cstate <= display_is_initialize;
+					i_MemDB <= (others=> '0');
 				else
 					cstate <= idle;
 				end if;
