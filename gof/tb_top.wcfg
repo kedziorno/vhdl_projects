@@ -333,9 +333,21 @@
          <obj_property name="ElementShortName">i_clock</obj_property>
          <obj_property name="ObjectShortName">i_clock</obj_property>
       </wvobject>
+      <wvobject fp_name="/tb_top/uut/mm/i_enable" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_enable</obj_property>
+         <obj_property name="ObjectShortName">i_enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/mm/i_write" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_write</obj_property>
+         <obj_property name="ObjectShortName">i_write</obj_property>
+      </wvobject>
       <wvobject fp_name="/tb_top/uut/mm/i_read" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">i_read</obj_property>
          <obj_property name="ObjectShortName">i_read</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/mm/o_busy" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_busy</obj_property>
+         <obj_property name="ObjectShortName">o_busy</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/mm/i_memadr" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">i_memadr[23:0]</obj_property>
@@ -394,18 +406,6 @@
          <obj_property name="ElementShortName">io_memdb[15:0]</obj_property>
          <obj_property name="ObjectShortName">io_memdb[15:0]</obj_property>
          <obj_property name="Radix">BINARYRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/mm/i_enable" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">i_enable</obj_property>
-         <obj_property name="ObjectShortName">i_enable</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/mm/i_write" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">i_write</obj_property>
-         <obj_property name="ObjectShortName">i_write</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/mm/o_busy" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">o_busy</obj_property>
-         <obj_property name="ObjectShortName">o_busy</obj_property>
       </wvobject>
    </wvobject>
 </wave_config>
