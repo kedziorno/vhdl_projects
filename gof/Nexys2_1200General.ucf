@@ -54,14 +54,14 @@ NET "io_MemWR"       LOC = "N7";      # Bank = 2, Pin name = IO_L07P_2, Type = I
 
 NET "io_RamAdv"      LOC = "J4";      # Bank = 3, Pin name = IO_L11N_3/LHCLK1, Type = LHCLK,                Sch name = MT-ADV
 NET "io_RamCS"       LOC = "R6";      # Bank = 2, Pin name = IO_L05P_2, Type = I/O,                         Sch name = MT-CE
-#NET "RamClk"      LOC = "H5";      # Bank = 3, Pin name = IO_L08N_3, Type = I/O,                         Sch name = MT-CLK
+NET "io_RamClk"      LOC = "H5";      # Bank = 3, Pin name = IO_L08N_3, Type = I/O,                         Sch name = MT-CLK
 NET "io_RamCRE"      LOC = "P7";      # Bank = 2, Pin name = IO_L07N_2, Type = I/O,                         Sch name = MT-CRE
 NET "io_RamLB"       LOC = "K5";      # Bank = 3, Pin name = IO_L14N_3/LHCLK7, Type = LHCLK,                Sch name = MT-LB
 NET "io_RamUB"       LOC = "K4";      # Bank = 3, Pin name = IO_L13N_3/LHCLK5, Type = LHCLK,                Sch name = MT-UB
 #NET "RamWait"     LOC = "F5";      # Bank = 3, Pin name = IP, Type = INPUT,                              Sch name = MT-WAIT
 
 #NET "FlashRp"     LOC = "T5";      # Bank = 2, Pin name = IO_L04N_2, Type = I/O,                         Sch name = RP#
-#NET "FlashCS"     LOC = "R5";      # Bank = 2, Pin name = IO_L04P_2, Type = I/O,                         Sch name = ST-CE
+NET "io_FlashCS"     LOC = "R5";      # Bank = 2, Pin name = IO_L04P_2, Type = I/O,                         Sch name = ST-CE
 #NET "FlashStSts"  LOC = "D3";      # Bank = 3, Pin name = IP, Type = INPUT,                              Sch name = ST-STS
 
 NET "io_MemAdr<1>"   LOC = "J1";      # Bank = 3, Pin name = IO_L12P_3/LHCLK2, Type = LHCLK,                Sch name = ADR1

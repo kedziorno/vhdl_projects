@@ -3,7 +3,7 @@
    <wave_state>
    </wave_state>
    <db_ref_list>
-      <db_ref path="./tb_top_isim.beh.wdb" id="1" type="auto">
+      <db_ref path="/home/user/workspace/vhdl_projects/gof/memorymodule_isim_beh.wdb" id="1" type="auto">
          <top_modules>
             <top_module name="numeric_std" />
             <top_module name="p_memory_content" />
@@ -14,12 +14,12 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="11" />
+   <WVObjectSize size="10" />
    <wave_markers>
       <marker time="371574330000000" label="" />
       <marker time="50523230000000" label="" />
-      <marker time="1279555910000000" label="" />
       <marker time="500110000000" label="" />
+      <marker time="1151367890000000" label="" />
    </wave_markers>
    <wvobject fp_name="/tb_top/clk" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">clk</obj_property>
@@ -85,8 +85,8 @@
          <obj_property name="ObjectShortName">io_ramcre</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/io_memadr" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">io_memadr[23:0]</obj_property>
-         <obj_property name="ObjectShortName">io_memadr[23:0]</obj_property>
+         <obj_property name="ElementShortName">io_memadr[23:1]</obj_property>
+         <obj_property name="ObjectShortName">io_memadr[23:1]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/io_memdb" type="array" db_ref_id="1">
@@ -114,6 +114,21 @@
          <obj_property name="ObjectShortName">col_block[1:0]</obj_property>
          <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
+      <wvobject fp_name="/tb_top/uut/startaddress" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">startaddress[23:0]</obj_property>
+         <obj_property name="ObjectShortName">startaddress[23:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/startaddress0" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">startaddress0[23:0]</obj_property>
+         <obj_property name="ObjectShortName">startaddress0[23:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/startaddress1" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">startaddress1[23:0]</obj_property>
+         <obj_property name="ObjectShortName">startaddress1[23:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
       <wvobject fp_name="/tb_top/uut/all_pixels" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">all_pixels</obj_property>
          <obj_property name="ObjectShortName">all_pixels</obj_property>
@@ -136,8 +151,8 @@
          <obj_property name="ObjectShortName">i_read</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/i_memadr" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">i_memadr[23:0]</obj_property>
-         <obj_property name="ObjectShortName">i_memadr[23:0]</obj_property>
+         <obj_property name="ElementShortName">i_memadr[23:1]</obj_property>
+         <obj_property name="ObjectShortName">i_memadr[23:1]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/i_memdb" type="array" db_ref_id="1">
@@ -158,10 +173,6 @@
          <obj_property name="ElementShortName">seg[6:0]</obj_property>
          <obj_property name="ObjectShortName">seg[6:0]</obj_property>
       </wvobject>
-   </wvobject>
-   <wvobject fp_name="/tb_top/uut/seg" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">seg[6:0]</obj_property>
-      <obj_property name="ObjectShortName">seg[6:0]</obj_property>
    </wvobject>
    <wvobject fp_name="group47" type="group">
       <obj_property name="label">ports</obj_property>
@@ -351,8 +362,8 @@
          <obj_property name="ObjectShortName">o_busy</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/mm/i_memadr" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">i_memadr[23:0]</obj_property>
-         <obj_property name="ObjectShortName">i_memadr[23:0]</obj_property>
+         <obj_property name="ElementShortName">i_memadr[23:1]</obj_property>
+         <obj_property name="ObjectShortName">i_memadr[23:1]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/mm/i_memdb" type="array" db_ref_id="1">
@@ -393,9 +404,13 @@
          <obj_property name="ElementShortName">io_ramcre</obj_property>
          <obj_property name="ObjectShortName">io_ramcre</obj_property>
       </wvobject>
+      <wvobject fp_name="/tb_top/uut/mm/io_ramclk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">io_ramclk</obj_property>
+         <obj_property name="ObjectShortName">io_ramclk</obj_property>
+      </wvobject>
       <wvobject fp_name="/tb_top/uut/mm/io_memadr" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">io_memadr[23:0]</obj_property>
-         <obj_property name="ObjectShortName">io_memadr[23:0]</obj_property>
+         <obj_property name="ElementShortName">io_memadr[23:1]</obj_property>
+         <obj_property name="ObjectShortName">io_memadr[23:1]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/mm/io_memdb" type="array" db_ref_id="1">
