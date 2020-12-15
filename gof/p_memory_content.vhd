@@ -17,7 +17,8 @@ package p_memory_content is
 	constant G_ClockDivider : integer := 10000;
 	constant G_MemoryAddress : integer := 24;
 	constant G_MemoryData : integer := 16;
-	subtype MemoryAddress is std_logic_vector(G_MemoryAddress-1 downto 0);
+	subtype MemoryAddress is std_logic_vector(G_MemoryAddress-1 downto 1);
+	subtype MemoryAddressALL is std_logic_vector(G_MemoryAddress-1 downto 0);
 	subtype MemoryDataByte is std_logic_vector(G_MemoryData-1 downto 0);
 	constant G_HalfHex : integer := 4;
 	constant G_FullHex : integer := G_HalfHex*2;

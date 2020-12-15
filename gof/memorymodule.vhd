@@ -23,7 +23,7 @@ use WORK.p_memory_content.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
--- use IEEE.NUMERIC_STD.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
@@ -37,9 +37,9 @@ i_enable : in std_logic;
 i_write : in std_logic;
 i_read : in std_logic;
 o_busy : out std_logic;
-i_MemAdr : in std_logic_vector(G_MemoryAddress-1 downto 0);
-i_MemDB : in std_logic_vector(G_MemoryData-1 downto 0);
-o_MemDB : out std_logic_vector(G_MemoryData-1 downto 0);
+i_MemAdr : in MemoryAddress;
+i_MemDB : in MemoryDataByte;
+o_MemDB : out MemoryDataByte;
 io_MemOE : out std_logic;
 io_MemWR : out std_logic;
 io_RamAdv : out std_logic;
@@ -47,8 +47,9 @@ io_RamCS : out std_logic;
 io_RamLB : out std_logic;
 io_RamCRE : out std_logic;
 io_RamUB : out std_logic;
-io_MemAdr : out std_logic_vector(G_MemoryAddress-1 downto 0);
-io_MemDB : inout std_logic_vector(G_MemoryData-1 downto 0)
+io_RamClk : out std_logic;
+io_MemAdr : out MemoryAddress;
+io_MemDB : inout MemoryDataByte
 );
 end memorymodule;
 
@@ -68,12 +69,38 @@ architecture Behavioral of memorymodule is
 	);
 	signal cstate : state;
 
+	signal MemOE : std_logic;
+	signal MemWR : std_logic;
+	signal RamAdv : std_logic;
+	signal RamCS : std_logic;
+	signal RamLB : std_logic;
+	signal RamCRE : std_logic;
+	signal RamUB : std_logic;
+	signal RamClk : std_logic;
+	signal MemAdr : MemoryAddress;
+	signal MemDB : MemoryDataByte;
+
 begin
 
-	io_RamLB <= '0';
-	io_RamUB <= '0';
-	io_RamCRE <= '0';
-	io_RamAdv <= '0';
+	io_MemOE <= MemOE;
+	io_MemWR <= MemWR;
+	io_RamAdv <= RamAdv;
+	io_RamCS <= RamCS;
+	io_RamLB <= RamLB;
+	io_RamCRE <= RamCRE;
+	io_RamUB <= RamUB;
+	io_RamClk <= RamClk;
+	io_MemAdr <= MemAdr;
+
+	RamLB <= '0';
+	RamUB <= '0';
+	RamCRE <= '0';
+	RamAdv <= '0';
+	RamClk <= '0';
+
+	MemAdr <= i_MemAdr when (RamCS = '0' and (MemWR = '0' or MemOE = '0')) else (others => 'Z');
+	o_MemDB <= io_MemDB when (cstate = idle) else (others => 'Z');
+	io_MemDB <= i_MemDB when (RamCS = '0' and MemWR = '0') else (others => 'Z');
 
 	p0 : process (i_clock) is
 		constant cw : integer := 6;
@@ -92,12 +119,6 @@ begin
 					else
 						cstate <= idle;
 					end if;
-					io_RamCS <= '1';
-					io_MemOE <= '1';
-					io_MemWR <= '1';
-					io_MemAdr <= (others => 'Z');
-					io_MemDB <= (others => 'Z');
-					o_MemDB <= (others => 'Z');
 				when start =>
 					if (i_write = '1') then
 						cstate <= write_setup;
@@ -106,23 +127,21 @@ begin
 					else
 						cstate <= start;
 					end if;
-					io_RamCS <= '1';
-					io_MemWR <= '1';
-					io_MemOE <= '1';
+					RamCS <= '1';
+					MemWR <= '1';
+					MemOE <= '1';
 				when write_setup =>
 					if (w = 0) then
 						cstate <= write_enable;
 						o_busy <= '1';
-						io_MemOE <= '1';
-						io_MemAdr <= i_MemAdr;
-						io_MemDB <= i_MemDB;
+						MemOE <= '1';
 					else
 						cstate <= write_setup;
 					end if;
 				when write_enable =>
 					cstate <= wait1;
-					io_MemWR <= '0';
-					io_RamCS <= '0';
+					MemWR <= '0';
+					RamCS <= '0';
 					w := cw;
 				when wait1 =>
 					if (w = 0) then
@@ -132,21 +151,19 @@ begin
 					end if;
 				when write_disable =>
 					cstate <= stop;
-					io_RamCS <= '1';
-					io_MemWR <= '1';
+					RamCS <= '1';
+					MemWR <= '1';
 				when read_setup =>
 					if (w = 0) then
 						cstate <= read1;
-						io_RamCS <= '0';
-						io_MemOE <= '0';
-						io_MemAdr <= i_MemAdr;
-						io_MemDB <= (others => 'Z');
+						RamCS <= '0';
+						MemOE <= '0';
+						o_busy <= '1';
 					else
 						cstate <= read_setup;
 					end if;
 				when read1 =>
 					cstate <= wait2;
-					o_MemDB <= io_MemDB;
 					w := cw;
 				when wait2 =>
 					if (w = 0) then
@@ -157,11 +174,8 @@ begin
 				when stop =>
 					cstate <= idle;
 					o_busy <= '0';
-					io_RamCS <= '1';
-					io_MemOE <= '1';
-					io_MemAdr <= (others => 'Z');
-					io_MemDB <= (others => 'Z');
-					o_MemDB <= (others => 'Z');
+					RamCS <= '1';
+					MemOE <= '1';
 				when others => null;
 			end case;
 		end if;

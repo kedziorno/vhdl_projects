@@ -51,10 +51,12 @@ signal io_RamCRE : inout std_logic;
 signal io_RamLB : inout std_logic;
 signal io_RamUB : inout std_logic;
 signal io_RamWait : inout std_logic;
-signal io_MemAdr : inout std_logic_vector(G_MemoryAddress-1 downto 0);
-signal io_MemDB : inout std_logic_vector(G_MemoryData-1 downto 0);
+signal io_RamClk : inout std_logic;
+signal io_MemAdr : inout MemoryAddress;
+signal io_MemDB : inout MemoryDataByte;
 signal seg : inout std_logic_vector(6 downto 0);
-signal an : inout std_logic_vector(3 downto 0)
+signal an : inout std_logic_vector(3 downto 0);
+signal io_FlashCS : out std_logic
 );
 end top;
 
@@ -114,9 +116,9 @@ i_enable : in std_logic;
 i_write : in std_logic;
 i_read : in std_logic;
 o_busy : out std_logic;
-i_MemAdr : in std_logic_vector(G_MemoryAddress-1 downto 0);
-i_MemDB : in std_logic_vector(G_MemoryData-1 downto 0);
-o_MemDB : out std_logic_vector(G_MemoryData-1 downto 0);
+i_MemAdr : in MemoryAddress;
+i_MemDB : in MemoryDataByte;
+o_MemDB : out MemoryDataByte;
 io_MemOE : out std_logic;
 io_MemWR : out std_logic;
 io_RamAdv : out std_logic;
@@ -124,8 +126,9 @@ io_RamCS : out std_logic;
 io_RamLB : out std_logic;
 io_RamUB : out std_logic;
 io_RamCRE : out std_logic;
-io_MemAdr : out std_logic_vector(G_MemoryAddress-1 downto 0);
-io_MemDB : inout std_logic_vector(G_MemoryData-1 downto 0)
+io_RamClk : out std_logic;
+io_MemAdr : out MemoryAddress;
+io_MemDB : inout MemoryDataByte
 );
 end component memorymodule;
 for all : memorymodule use entity WORK.memorymodule(Behavioral);
@@ -196,9 +199,9 @@ signal i_write : std_logic;
 signal i_read : std_logic;
 signal o_membusy : std_logic;
 signal o_disbusy : std_logic;
-signal i_MemAdr : std_logic_vector(G_MemoryAddress-1 downto 0);
-signal i_MemDB : std_logic_vector(G_MemoryData-1 downto 0);
-signal o_MemDB : std_logic_vector(G_MemoryData-1 downto 0);
+signal i_MemAdr : MemoryAddress;
+signal i_MemDB : MemoryDataByte;
+signal o_MemDB : MemoryDataByte;
 constant W : integer := 1;
 signal waiting : integer range W-1 downto 0 := 0;
 signal ppX : std_logic_vector(ROWS_BITS-1 downto 0);
@@ -230,28 +233,60 @@ end function To_Std_Logic;
 
 signal LCDChar : LCDHex;
 
+signal o_Mem1 : MemoryDataByte;
+signal o_Mem2 : MemoryDataByte;
+
+signal MemOE : std_logic;
+signal MemWR : std_logic;
+signal RamAdv : std_logic;
+signal RamCS : std_logic;
+signal RamLB : std_logic;
+signal RamUB : std_logic;
+signal RamCRE : std_logic;
+signal RamClk : std_logic;
+signal MemAdr : MemoryAddress;
+signal MemDB : MemoryDataByte;
+
+constant startAddressValue : integer := 0;
+signal startAddress : MemoryAddressALL := std_logic_vector(to_unsigned(startAddressValue,G_MemoryAddress));
+signal startAddress0 : MemoryAddressALL;
+signal startAddress1 : MemoryAddressALL;
+
 begin
+
+io_FlashCS <= '1'; -- flash is always off
+
+io_MemOE <= MemOE;
+io_MemWR <= MemWR;
+io_RamAdv <= RamAdv;
+io_RamCS <= RamCS;
+io_RamLB <= RamLB;
+io_RamUB <= RamUB;
+io_RamCRE <= RamCRE;
+io_RamClk <= RamClk;
+io_MemAdr <= MemAdr;
+io_MemDB <= MemDB;
 
 i_reset <= btn_1;
 
-pa : process (clk_1s) is
-	variable flag : boolean := false;
-	variable counter : integer := 0;
-begin
-	if (rising_edge(clk_1s)) then
-		if (flag) then
-			LCDChar <= (io_MemDB(3 downto 0),io_MemDB(7 downto 4),io_MemDB(11 downto 8),io_MemDB(15 downto 12));
-		else
-			LCDChar <= (io_MemAdr(3 downto 0),io_MemAdr(7 downto 4),io_MemAdr(11 downto 8),io_MemAdr(15 downto 12));
-		end if;
-		if (counter < 1) then
-			counter := counter + 1;
-		else
-			flag := not flag;
-			counter := 0;
-		end if;
-	end if;
-end process pa;
+--pa : process (clk_1s) is
+--	variable flag : boolean := false;
+--	variable counter : integer := 0;
+--begin
+--	if (rising_edge(clk_1s)) then
+--		if (flag) then
+--			LCDChar <= (MemDB(3 downto 0),MemDB(7 downto 4),MemDB(11 downto 8),MemDB(15 downto 12));
+--		else
+--			LCDChar <= (MemAdr(3 downto 0),MemAdr(7 downto 4),MemAdr(11 downto 8),MemAdr(15 downto 12));
+--		end if;
+--		if (counter < 1) then
+--			counter := counter + 1;
+--		else
+--			flag := not flag;
+--			counter := 0;
+--		end if;
+--	end if;
+--end process pa;
 
 c_lcd_display : lcd_display
 Port Map (
@@ -302,19 +337,20 @@ mm : memorymodule PORT MAP (
 	i_MemAdr => i_MemAdr,
 	i_MemDB => i_MemDB,
 	o_MemDB => o_MemDB,
-	io_MemOE => io_MemOE,
-	io_MemWR => io_MemWR,
-	io_RamAdv => io_RamAdv,
-	io_RamCS => io_RamCS,
-	io_RamLB => io_RamLB,
-	io_RamUB => io_RamUB,
-	io_RamCRE => io_RamCRE,
-	io_MemAdr => io_MemAdr,
-	io_MemDB => io_MemDB
+	io_MemOE => MemOE,
+	io_MemWR => MemWR,
+	io_RamAdv => RamAdv,
+	io_RamCS => RamCS,
+	io_RamLB => RamLB,
+	io_RamUB => RamUB,
+	io_RamCRE => RamCRE,
+	io_RamClk => RamClk,
+	io_MemAdr => MemAdr,
+	io_MemDB => MemDB
 );
 
 gof_logic : process (clk_1s,i_reset) is
-	constant W : integer := 10;
+	constant W : integer := 1;
 	variable waiting : integer range W downto 0 := W;
 	variable vppX : natural range 0 to ROWS-1;
 	variable vppYb : natural range 0 to COLS_BLOCK-1;
@@ -326,10 +362,7 @@ gof_logic : process (clk_1s,i_reset) is
 	variable vcountAlive : integer;
 	variable vCellAlive : boolean;
 	variable m1 : MEMORY := memory_content;
-	variable startAddress : integer;
 	variable rowIndex : integer range 0 to ROWS-1;
-	variable o_Mem1 : MemoryDataByte;
-	variable o_Mem2 : MemoryDataByte;
 begin
 	if (i_reset = '1') then
 		all_pixels <= '0';
@@ -338,6 +371,8 @@ begin
 		vppYp := 0;
 		cstate <= set_cd_memorycopy;
 	elsif (rising_edge(clk_1s)) then
+		startAddress0 <= std_logic_vector(to_unsigned(to_integer(unsigned(startAddress))+0,G_MemoryAddress));
+		startAddress1 <= std_logic_vector(to_unsigned(to_integer(unsigned(startAddress))+1,G_MemoryAddress));
 		if (waiting > 0) then
 			waiting := waiting - 1;
 		end if;
@@ -346,7 +381,7 @@ begin
 			when set_cd_memorycopy =>
 				cstate <= enable_memory_module;
 				CD <= CD_CALCULATE;
-				startAddress := 0;
+				startAddress <= std_logic_vector(to_unsigned(startAddressValue,G_MemoryAddress));
 				rowIndex := 0;
 				draw <= '0';
 			when enable_memory_module =>
@@ -357,7 +392,7 @@ begin
 				i_write <= '1';
 			when copy_first_halfword =>
 				cstate <= disable_write_fh;
-				i_MemAdr <= std_logic_vector(to_unsigned(startAddress + 0,G_MemoryAddress));
+				i_MemAdr <= startAddress0(G_MemoryAddress-1 downto 1);
 				i_MemDB <= m1(rowIndex)(0 to 15);
 			when disable_write_fh =>
 				cstate <= memory_wait_fh;
@@ -373,7 +408,7 @@ begin
 				i_write <= '1';
 			when copy_second_halfword =>
 				cstate <= disable_write_sh;
-				i_MemAdr <= std_logic_vector(to_unsigned(startAddress + 1,G_MemoryAddress));
+				i_MemAdr <= startAddress1(G_MemoryAddress-1 downto 1);
 				i_MemDB <= m1(rowIndex)(16 to 31);
 			when disable_write_sh =>
 				cstate <= memory_wait_sh;
@@ -390,11 +425,12 @@ begin
 			when check_ranges_write =>
 				if (rowIndex < ROWS-1) then
 					cstate <= enable_memory_module;
-					startAddress := startAddress + 2;
+					startAddress <= std_logic_vector(to_unsigned(to_integer(unsigned(startAddress))+2,G_MemoryAddress));
 					rowIndex := rowIndex + 1;
 				else
 					cstate <= idle;
 				end if;
+			-- display content from memory
 			when idle =>
 				if (display_initialize = '1') then
 					cstate <= display_is_initialize;
@@ -408,7 +444,7 @@ begin
 				vppYb := 0;
 				vppYp := 0;
 				all_pixels <= '0';
-				startAddress := 0;
+				startAddress <= std_logic_vector(to_unsigned(startAddressValue,G_MemoryAddress));
 				rowIndex := 0;
 				CD <= CD_DISPLAY;
 				draw <= '1';
@@ -420,15 +456,15 @@ begin
 				i_read <= '1';
 			when read_fh =>
 				cstate <= store_fh;
-				i_MemAdr <= std_logic_vector(to_unsigned(startAddress + 0,G_MemoryAddress));
+				i_MemAdr <= startAddress0(G_MemoryAddress-1 downto 1);
 			when store_fh =>
 				cstate <= disable_read_memory_fh;
-				o_Mem1 := o_MemDB;
+				--o_Mem1 <= o_MemDB;
 			when disable_read_memory_fh =>
 				cstate <= disable_memory_module_read_fh;
 				i_read <= '0';
 			when disable_memory_module_read_fh =>
-				cstate <= wait_two_reads;
+				cstate <= send_fh1;
 				i_enable <= '0';
 				waiting := W;
 			when wait_two_reads =>
@@ -445,21 +481,21 @@ begin
 				i_read <= '1';
 			when read_sh =>
 				cstate <= store_sh;
-				i_MemAdr <= std_logic_vector(to_unsigned(startAddress + 1,G_MemoryAddress));
+				i_MemAdr <= startAddress1(G_MemoryAddress-1 downto 1);
 			when store_sh =>
 				cstate <= disable_read_memory_sh;
-				o_Mem2 := o_MemDB;
+				--o_Mem2 <= o_MemDB;
 			when disable_read_memory_sh =>
 				cstate <= disable_memory_module_read_sh;
 				i_read <= '0';
 			when disable_memory_module_read_sh =>
-				cstate <= send_fh1;
+				cstate <= send_sh1;
 				i_enable <= '0';
 			when send_fh1 =>
 				cstate <= send_fh1_waitdisplay;
 				row <= std_logic_vector(to_unsigned(rowIndex,ROWS_BITS));
 				col_block <= std_logic_vector(to_unsigned(0,COLS_BLOCK_BITS));
-				display_byte <= o_Mem1(15 downto 8);
+				display_byte <= o_MemDB(15 downto 8);
 			when send_fh1_waitdisplay =>
 				if (o_disbusy = '1') then
 					cstate <= send_fh1_waitdisplay;
@@ -470,18 +506,18 @@ begin
 				cstate <= send_fh2_waitdisplay;
 				row <= std_logic_vector(to_unsigned(rowIndex,ROWS_BITS));
 				col_block <= std_logic_vector(to_unsigned(1,COLS_BLOCK_BITS));
-				display_byte <= o_Mem1(7 downto 0);
+				display_byte <= o_MemDB(7 downto 0);
 			when send_fh2_waitdisplay =>
 				if (o_disbusy = '1') then
 					cstate <= send_fh2_waitdisplay;
 				else
-					cstate <= send_sh1;
+					cstate <= enable_memory_module_read_sh;
 				end if;
 			when send_sh1 =>
 				cstate <= send_sh1_waitdisplay;
 				row <= std_logic_vector(to_unsigned(rowIndex,ROWS_BITS));
 				col_block <= std_logic_vector(to_unsigned(2,COLS_BLOCK_BITS));
-				display_byte <= o_Mem2(15 downto 8);
+				display_byte <= o_MemDB(15 downto 8);
 			when send_sh1_waitdisplay =>
 				if (o_disbusy = '1') then
 					cstate <= send_sh1_waitdisplay;
@@ -492,7 +528,7 @@ begin
 				cstate <= send_sh2_waitdisplay;
 				row <= std_logic_vector(to_unsigned(rowIndex,ROWS_BITS));
 				col_block <= std_logic_vector(to_unsigned(3,COLS_BLOCK_BITS));
-				display_byte <= o_Mem2(7 downto 0);
+				display_byte <= o_MemDB(7 downto 0);
 			when send_sh2_waitdisplay =>
 				if (o_disbusy = '1') then
 					cstate <= send_sh2_waitdisplay;
@@ -502,7 +538,7 @@ begin
 			when check_ranges_read =>
 				if (rowIndex < ROWS-1) then
 					cstate <= enable_memory_module_read_fh;
-					startAddress := startAddress + 2;
+					startAddress <= std_logic_vector(to_unsigned(to_integer(unsigned(startAddress))+2,G_MemoryAddress));
 					rowIndex := rowIndex + 1;
 				else
 					cstate <= memory_enable_byte;
