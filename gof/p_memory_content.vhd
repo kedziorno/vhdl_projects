@@ -38,6 +38,8 @@ package p_memory_content is
 	type LCDHex is array(G_LCDAnode-1 downto 0) of std_logic_vector(G_HalfHex-1 downto 0);
 	subtype WORD is std_logic_vector(0 to WORD_BITS-1);
 	type MEMORY is array(0 to ROWS-1) of WORD;
+	type LiveSubArray is array(WORD_BITS-1 downto 0) of std_logic_vector(2 downto 0);
+	type LiveArrayType is array(ROWS-1 downto 0) of LiveSubArray;
 
 	constant memory_content : MEMORY :=
 	( -- f              0f              0
