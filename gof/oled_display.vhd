@@ -294,6 +294,7 @@ begin
 					end if;
 				end if;   
 			when wait3 =>
+				--c_state <= send_character; -- xxx maybe delete send coords
 				busy_prev <= i2c_busy;
 				if (busy_prev = '0' and i2c_busy = '1') then
 					busy_cnt <= busy_cnt + 1;
