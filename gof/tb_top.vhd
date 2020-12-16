@@ -64,7 +64,7 @@ ARCHITECTURE behavior OF tb_top IS
 		signal io_RamLB : inout std_logic;
 		signal io_RamUB : inout std_logic;
 		signal io_RamWait : inout std_logic;
-		signal io_MemAdr : inout MemoryAddress;
+		signal io_MemAdr : inout MemoryAddressALL;
 		signal io_MemDB : inout MemoryDataByte
 	);
 	END COMPONENT;
@@ -76,7 +76,7 @@ ARCHITECTURE behavior OF tb_top IS
 	signal RamLB : std_logic;
 	signal RamUB : std_logic;
 	signal RamCRE : std_logic;
-	signal MemAdr : MemoryAddress := (others => 'Z');
+	signal MemAdr : MemoryAddressALL := (others => 'Z');
 	signal MemDB : MemoryDataByte := (others => 'Z');
 
    --Inputs

@@ -52,7 +52,7 @@ signal io_RamLB : inout std_logic;
 signal io_RamUB : inout std_logic;
 signal io_RamWait : inout std_logic;
 signal io_RamClk : inout std_logic;
-signal io_MemAdr : inout MemoryAddress;
+signal io_MemAdr : inout MemoryAddressALL;
 signal io_MemDB : inout MemoryDataByte;
 signal seg : inout std_logic_vector(6 downto 0);
 signal an : inout std_logic_vector(3 downto 0);
@@ -116,7 +116,7 @@ i_enable : in std_logic;
 i_write : in std_logic;
 i_read : in std_logic;
 o_busy : out std_logic;
-i_MemAdr : in MemoryAddress;
+i_MemAdr : in MemoryAddressALL;
 i_MemDB : in MemoryDataByte;
 o_MemDB : out MemoryDataByte;
 io_MemOE : out std_logic;
@@ -127,7 +127,7 @@ io_RamLB : out std_logic;
 io_RamUB : out std_logic;
 io_RamCRE : out std_logic;
 io_RamClk : out std_logic;
-io_MemAdr : out MemoryAddress;
+io_MemAdr : out MemoryAddressALL;
 io_MemDB : inout MemoryDataByte
 );
 end component memorymodule;
@@ -199,7 +199,7 @@ signal i_write : std_logic;
 signal i_read : std_logic;
 signal o_membusy : std_logic;
 signal o_disbusy : std_logic;
-signal i_MemAdr : MemoryAddress;
+signal i_MemAdr : MemoryAddressALL;
 signal i_MemDB : MemoryDataByte;
 signal o_MemDB : MemoryDataByte;
 constant W : integer := 1;
@@ -244,7 +244,7 @@ signal RamLB : std_logic;
 signal RamUB : std_logic;
 signal RamCRE : std_logic;
 signal RamClk : std_logic;
-signal MemAdr : MemoryAddress;
+signal MemAdr : MemoryAddressALL;
 signal MemDB : MemoryDataByte;
 
 constant startAddressValue : integer := 0;
@@ -269,24 +269,24 @@ io_MemDB <= MemDB;
 
 i_reset <= btn_1;
 
---pa : process (clk_1s) is
---	variable flag : boolean := false;
---	variable counter : integer := 0;
---begin
---	if (rising_edge(clk_1s)) then
---		if (flag) then
---			LCDChar <= (MemDB(3 downto 0),MemDB(7 downto 4),MemDB(11 downto 8),MemDB(15 downto 12));
---		else
---			LCDChar <= (MemAdr(3 downto 0),MemAdr(7 downto 4),MemAdr(11 downto 8),MemAdr(15 downto 12));
---		end if;
---		if (counter < 1) then
---			counter := counter + 1;
---		else
---			flag := not flag;
---			counter := 0;
---		end if;
---	end if;
---end process pa;
+pa : process (clk_1s) is
+	variable flag : boolean := false;
+	variable counter : integer := 0;
+begin
+	if (rising_edge(clk_1s)) then
+		if (flag) then
+			LCDChar <= (MemDB(3 downto 0),MemDB(7 downto 4),MemDB(11 downto 8),MemDB(15 downto 12));
+		else
+			LCDChar <= (MemAdr(3 downto 0),MemAdr(7 downto 4),MemAdr(11 downto 8),MemAdr(15 downto 12));
+		end if;
+		if (counter < 1) then
+			counter := counter + 1;
+		else
+			flag := not flag;
+			counter := 0;
+		end if;
+	end if;
+end process pa;
 
 c_lcd_display : lcd_display
 Port Map (
@@ -392,7 +392,7 @@ begin
 				i_write <= '1';
 			when copy_first_halfword =>
 				cstate <= disable_write_fh;
-				i_MemAdr <= startAddress0(G_MemoryAddress-1 downto 1);
+				i_MemAdr <= startAddress0(G_MemoryAddress-1 downto 0);
 				i_MemDB <= m1(rowIndex)(0 to 15);
 			when disable_write_fh =>
 				cstate <= memory_wait_fh;
@@ -408,7 +408,7 @@ begin
 				i_write <= '1';
 			when copy_second_halfword =>
 				cstate <= disable_write_sh;
-				i_MemAdr <= startAddress1(G_MemoryAddress-1 downto 1);
+				i_MemAdr <= startAddress1(G_MemoryAddress-1 downto 0);
 				i_MemDB <= m1(rowIndex)(16 to 31);
 			when disable_write_sh =>
 				cstate <= memory_wait_sh;
@@ -456,7 +456,7 @@ begin
 				i_read <= '1';
 			when read_fh =>
 				cstate <= store_fh;
-				i_MemAdr <= startAddress0(G_MemoryAddress-1 downto 1);
+				i_MemAdr <= startAddress0(G_MemoryAddress-1 downto 0);
 			when store_fh =>
 				cstate <= disable_read_memory_fh;
 				--o_Mem1 <= o_MemDB;
@@ -481,7 +481,7 @@ begin
 				i_read <= '1';
 			when read_sh =>
 				cstate <= store_sh;
-				i_MemAdr <= startAddress1(G_MemoryAddress-1 downto 1);
+				i_MemAdr <= startAddress1(G_MemoryAddress-1 downto 0);
 			when store_sh =>
 				cstate <= disable_read_memory_sh;
 				--o_Mem2 <= o_MemDB;
@@ -492,10 +492,14 @@ begin
 				cstate <= send_sh1;
 				i_enable <= '0';
 			when send_fh1 =>
-				cstate <= send_fh1_waitdisplay;
-				row <= std_logic_vector(to_unsigned(rowIndex,ROWS_BITS));
-				col_block <= std_logic_vector(to_unsigned(0,COLS_BLOCK_BITS));
-				display_byte <= o_MemDB(15 downto 8);
+				if (o_membusy = '1') then
+					cstate <= send_fh1;
+				else
+					cstate <= send_fh1_waitdisplay;
+					row <= std_logic_vector(to_unsigned(rowIndex,ROWS_BITS));
+					col_block <= std_logic_vector(to_unsigned(0,COLS_BLOCK_BITS));
+					display_byte <= o_MemDB(15 downto 8);
+				end if;
 			when send_fh1_waitdisplay =>
 				if (o_disbusy = '1') then
 					cstate <= send_fh1_waitdisplay;
@@ -503,10 +507,14 @@ begin
 					cstate <= send_fh2;
 				end if;
 			when send_fh2 =>
-				cstate <= send_fh2_waitdisplay;
-				row <= std_logic_vector(to_unsigned(rowIndex,ROWS_BITS));
-				col_block <= std_logic_vector(to_unsigned(1,COLS_BLOCK_BITS));
-				display_byte <= o_MemDB(7 downto 0);
+				if (o_membusy = '1') then
+					cstate <= send_fh2;
+				else
+					cstate <= send_fh2_waitdisplay;
+					row <= std_logic_vector(to_unsigned(rowIndex,ROWS_BITS));
+					col_block <= std_logic_vector(to_unsigned(1,COLS_BLOCK_BITS));
+					display_byte <= o_MemDB(7 downto 0);
+				end if;
 			when send_fh2_waitdisplay =>
 				if (o_disbusy = '1') then
 					cstate <= send_fh2_waitdisplay;
@@ -514,10 +522,14 @@ begin
 					cstate <= enable_memory_module_read_sh;
 				end if;
 			when send_sh1 =>
-				cstate <= send_sh1_waitdisplay;
-				row <= std_logic_vector(to_unsigned(rowIndex,ROWS_BITS));
-				col_block <= std_logic_vector(to_unsigned(2,COLS_BLOCK_BITS));
-				display_byte <= o_MemDB(15 downto 8);
+				if (o_membusy = '1') then
+					cstate <= send_sh1;
+				else
+					cstate <= send_sh1_waitdisplay;
+					row <= std_logic_vector(to_unsigned(rowIndex,ROWS_BITS));
+					col_block <= std_logic_vector(to_unsigned(2,COLS_BLOCK_BITS));
+					display_byte <= o_MemDB(15 downto 8);
+				end if;
 			when send_sh1_waitdisplay =>
 				if (o_disbusy = '1') then
 					cstate <= send_sh1_waitdisplay;
@@ -525,10 +537,14 @@ begin
 					cstate <= send_sh2;
 				end if;
 			when send_sh2 =>
-				cstate <= send_sh2_waitdisplay;
-				row <= std_logic_vector(to_unsigned(rowIndex,ROWS_BITS));
-				col_block <= std_logic_vector(to_unsigned(3,COLS_BLOCK_BITS));
-				display_byte <= o_MemDB(7 downto 0);
+				if (o_membusy = '1') then
+					cstate <= send_sh2;
+				else
+					cstate <= send_sh2_waitdisplay;
+					row <= std_logic_vector(to_unsigned(rowIndex,ROWS_BITS));
+					col_block <= std_logic_vector(to_unsigned(3,COLS_BLOCK_BITS));
+					display_byte <= o_MemDB(7 downto 0);
+				end if;
 			when send_sh2_waitdisplay =>
 				if (o_disbusy = '1') then
 					cstate <= send_sh2_waitdisplay;
