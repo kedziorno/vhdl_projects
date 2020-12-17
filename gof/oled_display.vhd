@@ -245,9 +245,7 @@ begin
 					when others => null;
 				end case;
 			when wait0 =>
-					if (i_byte /= "ZZZZZZZZ") then
-						c_state <= set_address_1;
-					end if;
+				c_state <= set_address_1;
 			when set_address_1 =>
 				coord_prev_x <= std_logic_vector(to_unsigned(0,W_BITS));
 				coord_prev_y <= std_logic_vector(to_unsigned(0,H_BITS));
