@@ -222,7 +222,7 @@ signal LiveArray : LiveArrayType;
 signal CD : integer := DIVIDER_CLOCK; -- XXX
 signal CD_DISPLAY : integer := DIVIDER_CLOCK; -- XXX
 signal CD_CALCULATE : integer := DIVIDER_CLOCK*100; -- XXX
-signal CD_COPYMEMORY : integer := G_BOARD_CLOCK; -- XXX
+signal CD_COPYMEMORY : integer := DIVIDER_CLOCK; -- XXX
 
 function To_Std_Logic(x_vot : BOOLEAN) return std_ulogic is
 begin
@@ -249,7 +249,9 @@ signal RamClk : std_logic;
 signal MemAdr : MemoryAddressALL;
 signal MemDB : MemoryDataByte;
 
-constant startAddressValue : integer := 0;
+constant address1 : integer := 8888;
+constant address2 : integer := 9999;
+constant startAddressValue : integer := address1;
 signal startAddress : MemoryAddressALL := std_logic_vector(to_unsigned(startAddressValue,G_MemoryAddress));
 signal startAddress0 : MemoryAddressALL;
 signal startAddress1 : MemoryAddressALL;
@@ -383,7 +385,7 @@ begin
 			-- copy memory content
 			when set_cd_memorycopy =>
 				cstate <= enable_memory_module;
-				CD <= CD_CALCULATE;
+				CD <= CD_COPYMEMORY;
 				startAddress <= std_logic_vector(to_unsigned(startAddressValue,G_MemoryAddress));
 				rowIndex := 0;
 				draw <= '0';
@@ -850,7 +852,7 @@ begin
 				vppYp := 0;
 			when memory_enable_bit1 =>
 				cstate <= get_alive;
-				i_mem_e_bit <= '1';
+				i_enable <= '1';
 			when get_alive =>
 				cstate <= get_alive1;
 				row <= ppX;
@@ -865,7 +867,7 @@ begin
 				end if;
 			when enable_write_to_memory =>
 				cstate <= write_count_alive;
-				i_mem_write_bit <= '1';
+				i_write <= '1';
 			when write_count_alive =>
 				cstate <= disable_write_to_memory;
 				if (vCellAlive = true) then
@@ -883,8 +885,7 @@ begin
 				end if;
 			when disable_write_to_memory =>
 				cstate <= update_row2;
-				i_mem_write_bit <= '0';
-				i_bit <= '0';
+				i_write <= '0';
 			when update_row2 =>
 				if (vppX < ROWS-1) then
 					vppX := vppX + 1;
@@ -904,8 +905,7 @@ begin
 				end if;
 			when disable_memory =>
 				cstate <= stop;
-				i_mem_e_bit <= '0';
-				i_bit <= '0';
+				i_enable <= '0';
 			----------------------------------------------------------------------------------
 			-- end
 			when stop =>
