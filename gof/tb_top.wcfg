@@ -19,9 +19,9 @@
       <marker time="50523230000000" label="" />
       <marker time="5723744530000000" label="" />
       <marker time="5429185630000000" label="" />
-      <marker time="984217630000000" label="" />
       <marker time="3985270000000" label="" />
       <marker time="201070000000" label="" />
+      <marker time="1305161030000000" label="" />
    </wave_markers>
    <wvobject fp_name="/tb_top/clk" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">clk</obj_property>
@@ -419,6 +419,11 @@
          <obj_property name="ObjectShortName">io_memadr[0:23]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
+      <wvobject fp_name="/tb_top/uut/mm/io_memadr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">io_memadr[0:23]</obj_property>
+         <obj_property name="ObjectShortName">io_memadr[0:23]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
       <wvobject fp_name="/tb_top/uut/mm/io_memdb" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">io_memdb[0:15]</obj_property>
          <obj_property name="ObjectShortName">io_memdb[0:15]</obj_property>
@@ -427,7 +432,6 @@
       <wvobject fp_name="/tb_top/uut/mm/io_memdb" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">io_memdb[0:15]</obj_property>
          <obj_property name="ObjectShortName">io_memdb[0:15]</obj_property>
-         <obj_property name="Radix">BINARYRADIX</obj_property>
       </wvobject>
    </wvobject>
 </wave_config>
