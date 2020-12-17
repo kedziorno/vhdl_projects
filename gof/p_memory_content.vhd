@@ -24,8 +24,8 @@ package p_memory_content is
 	constant G_FullHex : integer := G_HalfHex*2;
 	constant ROWS : integer := 128;
 	constant ROWS_BITS : integer := 7;
-	constant COLS_PIXEL : integer := 16;
-	constant COLS_PIXEL_BITS : integer := 4;
+	constant COLS_PIXEL : integer := 32;
+	constant COLS_PIXEL_BITS : integer := 5;
 	constant COLS_BLOCK : integer := 4;
 	constant COLS_BLOCK_BITS : integer := 2;
 	constant BYTE_BITS : integer := 8;

@@ -107,8 +107,8 @@
          <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/col_pixel" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">col_pixel[3:0]</obj_property>
-         <obj_property name="ObjectShortName">col_pixel[3:0]</obj_property>
+         <obj_property name="ElementShortName">col_pixel[4:0]</obj_property>
+         <obj_property name="ObjectShortName">col_pixel[4:0]</obj_property>
          <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/col_block" type="array" db_ref_id="1">
@@ -300,8 +300,8 @@
             <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
          </wvobject>
          <wvobject fp_name="/tb_top/uut/ppyp" type="array" db_ref_id="1">
-            <obj_property name="ElementShortName">ppyp[3:0]</obj_property>
-            <obj_property name="ObjectShortName">ppyp[3:0]</obj_property>
+            <obj_property name="ElementShortName">ppyp[4:0]</obj_property>
+            <obj_property name="ObjectShortName">ppyp[4:0]</obj_property>
             <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
          </wvobject>
          <wvobject fp_name="group56" type="group">
@@ -318,13 +318,13 @@
                <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
             </wvobject>
             <wvobject fp_name="/tb_top/uut/ppym1" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">ppym1[3:0]</obj_property>
-               <obj_property name="ObjectShortName">ppym1[3:0]</obj_property>
+               <obj_property name="ElementShortName">ppym1[4:0]</obj_property>
+               <obj_property name="ObjectShortName">ppym1[4:0]</obj_property>
                <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
             </wvobject>
             <wvobject fp_name="/tb_top/uut/ppyp1" type="array" db_ref_id="1">
-               <obj_property name="ElementShortName">ppyp1[3:0]</obj_property>
-               <obj_property name="ObjectShortName">ppyp1[3:0]</obj_property>
+               <obj_property name="ElementShortName">ppyp1[4:0]</obj_property>
+               <obj_property name="ObjectShortName">ppyp1[4:0]</obj_property>
                <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
             </wvobject>
          </wvobject>
