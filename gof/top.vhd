@@ -255,6 +255,7 @@ constant startAddressValue : integer := address1;
 signal startAddress : MemoryAddressALL := std_logic_vector(to_unsigned(startAddressValue,G_MemoryAddress));
 signal startAddress0 : MemoryAddressALL;
 signal startAddress1 : MemoryAddressALL;
+signal stppY : std_logic_vector(31 downto 0);
 
 begin
 
@@ -618,7 +619,10 @@ begin
 				cstate <= c1_mdr;
 				if (vppYp /= 0) then
 					if (vppYm1 > (COLS_PIXEL/2)-1) then
-						tppY := (COLS_PIXEL-1)-((COLS_PIXEL/2)-1+vppYm1);
+						tppY := (COLS_PIXEL/2)-vppYm1;
+						if(tppY < 0) then
+							tppY := -tppY;
+						end if;
 					else
 						tppY := vppYm1;
 					end if;
@@ -655,7 +659,10 @@ begin
 				cstate <= c2_mdr;
 				if (vppYp /= COLS_PIXEL-1) then
 					if (vppYp1 > (COLS_PIXEL/2)-1) then
-						tppY := (COLS_PIXEL-1)-((COLS_PIXEL/2)-1+vppYp1);
+						tppY := (COLS_PIXEL/2)-vppYp1;
+						if (tppY < 0) then
+							tppY := -tppY;
+						end if;
 					else
 						tppY := vppYp1;
 					end if;
@@ -692,7 +699,10 @@ begin
 				cstate <= c3_mdr;
 				if (vppX /= ROWS-1) then
 					if (vppYp > (COLS_PIXEL/2)-1) then
-						tppY := (COLS_PIXEL-1)-((COLS_PIXEL/2)-1+vppYp);
+						tppY := (COLS_PIXEL/2)-vppYp;
+						if (tppY < 0) then
+							tppY := -tppY;
+						end if;
 					else
 						tppY := vppYp;
 					end if;
@@ -729,7 +739,10 @@ begin
 				cstate <= c4_mdr;
 				if (vppX /= 0) then
 					if (vppYp > (COLS_PIXEL/2)-1) then
-						tppY := (COLS_PIXEL-1)-((COLS_PIXEL/2)-1+vppYp);
+						tppY := (COLS_PIXEL/2)-vppYp;
+						if (tppY < 0) then
+							tppY := -tppY;
+						end if;
 					else
 						tppY := vppYp;
 					end if;
@@ -766,7 +779,10 @@ begin
 				cstate <= c5_mdr;
 				if ((vppX /= 0) and (vppYp /= 0)) then
 					if (vppYm1 > (COLS_PIXEL/2)-1) then
-						tppY := (COLS_PIXEL-1)-((COLS_PIXEL/2)-1+vppYm1);
+						tppY := (COLS_PIXEL/2)-vppYm1;
+						if (tppY < 0) then
+							tppY := -tppY;
+						end if;
 					else
 						tppY := vppYm1;
 					end if;
@@ -803,7 +819,10 @@ begin
 				cstate <= c6_mdr;
 				if ((vppX /= ROWS-1) and (vppYp /= 0)) then
 					if (vppYm1 > (COLS_PIXEL/2)-1) then
-						tppY := (COLS_PIXEL-1)-((COLS_PIXEL/2)-1+vppYm1);
+						tppY := (COLS_PIXEL/2)-vppYm1;
+						if (tppY < 0) then
+							tppY := -tppY;
+						end if;
 					else
 						tppY := vppYm1;
 					end if;
@@ -840,7 +859,10 @@ begin
 				cstate <= c7_mdr;
 				if ((vppX /= 0) and (vppYp /= COLS_PIXEL-1)) then
 					if (vppYp1 > (COLS_PIXEL/2)-1) then
-						tppY := (COLS_PIXEL-1)-((COLS_PIXEL/2)-1+vppYp1);
+						tppY := (COLS_PIXEL/2)-vppYp1;
+						if (tppY < 0) then
+							tppY := -tppY;
+						end if;
 					else
 						tppY := vppYp1;
 					end if;
@@ -877,7 +899,10 @@ begin
 				cstate <= c8_mdr;
 				if ((vppX /= ROWS-1) and (vppYp /= COLS_PIXEL-1)) then
 					if (vppYp1 > (COLS_PIXEL/2)-1) then
-						tppY := (COLS_PIXEL-1)-((COLS_PIXEL/2)-1+vppYp1);
+						tppY := (COLS_PIXEL/2)-vppYp1;
+						if (tppY < 0) then
+							tppY := -tppY;
+						end if;
 					else
 						tppY := vppYp1;
 					end if;
@@ -994,6 +1019,7 @@ begin
 	ppXp1 <= std_logic_vector(to_unsigned(vppXp1,ROWS_BITS));
 	ppYm1 <= std_logic_vector(to_unsigned(vppYm1,COLS_PIXEL_BITS));
 	ppYp1 <= std_logic_vector(to_unsigned(vppYp1,COLS_PIXEL_BITS));
+	stppY <= std_logic_vector(to_unsigned(tppY,32));
 end process gof_logic;
 
 end Behavioral;

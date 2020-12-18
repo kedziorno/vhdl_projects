@@ -22,6 +22,9 @@
       <marker time="3985270000000" label="" />
       <marker time="201070000000" label="" />
       <marker time="1305161030000000" label="" />
+      <marker time="1534530550000000" label="" />
+      <marker time="1763678650000000" label="" />
+      <marker time="1763869390000000" label="" />
    </wave_markers>
    <wvobject fp_name="/tb_top/clk" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">clk</obj_property>
@@ -275,6 +278,11 @@
    <wvobject fp_name="group58" type="group">
       <obj_property name="label">gof</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_top/uut/stppy" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">stppy[31:0]</obj_property>
+         <obj_property name="ObjectShortName">stppy[31:0]</obj_property>
+         <obj_property name="Radix">SIGNEDDECRADIX</obj_property>
+      </wvobject>
       <wvobject fp_name="group50" type="group">
          <obj_property name="label">status</obj_property>
          <obj_property name="DisplayName">label</obj_property>
