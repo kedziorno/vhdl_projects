@@ -14,18 +14,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="10" />
-   <wave_markers>
-      <marker time="50523230000000" label="" />
-      <marker time="5723744530000000" label="" />
-      <marker time="5429185630000000" label="" />
-      <marker time="3985270000000" label="" />
-      <marker time="201070000000" label="" />
-      <marker time="1305161030000000" label="" />
-      <marker time="1534530550000000" label="" />
-      <marker time="1763678650000000" label="" />
-      <marker time="1763869390000000" label="" />
-   </wave_markers>
+   <WVObjectSize size="9" />
    <wvobject fp_name="/tb_top/clk" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
@@ -177,18 +166,6 @@
       <wvobject fp_name="/tb_top/uut/seg" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">seg[6:0]</obj_property>
          <obj_property name="ObjectShortName">seg[6:0]</obj_property>
-      </wvobject>
-   </wvobject>
-   <wvobject fp_name="group47" type="group">
-      <obj_property name="label">ports</obj_property>
-      <obj_property name="DisplayName">label</obj_property>
-      <wvobject fp_name="/tb_top/sda" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">sda</obj_property>
-         <obj_property name="ObjectShortName">sda</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/scl" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">scl</obj_property>
-         <obj_property name="ObjectShortName">scl</obj_property>
       </wvobject>
    </wvobject>
    <wvobject fp_name="group87" type="group">
