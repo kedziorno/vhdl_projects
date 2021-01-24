@@ -1018,21 +1018,18 @@ begin
 				cstate <= check_cell_alive_1;
 				i_read <= '1';
 			when check_cell_alive_1 =>
-				cstate <= asdf;
-				i_MemAdr <= std_logic_vector(to_unsigned(6666+vppX+vppYp,G_MemoryAddress));
-			when asdf =>
 				cstate <= check_cell_alive_1a;
-				t := o_MemDB;
+				i_MemAdr <= std_logic_vector(to_unsigned(6666+vppX+vppYp,G_MemoryAddress));
 			when check_cell_alive_1a =>
 				cstate <= check_cell_alive_2;
 				if (vCellAlive = true) then
-					if ((to_integer(unsigned(t)) = 2) or (to_integer(unsigned(t)) = 3)) then
+					if ((to_integer(unsigned(o_MemDB)) = 2) or (to_integer(unsigned(o_MemDB)) = 3)) then
 						newCellAlive := true;
 					else
 						newCellAlive := false;
 					end if;
 				elsif (vCellAlive = false) then
-					if ((to_integer(unsigned(t)) = 3)) then
+					if ((to_integer(unsigned(o_MemDB)) = 3)) then
 						newCellAlive := true;
 					else
 						newCellAlive := false;
