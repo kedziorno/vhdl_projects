@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="/home/user/workspace/vhdl_projects/logicanalyser/rs232_isim_beh.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="numeric_std" />
+            <top_module name="std_logic_1164" />
+            <top_module name="tb_rs232" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="9" />
+   <wvobject fp_name="/tb_rs232/clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_rs232/rst" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_rs232/rx" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rx</obj_property>
+      <obj_property name="ObjectShortName">rx</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_rs232/tx" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">tx</obj_property>
+      <obj_property name="ObjectShortName">tx</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_rs232/byte_to_send" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">byte_to_send[7:0]</obj_property>
+      <obj_property name="ObjectShortName">byte_to_send[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_rs232/uut/clk_div1" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_div1</obj_property>
+      <obj_property name="ObjectShortName">clk_div1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_rs232/uut/c_state" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">c_state</obj_property>
+      <obj_property name="ObjectShortName">c_state</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_rs232/uut/busy" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">busy</obj_property>
+      <obj_property name="ObjectShortName">busy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_rs232/uut/ready" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ready</obj_property>
+      <obj_property name="ObjectShortName">ready</obj_property>
+   </wvobject>
+</wave_config>
