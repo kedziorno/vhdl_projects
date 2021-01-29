@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="/home/user/workspace/vhdl_projects/logicanalyser/fifo_isim_beh.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="numeric_std" />
+            <top_module name="p_constants" />
+            <top_module name="std_logic_1164" />
+            <top_module name="tb_top" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="6" />
+   <wvobject fp_name="group72" type="group">
+      <obj_property name="label">tb_top</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_top/clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/rst" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rst</obj_property>
+         <obj_property name="ObjectShortName">rst</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/rsrx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rsrx</obj_property>
+         <obj_property name="ObjectShortName">rsrx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/rstx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rstx</obj_property>
+         <obj_property name="ObjectShortName">rstx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/clk_period" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">clk_period</obj_property>
+         <obj_property name="ObjectShortName">clk_period</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group110" type="group">
+      <obj_property name="label">uut_top</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_top/uut_top/clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/rst" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rst</obj_property>
+         <obj_property name="ObjectShortName">rst</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/rstx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rstx</obj_property>
+         <obj_property name="ObjectShortName">rstx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/rsrx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rsrx</obj_property>
+         <obj_property name="ObjectShortName">rsrx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/o_clk_count" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_clk_count</obj_property>
+         <obj_property name="ObjectShortName">o_clk_count</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/o_clk_sub" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_clk_sub</obj_property>
+         <obj_property name="ObjectShortName">o_clk_sub</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/busy" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">busy</obj_property>
+         <obj_property name="ObjectShortName">busy</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/ready" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">ready</obj_property>
+         <obj_property name="ObjectShortName">ready</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/byte_to_send" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">byte_to_send[7:0]</obj_property>
+         <obj_property name="ObjectShortName">byte_to_send[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/rx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rx</obj_property>
+         <obj_property name="ObjectShortName">rx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/tx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">tx</obj_property>
+         <obj_property name="ObjectShortName">tx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/data_in" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">data_in[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_in[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/data_out" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">data_out[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data_out[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/full" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">full</obj_property>
+         <obj_property name="ObjectShortName">full</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/empty" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">empty</obj_property>
+         <obj_property name="ObjectShortName">empty</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/memory_index" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">memory_index[4:0]</obj_property>
+         <obj_property name="ObjectShortName">memory_index[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/bytes" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">bytes[0:9]</obj_property>
+         <obj_property name="ObjectShortName">bytes[0:9]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/array_length" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">array_length</obj_property>
+         <obj_property name="ObjectShortName">array_length</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group115" type="group">
+      <obj_property name="label">uut_cd_count</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_top/uut_top/uut_clock_divider_count/i_clock" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clock</obj_property>
+         <obj_property name="ObjectShortName">i_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut_clock_divider_count/o_clock" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_clock</obj_property>
+         <obj_property name="ObjectShortName">o_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut_clock_divider_count/g_board_clock" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">g_board_clock</obj_property>
+         <obj_property name="ObjectShortName">g_board_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut_clock_divider_count/g_divider" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">g_divider</obj_property>
+         <obj_property name="ObjectShortName">g_divider</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group120" type="group">
+      <obj_property name="label">uut_cd_sub</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_top/uut_top/uut1_clock_divider_sub/i_clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clk</obj_property>
+         <obj_property name="ObjectShortName">i_clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut1_clock_divider_sub/i_board_clock" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">i_board_clock</obj_property>
+         <obj_property name="ObjectShortName">i_board_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut1_clock_divider_sub/i_divider" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">i_divider</obj_property>
+         <obj_property name="ObjectShortName">i_divider</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut1_clock_divider_sub/o_clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_clk</obj_property>
+         <obj_property name="ObjectShortName">o_clk</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group132" type="group">
+      <obj_property name="label">uut_rs232</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_top/uut_top/uut2_rs232/clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut2_rs232/rst" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rst</obj_property>
+         <obj_property name="ObjectShortName">rst</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut2_rs232/byte_to_send" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">byte_to_send[7:0]</obj_property>
+         <obj_property name="ObjectShortName">byte_to_send[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut2_rs232/busy" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">busy</obj_property>
+         <obj_property name="ObjectShortName">busy</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut2_rs232/ready" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">ready</obj_property>
+         <obj_property name="ObjectShortName">ready</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut2_rs232/rstx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rstx</obj_property>
+         <obj_property name="ObjectShortName">rstx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut2_rs232/rsrx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rsrx</obj_property>
+         <obj_property name="ObjectShortName">rsrx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut2_rs232/clk_div1" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">clk_div1</obj_property>
+         <obj_property name="ObjectShortName">clk_div1</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut2_rs232/c_state" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">c_state</obj_property>
+         <obj_property name="ObjectShortName">c_state</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut2_rs232/clk_board" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">clk_board</obj_property>
+         <obj_property name="ObjectShortName">clk_board</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut2_rs232/baud_rate" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">baud_rate</obj_property>
+         <obj_property name="ObjectShortName">baud_rate</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group146" type="group">
+      <obj_property name="label">uut_fifo</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_top/uut_top/uut3_fifo/i_clk1" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clk1</obj_property>
+         <obj_property name="ObjectShortName">i_clk1</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut3_fifo/i_clk2" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clk2</obj_property>
+         <obj_property name="ObjectShortName">i_clk2</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut3_fifo/i_data" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">i_data[7:0]</obj_property>
+         <obj_property name="ObjectShortName">i_data[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut3_fifo/o_data" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">o_data[7:0]</obj_property>
+         <obj_property name="ObjectShortName">o_data[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut3_fifo/o_full" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_full</obj_property>
+         <obj_property name="ObjectShortName">o_full</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut3_fifo/o_empty" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_empty</obj_property>
+         <obj_property name="ObjectShortName">o_empty</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut3_fifo/o_memory_index" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">o_memory_index[4:0]</obj_property>
+         <obj_property name="ObjectShortName">o_memory_index[4:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut3_fifo/memory" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">memory[0:4]</obj_property>
+         <obj_property name="ObjectShortName">memory[0:4]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut3_fifo/memory_index" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">memory_index</obj_property>
+         <obj_property name="ObjectShortName">memory_index</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut3_fifo/full" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">full</obj_property>
+         <obj_property name="ObjectShortName">full</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut3_fifo/empty" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">empty</obj_property>
+         <obj_property name="ObjectShortName">empty</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut3_fifo/width" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">width</obj_property>
+         <obj_property name="ObjectShortName">width</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/uut3_fifo/height" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">height</obj_property>
+         <obj_property name="ObjectShortName">height</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>
