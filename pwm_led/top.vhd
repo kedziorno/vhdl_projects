@@ -30,6 +30,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity top is
+Generic (G_BOARD_CLOCK : integer := 50_000_000);
 Port (
 	clk : in  STD_LOGIC;
 	rst : in  STD_LOGIC;
@@ -61,11 +62,12 @@ architecture Behavioral of top is
 	);
 	END COMPONENT PWM;
 
-	constant T_WAIT0 : integer := 2**20;
 	constant PWM_RES : integer := 8;
 	signal ld : std_logic;
 	signal data : std_logic_vector(PWM_RES-1 downto 0);
 	signal o_pwm : std_logic;
+
+	constant T_WAIT0 : integer := G_BOARD_CLOCK/(2**PWM_RES);
 	
 begin
 
