@@ -45,6 +45,7 @@ ARCHITECTURE behavior OF tb_pwm_new IS
     PORT(
          i_clock : IN  std_logic;
          i_reset : IN  std_logic;
+				 i_load : in  STD_LOGIC;
          i_data : IN  INTEGER RANGE 0 TO 2**PWM_WIDTH;
          o_pwm : OUT  std_logic
         );
@@ -54,6 +55,7 @@ ARCHITECTURE behavior OF tb_pwm_new IS
    --Inputs
    signal i_clock : std_logic := '0';
    signal i_reset : std_logic := '0';
+   signal i_load : std_logic := '0';
    signal i_data : INTEGER RANGE 0 TO 2**PWM_WIDTH := 0;
 
  	--Outputs
@@ -68,6 +70,7 @@ BEGIN
    uut: pwm_new GENERIC MAP (PWM_WIDTH => PWM_WIDTH) PORT MAP (
           i_clock => i_clock,
           i_reset => i_reset,
+          i_load => i_load,
           i_data => i_data,
           o_pwm => o_pwm
         );
@@ -91,9 +94,12 @@ BEGIN
       wait for i_clock_period;	
 			i_reset <= '0';
 
+			i_load <= '1';			
 			i_data <= 15;
+			wait for i_clock_period;
+			i_load <= '0';			
 			wait for i_clock_period*wait_pwm;
-
+			
 			i_data <= 14;
 			wait for i_clock_period*wait_pwm;
 
@@ -134,6 +140,9 @@ BEGIN
 			wait for i_clock_period*wait_pwm;
 
 			i_data <= 1;
+			wait for i_clock_period*wait_pwm;
+
+			i_data <= 0;
 			wait for i_clock_period*wait_pwm;
 
    end process;
