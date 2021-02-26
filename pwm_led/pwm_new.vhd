@@ -58,9 +58,13 @@ begin
 			if (i_load = '1') then
 				data <= i_data;
 			end if;
-			o_pwm <= pwm;
 		end if;
 	end process pa;
+	
+	with state select
+		pwm <= '1' when pwm_1,
+		'0' when pwm_0,
+		'0' when others;
 	
 	p0 : process (i_clock,i_reset) is
 		constant v_pwm_count : integer range 0 to 2**PWM_WIDTH-1 := 2**PWM_WIDTH-1;

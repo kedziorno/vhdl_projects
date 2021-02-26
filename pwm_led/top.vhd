@@ -106,13 +106,13 @@ architecture Behavioral of top is
 	COMPONENT PWM is
 	Generic (PWM_RES : integer);
 	Port (
-		clk : in  STD_LOGIC;
-		res : in  STD_LOGIC;
-		ld : in  STD_LOGIC;
-		data : in  STD_LOGIC_VECTOR (PWM_RES-1 downto 0);
-		pwm : out  STD_LOGIC
+		i_clock : in  STD_LOGIC;
+		i_reset : in  STD_LOGIC;
+		i_load : in  STD_LOGIC;
+		i_data : in  STD_LOGIC_VECTOR (PWM_RES-1 downto 0);
+		o_pwm : out  STD_LOGIC
 	);
-	END COMPONENT PWM;
+	END COMPONENT PWM_NEW;
 
 	constant PWM_RES : integer := 8;
 	signal ld : std_logic;
