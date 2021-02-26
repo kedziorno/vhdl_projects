@@ -36,6 +36,7 @@ Generic (
 Port (
 	i_clock : in  STD_LOGIC;
 	i_reset : in  STD_LOGIC;
+	i_load : in  STD_LOGIC;
 	i_data : in  INTEGER RANGE 0 TO 2**PWM_WIDTH;
 	o_pwm : out  STD_LOGIC
 );
@@ -50,13 +51,20 @@ architecture Behavioral of PWM_NEW is
 	signal data : integer range 0 to 2**PWM_WIDTH;
 	signal pwm : std_logic;
 
-	type state_type is (start,pwm_1,pwm_0,stop);
+	type state_type is (idle,start,pwm_1,pwm_0,stop);
 	signal state : state_type;
 
 begin
-
-	data <= i_data;
-	--o_pwm <= pwm;
+	
+	pa : process (i_clock) is
+	begin
+		if (rising_edge(i_clock)) then
+			if (i_load = '1') then
+				data <= i_data;
+			end if;
+			o_pwm <= pwm;
+		end if;
+	end process pa;
 	
 	p0 : process (i_clock,i_reset) is
 		variable v_pwm_count : integer range 0 to 2**PWM_WIDTH := 2**PWM_WIDTH;
@@ -67,14 +75,18 @@ begin
 	begin
 		if (i_reset = '1') then
 			v_pwm_index := 0;
+			state <= idle;
 		elsif (rising_edge(i_clock)) then
 			case (state) is
+				when idle =>
+					state <= start;
 				when start =>
 					state <= pwm_1;
-					
-					v_pwm := '1';
+					v_pwm_index := 0;
+					v_pwm_logic_1 := v_pwm_count - data;
+					v_pwm_logic_0 := v_pwm_count - v_pwm_logic_1;
 				when pwm_1 =>
-					if (v_pwm_index <= v_pwm_logic_1) then
+					if (v_pwm_index < v_pwm_logic_1) then
 						state <= pwm_1;
 						v_pwm := '1';
 						v_pwm_index := v_pwm_index + 1;
@@ -82,18 +94,15 @@ begin
 						state <= pwm_0;
 					end if;
 				when pwm_0 =>
-					if (v_pwm_index <= v_pwm_count) then
+					if (v_pwm_index < v_pwm_count) then
 						state <= pwm_0;
 						v_pwm := '0';
 						v_pwm_index := v_pwm_index + 1;
 					else
-						state <= stop;
+						state <= start;
 					end if;
 				when stop =>
 					state <= start;
-					v_pwm_index := 0;
-					v_pwm_logic_1 := v_pwm_count - data;
-					v_pwm_logic_0 := v_pwm_count - v_pwm_logic_1;
 				when others => null;
 			end case;
 		end if;
@@ -101,7 +110,7 @@ begin
 		pwm_index <= v_pwm_index;
 		pwm_logic_1 <= v_pwm_logic_1;
 		pwm_logic_0 <= v_pwm_logic_0;
-		o_pwm <= v_pwm;
+		pwm <= v_pwm;
 	end process p0;
 	
 end Behavioral;
