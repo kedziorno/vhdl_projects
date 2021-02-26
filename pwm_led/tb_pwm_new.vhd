@@ -115,7 +115,6 @@ BEGIN
 				wait for i_clock_period*wait_pwm;
 			end loop;
 
-			wait;
    end process;
 
 END;
