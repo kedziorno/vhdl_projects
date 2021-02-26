@@ -82,6 +82,7 @@ begin
 	p0 : process (clk,rst) is
 		variable index : integer range 0 to NUMBER_GAMMA_CORRECTION_GREEN := 0;
 		variable v_wait0 : integer range 0 to T_WAIT0 := 0;
+		variable direction : std_logic := '0';
 	begin
 		if (rst = '1') then
 			state <= start;
@@ -102,10 +103,21 @@ begin
 					end if;
 				when stop =>
 					state <= start;
-					if (index < NUMBER_GAMMA_CORRECTION_GREEN-1) then
-						index := index + 1;
-					else
-						index := 0;
+					if (direction = '0') then
+						if (index < NUMBER_GAMMA_CORRECTION_GREEN-1) then
+							index := index + 1;
+						else
+							index := NUMBER_GAMMA_CORRECTION_GREEN-1;
+							direction := '1';
+						end if;
+					end if;
+					if (direction = '1') then
+						if (index > 0) then
+							index := index - 1;
+						else
+							index := 0;
+							direction := '0';
+						end if;
 					end if;
 				when others => null;
 			end case;
