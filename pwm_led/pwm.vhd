@@ -14,7 +14,7 @@
 --
 -- Revision: 
 -- Revision 0.01 - File Created
--- Additional Comments: 
+-- Additional Comments: Majewski,Zbysiński "Układy FPGA w przykładach" list.4.24 p.97
 --
 ----------------------------------------------------------------------------------
 library IEEE;
