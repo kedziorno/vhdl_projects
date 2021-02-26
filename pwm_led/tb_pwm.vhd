@@ -62,7 +62,7 @@ ARCHITECTURE behavior OF tb_pwm IS
    signal o_pwm : std_logic;
 
    -- Clock period definitions
-   constant clk_period : time := 10 ns;
+   constant clk_period : time := 20 ns;
  
 BEGIN
  
@@ -88,7 +88,7 @@ BEGIN
 
    -- Stimulus process
    stim_proc: process
-		variable period : integer := 300;
+		variable period : integer := 8*2;
    begin		
       -- hold reset state for 100 ns.
 			res <= '1';
