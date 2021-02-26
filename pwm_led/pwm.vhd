@@ -46,7 +46,7 @@ architecture Behavioral of pwm is
 	constant ZERO : std_logic_vector(PWM_RES-1 downto 0) := (others=>'0');
 	constant FF : std_logic_vector(PWM_RES-1 downto 0) := (others=>'1');
 begin
-	p0 : process (ld,res) is -- reg in 1st
+	p0 : process (ld,res,data) is -- reg in 1st
 	begin
 		if (res = '1') then
 			data_int <= (others => '0');
@@ -73,7 +73,7 @@ begin
 		end if;
 	end process p2;
 	
-	p3 : process (clk,res) is -- signal gen carry from counter
+	p3 : process (clk,res,cnt_out) is -- signal gen carry from counter
 	begin
 		if (res = '1' or cnt_out < FF) then
 			co <= '0';
