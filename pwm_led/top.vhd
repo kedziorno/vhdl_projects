@@ -51,16 +51,16 @@ architecture Behavioral of top is
 	type state_type is (start,wait0,stop);
 	signal state : state_type;
 
-	COMPONENT PWM is
+	COMPONENT PWM_NEW is
 	Generic (PWM_RES : integer);
 	Port (
-		clk : in  STD_LOGIC;
-		res : in  STD_LOGIC;
-		ld : in  STD_LOGIC;
-		data : in  STD_LOGIC_VECTOR (PWM_RES-1 downto 0);
-		pwm : out  STD_LOGIC
+		i_clock : in  STD_LOGIC;
+		i_reset : in  STD_LOGIC;
+		i_load : in  STD_LOGIC;
+		i_data : in  STD_LOGIC_VECTOR (PWM_RES-1 downto 0);
+		o_pwm : out  STD_LOGIC
 	);
-	END COMPONENT PWM;
+	END COMPONENT PWM_NEW;
 
 	constant PWM_RES : integer := 8;
 	signal ld : std_logic;
@@ -71,14 +71,14 @@ architecture Behavioral of top is
 	
 begin
 
-	c0: PWM
+	c0: PWM_NEW
 	GENERIC MAP (PWM_RES => PWM_RES) -- 0 to 255
 	PORT MAP (
-		clk => clk,
-		res => rst,
-		ld => ld,
-		data => data,
-		pwm => o_pwm
+		i_clock => clk,
+		i_reset => rst,
+		i_load => ld,
+		i_data => data,
+		o_pwm => o_pwm
 	);
 
 	p0 : process (clk,rst) is

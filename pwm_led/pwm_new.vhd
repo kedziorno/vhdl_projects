@@ -37,40 +37,46 @@ Port (
 	i_clock : in  STD_LOGIC;
 	i_reset : in  STD_LOGIC;
 	i_load : in  STD_LOGIC;
-	i_data : in  INTEGER RANGE 0 TO 2**PWM_WIDTH;
+	i_data : in  INTEGER RANGE 0 TO 2**PWM_WIDTH-1;
 	o_pwm : out  STD_LOGIC
 );
 end entity PWM_NEW;
 
 architecture Behavioral of PWM_NEW is
 
-	signal pwm_count : integer range 0 to 2**PWM_WIDTH;
-	signal pwm_index : integer range 0 to 2**PWM_WIDTH;
-	signal pwm_logic_1 : integer range 0 to 2**PWM_WIDTH;
-	signal pwm_logic_0 : integer range 0 to 2**PWM_WIDTH;
-	signal data : integer range 0 to 2**PWM_WIDTH;
+	signal pwm_count : std_logic_vector(PWM_WIDTH-1 downto 0);
+	signal pwm_index : std_logic_vector(PWM_WIDTH-1 downto 0);
+	signal pwm_logic_1 : std_logic_vector(PWM_WIDTH-1 downto 0);
+	signal pwm_logic_0 : std_logic_vector(PWM_WIDTH-1 downto 0);
+	signal data : integer range 0 to 2**PWM_WIDTH-1;
 	signal pwm : std_logic;
 
 	type state_type is (idle,start,pwm_1,pwm_0,stop);
 	signal state : state_type;
 
 begin
-	
+
+	o_pwm <= pwm;
+
 	pa : process (i_clock) is
 	begin
 		if (rising_edge(i_clock)) then
 			if (i_load = '1') then
 				data <= i_data;
 			end if;
-			o_pwm <= pwm;
 		end if;
 	end process pa;
 	
+	with state select
+		pwm <= '1' when pwm_1,
+		'0' when pwm_0,
+		'0' when others;
+	
 	p0 : process (i_clock,i_reset) is
-		variable v_pwm_count : integer range 0 to 2**PWM_WIDTH := 2**PWM_WIDTH;
-		variable v_pwm_index : integer range 0 to 2**PWM_WIDTH := 0;
-		variable v_pwm_logic_1 : integer range 0 to 2**PWM_WIDTH := v_pwm_count - data;
-		variable v_pwm_logic_0 : integer range 0 to 2**PWM_WIDTH := v_pwm_count - v_pwm_logic_1;
+		constant v_pwm_count : integer range 0 to 2**PWM_WIDTH-1 := 2**PWM_WIDTH-1;
+		variable v_pwm_index : integer range 0 to 2**PWM_WIDTH-1 := 0;
+		variable v_pwm_logic_1 : integer range 0 to 2**PWM_WIDTH-1 := v_pwm_count - data;
+		variable v_pwm_logic_0 : integer range 0 to 2**PWM_WIDTH-1 := v_pwm_count - v_pwm_logic_1;
 		variable v_pwm : std_logic;
 	begin
 		if (i_reset = '1') then
@@ -79,38 +85,27 @@ begin
 		elsif (rising_edge(i_clock)) then
 			case (state) is
 				when idle =>
-					state <= start;
-				when start =>
 					state <= pwm_1;
-					v_pwm_index := 0;
-					v_pwm_logic_1 := v_pwm_count - data;
-					v_pwm_logic_0 := v_pwm_count - v_pwm_logic_1;
 				when pwm_1 =>
-					if (v_pwm_index < v_pwm_logic_1) then
-						state <= pwm_1;
-						v_pwm := '1';
+					if (v_pwm_index < data) then
 						v_pwm_index := v_pwm_index + 1;
 					else
 						state <= pwm_0;
 					end if;
 				when pwm_0 =>
 					if (v_pwm_index < v_pwm_count) then
-						state <= pwm_0;
-						v_pwm := '0';
 						v_pwm_index := v_pwm_index + 1;
 					else
-						state <= start;
+						state <= pwm_1;
+						v_pwm_index := 0;
 					end if;
-				when stop =>
-					state <= start;
 				when others => null;
 			end case;
 		end if;
-		pwm_count <= v_pwm_count;
-		pwm_index <= v_pwm_index;
-		pwm_logic_1 <= v_pwm_logic_1;
-		pwm_logic_0 <= v_pwm_logic_0;
-		pwm <= v_pwm;
+		pwm_count <= std_logic_vector(to_unsigned(v_pwm_count,PWM_WIDTH));
+		pwm_index <= std_logic_vector(to_unsigned(v_pwm_index,PWM_WIDTH));
+		pwm_logic_1 <= std_logic_vector(to_unsigned(v_pwm_logic_1,PWM_WIDTH));
+		pwm_logic_0 <= std_logic_vector(to_unsigned(v_pwm_logic_0,PWM_WIDTH));
 	end process p0;
 	
 end Behavioral;

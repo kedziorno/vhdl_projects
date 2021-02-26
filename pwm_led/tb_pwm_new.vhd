@@ -87,63 +87,110 @@ BEGIN
 
    -- Stimulus process
    stim_proc: process
-		variable wait_pwm : integer := 20;
+		variable wait_pwm : integer := 32;
+		variable i_clock_period : time := i_clock_period;
    begin		
       -- hold reset state for 100 ns.
 			i_reset <= '1';
       wait for i_clock_period;	
 			i_reset <= '0';
 
-			i_load <= '1';			
+			i_load <= '1';
 			i_data <= 15;
 			wait for i_clock_period;
-			i_load <= '0';			
+			i_load <= '0';
 			wait for i_clock_period*wait_pwm;
 			
+			i_load <= '1';
 			i_data <= 14;
+			wait for i_clock_period;
+			i_load <= '0';
 			wait for i_clock_period*wait_pwm;
 
+			i_load <= '1';
 			i_data <= 13;
+			wait for i_clock_period;
+			i_load <= '0';
 			wait for i_clock_period*wait_pwm;
 
+			i_load <= '1';
 			i_data <= 12;
+			wait for i_clock_period;
+			i_load <= '0';
 			wait for i_clock_period*wait_pwm;
 
+			i_load <= '1';
 			i_data <= 11;
+			wait for i_clock_period;
+			i_load <= '0';
 			wait for i_clock_period*wait_pwm;
 
+			i_load <= '1';
 			i_data <= 10;
+			wait for i_clock_period;
+			i_load <= '0';
 			wait for i_clock_period*wait_pwm;
 
+			i_load <= '1';
 			i_data <= 9;
+			wait for i_clock_period;
+			i_load <= '0';
 			wait for i_clock_period*wait_pwm;
 
+			i_load <= '1';
 			i_data <= 8;
+			wait for i_clock_period;
+			i_load <= '0';
 			wait for i_clock_period*wait_pwm;
 
+			i_load <= '1';
 			i_data <= 7;
+			wait for i_clock_period;
+			i_load <= '0';
 			wait for i_clock_period*wait_pwm;
 
+			i_load <= '1';
 			i_data <= 6;
+			wait for i_clock_period;
+			i_load <= '0';
 			wait for i_clock_period*wait_pwm;
 
+			i_load <= '1';
 			i_data <= 5;
+			wait for i_clock_period;
+			i_load <= '0';
 			wait for i_clock_period*wait_pwm;
 
+			i_load <= '1';
 			i_data <= 4;
+			wait for i_clock_period;
+			i_load <= '0';
 			wait for i_clock_period*wait_pwm;
 
+			i_load <= '1';
 			i_data <= 3;
+			wait for i_clock_period;
+			i_load <= '0';
 			wait for i_clock_period*wait_pwm;
 
+			i_load <= '1';
 			i_data <= 2;
+			wait for i_clock_period;
+			i_load <= '0';
 			wait for i_clock_period*wait_pwm;
 
+			i_load <= '1';
 			i_data <= 1;
+			wait for i_clock_period;
+			i_load <= '0';
 			wait for i_clock_period*wait_pwm;
 
+			i_load <= '1';
 			i_data <= 0;
+			wait for i_clock_period;
+			i_load <= '0';
 			wait for i_clock_period*wait_pwm;
+
 
    end process;
 
