@@ -39,7 +39,7 @@ Port (
 end top;
 
 architecture Behavioral of top is
-
+	-- GAMMA CORRECTION GREEN = 0.4
 	constant NUMBER_GAMMA_CORRECTION_GREEN : natural := 255;
 	type ARRAY_GAMMA_CORRECTION_GREEN is array (0 to NUMBER_GAMMA_CORRECTION_GREEN-1) of std_logic_vector(7 downto 0);
 	signal GAMMA_CORRECTION_GREEN : ARRAY_GAMMA_CORRECTION_GREEN :=
@@ -113,5 +113,12 @@ begin
 	end process p0;
 
 	led(0) <= o_pwm;
+	led(1) <= o_pwm;
+	led(2) <= o_pwm;
+	led(3) <= o_pwm;
+	led(4) <= o_pwm;
+	led(5) <= o_pwm;
+	led(6) <= o_pwm;
+	led(7) <= o_pwm;
 
 end Behavioral;
