@@ -20,6 +20,7 @@ BEGIN {
 	#print "\n";
 }
 END {
+	printf("-- %s %s = %.2f\n",s,n,gamma);
 	printf("constant NUMBER_%s_%s : natural := %d;\n",s,n,a-1);
 	printf("type ARRAY_%s_%s is array (0 to NUMBER_%s_%s-1) of std_logic_vector(7 downto 0);\n",s,n,s,n);
 	printf("signal %s_%s : ARRAY_%s_%s :=\n",s,n,s,n);
