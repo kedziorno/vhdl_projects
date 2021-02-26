@@ -71,10 +71,10 @@ begin
 			case (state) is
 				when start =>
 					state <= pwm_1;
-					v_pwm_logic_1 := v_pwm_count - data;
-					v_pwm_logic_0 := v_pwm_count - v_pwm_logic_1;
+					
+					v_pwm := '1';
 				when pwm_1 =>
-					if (v_pwm_index < v_pwm_logic_1) then
+					if (v_pwm_index <= v_pwm_logic_1) then
 						state <= pwm_1;
 						v_pwm := '1';
 						v_pwm_index := v_pwm_index + 1;
@@ -82,7 +82,7 @@ begin
 						state <= pwm_0;
 					end if;
 				when pwm_0 =>
-					if (v_pwm_index < v_pwm_logic_0) then
+					if (v_pwm_index <= v_pwm_count) then
 						state <= pwm_0;
 						v_pwm := '0';
 						v_pwm_index := v_pwm_index + 1;
@@ -92,6 +92,8 @@ begin
 				when stop =>
 					state <= start;
 					v_pwm_index := 0;
+					v_pwm_logic_1 := v_pwm_count - data;
+					v_pwm_logic_0 := v_pwm_count - v_pwm_logic_1;
 				when others => null;
 			end case;
 		end if;
