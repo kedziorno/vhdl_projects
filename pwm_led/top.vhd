@@ -103,6 +103,23 @@ architecture Behavioral of top is
 
 	signal db_btn : std_logic_vector(BUTTONS-1 downto 0);
 
+	COMPONENT PWM is
+	Generic (PWM_RES : integer);
+	Port (
+		clk : in  STD_LOGIC;
+		res : in  STD_LOGIC;
+		ld : in  STD_LOGIC;
+		data : in  STD_LOGIC_VECTOR (PWM_RES-1 downto 0);
+		pwm : out  STD_LOGIC
+	);
+	END COMPONENT PWM;
+
+	constant T_WAIT0 : integer := 2**20;
+	constant PWM_RES : integer := 8;
+	signal ld : std_logic;
+	signal data : std_logic_vector(PWM_RES-1 downto 0);
+	signal o_pwm : std_logic;
+	
 begin
 
 	c0to4 : FOR i in 0 to BUTTONS-1 GENERATE
