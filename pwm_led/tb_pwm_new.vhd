@@ -87,7 +87,7 @@ BEGIN
 
    -- Stimulus process
    stim_proc: process
-		variable wait_pwm : integer := 16;
+		variable wait_pwm : integer := 15;
 		variable i_clock_period : time := i_clock_period;
    begin		
       -- hold reset state for 100 ns.
@@ -189,8 +189,8 @@ BEGIN
 			i_data <= 0;
 			wait for i_clock_period;
 			i_load <= '0';
-			wait for i_clock_period*wait_pwm;
 
+wait;
 
    end process;
 
