@@ -69,14 +69,14 @@ begin
 	
 	with state select
 		pwm <= '1' when pwm_1,
-		'0' when pwm_0,
+		--'0' when pwm_0,
 		'0' when others;
 	
 	p0 : process (i_clock,i_reset) is
 		constant v_pwm_count : integer range 0 to 2**PWM_WIDTH-1 := 2**PWM_WIDTH-1;
 		variable v_pwm_index : integer range 0 to 2**PWM_WIDTH-1 := 0;
-		variable v_pwm_logic_1 : integer range 0 to 2**PWM_WIDTH-1 := v_pwm_count - data;
-		variable v_pwm_logic_0 : integer range 0 to 2**PWM_WIDTH-1 := v_pwm_count - v_pwm_logic_1;
+		variable v_pwm_logic_1 : integer range 0 to 2**PWM_WIDTH-1;
+		variable v_pwm_logic_0 : integer range 0 to 2**PWM_WIDTH-1;
 		variable v_pwm : std_logic;
 	begin
 		if (i_reset = '1') then
@@ -91,14 +91,17 @@ begin
 						v_pwm_index := v_pwm_index + 1;
 					else
 						state <= pwm_0;
+						v_pwm_index := 0;
 					end if;
 				when pwm_0 =>
-					if (v_pwm_index < v_pwm_count) then
+					if (v_pwm_index < v_pwm_count - data) then
 						v_pwm_index := v_pwm_index + 1;
 					else
 						state <= pwm_1;
 						v_pwm_index := 0;
 					end if;
+				when stop =>
+					state <= pwm_1;
 				when others => null;
 			end case;
 		end if;
