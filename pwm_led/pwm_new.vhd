@@ -51,7 +51,7 @@ architecture Behavioral of PWM_NEW is
 	signal data : integer range 0 to 2**PWM_WIDTH-1;
 	signal pwm : std_logic;
 
-	type state_type is (idle,start,pwm_1,pwm_0,stop);
+	type state_type is (idle,pwm_1,pwm_0);
 	signal state : state_type;
 
 begin
@@ -69,23 +69,22 @@ begin
 	
 	with state select
 		pwm <= '1' when pwm_1,
-		--'0' when pwm_0,
 		'0' when others;
 	
 	p0 : process (i_clock,i_reset) is
 		constant v_pwm_count : integer range 0 to 2**PWM_WIDTH-1 := 2**PWM_WIDTH-1;
-		variable v_pwm_index : integer range 0 to 2**PWM_WIDTH-1 := 0;
+		variable v_pwm_index : integer range 0 to 2**PWM_WIDTH-1;
 		variable v_pwm_logic_1 : integer range 0 to 2**PWM_WIDTH-1;
 		variable v_pwm_logic_0 : integer range 0 to 2**PWM_WIDTH-1;
 		variable v_pwm : std_logic;
 	begin
 		if (i_reset = '1') then
-			v_pwm_index := 0;
 			state <= idle;
 		elsif (rising_edge(i_clock)) then
 			case (state) is
 				when idle =>
 					state <= pwm_1;
+					v_pwm_index := 0;
 				when pwm_1 =>
 					if (v_pwm_index < data) then
 						v_pwm_index := v_pwm_index + 1;
@@ -100,8 +99,6 @@ begin
 						state <= pwm_1;
 						v_pwm_index := 0;
 					end if;
-				when stop =>
-					state <= pwm_1;
 				when others => null;
 			end case;
 		end if;
