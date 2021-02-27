@@ -91,7 +91,7 @@ begin
 						v_pwm_index := 0;
 					end if;
 				when pwm_0 =>
-					if (v_pwm_index < v_pwm_count - data) then
+					if (v_pwm_index < v_pwm_count - data - 1) then
 						v_pwm_index := v_pwm_index + 1;
 						pwm <= '0';
 					else
