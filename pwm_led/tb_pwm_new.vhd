@@ -119,8 +119,8 @@ BEGIN
 			i_data <= 0;
 			wait for i_clock_period;
 			i_load <= '0';
-			wait for i_clock_period*wait_pwm;
 
+wait;
 
    end process;
 

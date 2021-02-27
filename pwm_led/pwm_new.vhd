@@ -63,7 +63,6 @@ begin
 	
 	with state select
 		pwm <= '1' when pwm_1,
-		--'0' when pwm_0,
 		'0' when others;
 	
 	p0 : process (i_clock,i_reset) is
