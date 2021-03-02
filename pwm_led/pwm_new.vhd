@@ -60,10 +60,9 @@ begin
 			end if;
 		end if;
 	end process pa;
-	
-	with state select
-		pwm <= '1' when pwm_1,
-		'0' when others;
+
+	pwm <= '1' when (state=pwm_1 and pwm_index /= x"0") else
+	'0' when state=pwm_0;
 	
 	p0 : process (i_clock,i_reset) is
 		constant v_pwm_count : integer range 0 to 2**PWM_WIDTH-1 := 2**PWM_WIDTH-1;
