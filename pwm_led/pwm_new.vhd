@@ -56,8 +56,6 @@ architecture Behavioral of PWM_NEW is
 
 begin
 
-	o_pwm <= pwm;
-
 	pa : process (i_clock) is
 	begin
 		if (rising_edge(i_clock)) then
@@ -67,8 +65,8 @@ begin
 		end if;
 	end process pa;
 
-	pwm <= '1' when (state=pwm_1 and pwm_index /= std_logic_vector(to_unsigned(0,PWM_WIDTH))) else
-	'0' when state=pwm_0;
+	o_pwm <= '1' when (state=pwm_1 and pwm_index /= std_logic_vector(to_unsigned(0,PWM_WIDTH))) else
+	'0' when (state=pwm_0 or state=idle);
 	
 	p0 : process (i_clock,i_reset) is
 		constant v_pwm_count : integer range 0 to 2**PWM_WIDTH-1 := 2**PWM_WIDTH-1;
