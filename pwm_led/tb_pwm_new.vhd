@@ -107,9 +107,9 @@ BEGIN
 			wait for i_clock_period;
 			i_reset <= '0';
 
-			for i in 2**PWM_WIDTH-1 to 0 loop
+			for i in 0 to 2**PWM_WIDTH-1 loop
 				i_load <= '1';
-				i_data <= i;
+				i_data <= ((2**PWM_WIDTH-1) - i);
 				wait for i_clock_period;
 				i_load <= '0';
 				wait for i_clock_period*wait_pwm;
