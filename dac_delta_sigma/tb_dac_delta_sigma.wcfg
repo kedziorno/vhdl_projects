@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="/home/user/workspace/dac_delta_sigma/tb_dac_delta_sigma_isim_beh.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="numeric_std" />
+            <top_module name="std_logic_1164" />
+            <top_module name="std_logic_arith" />
+            <top_module name="std_logic_unsigned" />
+            <top_module name="tb_dac_delta_sigma" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="2" />
+   <wave_markers>
+      <marker time="153300000000" label="" />
+   </wave_markers>
+   <wvobject fp_name="group5" type="group">
+      <obj_property name="label">tb</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_dac_delta_sigma/clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_dac_delta_sigma/data" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">data[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_dac_delta_sigma/pulsestream" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">pulsestream</obj_property>
+         <obj_property name="ObjectShortName">pulsestream</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_dac_delta_sigma/clk_period" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">clk_period</obj_property>
+         <obj_property name="ObjectShortName">clk_period</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group10" type="group">
+      <obj_property name="label">top</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_dac_delta_sigma/uut/clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_dac_delta_sigma/uut/data" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">data[7:0]</obj_property>
+         <obj_property name="ObjectShortName">data[7:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_dac_delta_sigma/uut/pulsestream" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">pulsestream</obj_property>
+         <obj_property name="ObjectShortName">pulsestream</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_dac_delta_sigma/uut/sum" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">sum[8:0]</obj_property>
+         <obj_property name="ObjectShortName">sum[8:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>
