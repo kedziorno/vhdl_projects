@@ -30,7 +30,7 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity top is
-Generic (G_BOARD_CLOCK : integer := 1_000_000; LEDS : integer := 8);
+Generic (G_BOARD_CLOCK : integer := 500_000; LEDS : integer := 8);
 Port (
 	clk : in  STD_LOGIC;
 	rst : in  STD_LOGIC;
@@ -68,9 +68,10 @@ architecture Behavioral of top is
 
 	constant PWM_RES : integer := 8;
 	constant L_DATA	: integer range 0 to LEDS-1 := LEDS-1;
-	type A_DATA is array(0 to L_DATA) of std_logic_vector(PWM_RES-1 downto 0);
---	signal data : A_DATA;
-	signal data : INTEGER RANGE 0 TO 2**PWM_RES-1;
+--	type A_DATA is array(0 to L_DATA) of std_logic_vector(PWM_RES-1 downto 0);
+	type A_DATA is array(0 to L_DATA) of INTEGER RANGE 0 TO 2**PWM_RES-1;
+	signal data : A_DATA;
+	--signal data : INTEGER RANGE 0 TO 2**PWM_RES-1;
 	signal o_pwm : std_logic_vector(PWM_RES-1 downto 0);
 	signal ld : std_logic_vector(LEDS-1 downto 0);
 	constant T_WAIT0 : integer := G_BOARD_CLOCK/(2**PWM_RES);
@@ -84,7 +85,7 @@ begin
 		i_clock => clk,
 		i_reset => rst,
 		i_load => ld(i),
-		i_data => data,
+		i_data => data(i),
 		o_pwm => o_pwm(i)
 	);
 	END GENERATE c0to7;
@@ -104,28 +105,28 @@ begin
 					case (sw) is
 						when "00000001" =>
 							ld(0) <= '1';
-							data <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(0))));
+							data(0) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(0))));
 						when "00000010" =>
 							ld(1) <= '1';
-							data <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(1))));
+							data(1) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(1))));
 						when "00000100" =>
 							ld(2) <= '1';
-							data <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(2))));
+							data(2) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(2))));
 						when "00001000" =>
 							ld(3) <= '1';
-							data <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(3))));
+							data(3) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(3))));
 						when "00010000" =>
 							ld(4) <= '1';
-							data <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(4))));
+							data(4) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(4))));
 						when "00100000" =>
 							ld(5) <= '1';
-							data <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(5))));
+							data(5) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(5))));
 						when "01000000" =>
 							ld(6) <= '1';
-							data <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(6))));
+							data(6) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(6))));
 						when "10000000" =>
 							ld(7) <= '1';
-							data <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(7))));
+							data(7) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(7))));
 						when others =>
 							ld(0) <= '0';
 							ld(1) <= '0';
@@ -135,6 +136,8 @@ begin
 							ld(5) <= '0';
 							ld(6) <= '0';
 							ld(7) <= '0';
+							data(0) <= 0;
+							data(1) <= 0;
 					end case;					
 				when wait0 =>
 					if (v_wait0 < T_WAIT0) then
@@ -148,6 +151,8 @@ begin
 						ld(5) <= '0';
 						ld(6) <= '0';
 						ld(7) <= '0';
+						data(0) <= 0;
+						data(1) <= 0;
 					else
 						state <= stop;
 						v_wait0 := 0;
@@ -189,12 +194,14 @@ begin
 									direction := '0';
 								end if;
 							end if;
-						when others => null;
+						when others =>
+							data(0) <= 0;
+							data(1) <= 0;
 					end case;
 				when others => null;
 			end case;
 		end if;
-		
+					
 --		case (sw) is
 --			when "00000001" => led(0) <= o_pwm(0);
 --			when "00000010" => led(1) <= o_pwm(1);
@@ -207,14 +214,7 @@ begin
 --			when others => null;
 --		end case;
 
-		led(0) <= o_pwm(0);
-		led(1) <= o_pwm(1);
-		led(2) <= o_pwm(2);
-		led(3) <= o_pwm(3);
-		led(4) <= o_pwm(4);
-		led(5) <= o_pwm(5);
-		led(6) <= o_pwm(6);
-		led(7) <= o_pwm(7);
+		led(led'range) <= o_pwm(o_pwm'range);
 	
 	end process p0;
 
