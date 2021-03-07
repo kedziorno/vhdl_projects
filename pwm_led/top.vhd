@@ -116,9 +116,10 @@ architecture Behavioral of top is
 
 	constant PWM_RES : integer := 8;
 	constant L_DATA	: integer range 0 to LEDS-1 := LEDS-1;
-	type A_DATA is array(0 to L_DATA) of std_logic_vector(PWM_RES-1 downto 0);
---	signal data : A_DATA;
-	signal data : INTEGER RANGE 0 TO 2**PWM_RES-1;
+--	type A_DATA is array(0 to L_DATA) of std_logic_vector(PWM_RES-1 downto 0);
+	type A_DATA is array(0 to L_DATA) of INTEGER RANGE 0 TO 2**PWM_RES-1;
+	signal data : A_DATA;
+	--signal data : INTEGER RANGE 0 TO 2**PWM_RES-1;
 	signal o_pwm : std_logic_vector(PWM_RES-1 downto 0);
 	signal ld : std_logic_vector(LEDS-1 downto 0);
 	constant T_WAIT0 : integer := G_BOARD_CLOCK/(2**PWM_RES);
@@ -256,6 +257,8 @@ begin
 						ld(5) <= '0';
 						ld(6) <= '0';
 						ld(7) <= '0';
+						data(0) <= 0;
+						data(1) <= 0;
 					else
 						state <= stop;
 						v_wait0 <= 0;
@@ -408,7 +411,7 @@ begin
 					end if;
 				when others => null;
 			end case;
-		end if;	
+		end if;
 	end process p0;
 	led(led'range) <= o_pwm(o_pwm'range);
 end Behavioral;
