@@ -109,16 +109,18 @@ architecture Behavioral of top is
 		i_clock : in  STD_LOGIC;
 		i_reset : in  STD_LOGIC;
 		i_load : in  STD_LOGIC;
-		i_data : in  STD_LOGIC_VECTOR (PWM_RES-1 downto 0);
+		i_data : in  INTEGER RANGE 0 TO 2**PWM_WIDTH-1;
 		o_pwm : out  STD_LOGIC
 	);
 	END COMPONENT PWM_NEW;
 
 	constant PWM_RES : integer := 8;
-	signal ld : std_logic;
-	signal data : std_logic_vector(PWM_RES-1 downto 0);
-	signal o_pwm : std_logic;
-
+	constant L_DATA	: integer range 0 to LEDS-1 := LEDS-1;
+	type A_DATA is array(0 to L_DATA) of std_logic_vector(PWM_RES-1 downto 0);
+--	signal data : A_DATA;
+	signal data : INTEGER RANGE 0 TO 2**PWM_RES-1;
+	signal o_pwm : std_logic_vector(PWM_RES-1 downto 0);
+	signal ld : std_logic_vector(LEDS-1 downto 0);
 	constant T_WAIT0 : integer := G_BOARD_CLOCK/(2**PWM_RES);
 	
 begin
