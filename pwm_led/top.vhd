@@ -68,10 +68,8 @@ architecture Behavioral of top is
 
 	constant PWM_RES : integer := PWM_WIDTH;
 	constant L_DATA	: integer range 0 to LEDS-1 := LEDS-1;
---	type A_DATA is array(0 to L_DATA) of std_logic_vector(PWM_RES-1 downto 0);
 	type A_DATA is array(0 to L_DATA) of INTEGER RANGE 0 TO 2**PWM_RES-1;
 	signal data : A_DATA;
-	--signal data : INTEGER RANGE 0 TO 2**PWM_RES-1;
 	signal o_pwm : std_logic_vector(PWM_RES-1 downto 0);
 	signal ld : std_logic_vector(LEDS-1 downto 0);
 	constant T_WAIT0 : integer := (2**PWM_RES)-1;
@@ -99,47 +97,41 @@ begin
 		if (rst = '1') then
 			state <= start;
 		elsif (rising_edge(clk)) then
-			--o_pwm <= x"00";
 			case (state) is
 				when start =>
 					state <= wait0;
-					case (sw) is
-						when "00000001" =>
-							ld(0) <= '1';
-							data(0) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(0))));
-						when "00000010" =>
-							ld(1) <= '1';
-							data(1) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(1))));
-						when "00000100" =>
-							ld(2) <= '1';
-							data(2) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(2))));
-						when "00001000" =>
-							ld(3) <= '1';
-							data(3) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(3))));
-						when "00010000" =>
-							ld(4) <= '1';
-							data(4) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(4))));
-						when "00100000" =>
-							ld(5) <= '1';
-							data(5) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(5))));
-						when "01000000" =>
-							ld(6) <= '1';
-							data(6) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(6))));
-						when "10000000" =>
-							ld(7) <= '1';
-							data(7) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(7))));
-						when others =>
-							ld(0) <= '0';
-							ld(1) <= '0';
-							ld(2) <= '0';
-							ld(3) <= '0';
-							ld(4) <= '0';
-							ld(5) <= '0';
-							ld(6) <= '0';
-							ld(7) <= '0';
-							--data(0) <= 0;
-							--data(1) <= 0;
-					end case;					
+					if (std_match(sw,"-------1")) then
+						ld(0) <= '1';
+						data(0) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(0))));
+					end if;
+					if (std_match(sw,"------1-")) then
+						ld(1) <= '1';
+						data(1) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(1))));
+					end if;
+					if (std_match(sw,"-----1--")) then
+						ld(2) <= '1';
+						data(2) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(2))));
+					end if;
+					if (std_match(sw,"----1---")) then
+						ld(3) <= '1';
+						data(3) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(3))));
+					end if;
+					if (std_match(sw,"---1----")) then
+						ld(4) <= '1';
+						data(4) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(4))));
+					end if;
+					if (std_match(sw,"--1-----")) then
+						ld(5) <= '1';
+						data(5) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(5))));
+					end if;
+					if (std_match(sw,"-1------")) then
+						ld(6) <= '1';
+						data(6) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(6))));
+					end if;
+					if (std_match(sw,"1-------")) then
+						ld(7) <= '1';
+						data(7) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(7))));
+					end if;
 				when wait0 =>
 					if (v_wait0 < T_WAIT0) then
 						state <= wait0;
@@ -152,73 +144,159 @@ begin
 						ld(5) <= '0';
 						ld(6) <= '0';
 						ld(7) <= '0';
-						--data(0) <= 0;
-						--data(1) <= 0;
 					else
 						state <= stop;
 						v_wait0 := 0;
 					end if;
 				when stop =>
 					state <= start;
-					case (sw) is
-						when "00000001" =>
-							if (direction = '0') then
-								if (index(0) < NUMBER_GAMMA_CORRECTION_GREEN-1) then
-									index(0) := index(0) + 1;
-								else
-									index(0) := NUMBER_GAMMA_CORRECTION_GREEN-1;
-									direction := '1';
-								end if;
+					if (std_match(sw,"-------1")) then
+						if (direction = '0') then
+							if (index(0) < NUMBER_GAMMA_CORRECTION_GREEN-1) then
+								index(0) := index(0) + 1;
+							else
+								index(0) := NUMBER_GAMMA_CORRECTION_GREEN-1;
+								direction := '1';
 							end if;
-							if (direction = '1') then
-								if (index(0) > 0) then
-									index(0) := index(0) - 1;
-								else
-									index(0) := 0;
-									direction := '0';
-								end if;
+						end if;
+						if (direction = '1') then
+							if (index(0) > 0) then
+								index(0) := index(0) - 1;
+							else
+								index(0) := 0;
+								direction := '0';
 							end if;
-						when "00000010" =>
-							if (direction = '0') then
-								if (index(1) < NUMBER_GAMMA_CORRECTION_GREEN-1) then
-									index(1) := index(1) + 1;
-								else
-									index(1) := NUMBER_GAMMA_CORRECTION_GREEN-1;
-									direction := '1';
-								end if;
+						end if;
+					end if;
+					if (std_match(sw,"------1-")) then
+						if (direction = '0') then
+							if (index(1) < NUMBER_GAMMA_CORRECTION_GREEN-1) then
+								index(1) := index(1) + 1;
+							else
+								index(1) := NUMBER_GAMMA_CORRECTION_GREEN-1;
+								direction := '1';
 							end if;
-							if (direction = '1') then
-								if (index(1) > 0) then
-									index(1) := index(1) - 1;
-								else
-									index(1) := 0;
-									direction := '0';
-								end if;
+						end if;
+						if (direction = '1') then
+							if (index(1) > 0) then
+								index(1) := index(1) - 1;
+							else
+								index(1) := 0;
+								direction := '0';
 							end if;
-						when others =>
-							--data(0) <= 0;
-							--data(1) <= 0;
-					end case;
+						end if;
+					end if;
+					if (std_match(sw,"-----1--")) then
+						if (direction = '0') then
+							if (index(2) < NUMBER_GAMMA_CORRECTION_GREEN-1) then
+								index(2) := index(2) + 1;
+							else
+								index(2) := NUMBER_GAMMA_CORRECTION_GREEN-1;
+								direction := '1';
+							end if;
+						end if;
+						if (direction = '1') then
+							if (index(2) > 0) then
+								index(2) := index(2) - 1;
+							else
+								index(2) := 0;
+								direction := '0';
+							end if;
+						end if;
+					end if;
+					if (std_match(sw,"----1---")) then
+						if (direction = '0') then
+							if (index(3) < NUMBER_GAMMA_CORRECTION_GREEN-1) then
+								index(3) := index(3) + 1;
+							else
+								index(3) := NUMBER_GAMMA_CORRECTION_GREEN-1;
+								direction := '1';
+							end if;
+						end if;
+						if (direction = '1') then
+							if (index(3) > 0) then
+								index(3) := index(3) - 1;
+							else
+								index(3) := 0;
+								direction := '0';
+							end if;
+						end if;
+					end if;
+					if (std_match(sw,"---1----")) then
+						if (direction = '0') then
+							if (index(4) < NUMBER_GAMMA_CORRECTION_GREEN-1) then
+								index(4) := index(4) + 1;
+							else
+								index(4) := NUMBER_GAMMA_CORRECTION_GREEN-1;
+								direction := '1';
+							end if;
+						end if;
+						if (direction = '1') then
+							if (index(4) > 0) then
+								index(4) := index(4) - 1;
+							else
+								index(4) := 0;
+								direction := '0';
+							end if;
+						end if;
+					end if;
+					if (std_match(sw,"--1-----")) then
+						if (direction = '0') then
+							if (index(5) < NUMBER_GAMMA_CORRECTION_GREEN-1) then
+								index(5) := index(5) + 1;
+							else
+								index(5) := NUMBER_GAMMA_CORRECTION_GREEN-1;
+								direction := '1';
+							end if;
+						end if;
+						if (direction = '1') then
+							if (index(5) > 0) then
+								index(5) := index(5) - 1;
+							else
+								index(5) := 0;
+								direction := '0';
+							end if;
+						end if;
+					end if;
+					if (std_match(sw,"-1------")) then
+						if (direction = '0') then
+							if (index(6) < NUMBER_GAMMA_CORRECTION_GREEN-1) then
+								index(6) := index(6) + 1;
+							else
+								index(6) := NUMBER_GAMMA_CORRECTION_GREEN-1;
+								direction := '1';
+							end if;
+						end if;
+						if (direction = '1') then
+							if (index(6) > 0) then
+								index(6) := index(6) - 1;
+							else
+								index(6) := 0;
+								direction := '0';
+							end if;
+						end if;
+					end if;
+					if (std_match(sw,"1-------")) then
+						if (direction = '0') then
+							if (index(7) < NUMBER_GAMMA_CORRECTION_GREEN-1) then
+								index(7) := index(7) + 1;
+							else
+								index(7) := NUMBER_GAMMA_CORRECTION_GREEN-1;
+								direction := '1';
+							end if;
+						end if;
+						if (direction = '1') then
+							if (index(7) > 0) then
+								index(7) := index(7) - 1;
+							else
+								index(7) := 0;
+								direction := '0';
+							end if;
+						end if;
+					end if;
 				when others => null;
 			end case;
-		end if;
-					
---		case (sw) is
---			when "00000001" => led(0) <= o_pwm(0);
---			when "00000010" => led(1) <= o_pwm(1);
---			when "00000100" => led(2) <= o_pwm(2);
---			when "00001000" => led(3) <= o_pwm(3);
---			when "00010000" => led(4) <= o_pwm(4);
---			when "00100000" => led(5) <= o_pwm(5);
---			when "01000000" => led(6) <= o_pwm(6);
---			when "10000000" => led(7) <= o_pwm(7);
---			when others => null;
---		end case;
-
-		led(led'range) <= o_pwm(o_pwm'range);
-	
+		end if;	
 	end process p0;
-
-	
-	
+	led(led'range) <= o_pwm(o_pwm'range);
 end Behavioral;
