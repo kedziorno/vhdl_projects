@@ -201,11 +201,9 @@
          <obj_property name="ElementShortName">s_wait0_max</obj_property>
          <obj_property name="ObjectShortName">s_wait0_max</obj_property>
       </wvobject>
-<<<<<<< HEAD
       <wvobject fp_name="/tb_top/uut/s_wait0_default" type="other" db_ref_id="1">
          <obj_property name="ElementShortName">s_wait0_default</obj_property>
          <obj_property name="ObjectShortName">s_wait0_default</obj_property>
-=======
       <wvobject fp_name="/tb_top/uut/o_pwm" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">o_pwm[7:0]</obj_property>
          <obj_property name="ObjectShortName">o_pwm[7:0]</obj_property>
@@ -221,7 +219,5 @@
          <obj_property name="ElementShortName">i_data</obj_property>
          <obj_property name="ObjectShortName">i_data</obj_property>
          <obj_property name="label">i_data0</obj_property>
->>>>>>> test3 - sw0/1
-      </wvobject>
    </wvobject>
 </wave_config>

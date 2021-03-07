@@ -31,7 +31,6 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity top is
-<<<<<<< HEAD
 Generic (
 	BOARD_CLOCK : integer := 50_000_000;
 	PWM_WIDTH : integer := 8;
@@ -39,9 +38,6 @@ Generic (
 	SWITCHS : integer := 8;
 	BUTTONS : integer :=4
 );
-=======
-Generic (BOARD_CLOCK : integer := 50_000_000; LEDS : integer := 8; PWM_WIDTH : integer := 8);
->>>>>>> test3 - sw0/1
 Port (
 	clk : in  STD_LOGIC;
 	btn : in  STD_LOGIC_VECTOR(BUTTONS-1 downto 0);
@@ -65,7 +61,6 @@ architecture Behavioral of top is
 	);
 	END COMPONENT PWM_NEW;
 
-<<<<<<< HEAD
 	COMPONENT debounce IS
 	Generic (
 		G_BOARD_CLOCK : integer
@@ -120,14 +115,9 @@ architecture Behavioral of top is
 	END COMPONENT PWM_NEW;
 
 	constant PWM_RES : integer := 8;
-=======
-	constant PWM_RES : integer := PWM_WIDTH;
->>>>>>> test3 - sw0/1
 	constant L_DATA	: integer range 0 to LEDS-1 := LEDS-1;
---	type A_DATA is array(0 to L_DATA) of std_logic_vector(PWM_RES-1 downto 0);
 	type A_DATA is array(0 to L_DATA) of INTEGER RANGE 0 TO 2**PWM_RES-1;
 	signal data : A_DATA;
-	--signal data : INTEGER RANGE 0 TO 2**PWM_RES-1;
 	signal o_pwm : std_logic_vector(PWM_RES-1 downto 0);
 	signal ld : std_logic_vector(LEDS-1 downto 0);
 	constant T_WAIT0 : integer := (2**PWM_RES)-1;
@@ -218,11 +208,9 @@ begin
 			ld(7) <= '1';
 			data(7) <= 0;
 		elsif (rising_edge(clk)) then
-			--o_pwm <= x"00";
 			case (state) is
 				when start =>
 					state <= wait0;
-<<<<<<< HEAD
 					if (std_match(sw,"-------1")) then
 						ld(0) <= '1';
 						data(0) <= to_integer(unsigned(C_GAMMA_CORRECTION_GREEN(v_index(0))));
@@ -255,45 +243,6 @@ begin
 						ld(7) <= '1';
 						data(7) <= to_integer(unsigned(C_GAMMA_CORRECTION_GREEN(v_index(7))));
 					end if;
-=======
-					case (sw) is
-						when "00000001" =>
-							ld(0) <= '1';
-							data(0) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(0))));
-						when "00000010" =>
-							ld(1) <= '1';
-							data(1) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(1))));
-						when "00000100" =>
-							ld(2) <= '1';
-							data(2) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(2))));
-						when "00001000" =>
-							ld(3) <= '1';
-							data(3) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(3))));
-						when "00010000" =>
-							ld(4) <= '1';
-							data(4) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(4))));
-						when "00100000" =>
-							ld(5) <= '1';
-							data(5) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(5))));
-						when "01000000" =>
-							ld(6) <= '1';
-							data(6) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(6))));
-						when "10000000" =>
-							ld(7) <= '1';
-							data(7) <= to_integer(unsigned(GAMMA_CORRECTION_GREEN(index(7))));
-						when others =>
-							ld(0) <= '0';
-							ld(1) <= '0';
-							ld(2) <= '0';
-							ld(3) <= '0';
-							ld(4) <= '0';
-							ld(5) <= '0';
-							ld(6) <= '0';
-							ld(7) <= '0';
-							--data(0) <= 0;
-							--data(1) <= 0;
-					end case;					
->>>>>>> test3 - sw0/1
 				when wait0 =>
 					if (v_wait0 < S_WAIT0) then
 						state <= wait0;
@@ -306,8 +255,6 @@ begin
 						ld(5) <= '0';
 						ld(6) <= '0';
 						ld(7) <= '0';
-						--data(0) <= 0;
-						--data(1) <= 0;
 					else
 						state <= stop;
 						v_wait0 <= 0;
@@ -459,47 +406,6 @@ begin
 							end if;
 						end if;
 					end if;
-=======
-					case (sw) is
-						when "00000001" =>
-							if (direction = '0') then
-								if (index(0) < NUMBER_GAMMA_CORRECTION_GREEN-1) then
-									index(0) := index(0) + 1;
-								else
-									index(0) := NUMBER_GAMMA_CORRECTION_GREEN-1;
-									direction := '1';
-								end if;
-							end if;
-							if (direction = '1') then
-								if (index(0) > 0) then
-									index(0) := index(0) - 1;
-								else
-									index(0) := 0;
-									direction := '0';
-								end if;
-							end if;
-						when "00000010" =>
-							if (direction = '0') then
-								if (index(1) < NUMBER_GAMMA_CORRECTION_GREEN-1) then
-									index(1) := index(1) + 1;
-								else
-									index(1) := NUMBER_GAMMA_CORRECTION_GREEN-1;
-									direction := '1';
-								end if;
-							end if;
-							if (direction = '1') then
-								if (index(1) > 0) then
-									index(1) := index(1) - 1;
-								else
-									index(1) := 0;
-									direction := '0';
-								end if;
-							end if;
-						when others =>
-							--data(0) <= 0;
-							--data(1) <= 0;
-					end case;
->>>>>>> test3 - sw0/1
 				when others => null;
 			end case;
 		end if;
