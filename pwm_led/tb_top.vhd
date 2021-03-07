@@ -40,6 +40,7 @@ ARCHITECTURE behavior OF tb_top IS
     -- Component Declaration for the Unit Under Test (UUT)
  
     COMPONENT top
+		GENERIC(BOARD_CLOCK : integer; LEDS : integer; PWM_WIDTH : integer);
     PORT(
          clk : IN  std_logic;
          rst : IN  std_logic;
@@ -58,12 +59,20 @@ ARCHITECTURE behavior OF tb_top IS
    signal led : std_logic_vector(7 downto 0);
 
    -- Clock period definitions
-   constant clk_period : time := 20 ns;
- 
+   constant G_BOARD_CLOCK : integer := 50_000_000;
+   constant G_LEDS : integer := 8;
+   constant G_PWM_WIDTH : integer := 8;
+   constant clk_period : time := (1_000_000_000/G_BOARD_CLOCK) * 1 ns;
+
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
-   uut: top PORT MAP (
+   uut: top
+	 GENERIC MAP (
+	 BOARD_CLOCK => G_BOARD_CLOCK,
+	 LEDS => G_LEDS,
+	 PWM_WIDTH => G_PWM_WIDTH)
+   PORT MAP (
           clk => clk,
           rst => rst,
           sw => sw,
@@ -84,38 +93,37 @@ BEGIN
 	 
    -- Stimulus process
    stim_proc: process
-	  variable delay_ms : time := 5 ms;
+	  variable delay : time := ( 2*(2**G_PWM_WIDTH-1)*(2**G_PWM_WIDTH-1) ) * clk_period;
    begin
 	 
 	  sw <= "00000000";
-		wait for delay_ms;
+		wait for delay;
 		
 		sw <= "00000001";
-		wait for delay_ms;
+		wait for delay;
 		
     sw <= "00000000";
-		wait for delay_ms;
+		wait for delay;
 		
 		sw <= "00000010";
-		wait for delay_ms;
+		wait for delay;
 		
 		sw <= "00000000";
-		wait for delay_ms;
+		wait for delay;
 		
 		sw <= "00000011";
-		wait for delay_ms;
+		wait for delay;
 		
 	  sw <= "00000000";
-		wait for delay_ms;
+		wait for delay;
 		
 		sw <= "00000001";
-		wait for delay_ms;
+		wait for delay;
     sw <= "00000010";
-		wait for delay_ms;
+		wait for delay;
 		sw <= "00000011";
-		wait for delay_ms;
-		
-		
+		wait for delay;
+
    end process;
 
 END;

@@ -218,6 +218,10 @@
          <obj_property name="ElementShortName">led[7:0]</obj_property>
          <obj_property name="ObjectShortName">led[7:0]</obj_property>
       </wvobject>
+      <wvobject fp_name="/tb_top/uut/o_pwm" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">o_pwm[7:0]</obj_property>
+         <obj_property name="ObjectShortName">o_pwm[7:0]</obj_property>
+      </wvobject>
       <wvobject fp_name="/tb_top/uut/\c0to7(1)\/pwm0to7/i_data" type="other" db_ref_id="1">
          <obj_property name="DisplayName">label</obj_property>
          <obj_property name="ElementShortName">i_data</obj_property>
