@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="/home/user/workspace/vhdl_projects/pwm_led/tb_pwm_isim_beh.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="numeric_std" />
+            <top_module name="std_logic_1164" />
+            <top_module name="tb_pwm" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="2" />
+   <wvobject fp_name="group7" type="group">
+      <obj_property name="label">tb</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_pwm/clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm/res" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">res</obj_property>
+         <obj_property name="ObjectShortName">res</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm/ld" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">ld</obj_property>
+         <obj_property name="ObjectShortName">ld</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm/data" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">data[3:0]</obj_property>
+         <obj_property name="ObjectShortName">data[3:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm/o_pwm" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_pwm</obj_property>
+         <obj_property name="ObjectShortName">o_pwm</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm/clk_period" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">clk_period</obj_property>
+         <obj_property name="ObjectShortName">clk_period</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group25" type="group">
+      <obj_property name="label">pwm</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_pwm/uut/clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm/uut/res" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">res</obj_property>
+         <obj_property name="ObjectShortName">res</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm/uut/ld" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">ld</obj_property>
+         <obj_property name="ObjectShortName">ld</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm/uut/data" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">data[3:0]</obj_property>
+         <obj_property name="ObjectShortName">data[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm/uut/pwm" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">pwm</obj_property>
+         <obj_property name="ObjectShortName">pwm</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm/uut/data_int_cmp" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">data_int_cmp[3:0]</obj_property>
+         <obj_property name="ObjectShortName">data_int_cmp[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm/uut/data_int" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">data_int[3:0]</obj_property>
+         <obj_property name="ObjectShortName">data_int[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm/uut/cnt_out" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">cnt_out[3:0]</obj_property>
+         <obj_property name="ObjectShortName">cnt_out[3:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm/uut/res_pwm_o" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">res_pwm_o</obj_property>
+         <obj_property name="ObjectShortName">res_pwm_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm/uut/q" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">q</obj_property>
+         <obj_property name="ObjectShortName">q</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm/uut/co" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">co</obj_property>
+         <obj_property name="ObjectShortName">co</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm/uut/pwm_res" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">pwm_res</obj_property>
+         <obj_property name="ObjectShortName">pwm_res</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm/uut/zero" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">zero[3:0]</obj_property>
+         <obj_property name="ObjectShortName">zero[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm/uut/ff" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">ff[3:0]</obj_property>
+         <obj_property name="ObjectShortName">ff[3:0]</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>

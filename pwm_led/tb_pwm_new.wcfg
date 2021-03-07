@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="/home/user/workspace/vhdl_projects/pwm_led/tb_pwm_new_isim_beh.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="numeric_std" />
+            <top_module name="std_logic_1164" />
+            <top_module name="tb_pwm_new" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="2" />
+   <wvobject fp_name="group15" type="group">
+      <obj_property name="label">tb_pwm_new</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_pwm_new/i_clock" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clock</obj_property>
+         <obj_property name="ObjectShortName">i_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm_new/i_reset" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_reset</obj_property>
+         <obj_property name="ObjectShortName">i_reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm_new/i_data" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">i_data</obj_property>
+         <obj_property name="ObjectShortName">i_data</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm_new/o_pwm" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_pwm</obj_property>
+         <obj_property name="ObjectShortName">o_pwm</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm_new/i_clock_period" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clock_period</obj_property>
+         <obj_property name="ObjectShortName">i_clock_period</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group35" type="group">
+      <obj_property name="label">pwm_new</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_pwm_new/uut/state" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">state</obj_property>
+         <obj_property name="ObjectShortName">state</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm_new/uut/data" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">data</obj_property>
+         <obj_property name="ObjectShortName">data</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm_new/uut/i_clock" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clock</obj_property>
+         <obj_property name="ObjectShortName">i_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm_new/uut/i_reset" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_reset</obj_property>
+         <obj_property name="ObjectShortName">i_reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm_new/uut/i_data" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">i_data</obj_property>
+         <obj_property name="ObjectShortName">i_data</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm_new/uut/i_load" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_load</obj_property>
+         <obj_property name="ObjectShortName">i_load</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm_new/uut/o_pwm" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_pwm</obj_property>
+         <obj_property name="ObjectShortName">o_pwm</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm_new/uut/pwm_count" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">pwm_count[3:0]</obj_property>
+         <obj_property name="ObjectShortName">pwm_count[3:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm_new/uut/pwm_index" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">pwm_index[3:0]</obj_property>
+         <obj_property name="ObjectShortName">pwm_index[3:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm_new/uut/pwm_logic_1" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">pwm_logic_1[3:0]</obj_property>
+         <obj_property name="ObjectShortName">pwm_logic_1[3:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm_new/uut/pwm_logic_0" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">pwm_logic_0[3:0]</obj_property>
+         <obj_property name="ObjectShortName">pwm_logic_0[3:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm_new/uut/pwm" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">pwm</obj_property>
+         <obj_property name="ObjectShortName">pwm</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_pwm_new/uut/pwm_width" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">pwm_width</obj_property>
+         <obj_property name="ObjectShortName">pwm_width</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>

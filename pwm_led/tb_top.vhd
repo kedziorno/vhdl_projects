@@ -80,17 +80,20 @@ BEGIN
    end process;
  
 
+   rst <= '1', '0' after clk_period*10;
+	 
    -- Stimulus process
    stim_proc: process
-   begin		
-      -- hold reset state for 100 ns.
-      wait for 100 ns;	
-
-      wait for clk_period*10;
-
-      -- insert stimulus here 
-
-      wait;
+	  variable delay_ms : time := 5 ms;
+   begin
+	  sw <= "00000000";
+		wait for delay_ms;
+		sw <= "00000001";
+		wait for delay_ms;
+    sw <= "00000010";
+		wait for delay_ms;
+		sw <= "00000011";
+		wait for delay_ms;
    end process;
 
 END;
