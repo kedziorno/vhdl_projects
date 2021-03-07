@@ -95,35 +95,60 @@ BEGIN
    stim_proc: process
 	  variable delay : time := ( 2*(2**G_PWM_WIDTH-1)*(2**G_PWM_WIDTH-1) ) * clk_period;
    begin
-	 
 	  sw <= "00000000";
-		wait for delay;
-		
-		sw <= "00000001";
-		wait for delay;
-		
-    sw <= "00000000";
-		wait for delay;
-		
-		sw <= "00000010";
-		wait for delay;
-		
-		sw <= "00000000";
-		wait for delay;
-		
-		sw <= "00000011";
-		wait for delay;
-		
-	  sw <= "00000000";
-		wait for delay;
-		
-		sw <= "00000001";
-		wait for delay;
-    sw <= "00000010";
-		wait for delay;
-		sw <= "00000011";
 		wait for delay;
 
+		sw <= "00000001";
+		wait for delay;
+		sw <= "00000010";
+		wait for delay;
+		sw <= "00000100";
+		wait for delay;
+		sw <= "00001000";
+		wait for delay;
+		sw <= "00010000";
+		wait for delay;
+		sw <= "00100000";
+		wait for delay;
+		sw <= "01000000";
+		wait for delay;
+		sw <= "10000000";
+		wait for delay;
+		
+	  sw <= "00000000";
+		wait for delay;		
+		sw <= "00000001";
+		wait for delay;
+    sw <= "00000011";
+		wait for delay;
+		sw <= "00000111";
+		wait for delay;
+		sw <= "00001111";
+		wait for delay;
+    sw <= "00011111";
+		wait for delay;
+		sw <= "00111111";
+		wait for delay;
+		sw <= "01111111";
+		wait for delay;
+    sw <= "11111111";
+		wait for delay;
+		sw <= "01111111";
+		wait for delay;
+		sw <= "00111111";
+		wait for delay;
+    sw <= "00011111";
+		wait for delay;
+		sw <= "00001111";
+		wait for delay;
+		sw <= "00000111";
+		wait for delay;
+    sw <= "00000011";
+		wait for delay;
+		sw <= "00000001";
+		wait for delay;
+		sw <= "00000000";
+		wait for delay;
    end process;
 
 END;
