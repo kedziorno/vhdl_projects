@@ -30,7 +30,7 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity top is
-Generic (G_BOARD_CLOCK : integer := 500_000; LEDS : integer := 8);
+Generic (BOARD_CLOCK : integer := 50_000_000; LEDS : integer := 8; PWM_WIDTH : integer := 8);
 Port (
 	clk : in  STD_LOGIC;
 	rst : in  STD_LOGIC;
@@ -66,7 +66,7 @@ architecture Behavioral of top is
 	);
 	END COMPONENT PWM_NEW;
 
-	constant PWM_RES : integer := 8;
+	constant PWM_RES : integer := PWM_WIDTH;
 	constant L_DATA	: integer range 0 to LEDS-1 := LEDS-1;
 --	type A_DATA is array(0 to L_DATA) of std_logic_vector(PWM_RES-1 downto 0);
 	type A_DATA is array(0 to L_DATA) of INTEGER RANGE 0 TO 2**PWM_RES-1;
@@ -74,7 +74,7 @@ architecture Behavioral of top is
 	--signal data : INTEGER RANGE 0 TO 2**PWM_RES-1;
 	signal o_pwm : std_logic_vector(PWM_RES-1 downto 0);
 	signal ld : std_logic_vector(LEDS-1 downto 0);
-	constant T_WAIT0 : integer := G_BOARD_CLOCK/(2**PWM_RES);
+	constant T_WAIT0 : integer := (2**PWM_RES)-1;
 	
 begin
 
@@ -99,6 +99,7 @@ begin
 		if (rst = '1') then
 			state <= start;
 		elsif (rising_edge(clk)) then
+			--o_pwm <= x"00";
 			case (state) is
 				when start =>
 					state <= wait0;
@@ -136,8 +137,8 @@ begin
 							ld(5) <= '0';
 							ld(6) <= '0';
 							ld(7) <= '0';
-							data(0) <= 0;
-							data(1) <= 0;
+							--data(0) <= 0;
+							--data(1) <= 0;
 					end case;					
 				when wait0 =>
 					if (v_wait0 < T_WAIT0) then
@@ -151,8 +152,8 @@ begin
 						ld(5) <= '0';
 						ld(6) <= '0';
 						ld(7) <= '0';
-						data(0) <= 0;
-						data(1) <= 0;
+						--data(0) <= 0;
+						--data(1) <= 0;
 					else
 						state <= stop;
 						v_wait0 := 0;
@@ -195,8 +196,8 @@ begin
 								end if;
 							end if;
 						when others =>
-							data(0) <= 0;
-							data(1) <= 0;
+							--data(0) <= 0;
+							--data(1) <= 0;
 					end case;
 				when others => null;
 			end case;
