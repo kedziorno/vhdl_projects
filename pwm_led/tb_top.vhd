@@ -58,7 +58,7 @@ ARCHITECTURE behavior OF tb_top IS
    signal led : std_logic_vector(7 downto 0);
 
    -- Clock period definitions
-   constant clk_period : time := 10 ns;
+   constant clk_period : time := 20 ns;
  
 BEGIN
  
@@ -86,14 +86,36 @@ BEGIN
    stim_proc: process
 	  variable delay_ms : time := 5 ms;
    begin
+	 
 	  sw <= "00000000";
 		wait for delay_ms;
+		
+		sw <= "00000001";
+		wait for delay_ms;
+		
+    sw <= "00000000";
+		wait for delay_ms;
+		
+		sw <= "00000010";
+		wait for delay_ms;
+		
+		sw <= "00000000";
+		wait for delay_ms;
+		
+		sw <= "00000011";
+		wait for delay_ms;
+		
+	  sw <= "00000000";
+		wait for delay_ms;
+		
 		sw <= "00000001";
 		wait for delay_ms;
     sw <= "00000010";
 		wait for delay_ms;
 		sw <= "00000011";
 		wait for delay_ms;
+		
+		
    end process;
 
 END;
