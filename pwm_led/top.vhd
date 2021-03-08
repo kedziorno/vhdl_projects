@@ -88,7 +88,22 @@ begin
 			state <= start;
 			v_direction <= (others => '0');
 			v_wait0 <= 0;
-			v_index <= (others => 0);
+			v_index(0) <= 0;
+			v_index(1) <= 0;
+			v_index(2) <= 0;
+			v_index(3) <= 0;
+			v_index(4) <= 0;
+			v_index(5) <= 0;
+			v_index(6) <= 0;
+			v_index(7) <= 0;
+			data(0) <= 0;
+			data(1) <= 0;
+			data(2) <= 0;
+			data(3) <= 0;
+			data(4) <= 0;
+			data(5) <= 0;
+			data(6) <= 0;
+			data(7) <= 0;
 		elsif (rising_edge(clk)) then
 			case (state) is
 				when start =>
