@@ -120,7 +120,7 @@ architecture Behavioral of top is
 	signal data : A_DATA;
 	signal o_pwm : std_logic_vector(PWM_RES-1 downto 0);
 	signal ld : std_logic_vector(LEDS-1 downto 0);
-	constant T_WAIT0 : integer := (2**PWM_RES)-1;
+	constant T_WAIT0 : integer range 0 to (BOARD_CLOCK/((2**PWM_RES)*2))-1 := (BOARD_CLOCK/((2**PWM_RES)*2))-1; -- XXX sim
 	
 begin
 
