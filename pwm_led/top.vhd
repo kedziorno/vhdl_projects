@@ -261,7 +261,6 @@ begin
 					end if;
 				when stop =>
 					state <= start;
-<<<<<<< HEAD
 					if (std_match(sw,"-------1")) then
 						if (v_direction(0) = '0') then
 							if (v_index(0) < NUMBER_GAMMA_CORRECTION_GREEN-1) then
