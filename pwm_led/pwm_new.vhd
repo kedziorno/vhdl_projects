@@ -44,10 +44,6 @@ end entity PWM_NEW;
 
 architecture Behavioral of PWM_NEW is
 
-	signal pwm_count : std_logic_vector(PWM_WIDTH-1 downto 0);
-	signal pwm_index : std_logic_vector(PWM_WIDTH-1 downto 0);
-	signal pwm_logic_1 : std_logic_vector(PWM_WIDTH-1 downto 0);
-	signal pwm_logic_0 : std_logic_vector(PWM_WIDTH-1 downto 0);
 	signal data : integer range 0 to 2**PWM_WIDTH-1;
 	signal pwm : std_logic;
 
@@ -62,17 +58,13 @@ begin
 			if (i_load = '1') then
 				data <= i_data;
 			end if;
+			o_pwm <= pwm;
 		end if;
 	end process pa;
-
-	o_pwm <= '1' when (state=pwm_1 and pwm_index /= std_logic_vector(to_unsigned(0,PWM_WIDTH))) else
-	'0' when (state=pwm_0 or state=idle);
 	
 	p0 : process (i_clock,i_reset) is
 		constant v_pwm_count : integer range 0 to 2**PWM_WIDTH-1 := 2**PWM_WIDTH-1;
 		variable v_pwm_index : integer range 0 to 2**PWM_WIDTH-1;
-		variable v_pwm_logic_1 : integer range 0 to 2**PWM_WIDTH-1;
-		variable v_pwm_logic_0 : integer range 0 to 2**PWM_WIDTH-1;
 		variable v_pwm : std_logic;
 	begin
 		if (i_reset = '1') then
@@ -82,27 +74,27 @@ begin
 				when idle =>
 					state <= pwm_1;
 					v_pwm_index := 0;
+					pwm <= '0';
 				when pwm_1 =>
 					if (v_pwm_index < data) then
 						v_pwm_index := v_pwm_index + 1;
+						pwm <= '1';
 					else
 						state <= pwm_0;
 						v_pwm_index := 0;
 					end if;
 				when pwm_0 =>
-					if (v_pwm_index < v_pwm_count - data - 1) then
+					if (v_pwm_index < v_pwm_count - data) then
 						v_pwm_index := v_pwm_index + 1;
+						pwm <= '0';
 					else
 						state <= pwm_1;
 						v_pwm_index := 0;
 					end if;
-				when others => null;
+				when others =>
+					pwm <= '0';
 			end case;
 		end if;
-		pwm_count <= std_logic_vector(to_unsigned(v_pwm_count,PWM_WIDTH));
-		pwm_index <= std_logic_vector(to_unsigned(v_pwm_index,PWM_WIDTH));
-		pwm_logic_1 <= std_logic_vector(to_unsigned(v_pwm_logic_1,PWM_WIDTH));
-		pwm_logic_0 <= std_logic_vector(to_unsigned(v_pwm_logic_0,PWM_WIDTH));
 	end process p0;
 	
 end Behavioral;
