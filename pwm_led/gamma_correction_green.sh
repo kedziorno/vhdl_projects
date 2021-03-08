@@ -7,7 +7,7 @@ BEGIN {
 	a = 256; # PWM for 8 bit
 	b = 1; # step
 	c=0; # start counter
-	gamma=0.4; # use GAMMA
+	gamma=1; # use GAMMA
 	table[0]=""; # array for hex variables
 	s="GAMMA_CORRECTION"; # script name
 	n="GREEN"; # color name
@@ -32,10 +32,10 @@ END {
 		if (i == length(table)-1) {
 			printf("%s\n",table[i]);
 		} else {
-			if (i%8!=0) {
-				printf("%s,",table[i]);
+			if (i%8==0) {
+				printf("%s,\n",table[i]);
 			} else {
-				printf("\n");
+				printf("%s,",table[i]);
 			}
 		}
 	}
