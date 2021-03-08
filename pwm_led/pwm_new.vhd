@@ -58,11 +58,9 @@ begin
 			if (i_load = '1') then
 				data <= i_data;
 			end if;
+			o_pwm <= pwm;
 		end if;
 	end process pa;
-
-	o_pwm <= '1' when (state=pwm_1 and pwm_index /= std_logic_vector(to_unsigned(0,PWM_WIDTH))) else
-	'0' when (state=pwm_0 or state=idle);
 	
 	p0 : process (i_clock,i_reset) is
 		constant v_pwm_count : integer range 0 to 2**PWM_WIDTH-1 := 2**PWM_WIDTH-1;
@@ -90,7 +88,7 @@ begin
 						v_pwm_index := 0;
 					end if;
 				when pwm_0 =>
-					if (v_pwm_index < v_pwm_count - data - 1) then
+					if (v_pwm_index < v_pwm_count - data) then
 						v_pwm_index := v_pwm_index + 1;
 						pwm <= '0';
 					else
