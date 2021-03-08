@@ -78,7 +78,11 @@ begin
 				when pwm_1 =>
 					if (v_pwm_index < data) then
 						v_pwm_index := v_pwm_index + 1;
-						pwm <= '1';
+						if (v_pwm_index = 0 or data = 0) then
+							pwm <= '0';
+						else
+							pwm <= '1';
+						end if;
 					else
 						state <= pwm_0;
 						v_pwm_index := 0;
