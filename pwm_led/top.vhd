@@ -122,6 +122,11 @@ architecture Behavioral of top is
 	signal ld : std_logic_vector(LEDS-1 downto 0);
 	constant T_WAIT0 : integer range 0 to (BOARD_CLOCK/((2**PWM_RES)*2))-1 := (BOARD_CLOCK/((2**PWM_RES)*2))-1; -- XXX sim
 	
+	type A_NUM_GAMMA is array(0 to LEDS-1) of integer range 0 to NUMBER_GAMMA_CORRECTION_GREEN;
+	signal v_index : A_NUM_GAMMA;
+	signal v_wait0 : integer range 0 to T_WAIT0;
+	signal v_direction : std_logic_vector(LEDS-1 downto 0);
+
 begin
 
 	c0to4 : FOR i in 0 to BUTTONS-1 GENERATE

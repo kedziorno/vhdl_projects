@@ -87,11 +87,6 @@
       <wvobject fp_name="/tb_top/uut/led" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">led[7:0]</obj_property>
          <obj_property name="ObjectShortName">led[7:0]</obj_property>
-         <obj_property name="Radix">BINARYRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/gamma_correction_green" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">gamma_correction_green[0:254]</obj_property>
-         <obj_property name="ObjectShortName">gamma_correction_green[0:254]</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/state" type="other" db_ref_id="1">
          <obj_property name="ElementShortName">state</obj_property>
@@ -100,6 +95,7 @@
       <wvobject fp_name="/tb_top/uut/data" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">data[0:7]</obj_property>
          <obj_property name="ObjectShortName">data[0:7]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/o_pwm" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">o_pwm[7:0]</obj_property>
