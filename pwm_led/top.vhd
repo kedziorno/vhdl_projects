@@ -96,13 +96,21 @@ begin
 			v_index(5) <= 0;
 			v_index(6) <= 0;
 			v_index(7) <= 0;
+			ld(0) <= '1';
 			data(0) <= 0;
+			ld(1) <= '1';
 			data(1) <= 0;
+			ld(2) <= '1';
 			data(2) <= 0;
+			ld(3) <= '1';
 			data(3) <= 0;
+			ld(4) <= '1';
 			data(4) <= 0;
+			ld(5) <= '1';
 			data(5) <= 0;
+			ld(6) <= '1';
 			data(6) <= 0;
+			ld(7) <= '1';
 			data(7) <= 0;
 		elsif (rising_edge(clk)) then
 			case (state) is
