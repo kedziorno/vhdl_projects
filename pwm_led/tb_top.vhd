@@ -59,7 +59,7 @@ ARCHITECTURE behavior OF tb_top IS
    signal led : std_logic_vector(7 downto 0);
 
    -- Clock period definitions
-   constant G_BOARD_CLOCK : integer := 50_000_000;
+   constant G_BOARD_CLOCK : integer := 1_000_000;
    constant G_LEDS : integer := 8;
    constant G_PWM_WIDTH : integer := 8;
    constant clk_period : time := (1_000_000_000/G_BOARD_CLOCK) * 1 ns;
@@ -93,7 +93,7 @@ BEGIN
 	 
    -- Stimulus process
    stim_proc: process
-	  variable delay : time := ( 2*(2**G_PWM_WIDTH-1)*(2**G_PWM_WIDTH-1) ) * clk_period;
+	  variable delay : time := G_BOARD_CLOCK * clk_period;
    begin
 	  sw <= "00000000";
 		wait for delay;

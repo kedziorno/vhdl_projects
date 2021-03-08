@@ -63,6 +63,11 @@ architecture Behavioral of top is
 	signal ld : std_logic_vector(LEDS-1 downto 0);
 	constant T_WAIT0 : integer := (BOARD_CLOCK/((2**PWM_RES)*2))-1; -- XXX sim
 	
+	type A_NUM_GAMMA is array(0 to LEDS-1) of integer range 0 to NUMBER_GAMMA_CORRECTION_GREEN;
+	signal v_index : A_NUM_GAMMA;
+	signal v_wait0 : integer range 0 to T_WAIT0;
+	signal v_direction : std_logic_vector(LEDS-1 downto 0);
+
 begin
 
 	c0to7 : FOR i IN 0 to LEDS-1 GENERATE
@@ -78,16 +83,12 @@ begin
 	END GENERATE c0to7;
 
 	p0 : process (clk,btn0) is
-		type A_NUM_GAMMA is array(0 to LEDS-1) of integer range 0 to NUMBER_GAMMA_CORRECTION_GREEN;
-		variable v_index : A_NUM_GAMMA;
-		variable v_wait0 : integer range 0 to T_WAIT0;
-		variable v_direction : std_logic_vector(LEDS-1 downto 0);
 	begin
 		if (btn0 = '1') then
 			state <= start;
-			v_direction := (others => '0');
-			v_wait0 := 0;
-			v_index := (others => 0);
+			v_direction <= (others => '0');
+			v_wait0 <= 0;
+			v_index <= (others => 0);
 		elsif (rising_edge(clk)) then
 			case (state) is
 				when start =>
@@ -127,7 +128,7 @@ begin
 				when wait0 =>
 					if (v_wait0 < T_WAIT0) then
 						state <= wait0;
-						v_wait0 := v_wait0 + 1;
+						v_wait0 <= v_wait0 + 1;
 						ld(0) <= '0';
 						ld(1) <= '0';
 						ld(2) <= '0';
@@ -138,151 +139,151 @@ begin
 						ld(7) <= '0';
 					else
 						state <= stop;
-						v_wait0 := 0;
+						v_wait0 <= 0;
 					end if;
 				when stop =>
 					state <= start;
 					if (std_match(sw,"-------1")) then
 						if (v_direction(0) = '0') then
 							if (v_index(0) < NUMBER_GAMMA_CORRECTION_GREEN-1) then
-								v_index(0) := v_index(0) + 1;
+								v_index(0) <= v_index(0) + 1;
 							else
-								v_index(0) := NUMBER_GAMMA_CORRECTION_GREEN-1;
-								v_direction(0) := '1';
+								v_index(0) <= NUMBER_GAMMA_CORRECTION_GREEN-1;
+								v_direction(0) <= '1';
 							end if;
 						end if;
 						if (v_direction(0) = '1') then
 							if (v_index(0) > 0) then
-								v_index(0) := v_index(0) - 1;
+								v_index(0) <= v_index(0) - 1;
 							else
-								v_index(0) := 0;
-								v_direction(0) := '0';
+								v_index(0) <= 0;
+								v_direction(0) <= '0';
 							end if;
 						end if;
 					end if;
 					if (std_match(sw,"------1-")) then
 						if (v_direction(1) = '0') then
 							if (v_index(1) < NUMBER_GAMMA_CORRECTION_GREEN-1) then
-								v_index(1) := v_index(1) + 1;
+								v_index(1) <= v_index(1) + 1;
 							else
-								v_index(1) := NUMBER_GAMMA_CORRECTION_GREEN-1;
-								v_direction(1) := '1';
+								v_index(1) <= NUMBER_GAMMA_CORRECTION_GREEN-1;
+								v_direction(1) <= '1';
 							end if;
 						end if;
 						if (v_direction(1) = '1') then
 							if (v_index(1) > 0) then
-								v_index(1) := v_index(1) - 1;
+								v_index(1) <= v_index(1) - 1;
 							else
-								v_index(1) := 0;
-								v_direction(1) := '0';
+								v_index(1) <= 0;
+								v_direction(1) <= '0';
 							end if;
 						end if;
 					end if;
 					if (std_match(sw,"-----1--")) then
 						if (v_direction(2) = '0') then
 							if (v_index(2) < NUMBER_GAMMA_CORRECTION_GREEN-1) then
-								v_index(2) := v_index(2) + 1;
+								v_index(2) <= v_index(2) + 1;
 							else
-								v_index(2) := NUMBER_GAMMA_CORRECTION_GREEN-1;
-								v_direction(2) := '1';
+								v_index(2) <= NUMBER_GAMMA_CORRECTION_GREEN-1;
+								v_direction(2) <= '1';
 							end if;
 						end if;
 						if (v_direction(2) = '1') then
 							if (v_index(2) > 0) then
-								v_index(2) := v_index(2) - 1;
+								v_index(2) <= v_index(2) - 1;
 							else
-								v_index(2) := 0;
-								v_direction(2) := '0';
+								v_index(2) <= 0;
+								v_direction(2) <= '0';
 							end if;
 						end if;
 					end if;
 					if (std_match(sw,"----1---")) then
 						if (v_direction(3) = '0') then
 							if (v_index(3) < NUMBER_GAMMA_CORRECTION_GREEN-1) then
-								v_index(3) := v_index(3) + 1;
+								v_index(3) <= v_index(3) + 1;
 							else
-								v_index(3) := NUMBER_GAMMA_CORRECTION_GREEN-1;
-								v_direction(3) := '1';
+								v_index(3) <= NUMBER_GAMMA_CORRECTION_GREEN-1;
+								v_direction(3) <= '1';
 							end if;
 						end if;
 						if (v_direction(3) = '1') then
 							if (v_index(3) > 0) then
-								v_index(3) := v_index(3) - 1;
+								v_index(3) <= v_index(3) - 1;
 							else
-								v_index(3) := 0;
-								v_direction(3) := '0';
+								v_index(3) <= 0;
+								v_direction(3) <= '0';
 							end if;
 						end if;
 					end if;
 					if (std_match(sw,"---1----")) then
 						if (v_direction(4) = '0') then
 							if (v_index(4) < NUMBER_GAMMA_CORRECTION_GREEN-1) then
-								v_index(4) := v_index(4) + 1;
+								v_index(4) <= v_index(4) + 1;
 							else
-								v_index(4) := NUMBER_GAMMA_CORRECTION_GREEN-1;
-								v_direction(4) := '1';
+								v_index(4) <= NUMBER_GAMMA_CORRECTION_GREEN-1;
+								v_direction(4) <= '1';
 							end if;
 						end if;
 						if (v_direction(4) = '1') then
 							if (v_index(4) > 0) then
-								v_index(4) := v_index(4) - 1;
+								v_index(4) <= v_index(4) - 1;
 							else
-								v_index(4) := 0;
-								v_direction(4) := '0';
+								v_index(4) <= 0;
+								v_direction(4) <= '0';
 							end if;
 						end if;
 					end if;
 					if (std_match(sw,"--1-----")) then
 						if (v_direction(5) = '0') then
 							if (v_index(5) < NUMBER_GAMMA_CORRECTION_GREEN-1) then
-								v_index(5) := v_index(5) + 1;
+								v_index(5) <= v_index(5) + 1;
 							else
-								v_index(5) := NUMBER_GAMMA_CORRECTION_GREEN-1;
-								v_direction(5) := '1';
+								v_index(5) <= NUMBER_GAMMA_CORRECTION_GREEN-1;
+								v_direction(5) <= '1';
 							end if;
 						end if;
 						if (v_direction(5) = '1') then
 							if (v_index(5) > 0) then
-								v_index(5) := v_index(5) - 1;
+								v_index(5) <= v_index(5) - 1;
 							else
-								v_index(5) := 0;
-								v_direction(5) := '0';
+								v_index(5) <= 0;
+								v_direction(5) <= '0';
 							end if;
 						end if;
 					end if;
 					if (std_match(sw,"-1------")) then
 						if (v_direction(6) = '0') then
 							if (v_index(6) < NUMBER_GAMMA_CORRECTION_GREEN-1) then
-								v_index(6) := v_index(6) + 1;
+								v_index(6) <= v_index(6) + 1;
 							else
-								v_index(6) := NUMBER_GAMMA_CORRECTION_GREEN-1;
-								v_direction(6) := '1';
+								v_index(6) <= NUMBER_GAMMA_CORRECTION_GREEN-1;
+								v_direction(6) <= '1';
 							end if;
 						end if;
 						if (v_direction(6) = '1') then
 							if (v_index(6) > 0) then
-								v_index(6) := v_index(6) - 1;
+								v_index(6) <= v_index(6) - 1;
 							else
-								v_index(6) := 0;
-								v_direction(6) := '0';
+								v_index(6) <= 0;
+								v_direction(6) <= '0';
 							end if;
 						end if;
 					end if;
 					if (std_match(sw,"1-------")) then
 						if (v_direction(7) = '0') then
 							if (v_index(7) < NUMBER_GAMMA_CORRECTION_GREEN-1) then
-								v_index(7) := v_index(7) + 1;
+								v_index(7) <= v_index(7) + 1;
 							else
-								v_index(7) := NUMBER_GAMMA_CORRECTION_GREEN-1;
-								v_direction(7) := '1';
+								v_index(7) <= NUMBER_GAMMA_CORRECTION_GREEN-1;
+								v_direction(7) <= '1';
 							end if;
 						end if;
 						if (v_direction(7) = '1') then
 							if (v_index(7) > 0) then
-								v_index(7) := v_index(7) - 1;
+								v_index(7) <= v_index(7) - 1;
 							else
-								v_index(7) := 0;
-								v_direction(7) := '0';
+								v_index(7) <= 0;
+								v_direction(7) <= '0';
 							end if;
 						end if;
 					end if;
