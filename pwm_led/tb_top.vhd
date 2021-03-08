@@ -27,7 +27,7 @@
 --------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
- 
+
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
@@ -43,7 +43,7 @@ ARCHITECTURE behavior OF tb_top IS
 		GENERIC(BOARD_CLOCK : integer; LEDS : integer; PWM_WIDTH : integer);
     PORT(
          clk : IN  std_logic;
-         rst : IN  std_logic;
+         btn0 : IN  std_logic;
          sw : IN  std_logic_vector(7 downto 0);
          led : OUT  std_logic_vector(7 downto 0)
         );
@@ -74,7 +74,7 @@ BEGIN
 	 PWM_WIDTH => G_PWM_WIDTH)
    PORT MAP (
           clk => clk,
-          rst => rst,
+          btn0 => rst,
           sw => sw,
           led => led
         );
