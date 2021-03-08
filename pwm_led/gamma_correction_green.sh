@@ -13,26 +13,37 @@ BEGIN {
 	n="GREEN"; # color name
 }
 {
-	for (c=0;c<a-1;c=c+b) {
+	for (c=0;c<a;c=c+b) {
 		#printf("%d ",int(a*(c/a)^(1/gamma)));
 		table[c] = sprintf("x\"%02X\"",int(a*(c/a)^(1/gamma)));
 	}
 	#print "\n";
 }
 END {
+	printf("library IEEE;\n");
+	printf("use IEEE.STD_LOGIC_1164.all;\n");
+	printf("package p_%s_%s is\n",s,n);
 	printf("-- %s %s = %.2f\n",s,n,gamma);
-	printf("constant NUMBER_%s_%s : natural := %d;\n",s,n,a-1);
+	printf("constant NUMBER_%s_%s : natural := %d;\n",s,n,a);
 	printf("type ARRAY_%s_%s is array (0 to NUMBER_%s_%s-1) of std_logic_vector(7 downto 0);\n",s,n,s,n);
-	printf("signal %s_%s : ARRAY_%s_%s :=\n",s,n,s,n);
+	printf("constant C_%s_%s : ARRAY_%s_%s :=\n",s,n,s,n);
 	printf("(\n");
 	for (i = 0; i < length(table); i++) {
 		if (i == length(table)-1) {
 			printf("%s\n",table[i]);
 		} else {
-			printf("%s,",table[i]);
+			if (i%8!=0) {
+				printf("%s,",table[i]);
+			} else {
+				printf("\n");
+			}
 		}
 	}
 	printf(");\n");
+	printf("end package p_%s_%s;\n",s,n);
+	printf("package body p_%s_%s is\n",s,n);
+	printf("end package body p_%s_%s;\n",s,n);
+	printf("\n");
 }
 '
 
