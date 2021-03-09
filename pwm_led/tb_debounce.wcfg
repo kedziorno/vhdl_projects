@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="/home/user/workspace/vhdl_projects/pwm_led/tb_debounce_isim_beh.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="numeric_std" />
+            <top_module name="std_logic_1164" />
+            <top_module name="tb_debounce" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="4" />
+   <wave_markers>
+      <marker time="0" label="" />
+   </wave_markers>
+   <wvobject fp_name="group8" type="group">
+      <obj_property name="label">tb_debounce</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_debounce/i_clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clk</obj_property>
+         <obj_property name="ObjectShortName">i_clk</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+         <obj_property name="CustomSignalColor">#ff0000</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/i_btn" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_btn</obj_property>
+         <obj_property name="ObjectShortName">i_btn</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/reset" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">reset</obj_property>
+         <obj_property name="ObjectShortName">reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/o_db_btn" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_db_btn</obj_property>
+         <obj_property name="ObjectShortName">o_db_btn</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/o_count" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">o_count[15:0]</obj_property>
+         <obj_property name="ObjectShortName">o_count[15:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/lfsr" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">lfsr</obj_property>
+         <obj_property name="ObjectShortName">lfsr</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/i_clk_period" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clk_period</obj_property>
+         <obj_property name="ObjectShortName">i_clk_period</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group25" type="group">
+      <obj_property name="label">uut_lfsr</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_debounce/uut_lfsr/clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+         <obj_property name="CustomSignalColor">#ff0000</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut_lfsr/reset" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">reset</obj_property>
+         <obj_property name="ObjectShortName">reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut_lfsr/enable" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">enable</obj_property>
+         <obj_property name="ObjectShortName">enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut_lfsr/count" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">count[15:0]</obj_property>
+         <obj_property name="ObjectShortName">count[15:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut_lfsr/count_i" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">count_i[15:0]</obj_property>
+         <obj_property name="ObjectShortName">count_i[15:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut_lfsr/feedback" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">feedback</obj_property>
+         <obj_property name="ObjectShortName">feedback</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut_lfsr/g_size" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">g_size</obj_property>
+         <obj_property name="ObjectShortName">g_size</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group30" type="group">
+      <obj_property name="label">uut_clkdiv</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_debounce/uut_clkdiv/i_clock" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clock</obj_property>
+         <obj_property name="ObjectShortName">i_clock</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+         <obj_property name="CustomSignalColor">#ff0000</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut_clkdiv/o_clock" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_clock</obj_property>
+         <obj_property name="ObjectShortName">o_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut_clkdiv/g_board_clock" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">g_board_clock</obj_property>
+         <obj_property name="ObjectShortName">g_board_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut_clkdiv/g_divider" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">g_divider</obj_property>
+         <obj_property name="ObjectShortName">g_divider</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group78" type="group">
+      <obj_property name="label">uut</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_debounce/uut/i_clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clk</obj_property>
+         <obj_property name="ObjectShortName">i_clk</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+         <obj_property name="CustomSignalColor">#ff0000</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut/i_reset" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_reset</obj_property>
+         <obj_property name="ObjectShortName">i_reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut/i_btn" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_btn</obj_property>
+         <obj_property name="ObjectShortName">i_btn</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut/o_db_btn" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_db_btn</obj_property>
+         <obj_property name="ObjectShortName">o_db_btn</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut/d_clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">d_clk</obj_property>
+         <obj_property name="ObjectShortName">d_clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut/q" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">q[7:0]</obj_property>
+         <obj_property name="ObjectShortName">q[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut/qn" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">qn[7:0]</obj_property>
+         <obj_property name="ObjectShortName">qn[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut/g_board_clock" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">g_board_clock</obj_property>
+         <obj_property name="ObjectShortName">g_board_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut/g_size" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">g_size</obj_property>
+         <obj_property name="ObjectShortName">g_size</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>
