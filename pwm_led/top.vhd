@@ -31,14 +31,20 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity top is
-Generic (BOARD_CLOCK : integer := 50_000_000; LEDS : integer := 8; PWM_WIDTH : integer := 8);
+Generic (
+	BOARD_CLOCK : integer := 50_000_000;
+	PWM_WIDTH : integer := 8;
+	LEDS : integer := 8;
+	SWITCHS : integer := 8;
+	BUTTONS : integer :=4
+);
 Port (
 	clk : in  STD_LOGIC;
-	btn0 : in  STD_LOGIC;
-	sw : in  STD_LOGIC_VECTOR (7 downto 0);
+	btn : in  STD_LOGIC_VECTOR(BUTTONS-1 downto 0);
+	sw : in  STD_LOGIC_VECTOR (SWITCHS-1 downto 0);
 	led : out  STD_LOGIC_VECTOR (LEDS-1 downto 0)
 );
-end top;
+end entity top;
 
 architecture Behavioral of top is
 	type state_type is (start,wait0,stop);
@@ -75,16 +81,16 @@ begin
 	GENERIC MAP (PWM_WIDTH => PWM_RES) -- 0 to 255
 	PORT MAP (
 		i_clock => clk,
-		i_reset => btn0,
+		i_reset => btn(0),
 		i_load => ld(i),
 		i_data => data(i),
 		o_pwm => o_pwm(i)
 	);
 	END GENERATE c0to7;
 
-	p0 : process (clk,btn0) is
+	p0 : process (clk,btn(0)) is
 	begin
-		if (btn0 = '1') then
+		if (btn(0) = '1') then
 			state <= start;
 			v_direction <= (others => '0');
 			v_wait0 <= 0;
