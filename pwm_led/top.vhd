@@ -124,8 +124,10 @@ architecture Behavioral of top is
 	
 	type A_NUM_GAMMA is array(0 to LEDS-1) of integer range 0 to NUMBER_GAMMA_CORRECTION_GREEN;
 	signal v_index : A_NUM_GAMMA;
-	signal v_wait0 : integer range 0 to T_WAIT0;
+	signal v_wait0 : integer range 0 to S_WAIT0_DEFAULT;
 	signal v_direction : std_logic_vector(LEDS-1 downto 0);
+
+	signal db_btn : std_logic_vector(BUTTONS-1 downto 0);
 
 begin
 
@@ -145,7 +147,7 @@ begin
 	GENERIC MAP (PWM_WIDTH => PWM_RES) -- 0 to 255
 	PORT MAP (
 		i_clock => clk,
-		i_reset => btn(0),
+		i_reset => db_btn(0),
 		i_load => ld(i),
 		i_data => data(i),
 		o_pwm => o_pwm(i)
@@ -184,7 +186,7 @@ begin
 		
 	p0 : process (clk,btn(0)) is
 	begin
-		if (btn(0) = '1') then
+		if (db_btn(0) = '1') then
 			state <= start;
 			v_direction <= (others => '0');
 			v_wait0 <= 0;
