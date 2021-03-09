@@ -145,10 +145,10 @@ NET "sw<6>"       LOC = "N17";     # Bank = 1, Pin name = IP, Type = INPUT,     
 NET "sw<7>"       LOC = "R17";     # Bank = 1, Pin name = IP, Type = INPUT,                              Sch name = SW7
 
 ## Buttons
-NET "btn0"      LOC = "B18";     # Bank = 1, Pin name = IP, Type = INPUT,                              Sch name = BTN0
-#NET "btn<1>"      LOC = "D18";     # Bank = 1, Pin name = IP/VREF_1, Type = VREF,                        Sch name = BTN1
-#NET "btn<2>"      LOC = "E18";     # Bank = 1, Pin name = IP, Type = INPUT,                              Sch name = BTN2
-#NET "btn<3>"      LOC = "H13";     # Bank = 1, Pin name = IP, Type = INPUT,                              Sch name = BTN3
+NET "btn<0>"      LOC = "B18";     # Bank = 1, Pin name = IP, Type = INPUT,                              Sch name = BTN0
+NET "btn<1>"      LOC = "D18";     # Bank = 1, Pin name = IP/VREF_1, Type = VREF,                        Sch name = BTN1
+NET "btn<2>"      LOC = "E18";     # Bank = 1, Pin name = IP, Type = INPUT,                              Sch name = BTN2
+NET "btn<3>"      LOC = "H13";     # Bank = 1, Pin name = IP, Type = INPUT,                              Sch name = BTN3
 
 ## VGA Connector 
 #NET "vgaRed<1>"   LOC = "R9";      # Bank = 2, Pin name = IO/D5, Type = DUAL,                            Sch name = RED0
