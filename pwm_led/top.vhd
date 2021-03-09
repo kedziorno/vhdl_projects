@@ -147,7 +147,7 @@ begin
 	GENERIC MAP (PWM_WIDTH => PWM_RES) -- 0 to 255
 	PORT MAP (
 		i_clock => clk,
-		i_reset => db_btn(0),
+		i_reset => btn(0),
 		i_load => ld(i),
 		i_data => data(i),
 		o_pwm => o_pwm(i)
@@ -186,7 +186,7 @@ begin
 		
 	p0 : process (clk,btn(0)) is
 	begin
-		if (db_btn(0) = '1') then
+		if (btn(0) = '1') then
 			state <= start;
 			v_direction <= (others => '0');
 			v_wait0 <= 0;
