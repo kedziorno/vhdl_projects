@@ -35,6 +35,7 @@ Generic (
 	g_divider : integer
 );
 Port (
+	i_reset : in STD_LOGIC;
 	i_clock : in STD_LOGIC;
 	o_clock : out STD_LOGIC
 );
@@ -43,11 +44,14 @@ end clock_divider_cnt;
 architecture Behavioral of clock_divider_cnt is
 begin
 
-p0 : process (i_clock) is
+p0 : process (i_clock,i_reset) is
 	variable clock_out : std_logic;
 	variable counter : integer := 0;
 begin
-	if (rising_edge(i_clock)) then
+	if (i_reset = '1') then
+		counter := 0;
+		clock_out := '0';
+	elsif (rising_edge(i_clock)) then
 		if (counter = (g_board_clock / g_divider) - 1) then
 			clock_out := '1';
 			counter := 0;

@@ -22,7 +22,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
@@ -31,10 +31,12 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity debounce is
 Generic (
-	G_BOARD_CLOCK : integer
+	G_BOARD_CLOCK : integer := 50_000_000;
+	G_SIZE : integer := 8
 );
 Port (
 	i_clk : in  STD_LOGIC;
+	i_reset : in  STD_LOGIC;
 	i_btn : in  STD_LOGIC;
 	o_db_btn : out  STD_LOGIC
 );
@@ -48,35 +50,45 @@ architecture Behavioral of debounce is
 		g_divider : integer
 	);
 	Port (
+		i_reset : in STD_LOGIC;
 		i_clock : in STD_LOGIC;
 		o_clock : out STD_LOGIC
 	);
 	END COMPONENT clock_divider_cnt;
 
 	signal d_clk : std_logic;
-	signal q0,q1,q2 : std_logic;
+	signal q : std_logic_vector(G_SIZE-1 downto 0);
+	signal qn : std_logic_vector(G_SIZE-1 downto 0);
 
 begin
 
 	clk_div_cnt : clock_divider_cnt
 	GENERIC MAP (
 		g_board_clock => G_BOARD_CLOCK,
-		g_divider => 33 -- XXX ~30ms
+		g_divider => G_BOARD_CLOCK/2
 	)
 	PORT MAP (
+		i_reset => i_reset,
 		i_clock => i_clk,
 		o_clock => d_clk
 	);
 	
-	p0 : process (d_clk) is
+	p0 : process (d_clk,i_reset) is
 	begin
-		if (rising_edge(d_clk)) then
-			q2 <= i_btn;
-			q1 <= q2;
-			q0 <= q1;
+		if (i_reset = '1') then
+			q <= (others => '0');
+			qn <= (others => '1');
+		elsif (rising_edge(d_clk)) then
+			q(G_SIZE-1 downto 0) <= q(G_SIZE-2 downto 0) & i_btn;
+			if (q(G_SIZE-1 downto 0) = qn(G_SIZE-1 downto 0)) then
+				o_db_btn <= '1';
+				q <= (others => '0');
+			else
+				o_db_btn <= '0';
+			end if;
 		end if;
 	end process p0;
 
-	o_db_btn <= (q2 and q1 and not q0);
+	
 
 end Behavioral;

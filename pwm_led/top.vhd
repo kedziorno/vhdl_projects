@@ -67,6 +67,7 @@ architecture Behavioral of top is
 	);
 	Port (
 		i_clk : in  STD_LOGIC;
+		i_reset : in  STD_LOGIC;
 		i_btn : in  STD_LOGIC;
 		o_db_btn : out  STD_LOGIC
 	);
@@ -109,6 +110,7 @@ begin
 	GENERIC MAP (G_BOARD_CLOCK => BOARD_CLOCK)
 	PORT MAP (
 		i_clk => clk,
+		i_reset => btn(0),
 		i_btn => btn(i),
 		o_db_btn => db_btn(i)
 	);
@@ -119,7 +121,7 @@ begin
 	GENERIC MAP (PWM_WIDTH => PWM_RES) -- 0 to 255
 	PORT MAP (
 		i_clock => clk,
-		i_reset => db_btn(0),
+		i_reset => btn(0),
 		i_load => ld(i),
 		i_data => data(i),
 		o_pwm => o_pwm(i)
@@ -156,9 +158,9 @@ begin
 	(BOARD_CLOCK/((2**PWM_RES)*S_WAIT0_10))-1 when S_WAIT0_INDEX=10 else
 	(BOARD_CLOCK/((2**PWM_RES)*S_WAIT0_1))-1;
 		
-	p0 : process (clk,db_btn(0)) is
+	p0 : process (clk,btn(0)) is
 	begin
-		if (db_btn(0) = '1') then
+		if (btn(0) = '1') then
 			state <= start;
 			v_direction <= (others => '0');
 			v_wait0 <= 0;
