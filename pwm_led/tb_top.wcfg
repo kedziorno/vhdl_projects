@@ -13,7 +13,10 @@
       </db_ref>
    </db_ref_list>
    <WVObjectSize size="2" />
-   <wvobject fp_name="group11" type="group">
+   <wave_markers>
+      <marker time="1000000000000000" label="" />
+   </wave_markers>
+   <wvobject fp_name="group84" type="group">
       <obj_property name="label">tb_top</obj_property>
       <obj_property name="DisplayName">label</obj_property>
       <wvobject fp_name="/tb_top/clk" type="logic" db_ref_id="1">
@@ -21,8 +24,8 @@
          <obj_property name="ObjectShortName">clk</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/btn" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">btn[7:0]</obj_property>
-         <obj_property name="ObjectShortName">btn[7:0]</obj_property>
+         <obj_property name="ElementShortName">btn[3:0]</obj_property>
+         <obj_property name="ObjectShortName">btn[3:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/sw" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">sw[7:0]</obj_property>
@@ -57,7 +60,7 @@
          <obj_property name="ObjectShortName">clk_period</obj_property>
       </wvobject>
    </wvobject>
-   <wvobject fp_name="group31" type="group">
+   <wvobject fp_name="group131" type="group">
       <obj_property name="label">top</obj_property>
       <obj_property name="DisplayName">label</obj_property>
       <wvobject fp_name="/tb_top/uut/clk" type="logic" db_ref_id="1">
@@ -65,8 +68,12 @@
          <obj_property name="ObjectShortName">clk</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/btn" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">btn[7:0]</obj_property>
-         <obj_property name="ObjectShortName">btn[7:0]</obj_property>
+         <obj_property name="ElementShortName">btn[3:0]</obj_property>
+         <obj_property name="ObjectShortName">btn[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/db_btn" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">db_btn[3:0]</obj_property>
+         <obj_property name="ObjectShortName">db_btn[3:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/sw" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">sw[7:0]</obj_property>
@@ -91,6 +98,14 @@
       <wvobject fp_name="/tb_top/uut/ld" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">ld[7:0]</obj_property>
          <obj_property name="ObjectShortName">ld[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/s_wait0_index" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">s_wait0_index</obj_property>
+         <obj_property name="ObjectShortName">s_wait0_index</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/s_wait0" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">s_wait0</obj_property>
+         <obj_property name="ObjectShortName">s_wait0</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/v_index" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">v_index[0:7]</obj_property>
@@ -132,9 +147,57 @@
          <obj_property name="ElementShortName">l_data</obj_property>
          <obj_property name="ObjectShortName">l_data</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb_top/uut/t_wait0" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">t_wait0</obj_property>
-         <obj_property name="ObjectShortName">t_wait0</obj_property>
+      <wvobject fp_name="/tb_top/uut/s_wait0_1" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">s_wait0_1</obj_property>
+         <obj_property name="ObjectShortName">s_wait0_1</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/s_wait0_2" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">s_wait0_2</obj_property>
+         <obj_property name="ObjectShortName">s_wait0_2</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/s_wait0_3" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">s_wait0_3</obj_property>
+         <obj_property name="ObjectShortName">s_wait0_3</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/s_wait0_4" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">s_wait0_4</obj_property>
+         <obj_property name="ObjectShortName">s_wait0_4</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/s_wait0_5" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">s_wait0_5</obj_property>
+         <obj_property name="ObjectShortName">s_wait0_5</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/s_wait0_6" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">s_wait0_6</obj_property>
+         <obj_property name="ObjectShortName">s_wait0_6</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/s_wait0_7" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">s_wait0_7</obj_property>
+         <obj_property name="ObjectShortName">s_wait0_7</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/s_wait0_8" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">s_wait0_8</obj_property>
+         <obj_property name="ObjectShortName">s_wait0_8</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/s_wait0_9" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">s_wait0_9</obj_property>
+         <obj_property name="ObjectShortName">s_wait0_9</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/s_wait0_10" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">s_wait0_10</obj_property>
+         <obj_property name="ObjectShortName">s_wait0_10</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/s_wait0_min" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">s_wait0_min</obj_property>
+         <obj_property name="ObjectShortName">s_wait0_min</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/s_wait0_max" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">s_wait0_max</obj_property>
+         <obj_property name="ObjectShortName">s_wait0_max</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/s_wait0_default" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">s_wait0_default</obj_property>
+         <obj_property name="ObjectShortName">s_wait0_default</obj_property>
       </wvobject>
    </wvobject>
 </wave_config>
