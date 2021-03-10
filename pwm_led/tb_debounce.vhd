@@ -62,9 +62,10 @@ ARCHITECTURE behavior OF tb_debounce IS
 		reset : in std_logic;
 		clk : in std_logic;
 		enable : in std_logic;
-		count : out std_logic_vector (G_SIZE-1 downto 0) -- lfsr output
+		input : in std_logic_vector (G_SIZE-1 downto 0);
+		output : out std_logic_vector (G_SIZE-1 downto 0)
 	);
-	END COMPONENT lfsr1;
+	END COMPONENT graycode;
 
 	COMPONENT graycode IS
 	GENERIC (G_SIZE : integer);
@@ -260,6 +261,44 @@ BEGIN
 					state <= stop;
 			end case;
 		end if;
+
+-- LFSR
+--		if (rising_edge(i_clk)) then
+--			case (state) is
+--				when enable_lfsr =>
+--					state := disable_lfsr;
+--					enable <= '1';
+--				when disable_lfsr =>
+--					state := send_state;
+--					enable <= '0';
+--				when send_state =>
+--					if (index < SIZE-1) then
+--						state := send_state;
+--						i_btn <= o_count(index);
+--						index := index + 1;
+--					else
+--						index := 0;
+--						state := wait0_state;
+--					end if;
+--				when send_again =>
+--					if (send_the_same_index < send_the_same) then
+--						send_the_same_index := send_the_same_index + 1;
+--						state := send_state;
+--					else
+--						send_the_same_index := 0;
+--						state := wait0_state;
+--					end if;
+--				when wait0_state =>
+--					if (wait0 < WAIT0_COUNT) then
+--						state := wait0_state;
+--						wait0 := wait0 + 1;
+--						i_btn <= '0';
+--					else
+--						state := enable_lfsr;
+--						wait0 := 0;
+--					end if;
+--			end case;
+--		end if;
 	end process;
 
 END;
