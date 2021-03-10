@@ -11,7 +11,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="4" />
+   <WVObjectSize size="5" />
    <wave_markers>
       <marker time="0" label="" />
    </wave_markers>
@@ -36,54 +36,9 @@
          <obj_property name="ElementShortName">o_db_btn</obj_property>
          <obj_property name="ObjectShortName">o_db_btn</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb_debounce/o_count" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">o_count[15:0]</obj_property>
-         <obj_property name="ObjectShortName">o_count[15:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_debounce/lfsr" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">lfsr</obj_property>
-         <obj_property name="ObjectShortName">lfsr</obj_property>
-      </wvobject>
       <wvobject fp_name="/tb_debounce/i_clk_period" type="other" db_ref_id="1">
          <obj_property name="ElementShortName">i_clk_period</obj_property>
          <obj_property name="ObjectShortName">i_clk_period</obj_property>
-      </wvobject>
-   </wvobject>
-   <wvobject fp_name="group25" type="group">
-      <obj_property name="label">uut_lfsr</obj_property>
-      <obj_property name="DisplayName">label</obj_property>
-      <wvobject fp_name="/tb_debounce/uut_lfsr/clk" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">clk</obj_property>
-         <obj_property name="ObjectShortName">clk</obj_property>
-         <obj_property name="UseCustomSignalColor">true</obj_property>
-         <obj_property name="CustomSignalColor">#ff0000</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_debounce/uut_lfsr/reset" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">reset</obj_property>
-         <obj_property name="ObjectShortName">reset</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_debounce/uut_lfsr/enable" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">enable</obj_property>
-         <obj_property name="ObjectShortName">enable</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_debounce/uut_lfsr/count" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">count[15:0]</obj_property>
-         <obj_property name="ObjectShortName">count[15:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_debounce/uut_lfsr/count_i" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">count_i[15:0]</obj_property>
-         <obj_property name="ObjectShortName">count_i[15:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_debounce/uut_lfsr/feedback" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">feedback</obj_property>
-         <obj_property name="ObjectShortName">feedback</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_debounce/uut_lfsr/g_size" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">g_size</obj_property>
-         <obj_property name="ObjectShortName">g_size</obj_property>
       </wvobject>
    </wvobject>
    <wvobject fp_name="group30" type="group">
@@ -149,5 +104,43 @@
          <obj_property name="ElementShortName">g_size</obj_property>
          <obj_property name="ObjectShortName">g_size</obj_property>
       </wvobject>
+   </wvobject>
+   <wvobject fp_name="group47" type="group">
+      <obj_property name="label">uut_graycode</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_debounce/uut_graycode/reset" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">reset</obj_property>
+         <obj_property name="ObjectShortName">reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut_graycode/clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+         <obj_property name="CustomSignalColor">#ff0000</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut_graycode/enable" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">enable</obj_property>
+         <obj_property name="ObjectShortName">enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut_graycode/input" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">input[3:0]</obj_property>
+         <obj_property name="ObjectShortName">input[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut_graycode/output" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">output[3:0]</obj_property>
+         <obj_property name="ObjectShortName">output[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut_graycode/count_i" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">count_i[3:0]</obj_property>
+         <obj_property name="ObjectShortName">count_i[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_debounce/uut_graycode/g_size" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">g_size</obj_property>
+         <obj_property name="ObjectShortName">g_size</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/tb_debounce/state" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">state</obj_property>
+      <obj_property name="ObjectShortName">state</obj_property>
    </wvobject>
 </wave_config>
