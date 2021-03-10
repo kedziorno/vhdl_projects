@@ -65,7 +65,7 @@ begin
 	clk_div_cnt : clock_divider_cnt
 	GENERIC MAP (
 		g_board_clock => G_BOARD_CLOCK,
-		g_divider => G_BOARD_CLOCK/2
+		g_divider => G_BOARD_CLOCK/2/1250
 	)
 	PORT MAP (
 		i_reset => i_reset,
@@ -73,12 +73,13 @@ begin
 		o_clock => d_clk
 	);
 	
-	p0 : process (d_clk,i_reset) is
+	p0 : process (i_clk,i_reset) is
 	begin
 		if (i_reset = '1') then
 			q <= (others => '0');
 			qn <= (others => '1');
-		elsif (rising_edge(d_clk)) then
+			o_db_btn <= '0';
+		elsif (rising_edge(i_clk)) then
 			q(G_SIZE-1 downto 0) <= q(G_SIZE-2 downto 0) & i_btn;
 			if (q(G_SIZE-1 downto 0) = qn(G_SIZE-1 downto 0)) then
 				o_db_btn <= '1';
@@ -88,7 +89,5 @@ begin
 			end if;
 		end if;
 	end process p0;
-
-	
 
 end Behavioral;

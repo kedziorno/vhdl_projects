@@ -12,10 +12,15 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="2" />
-   <wave_markers>
-      <marker time="1000000000000000" label="" />
-   </wave_markers>
+   <WVObjectSize size="4" />
+   <wvobject fp_name="/tb_top/led[0]" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">[0]</obj_property>
+      <obj_property name="ObjectShortName">led[0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/s_wait0_index" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">s_wait0_index</obj_property>
+      <obj_property name="ObjectShortName">s_wait0_index</obj_property>
+   </wvobject>
    <wvobject fp_name="group84" type="group">
       <obj_property name="label">tb_top</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -98,10 +103,6 @@
       <wvobject fp_name="/tb_top/uut/ld" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">ld[7:0]</obj_property>
          <obj_property name="ObjectShortName">ld[7:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/s_wait0_index" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">s_wait0_index</obj_property>
-         <obj_property name="ObjectShortName">s_wait0_index</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/s_wait0" type="other" db_ref_id="1">
          <obj_property name="ElementShortName">s_wait0</obj_property>
