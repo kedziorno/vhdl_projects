@@ -113,15 +113,15 @@ begin
 		o_clock => o_clk_count
 	);
 
-	uut1_clock_divider_sub : clock_divider_sub
+	uut_clock_divider_sub : clock_divider_sub
 	PORT MAP(
 		i_clk => clk,
 		i_board_clock => G_BOARD_CLOCK,
-		i_divider => 96,
+		i_divider => G_BOARD_CLOCK/2,
 		o_clk => o_clk_sub
 	);
 
-	uut2_rs232 : rs232
+	uut_rs232 : rs232
 	PORT MAP (
 		clk => clk,
 		rst => rst,
@@ -132,10 +132,10 @@ begin
 		RsRx => RsRx
 	);
 
-	uut3_fifo : fifo
+	uut_fifo : fifo
 	PORT MAP (
 		i_clk1 => o_clk_count,
-		i_clk2 => o_clk_sub,
+		i_clk2 => o_clk_count,
 		i_data => data_in,
 		o_data => data_out,
 		o_full => full,
@@ -143,15 +143,15 @@ begin
 		o_memory_index => memory_index
 	);
 
-	p0 : process (o_clk_sub) is
+	p0 : process (o_clk_count) is
 		variable index : integer range 0 to ARRAY_LENGTH-1 := 0;
 	begin
-		if (rising_edge(o_clk_sub)) then
+		if (rising_edge(o_clk_count)) then
 			data_in <= bytes(index);
 			if (index < ARRAY_LENGTH-1) then
 				index := index + 1;
 			else
-				index := 0;
+				index := ARRAY_LENGTH-1;
 			end if;
 		end if;
 	end process p0;
