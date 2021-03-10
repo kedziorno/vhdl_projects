@@ -45,54 +45,58 @@ Port (
 );
 end fifo;
 
+-- fifo one clock
+
 architecture Behavioral of fifo is
+
 	type memory_t is array(0 to HEIGHT-1) of std_logic_vector(WIDTH-1 downto 0);
 	signal memory : memory_t := ( others => ( others => '0' ) );
-	signal memory_index : natural range 0 to HEIGHT-1 := 0;
+	signal index : integer range 0 to HEIGHT:= 0;
 	signal full,empty : std_logic;
-begin
-	empty <= '1' when (memory_index = 0) else '0';
-	full <= '1' when (memory_index = HEIGHT) else '0';
+	signal r,w : integer range 0 to HEIGHT-1:= 0;
 
-	o_memory_index <= std_logic_vector(to_unsigned(memory_index,HEIGHT));
+begin
+
+	empty <= '1' when (index=0) else '0';
+	full <= '1' when (index=HEIGHT-1) else '0';
+
+	o_memory_index <= std_logic_vector(to_unsigned(index,HEIGHT));
 	o_full <= full;
 	o_empty <= empty;
 
-	p0 : process (i_clk1,full) is
-	begin
-		if (full = '0') then
-			if (rising_edge(i_clk1)) then
-				memory(memory_index) <= i_data;
-			end if;
-		end if;
-	end process p0;
-	
-	p1 : process (i_clk2,empty) is
-	begin
-		if (empty = '0') then
-			if (rising_edge(i_clk2)) then
-				o_data <= memory(memory_index-1);
-			end if;
-		end if;
-	end process p1;
-
-	p2 : process (i_clk1,i_clk2) is
-		variable mi : natural range 0 to HEIGHT-1 := 0;
+	pc : process (i_clk1) is
 	begin
 		if (rising_edge(i_clk1)) then
-			if (full='0') then
-				if (mi /= HEIGHT) then
-					mi := mi + 1;
-				end if;
-			end if;
-		elsif (rising_edge(i_clk2)) then
-			if (empty='0') then
-				if (mi /= 0) then
-					mi := mi - 1;
-				end if;
+			if (index = HEIGHT-1) then
+				index <= 0;
+			else
+				index <= index + 1;
 			end if;
 		end if;
-		memory_index <= mi;
-	end process p2;
-	
+	end process pc;
+
+	pa : process (i_clk1,w) is
+	begin
+		if (rising_edge(i_clk1)) then
+			memory(w) <= i_data;
+			if (w=HEIGHT-1) then
+				w <= 0;
+			else
+				w <= w + 1;
+			end if;
+		end if;
+	end process pa;
+
+	pb : process (i_clk1,r) is
+	begin
+		if (rising_edge(i_clk1)) then
+			o_data <= memory(r);
+			if (r=HEIGHT-1) then
+				r <= 0;
+			else
+				r <= r + 1;
+			end if;
+		end if;
+	end process pb;
+
 end Behavioral;
