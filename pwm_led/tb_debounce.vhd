@@ -38,8 +38,8 @@ END tb_debounce;
 ARCHITECTURE behavior OF tb_debounce IS
 
 	-- Constant
-	constant SIZE : integer := 18;
-	constant DEBOUNCE_REGISTER : integer := 8;
+	constant SIZE : integer := 8;
+	constant DEBOUNCE_REGISTER : integer := 5;
 	constant G_BOARD_CLOCK : integer := 50_000_000;
 
 	-- Component Declaration for the Unit Under Test (UUT)
@@ -56,19 +56,19 @@ ARCHITECTURE behavior OF tb_debounce IS
 	);
 	END COMPONENT;
 
---	COMPONENT lfsr1 IS
---	generic (G_SIZE : integer);
---	port (
---		reset : in std_logic;
---		clk : in std_logic;
---		enable : in std_logic;
---		count : out std_logic_vector (G_SIZE-1 downto 0) -- lfsr output
---	);
---	END COMPONENT lfsr1;
+	COMPONENT lfsr1 IS
+	GENERIC (G_SIZE : integer);
+	PORT (
+		reset : in std_logic;
+		clk : in std_logic;
+		enable : in std_logic;
+		count : out std_logic_vector (G_SIZE-1 downto 0) -- lfsr output
+	);
+	END COMPONENT lfsr1;
 
 	COMPONENT graycode IS
-	generic (G_SIZE : integer);
-	port (
+	GENERIC (G_SIZE : integer);
+	PORT (
 		reset : in std_logic;
 		clk : in std_logic;
 		enable : in std_logic;
@@ -93,22 +93,23 @@ ARCHITECTURE behavior OF tb_debounce IS
 	signal i_clk : std_logic := '0';
 	signal i_btn : std_logic := '0';
 	signal reset : std_logic := '0';
-	signal enable : std_logic := '1';
+	signal enable_gc : std_logic := '0';
+	signal enable_lfsr : std_logic := '0';
 	signal i_int : std_logic_vector (SIZE-1 downto 0) := (others => '0');
 
 	--Outputs
 	signal o_db_btn : std_logic;
 	signal o_gc : std_logic_vector (SIZE-1 downto 0);
+	signal o_lfsr : std_logic_vector (SIZE-1 downto 0);
 	signal o_clk_div : std_logic;
 
 	-- Clock period definitions
 	constant i_clk_period : time := (1_000_000_000/G_BOARD_CLOCK) * 1 ns; -- XXX 50Mhz
 
 	-- States
-	-- type state_type is (enable_lfsr,send_state,send_again,disable_lfsr,wait0_state);
-	-- signal state : state_type;
-	type state_type is (send,increment,w0s);
-	signal state : state_type;
+	type state_type is (idle,start,lfsr_enable,lfsr_disable,lfsr_send,lfsr_increment,lfsr_wait0,gc_send,gc_increment,gc_wait0,stop);
+	signal state : state_type := idle;
+	signal simulation_finish : std_logic := '0';
 
 BEGIN
 
@@ -125,21 +126,21 @@ BEGIN
 	o_db_btn => o_db_btn
 	);
 
---	uut_lfsr: lfsr1
---	GENERIC MAP (G_SIZE => SIZE)
---	PORT MAP (
---		reset => reset,
---		clk => i_clk,
---		enable => enable,
---		count => o_count
---	);
+	uut_lfsr: lfsr1
+	GENERIC MAP (G_SIZE => SIZE)
+	PORT MAP (
+		reset => reset,
+		clk => i_clk,
+		enable => enable_lfsr,
+		count => o_lfsr
+	);
 
 	uut_graycode: graycode
 	GENERIC MAP (G_SIZE => SIZE)
 	PORT MAP (
 		reset => reset,
 		clk => i_clk,
-		enable => enable,
+		enable => enable_gc,
 		input => i_int,
 		output => o_gc
 	);
@@ -158,24 +159,24 @@ BEGIN
 	-- Clock process definitions
 	i_clk_process :process
 	begin
-		i_clk <= '0';
-		wait for i_clk_period/2;
-		i_clk <= '1';
-		wait for i_clk_period/2;
+		while simulation_finish = '0' loop
+			i_clk <= '0';
+			wait for i_clk_period/2;
+			i_clk <= '1';
+			wait for i_clk_period/2;
+			end loop;
+		wait;
 	end process;
-
-	reset <= '1', '0' after i_clk_period;
 
 	-- Stimulus process
 	stim_proc: process (i_clk) is
+
 		constant WAIT0_COUNT : integer := SIZE;
 		variable wait0 : integer range 0 to WAIT0_COUNT-1 := 0;
-
 -- LFSR
---		variable index : integer range 0 to SIZE-1 := 0;
---		constant send_the_same : integer := 1;
---		variable send_the_same_index : integer range 0 to send_the_same-1 := 0;
-
+		variable index : integer range 0 to SIZE-1 := 0;
+		constant send_the_same : integer := 1;
+		variable send_the_same_index : integer range 0 to send_the_same-1 := 0;
 -- GRAYCODE
 		constant o_gc_max : integer := SIZE;
 		variable o_gc_index : integer range 0 to o_gc_max-1 := 0;
@@ -187,75 +188,78 @@ BEGIN
 -- GRAYCODE
 		if (rising_edge(i_clk)) then
 			case (state) is
-				when send =>
+				when idle =>
+					state <= start;
+					reset <= '1', '0' after 10*i_clk_period;
+				when start =>
+					state <= gc_send;
+					REPORT "GRAYCODE" SEVERITY NOTE;
+				when gc_send => -- start from gc mode
 					if (o_gc_index = o_gc_max-1) then
+						state <= gc_increment;
 						o_gc_index := 0;
-						state <= increment;
-						enable <= '1';
+						enable_gc <= '1';
 					else
-						state <= send;
+						state <= gc_send;
 						i_btn <= o_gc(o_gc_index);
 						o_gc_index := o_gc_index + 1;
 					end if;
-				when increment =>
+				when gc_increment =>
+					enable_gc <= '0';
 					if (to_integer(unsigned(gc_index)) = to_integer(unsigned(gc_max))-1) then
-						state <= send;
+						state <= lfsr_enable; -- jump to lfsr mode
+						REPORT "LFSR" SEVERITY NOTE;
 						gc_index := std_logic_vector(to_unsigned(0,SIZE));
 					else
-						enable <= '0';
-						state <= w0s;
+						state <= gc_wait0;
 						gc_index := std_logic_vector(to_unsigned(to_integer(unsigned(gc_index) + 1),SIZE));
 						i_int <= gc_index;
 					end if;
-				when w0s =>
+				when gc_wait0 =>
 					if (wait0 < WAIT0_COUNT) then
-						state <= w0s;
+						state <= gc_wait0;
 						wait0 := wait0 + 1;
 						i_btn <= '0';
 					else
-						state <= send;
+						state <= gc_send;
 						wait0 := 0;
 					end if;
+				when lfsr_enable =>
+					state <= lfsr_disable;
+					enable_lfsr <= '1';
+				when lfsr_disable =>
+					state <= lfsr_send;
+					enable_lfsr <= '0';
+				when lfsr_send =>
+					if (index = SIZE-1) then
+						state <= lfsr_increment;
+						index := 0;
+					else
+						state <= lfsr_send;
+						i_btn <= o_lfsr(index);
+						index := index + 1;
+					end if;
+				when lfsr_increment =>
+					if (o_lfsr = std_logic_vector(to_unsigned(0,SIZE))) then
+						state <= stop;
+					else
+						state <= lfsr_wait0;
+					end if;
+				when lfsr_wait0 =>
+					if (wait0 = WAIT0_COUNT-1) then
+						state <= lfsr_enable;
+						wait0 := 0;
+					else
+						state <= lfsr_wait0;
+						wait0 := wait0 + 1;
+						i_btn <= '0';
+					end if;
+				when stop =>
+					REPORT "END" SEVERITY NOTE;
+					simulation_finish <= '1';
+					state <= stop;
 			end case;
 		end if;
-
--- LFSR
---		if (rising_edge(i_clk)) then
---			case (state) is
---				when enable_lfsr =>
---					state := disable_lfsr;
---					enable <= '1';
---				when disable_lfsr =>
---					state := send_state;
---					enable <= '0';
---				when send_state =>
---					if (index < SIZE-1) then
---						state := send_state;
---						i_btn <= o_count(index);
---						index := index + 1;
---					else
---						index := 0;
---						state := wait0_state;
---					end if;
---				when send_again =>
---					if (send_the_same_index < send_the_same) then
---						send_the_same_index := send_the_same_index + 1;
---						state := send_state;
---					else
---						send_the_same_index := 0;
---						state := wait0_state;
---					end if;
---				when wait0_state =>
---					if (wait0 < WAIT0_COUNT) then
---						state := wait0_state;
---						wait0 := wait0 + 1;
---						i_btn <= '0';
---					else
---						state := enable_lfsr;
---						wait0 := 0;
---					end if;
---			end case;
---		end if;
 	end process;
 
 END;
