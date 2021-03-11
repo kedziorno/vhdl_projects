@@ -14,7 +14,8 @@ package p_constants is
 	constant G_BOARD_CLOCK : integer := 50_000_000;
 	constant NUMBER_BITS : integer := 8;
 	constant FIFO_WIDTH : integer := NUMBER_BITS;
-	constant FIFO_HEIGHT : integer := 5;
+	constant FIFO_HEIGHT : integer := 1;
+	constant G_BAUD_RATE : integer := 9600;
 end p_constants;
 
 package body p_constants is

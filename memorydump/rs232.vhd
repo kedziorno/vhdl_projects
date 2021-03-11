@@ -30,9 +30,14 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity rs232 is
+Generic (
+	G_BOARD_CLOCK : integer := 50_000_000;
+	G_BAUD_RATE : integer := 9_600
+);
 Port(
 	clk : in  STD_LOGIC;
 	rst : in  STD_LOGIC;
+	enable : in  STD_LOGIC;
 	byte_to_send : in  STD_LOGIC_VECTOR (7 downto 0);
 	busy : out  STD_LOGIC;
 	ready : out  STD_LOGIC;
@@ -42,33 +47,39 @@ Port(
 end rs232;
 
 architecture Behavioral of rs232 is
-	constant CLK_BOARD : integer := 50_000_000;
-	constant BAUD_RATE : integer := 9_600;
 
 	signal clk_div1 : std_logic;
 	
-	type state is (start,b1,b2,b3,b4,b5,b6,b7,b8,stop);
+	type state is (idle,start,b1,b2,b3,b4,b5,b6,b7,b8,stop);
 	signal c_state : state := start;
+
 begin
 
-	p_dv : process (clk) is
-		variable COUNTER_BAUD_RATE_MAX : integer := (CLK_BOARD/BAUD_RATE);
+	p_dv : process (clk,rst) is
+		variable COUNTER_BAUD_RATE_MAX : integer := (G_BOARD_CLOCK/G_BAUD_RATE);
 		variable counter_baud_rate : integer := 0;
 	begin
-		if (rising_edge(clk)) then
-			if (counter_baud_rate < COUNTER_BAUD_RATE_MAX-1) then
-				clk_div1 <= '0';
-				counter_baud_rate := counter_baud_rate + 1;
-			else
+		if (rst = '1') then
+			counter_baud_rate := 0;
+		elsif (rising_edge(clk)) then
+			if (counter_baud_rate = COUNTER_BAUD_RATE_MAX-1) then
 				clk_div1 <= '1';
 				counter_baud_rate := 0;
+			else
+				clk_div1 <= '0';
+				counter_baud_rate := counter_baud_rate + 1;
 			end if;
 		end if;
 	end process p_dv;
 
-	p0 : process (clk_div1) is
+	p0 : process (clk,clk_div1,rst) is
 	begin
-		if (rising_edge(clk_div1)) then
+		if (rst = '1') then
+			c_state <= start;
+			busy <= '0';
+			ready <= '1';
+			RsTx <= '1';
+		elsif (rising_edge(clk_div1)) then
 			case c_state is
 				when start =>
 					c_state <= b1;
@@ -98,8 +109,8 @@ begin
 					RsTx <= byte_to_send(1);
 				when b8 =>
 					c_state <= stop;
---					RsTx <= byte_to_send(0);
-					RsTx <= byte_to_send(0) xor byte_to_send(1) xor byte_to_send(2) xor byte_to_send(3) xor byte_to_send(4) xor byte_to_send(5) xor byte_to_send(6) xor byte_to_send(7);
+					RsTx <= byte_to_send(0);
+					--RsTx <= byte_to_send(0) xor byte_to_send(1) xor byte_to_send(2) xor byte_to_send(3) xor byte_to_send(4) xor byte_to_send(5) xor byte_to_send(6) xor byte_to_send(7);
 				when stop =>
 					RsTx <= '1';
 					c_state <= start;
