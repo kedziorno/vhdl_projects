@@ -142,6 +142,7 @@ NET "clk"         LOC = "B8";      # Bank = 0, Pin name = IP_L13P_0/GCLK8, Type 
 #NET "sw<7>"       LOC = "R17";     # Bank = 1, Pin name = IP, Type = INPUT,                              Sch name = SW7
 
 ## Buttons
+NET "btn0"      LOC = "B18";     # Bank = 1, Pin name = IP, Type = INPUT,                              Sch name = BTN0
 #NET "btn<0>"      LOC = "B18";     # Bank = 1, Pin name = IP, Type = INPUT,                              Sch name = BTN0
 #NET "btn<1>"      LOC = "D18";     # Bank = 1, Pin name = IP/VREF_1, Type = VREF,                        Sch name = BTN1
 #NET "btn<2>"      LOC = "E18";     # Bank = 1, Pin name = IP, Type = INPUT,                              Sch name = BTN2
@@ -245,5 +246,5 @@ NET "clk"         LOC = "B8";      # Bank = 0, Pin name = IP_L13P_0/GCLK8, Type 
 #NET "JD<3>"       LOC = "P18";     # Bank = 1, Pin name = IO_L06N_1, Type = I/O,                         Sch name = JD4
 
 ## RS232 connector
-#NET "RsRx"        LOC = "U6";      # Bank = 2, Pin name = IP, Type = INPUT,                              Sch name = RS-RX
-#NET "RsTx"        LOC = "P9";      # Bank = 2, Pin name = IO, Type = I/O,                                Sch name = RS-TX
+NET "RsRx"        LOC = "U6";      # Bank = 2, Pin name = IP, Type = INPUT,                              Sch name = RS-RX
+NET "RsTx"        LOC = "P9";      # Bank = 2, Pin name = IO, Type = I/O,                                Sch name = RS-TX

@@ -45,7 +45,7 @@ ARCHITECTURE behavior OF tb_top IS
 	COMPONENT top
 	PORT(
 		clk : IN  std_logic;
-		rst : IN  std_logic;
+		btn0 : IN  std_logic;
 		RsTx : OUT  std_logic;
 		RsRx : IN  std_logic
 		);
@@ -70,7 +70,7 @@ BEGIN
 	uut_top : top
 	PORT MAP (
 		clk => clk,
-		rst => rst,
+		btn0 => rst,
 		RsTx => RsTx,
 		RsRx => RsRx
 	);

@@ -32,11 +32,12 @@ use IEEE.NUMERIC_STD.ALL;
 entity fifo is
 Generic (
 	WIDTH : integer := 8;
-	HEIGHT : integer := 5
+	HEIGHT : integer := 1
 );
 Port (
 	i_clk1 : in  STD_LOGIC;
 	i_clk2 : in  STD_LOGIC;
+	i_rst : in  STD_LOGIC;
 	i_data : in  STD_LOGIC_VECTOR(WIDTH-1 downto 0);
 	o_data : out  STD_LOGIC_VECTOR(WIDTH-1 downto 0);
 	o_full : out  STD_LOGIC;
@@ -50,7 +51,7 @@ end fifo;
 architecture Behavioral of fifo is
 
 	type memory_t is array(0 to HEIGHT-1) of std_logic_vector(WIDTH-1 downto 0);
-	signal memory : memory_t := ( others => ( others => '0' ) );
+	signal memory : memory_t;
 	signal index : integer range 0 to HEIGHT:= 0;
 	signal full,empty : std_logic;
 	signal r,w : integer range 0 to HEIGHT-1:= 0;
@@ -64,9 +65,11 @@ begin
 	o_full <= full;
 	o_empty <= empty;
 
-	pc : process (i_clk1) is
+	pc : process (i_clk1,i_rst) is
 	begin
-		if (rising_edge(i_clk1)) then
+		if (i_rst = '1') then
+			index <= 0;
+		elsif (rising_edge(i_clk1)) then
 			if (index = HEIGHT-1) then
 				index <= 0;
 			else
@@ -75,9 +78,11 @@ begin
 		end if;
 	end process pc;
 
-	pa : process (i_clk1,w) is
+	pa : process (i_clk1,w,i_rst) is
 	begin
-		if (rising_edge(i_clk1)) then
+		if (i_rst = '1') then
+			w <= 0;
+		elsif (rising_edge(i_clk1)) then
 			memory(w) <= i_data;
 			if (w=HEIGHT-1) then
 				w <= 0;
@@ -87,9 +92,11 @@ begin
 		end if;
 	end process pa;
 
-	pb : process (i_clk1,r) is
+	pb : process (i_clk1,r,i_rst) is
 	begin
-		if (rising_edge(i_clk1)) then
+		if (i_rst = '1') then
+			r <= 0;
+		elsif (rising_edge(i_clk1)) then
 			o_data <= memory(r);
 			if (r=HEIGHT-1) then
 				r <= 0;

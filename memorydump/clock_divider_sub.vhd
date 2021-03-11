@@ -32,6 +32,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity clock_divider_sub is
 Port(
 i_clk : in STD_LOGIC;
+i_rst : in STD_LOGIC;
 i_board_clock : in INTEGER;
 i_divider : in INTEGER;
 o_clk : out STD_LOGIC
@@ -41,12 +42,15 @@ end clock_divider_sub;
 architecture Behavioral of clock_divider_sub is
 begin
 
-p0 : process (i_clk) is
+p0 : process (i_clk,i_rst) is
 	variable clk_out : std_logic;
 	variable a : integer := i_board_clock;
 	variable b : integer := i_divider;
 begin
-	if (rising_edge(i_clk)) then
+	if (i_rst = '1') then
+		a := i_board_clock;
+		b := i_divider;
+	elsif (rising_edge(i_clk)) then
 		if (a <= 0) then
 			clk_out := '1';
 			a := i_board_clock;
