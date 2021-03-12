@@ -50,7 +50,7 @@ architecture Behavioral of rs232 is
 
 	signal clk_div1 : std_logic;
 	
-	type state is (idle,start,b1,b2,b3,b4,b5,b6,b7,b8,stop);
+	type state is (start,b1,b2,b3,b4,b5,b6,b7,b8,parity,stop);
 	signal c_state : state := start;
 
 begin
@@ -72,47 +72,49 @@ begin
 		end if;
 	end process p_dv;
 
-	p0 : process (clk,clk_div1,rst) is
+	p0 : process (clk_div1,rst) is
 	begin
 		if (rst = '1') then
 			c_state <= start;
 			busy <= '0';
 			ready <= '1';
-			RsTx <= '1';
+			RsTx <= '0';
 		elsif (rising_edge(clk_div1)) then
 			case c_state is
 				when start =>
 					c_state <= b1;
 					busy <= '1';
 					ready <= '0';
-					RsTx <= '0';
+					RsTx <= '1';
 				when b1 =>
 					c_state <= b2;
-					RsTx <= byte_to_send(7);
+					RsTx <= byte_to_send(0);
 				when b2 =>
 					c_state <= b3;
-					RsTx <= byte_to_send(6);
+					RsTx <= byte_to_send(1);
 				when b3 =>
 					c_state <= b4;
-					RsTx <= byte_to_send(5);
+					RsTx <= byte_to_send(2);
 				when b4 =>
 					c_state <= b5;
-					RsTx <= byte_to_send(4);
+					RsTx <= byte_to_send(3);
 				when b5 =>
 					c_state <= b6;
-					RsTx <= byte_to_send(3);
+					RsTx <= byte_to_send(4);
 				when b6 =>
 					c_state <= b7;
-					RsTx <= byte_to_send(2);
+					RsTx <= byte_to_send(5);
 				when b7 =>
 					c_state <= b8;
-					RsTx <= byte_to_send(1);
+					RsTx <= byte_to_send(6);
 				when b8 =>
+					c_state <= parity;
+					RsTx <= byte_to_send(7);
+				when parity =>
 					c_state <= stop;
-					RsTx <= byte_to_send(0);
-					--RsTx <= byte_to_send(0) xor byte_to_send(1) xor byte_to_send(2) xor byte_to_send(3) xor byte_to_send(4) xor byte_to_send(5) xor byte_to_send(6) xor byte_to_send(7);
+					RsTx <= byte_to_send(0) xor byte_to_send(1) xor byte_to_send(2) xor byte_to_send(3) xor byte_to_send(4) xor byte_to_send(5) xor byte_to_send(6) xor byte_to_send(7);
 				when stop =>
-					RsTx <= '1';
+					RsTx <= '0';
 					c_state <= start;
 					busy <= '0';
 					ready <= '1';
