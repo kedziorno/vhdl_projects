@@ -49,7 +49,7 @@ end rs232;
 architecture Behavioral of rs232 is
 
 	signal clk_div1 : std_logic;
-	
+
 	type state is (start,b1,b2,b3,b4,b5,b6,b7,b8,parity,stop);
 	signal c_state : state := start;
 
