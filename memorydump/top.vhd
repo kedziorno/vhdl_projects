@@ -139,7 +139,7 @@ begin
 		RsRx => RsRx
 	);
 
-	p0 : process (clk,reset) is
+	p0 : process (o_clk_count,reset) is
 		variable index : integer range 0 to ARRAY_LENGTH-1 := 0;
 	begin
 		if (reset = '1') then
