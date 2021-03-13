@@ -82,6 +82,7 @@ architecture Behavioral of top is
 
 	constant C_TIME_BR : integer := G_BOARD_CLOCK/G_BAUD_RATE;
 	constant C_WAIT0 : integer := C_TIME_BR;
+
 	signal wait0 : integer range 0 to C_WAIT0 - 1;
 
 	type state_type is (send,increment,waiting);
@@ -123,7 +124,7 @@ begin
 			enable <= '0';
 			index := 0;
 			wait0 <= 0;
-		elsif (rising_edge(clk)) then
+		elsif (rising_edge(o_clk_count)) then
 			case (state) is
 				when send =>
 					--REPORT integer'image(G_BOARD_CLOCK) SEVERITY NOTE;

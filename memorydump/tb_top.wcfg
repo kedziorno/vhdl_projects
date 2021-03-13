@@ -15,6 +15,8 @@
    <WVObjectSize size="4" />
    <wave_markers>
       <marker time="0" label="" />
+      <marker time="50000000" label="" />
+      <marker time="36666590000000" label="" />
    </wave_markers>
    <wvobject fp_name="group76" type="group">
       <obj_property name="label">tb_top</obj_property>
