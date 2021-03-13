@@ -70,6 +70,29 @@ architecture Behavioral of top is
 	);
 	END COMPONENT rs232;
 
+	COMPONENT memorymodule IS
+	Port (
+		i_clock : in std_logic;
+		i_enable : in std_logic;
+		i_write : in std_logic;
+		i_read : in std_logic;
+		o_busy : out std_logic;
+		i_MemAdr : in MemoryAddressALL;
+		i_MemDB : in MemoryDataByte;
+		o_MemDB : out MemoryDataByte;
+		io_MemOE : out std_logic;
+		io_MemWR : out std_logic;
+		io_RamAdv : out std_logic;
+		io_RamCS : out std_logic;
+		io_RamLB : out std_logic;
+		io_RamCRE : out std_logic;
+		io_RamUB : out std_logic;
+		io_RamClk : out std_logic;
+		io_MemAdr : out MemoryAddressALL;
+		io_MemDB : inout MemoryDataByte
+	);
+	END COMPONENT memorymodule;
+
 	signal reset : std_logic;
 	signal o_clk_count : std_logic;
 	signal busy,ready : std_logic;	
