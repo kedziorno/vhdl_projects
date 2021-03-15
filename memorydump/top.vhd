@@ -23,7 +23,7 @@ use WORK.p_constants.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
@@ -102,17 +102,17 @@ architecture Behavioral of top is
 	signal enable : std_logic;
 	signal data_in : STD_LOGIC_VECTOR(NUMBER_BITS-1 downto 0);
 
-	constant ARRAY_LENGTH : integer := 11;
-	type ARRAY_BYTES is array(0 to ARRAY_LENGTH-1) of std_logic_vector(NUMBER_BITS-1 downto 0);
-	signal bytes : ARRAY_BYTES := (x"30",x"31",x"32",x"33",x"34",x"35",x"36",x"37",x"38",x"39",x"20");
+	--constant ARRAY_LENGTH : integer := 11;
+	--type ARRAY_BYTES is array(0 to ARRAY_LENGTH-1) of std_logic_vector(NUMBER_BITS-1 downto 0);
+	--signal bytes : ARRAY_BYTES := (x"30",x"31",x"32",x"33",x"34",x"35",x"36",x"37",x"38",x"39",x"20");
 
 	constant C_TIME_BR : integer := G_BOARD_CLOCK/G_BAUD_RATE;
 	constant C_WAIT0 : integer := C_TIME_BR;
 
 	signal wait0 : integer range 0 to C_WAIT0 - 1;
 
-	type state_type is (send,increment,waiting);
-	signal state : state_type := send;
+	type state_type is (st_memory_enable,st_memory_read_enable,st_memory_wait0,st_memory_read_disable,st_memory_disable,st_send,st_increment,st_waiting);
+	signal state : state_type := st_send;
 
 	signal memory_address_out,memory_address : MemoryAddressALL;
 	signal memory_data_in,memory_data : MemoryDataByte;
@@ -150,7 +150,7 @@ begin
 		o_busy => memory_busy,
 		i_MemAdr => memory_address,
 		i_MemDB => memory_data_null,
-		o_MemDB => memory_data,
+		o_MemDB => open,
 		io_MemOE => memory_oe,
 		io_MemWR => open,
 		io_RamAdv => open,
@@ -187,44 +187,63 @@ begin
 		RsRx => RsRx
 	);
 
-	p0 : process (o_clk_count,reset) is
-		variable index : integer range 0 to ARRAY_LENGTH-1 := 0;
+	p0 : process (clk,reset) is
+		--variable index : integer range 0 to ARRAY_LENGTH-1 := 0;
 	begin
 		if (reset = '1') then
-			state <= send;
+			state <= st_send;
 			enable <= '0';
-			index := 0;
+			--index := 0;
 			wait0 <= 0;
 			memory_data_null <= (others => '0');
 			memory_address <= (others => '0');
 			memory_data <= (others => '0');
 			memory_enable <= '0';
 			memory_read <= '0';
-			memory_busy <= '0';
-		elsif (rising_edge(o_clk_count)) then
+		elsif (rising_edge(clk)) then
 			case (state) is
-				when send =>
+				when st_memory_enable =>
+					state <= st_memory_read_enable;
+					memory_enable <= '1';
+				when st_memory_read_enable =>
+					state <= st_memory_wait0;
+					memory_read <= '1';
+					memory_address <= std_logic_vector(to_unsigned(to_integer(unsigned(memory_address) + 1),G_MemoryAddress));
+				when st_memory_wait0 =>
+					if (memory_busy = '1') then
+						state <= st_memory_wait0;
+					else
+						state <= st_memory_read_disable;
+					end if;
+				when st_memory_read_disable =>
+					state <= st_memory_disable;
+					memory_read <= '0';
+				when st_memory_disable =>
+					state <= st_send;
+					memory_enable <= '0';
+				when st_send =>
 					--REPORT integer'image(G_BOARD_CLOCK) SEVERITY NOTE;
 					enable <= '1';
 					if (ready = '1') then
-						data_in <= not bytes(index);
-						state <= increment;
+						--data_in <= not bytes(index);
+						data_in <= memory_data_in;
+						state <= st_increment;
 					end if;
-				when increment =>
+				when st_increment =>
 					if (ready = '0') then
-						state <= waiting;
-						if (index < ARRAY_LENGTH-1) then
-							index := index + 1;
-						else
-							index := 0;
-						end if;
+						state <= st_waiting;
+						--if (index < ARRAY_LENGTH-1) then
+							--index := index + 1;
+						--else
+							--index := 0;
+						--end if;
 					end if;
-				when waiting =>
+				when st_waiting =>
 					if (busy = '1') then
 						enable <= '0';
-						state <= waiting;
+						state <= st_waiting;
 					else
-						state <= send;
+						state <= st_memory_enable;
 					end if;
 			end case;
 		end if;
