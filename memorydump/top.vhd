@@ -102,21 +102,17 @@ architecture Behavioral of top is
 	signal enable : std_logic;
 	signal data_in : STD_LOGIC_VECTOR(NUMBER_BITS-1 downto 0);
 
-	--constant ARRAY_LENGTH : integer := 11;
-	--type ARRAY_BYTES is array(0 to ARRAY_LENGTH-1) of std_logic_vector(NUMBER_BITS-1 downto 0);
-	--signal bytes : ARRAY_BYTES := (x"30",x"31",x"32",x"33",x"34",x"35",x"36",x"37",x"38",x"39",x"20");
-
 	constant C_TIME_BR : integer := G_BOARD_CLOCK/G_BAUD_RATE;
 	constant C_WAIT0 : integer := C_TIME_BR;
 
 	signal wait0 : integer range 0 to C_WAIT0 - 1;
 
-	type state_type is (st_memory_enable,st_memory_read_enable,st_memory_wait0,st_memory_read_disable,st_memory_disable,st_send,st_increment,st_waiting);
+	type state_type is (st_memory_enable,st_memory_read_enable,st_memory_wait0,st_memory_read_disable,st_memory_disable,st_send,st_increment,st_waiting,st_send_nl,st_increment_nl,st_waiting_nl);
 	signal state : state_type := st_send;
 
 	signal memory_address_out,memory_address : MemoryAddressALL;
 	signal memory_data_in,memory_data : MemoryDataByte;
-	signal memory_data_null : MemoryDataByte;
+	signal memory_data_null,memory_data_max : MemoryDataByte;
 	signal memory_ce : std_logic;
 	signal memory_oe : std_logic;
 	signal memory_enable,memory_read,memory_busy : std_logic;
@@ -188,14 +184,13 @@ begin
 	);
 
 	p0 : process (clk,reset) is
-		--variable index : integer range 0 to ARRAY_LENGTH-1 := 0;
 	begin
 		if (reset = '1') then
 			state <= st_send;
 			enable <= '0';
-			--index := 0;
 			wait0 <= 0;
 			memory_data_null <= (others => '0');
+			memory_data_max <= (others => '1');
 			memory_address <= (others => '0');
 			memory_data <= (others => '0');
 			memory_enable <= '0';
@@ -208,7 +203,11 @@ begin
 				when st_memory_read_enable =>
 					state <= st_memory_wait0;
 					memory_read <= '1';
-					memory_address <= std_logic_vector(to_unsigned(to_integer(unsigned(memory_address) + 1),G_MemoryAddress));
+					if (memory_address = memory_data_max) then
+						memory_address <= (others => '0');
+					else
+						memory_address <= std_logic_vector(to_unsigned(to_integer(unsigned(memory_address) + 1),G_MemoryAddress));
+					end if;
 				when st_memory_wait0 =>
 					if (memory_busy = '1') then
 						state <= st_memory_wait0;
@@ -225,23 +224,38 @@ begin
 					--REPORT integer'image(G_BOARD_CLOCK) SEVERITY NOTE;
 					enable <= '1';
 					if (ready = '1') then
-						--data_in <= not bytes(index);
-						data_in <= memory_data_in;
+						data_in <= not memory_data_in;
 						state <= st_increment;
 					end if;
 				when st_increment =>
 					if (ready = '0') then
 						state <= st_waiting;
-						--if (index < ARRAY_LENGTH-1) then
-							--index := index + 1;
-						--else
-							--index := 0;
-						--end if;
 					end if;
 				when st_waiting =>
 					if (busy = '1') then
 						enable <= '0';
 						state <= st_waiting;
+					else
+						state <= st_send_nl;
+					end if;
+				when st_send_nl =>
+					if (memory_address = std_logic_vector(to_unsigned(to_integer(unsigned(memory_data_max)),G_MemoryAddress))) then
+						enable <= '1';
+						if (ready = '1') then
+							state <= st_increment_nl;
+							data_in <= not x"0A";
+						end if;
+					else
+						state <= st_memory_enable;
+					end if;
+				when st_increment_nl =>
+					if (ready = '0') then
+						state <= st_waiting_nl;
+					end if;
+				when st_waiting_nl =>
+					if (busy = '1') then
+						enable <= '0';
+						state <= st_waiting_nl;
 					else
 						state <= st_memory_enable;
 					end if;
