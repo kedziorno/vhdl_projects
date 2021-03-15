@@ -32,10 +32,13 @@ use WORK.p_constants.ALL;
 
 entity top is
 Port (
-	clk : in  STD_LOGIC;
-	btn0 : in  STD_LOGIC;
-	RsTx : out  STD_LOGIC;
-	RsRx : in  STD_LOGIC
+	clk : in STD_LOGIC;
+	btn0 : in STD_LOGIC;
+	RsTx : out STD_LOGIC;
+	RsRx : in STD_LOGIC;
+	JA : inout STD_LOGIC_VECTOR(7 downto 0);
+	JB : inout STD_LOGIC_VECTOR(7 downto 0);
+	JC : inout STD_LOGIC_VECTOR(7 downto 0)
 );
 end top;
 
@@ -111,9 +114,54 @@ architecture Behavioral of top is
 	type state_type is (send,increment,waiting);
 	signal state : state_type := send;
 
+	signal memory_address_out,memory_address : MemoryAddressALL;
+	signal memory_data_in,memory_data : MemoryDataByte;
+	signal memory_data_null : MemoryDataByte;
+	signal memory_ce : std_logic;
+	signal memory_oe : std_logic;
+	signal memory_enable,memory_read,memory_busy : std_logic;
+
 begin
 
 	reset <= btn0;
+
+	JA(0) <= memory_ce;
+	JA(1) <= memory_oe;
+	memory_data_in(0) <= JB(0);
+	memory_data_in(1) <= JB(1);
+	memory_data_in(2) <= JB(2);
+	memory_data_in(3) <= JB(3);
+	memory_data_in(4) <= JB(4);
+	memory_data_in(5) <= JB(5);
+	memory_data_in(6) <= JB(6);
+	memory_data_in(7) <= JB(7);
+	JC(0) <= memory_address_out(0);
+	JC(1) <= memory_address_out(1);
+	JC(2) <= memory_address_out(2);
+	JC(3) <= memory_address_out(3);
+	JC(4) <= memory_address_out(4);
+
+	mm: memorymodule
+	PORT MAP (
+		i_clock => clk,
+		i_enable => memory_enable,
+		i_write => '0',
+		i_read => memory_read,
+		o_busy => memory_busy,
+		i_MemAdr => memory_address,
+		i_MemDB => memory_data_null,
+		o_MemDB => memory_data,
+		io_MemOE => memory_oe,
+		io_MemWR => open,
+		io_RamAdv => open,
+		io_RamCS => memory_ce,
+		io_RamLB => open,
+		io_RamCRE => open,
+		io_RamUB => open,
+		io_RamClk => open,
+		io_MemAdr => memory_address_out,
+		io_MemDB => open
+	);
 
 	uut_clock_divider_count : clock_divider_count
 	GENERIC MAP ( g_board_clock => G_BOARD_CLOCK, g_divider => C_TIME_BR )
@@ -147,6 +195,12 @@ begin
 			enable <= '0';
 			index := 0;
 			wait0 <= 0;
+			memory_data_null <= (others => '0');
+			memory_address <= (others => '0');
+			memory_data <= (others => '0');
+			memory_enable <= '0';
+			memory_read <= '0';
+			memory_busy <= '0';
 		elsif (rising_edge(o_clk_count)) then
 			case (state) is
 				when send =>
