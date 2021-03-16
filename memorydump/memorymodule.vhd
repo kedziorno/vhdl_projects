@@ -78,12 +78,11 @@ architecture Behavioral of memorymodule is
 	signal RamUB : std_logic;
 	signal RamClk : std_logic;
 	signal MemAdr : MemoryAddressALL;
-	signal MemDB : MemoryDataByte;
 
 begin
 
 	io_MemOE <= MemOE;
-	io_MemWR <= MemWR;
+	io_MemWR <= MemWR when (i_write = '1') else 'Z';
 	io_RamAdv <= RamAdv;
 	io_RamCS <= RamCS;
 	io_RamLB <= RamLB;

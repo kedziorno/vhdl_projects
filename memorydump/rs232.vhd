@@ -41,8 +41,7 @@ Port(
 	byte_to_send : in  STD_LOGIC_VECTOR (7 downto 0);
 	busy : out  STD_LOGIC;
 	ready : out  STD_LOGIC;
-	RsTx : out  STD_LOGIC;
-	RsRx : in  STD_LOGIC
+	RsTx : out  STD_LOGIC
 );
 end rs232;
 
@@ -56,7 +55,7 @@ architecture Behavioral of rs232 is
 begin
 
 	p_dv : process (clk,rst) is
-		variable COUNTER_BAUD_RATE_MAX : integer := (G_BOARD_CLOCK/G_BAUD_RATE);
+		constant COUNTER_BAUD_RATE_MAX : integer := (G_BOARD_CLOCK/G_BAUD_RATE);
 		variable counter_baud_rate : integer := 0;
 	begin
 		if (rst = '1') then
@@ -82,10 +81,17 @@ begin
 		elsif (rising_edge(clk_div1)) then
 			case c_state is
 				when start =>
-					c_state <= b1;
-					busy <= '1';
-					ready <= '0';
-					RsTx <= '1';
+					if (enable = '1') then
+						c_state <= b1;
+						busy <= '1';
+						ready <= '0';
+						RsTx <= '1';
+					elsif (enable = '0') then
+						c_state <= start;
+						busy <= '0';
+						ready <= '1';
+						RsTx <= '0';
+					end if;
 				when b1 =>
 					c_state <= b2;
 					RsTx <= byte_to_send(0);

@@ -35,26 +35,13 @@ Port (
 	clk : in STD_LOGIC;
 	btn0 : in STD_LOGIC;
 	RsTx : out STD_LOGIC;
-	RsRx : in STD_LOGIC;
-	JA : inout STD_LOGIC_VECTOR(7 downto 0);
+	JA : inout STD_LOGIC_VECTOR(1 downto 0);
 	JB : inout STD_LOGIC_VECTOR(7 downto 0);
 	JC : inout STD_LOGIC_VECTOR(7 downto 0)
 );
 end top;
 
 architecture Behavioral of top is
-
-	COMPONENT clock_divider_count is
-	Generic (
-		g_board_clock : integer := G_BOARD_CLOCK;
-		g_divider : integer := G_BAUD_RATE
-	);
-	Port (
-		i_reset : in STD_LOGIC;
-		i_clock : in STD_LOGIC;
-		o_clock : out STD_LOGIC
-	);
-	END COMPONENT clock_divider_count;
 
 	COMPONENT rs232 is
 	GENERIC (
@@ -68,8 +55,7 @@ architecture Behavioral of top is
 		byte_to_send : IN  std_logic_vector (NUMBER_BITS-1 downto 0);
 		busy : OUT  std_logic;
 		ready : OUT  std_logic;
-		RsTx : OUT  std_logic;
-		RsRx : IN  std_logic
+		RsTx : OUT  std_logic
 	);
 	END COMPONENT rs232;
 
@@ -97,22 +83,15 @@ architecture Behavioral of top is
 	END COMPONENT memorymodule;
 
 	signal reset : std_logic;
-	signal o_clk_count : std_logic;
 	signal busy,ready : std_logic;	
 	signal enable : std_logic;
 	signal data_in : STD_LOGIC_VECTOR(NUMBER_BITS-1 downto 0);
 
-	constant C_TIME_BR : integer := G_BOARD_CLOCK/G_BAUD_RATE;
-	constant C_WAIT0 : integer := C_TIME_BR;
-
-	signal wait0 : integer range 0 to C_WAIT0 - 1;
-
-	type state_type is (st_memory_enable,st_memory_read_enable,st_memory_wait0,st_memory_read_disable,st_memory_disable,st_send,st_increment,st_waiting,st_send_nl,st_increment_nl,st_waiting_nl);
+	type state_type is (st_send,st_memory_enable,st_memory_read_enable,st_memory_wait0,st_memory_read_disable,st_memory_disable,st_increment,st_waiting,st_send_nl,st_increment_nl,st_waiting_nl);
 	signal state : state_type := st_send;
 
-	signal memory_address_out,memory_address : MemoryAddressALL;
-	signal memory_data_in,memory_data : MemoryDataByte;
-	signal memory_data_null,memory_data_max : MemoryDataByte;
+	signal memory_address_out,memory_address,memory_address_max : MemoryAddressALL;
+	signal memory_data_in,memory_data_null : MemoryDataByte;
 	signal memory_ce : std_logic;
 	signal memory_oe : std_logic;
 	signal memory_enable,memory_read,memory_busy : std_logic;
@@ -136,6 +115,9 @@ begin
 	JC(2) <= memory_address_out(2);
 	JC(3) <= memory_address_out(3);
 	JC(4) <= memory_address_out(4);
+	JC(5) <= memory_address_out(5);
+	JC(6) <= memory_address_out(6);
+	JC(7) <= memory_address_out(7);
 
 	mm: memorymodule
 	PORT MAP (
@@ -159,14 +141,6 @@ begin
 		io_MemDB => open
 	);
 
-	uut_clock_divider_count : clock_divider_count
-	GENERIC MAP ( g_board_clock => G_BOARD_CLOCK, g_divider => C_TIME_BR )
-	PORT MAP (
-		i_reset => reset,
-		i_clock => clk,
-		o_clock => o_clk_count
-	);
-
 	uut_rs232 : rs232
 	GENERIC MAP (
 		G_BOARD_CLOCK => G_BOARD_CLOCK,
@@ -179,8 +153,7 @@ begin
 		byte_to_send => data_in,
 		busy => busy,
 		ready => ready,
-		RsTx => RsTx,
-		RsRx => RsRx
+		RsTx => RsTx
 	);
 
 	p0 : process (clk,reset) is
@@ -188,11 +161,9 @@ begin
 		if (reset = '1') then
 			state <= st_send;
 			enable <= '0';
-			wait0 <= 0;
-			memory_data_null <= (others => '0');
-			memory_data_max <= (others => '1');
+			memory_address_max <= (others => '1');
 			memory_address <= (others => '0');
-			memory_data <= (others => '0');
+			memory_data_null <= (others => '0');
 			memory_enable <= '0';
 			memory_read <= '0';
 		elsif (rising_edge(clk)) then
@@ -203,7 +174,7 @@ begin
 				when st_memory_read_enable =>
 					state <= st_memory_wait0;
 					memory_read <= '1';
-					if (memory_address = memory_data_max) then
+					if (memory_address = memory_address_max) then
 						memory_address <= (others => '0');
 					else
 						memory_address <= std_logic_vector(to_unsigned(to_integer(unsigned(memory_address) + 1),G_MemoryAddress));
@@ -239,7 +210,7 @@ begin
 						state <= st_send_nl;
 					end if;
 				when st_send_nl =>
-					if (memory_address = std_logic_vector(to_unsigned(to_integer(unsigned(memory_data_max)),G_MemoryAddress))) then
+					if (memory_address = std_logic_vector(to_unsigned(to_integer(unsigned(memory_address_max)),G_MemoryAddress))) then
 						enable <= '1';
 						if (ready = '1') then
 							state <= st_increment_nl;
