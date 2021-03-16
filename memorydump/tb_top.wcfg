@@ -16,8 +16,9 @@
    <wave_markers>
       <marker time="50000000" label="" />
       <marker time="0" label="" />
+      <marker time="36666630000000" label="" />
    </wave_markers>
-   <wvobject fp_name="group100" type="group">
+   <wvobject fp_name="group97" type="group">
       <obj_property name="label">tb</obj_property>
       <obj_property name="DisplayName">label</obj_property>
       <wvobject fp_name="/tb_top/clk" type="logic" db_ref_id="1">
@@ -33,8 +34,8 @@
          <obj_property name="ObjectShortName">rsrx</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/ja" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">ja[1:0]</obj_property>
-         <obj_property name="ObjectShortName">ja[1:0]</obj_property>
+         <obj_property name="ElementShortName">ja[7:0]</obj_property>
+         <obj_property name="ObjectShortName">ja[7:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/jb" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">jb[7:0]</obj_property>
@@ -43,6 +44,10 @@
       <wvobject fp_name="/tb_top/jc" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">jc[7:0]</obj_property>
          <obj_property name="ObjectShortName">jc[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/jd" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">jd[7:0]</obj_property>
+         <obj_property name="ObjectShortName">jd[7:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/rstx" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">rstx</obj_property>
@@ -61,7 +66,7 @@
          <obj_property name="ObjectShortName">clk_period</obj_property>
       </wvobject>
    </wvobject>
-   <wvobject fp_name="group116" type="group">
+   <wvobject fp_name="group121" type="group">
       <obj_property name="label">top</obj_property>
       <obj_property name="DisplayName">label</obj_property>
       <wvobject fp_name="/tb_top/uut_top/clk" type="logic" db_ref_id="1">
@@ -77,8 +82,8 @@
          <obj_property name="ObjectShortName">rstx</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut_top/ja" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">ja[1:0]</obj_property>
-         <obj_property name="ObjectShortName">ja[1:0]</obj_property>
+         <obj_property name="ElementShortName">ja[7:0]</obj_property>
+         <obj_property name="ObjectShortName">ja[7:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut_top/jb" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">jb[7:0]</obj_property>
@@ -87,6 +92,10 @@
       <wvobject fp_name="/tb_top/uut_top/jc" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">jc[7:0]</obj_property>
          <obj_property name="ObjectShortName">jc[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut_top/jd" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">jd[7:0]</obj_property>
+         <obj_property name="ObjectShortName">jd[7:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut_top/reset" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">reset</obj_property>
@@ -113,16 +122,17 @@
          <obj_property name="ObjectShortName">state</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut_top/memory_address_out" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">memory_address_out[0:7]</obj_property>
-         <obj_property name="ObjectShortName">memory_address_out[0:7]</obj_property>
+         <obj_property name="ElementShortName">memory_address_out[0:15]</obj_property>
+         <obj_property name="ObjectShortName">memory_address_out[0:15]</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut_top/memory_address" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">memory_address[0:7]</obj_property>
-         <obj_property name="ObjectShortName">memory_address[0:7]</obj_property>
+         <obj_property name="ElementShortName">memory_address[0:15]</obj_property>
+         <obj_property name="ObjectShortName">memory_address[0:15]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut_top/memory_address_max" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">memory_address_max[0:7]</obj_property>
-         <obj_property name="ObjectShortName">memory_address_max[0:7]</obj_property>
+         <obj_property name="ElementShortName">memory_address_max[0:15]</obj_property>
+         <obj_property name="ObjectShortName">memory_address_max[0:15]</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut_top/memory_data_in" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">memory_data_in[0:7]</obj_property>
@@ -153,7 +163,7 @@
          <obj_property name="ObjectShortName">memory_busy</obj_property>
       </wvobject>
    </wvobject>
-   <wvobject fp_name="group163" type="group">
+   <wvobject fp_name="group150" type="group">
       <obj_property name="label">mm</obj_property>
       <obj_property name="DisplayName">label</obj_property>
       <wvobject fp_name="/tb_top/uut_top/mm/i_clock" type="logic" db_ref_id="1">
@@ -177,8 +187,8 @@
          <obj_property name="ObjectShortName">o_busy</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut_top/mm/i_memadr" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">i_memadr[0:7]</obj_property>
-         <obj_property name="ObjectShortName">i_memadr[0:7]</obj_property>
+         <obj_property name="ElementShortName">i_memadr[0:15]</obj_property>
+         <obj_property name="ObjectShortName">i_memadr[0:15]</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut_top/mm/i_memdb" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">i_memdb[0:7]</obj_property>
@@ -221,8 +231,8 @@
          <obj_property name="ObjectShortName">io_ramclk</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut_top/mm/io_memadr" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">io_memadr[0:7]</obj_property>
-         <obj_property name="ObjectShortName">io_memadr[0:7]</obj_property>
+         <obj_property name="ElementShortName">io_memadr[0:15]</obj_property>
+         <obj_property name="ObjectShortName">io_memadr[0:15]</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut_top/mm/io_memdb" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">io_memdb[0:7]</obj_property>
@@ -265,11 +275,11 @@
          <obj_property name="ObjectShortName">ramclk</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut_top/mm/memadr" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">memadr[0:7]</obj_property>
-         <obj_property name="ObjectShortName">memadr[0:7]</obj_property>
+         <obj_property name="ElementShortName">memadr[0:15]</obj_property>
+         <obj_property name="ObjectShortName">memadr[0:15]</obj_property>
       </wvobject>
    </wvobject>
-   <wvobject fp_name="group175" type="group">
+   <wvobject fp_name="group162" type="group">
       <obj_property name="label">rs232</obj_property>
       <obj_property name="DisplayName">label</obj_property>
       <wvobject fp_name="/tb_top/uut_top/uut_rs232/clk" type="logic" db_ref_id="1">

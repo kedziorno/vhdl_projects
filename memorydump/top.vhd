@@ -35,9 +35,10 @@ Port (
 	clk : in STD_LOGIC;
 	btn0 : in STD_LOGIC;
 	RsTx : out STD_LOGIC;
-	JA : inout STD_LOGIC_VECTOR(1 downto 0);
+	JA : inout STD_LOGIC_VECTOR(7 downto 0);
 	JB : inout STD_LOGIC_VECTOR(7 downto 0);
-	JC : inout STD_LOGIC_VECTOR(7 downto 0)
+	JC : inout STD_LOGIC_VECTOR(7 downto 0);
+	JD : inout STD_LOGIC_VECTOR(7 downto 0)
 );
 end top;
 
@@ -87,6 +88,11 @@ architecture Behavioral of top is
 	signal enable : std_logic;
 	signal data_in : STD_LOGIC_VECTOR(NUMBER_BITS-1 downto 0);
 
+	-- XXX test pattern
+	constant ARRAY_LENGTH : integer := 11;
+	type ARRAY_BYTES is array(0 to ARRAY_LENGTH-1) of std_logic_vector(NUMBER_BITS-1 downto 0);
+	signal bytes : ARRAY_BYTES := (x"30",x"31",x"32",x"33",x"34",x"35",x"36",x"37",x"38",x"39",x"20");
+
 	type state_type is (st_send,st_memory_enable,st_memory_read_enable,st_memory_wait0,st_memory_read_disable,st_memory_disable,st_increment,st_waiting,st_send_nl,st_increment_nl,st_waiting_nl);
 	signal state : state_type := st_send;
 
@@ -102,22 +108,30 @@ begin
 
 	JA(0) <= memory_ce;
 	JA(1) <= memory_oe;
-	memory_data_in(0) <= JB(0);
-	memory_data_in(1) <= JB(1);
-	memory_data_in(2) <= JB(2);
-	memory_data_in(3) <= JB(3);
-	memory_data_in(4) <= JB(4);
-	memory_data_in(5) <= JB(5);
-	memory_data_in(6) <= JB(6);
-	memory_data_in(7) <= JB(7);
-	JC(0) <= memory_address_out(0);
-	JC(1) <= memory_address_out(1);
-	JC(2) <= memory_address_out(2);
-	JC(3) <= memory_address_out(3);
-	JC(4) <= memory_address_out(4);
-	JC(5) <= memory_address_out(5);
-	JC(6) <= memory_address_out(6);
-	JC(7) <= memory_address_out(7);
+	memory_data_in(0) <= JD(0);
+	memory_data_in(1) <= JD(1);
+	memory_data_in(2) <= JD(2);
+	memory_data_in(3) <= JD(3);
+	memory_data_in(4) <= JD(4);
+	memory_data_in(5) <= JD(5);
+	memory_data_in(6) <= JD(6);
+	memory_data_in(7) <= JD(7);
+	JB(0) <= memory_address_out(0);
+	JB(1) <= memory_address_out(1);
+	JB(2) <= memory_address_out(2);
+	JB(3) <= memory_address_out(3);
+	JB(4) <= memory_address_out(4);
+	JB(5) <= memory_address_out(5);
+	JB(6) <= memory_address_out(6);
+	JB(7) <= memory_address_out(7);
+	JC(0) <= memory_address_out(8);
+	JC(1) <= memory_address_out(9);
+	JC(2) <= memory_address_out(10);
+	JC(3) <= memory_address_out(11);
+	JC(4) <= memory_address_out(12);
+	JC(5) <= memory_address_out(13);
+	JC(6) <= memory_address_out(14);
+	JC(7) <= memory_address_out(15);
 
 	mm: memorymodule
 	PORT MAP (
@@ -157,8 +171,10 @@ begin
 	);
 
 	p0 : process (clk,reset) is
+		variable index : integer range 0 to ARRAY_LENGTH-1 := 0; -- XXX test pattern
 	begin
 		if (reset = '1') then
+			index := 0; -- XXX test pattern
 			state <= st_send;
 			enable <= '0';
 			memory_address_max <= (others => '1');
@@ -195,12 +211,18 @@ begin
 					--REPORT integer'image(G_BOARD_CLOCK) SEVERITY NOTE;
 					enable <= '1';
 					if (ready = '1') then
-						data_in <= not memory_data_in;
+						data_in <= not bytes(index); -- XXX test pattern
+						--data_in <= not memory_data_in;
 						state <= st_increment;
 					end if;
 				when st_increment =>
 					if (ready = '0') then
 						state <= st_waiting;
+						if (index < ARRAY_LENGTH-1) then -- XXX test pattern
+							index := index + 1;
+						else
+							index := 0;
+						end if;
 					end if;
 				when st_waiting =>
 					if (busy = '1') then
