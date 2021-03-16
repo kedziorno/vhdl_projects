@@ -156,14 +156,15 @@ begin
 					if (w = 0) then
 						cstate <= read1;
 						RamCS <= '0';
-						MemOE <= '1';
+--						MemOE <= '1';
+						MemOE <= '0';
 						o_busy <= '1';
 					else
 						cstate <= read_setup;
 					end if;
 				when read1 =>
 					cstate <= wait2;
-					MemOE <= '0';
+--					MemOE <= '0';
 					w := cw;
 				when wait2 =>
 					if (w = 0) then

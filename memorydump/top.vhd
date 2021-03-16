@@ -86,7 +86,7 @@ architecture Behavioral of top is
 	signal reset : std_logic;
 	signal busy,ready : std_logic;	
 	signal enable : std_logic;
-	signal data_in : STD_LOGIC_VECTOR(NUMBER_BITS-1 downto 0);
+	signal data_in : MemoryDataByte;
 
 --	-- XXX test pattern
 --	constant ARRAY_LENGTH : integer := 11;
@@ -207,11 +207,13 @@ begin
 				when st_memory_disable =>
 					state <= st_send;
 					memory_enable <= '0';
+--					memory_data_in <= not bytes(index); -- XXX test pattern
 				when st_send =>
 					--REPORT integer'image(G_BOARD_CLOCK) SEVERITY NOTE;
 					enable <= '1';
 					if (ready = '1') then
 --						data_in <= not bytes(index); -- XXX test pattern
+--						data_in <= memory_data_in; -- XXX test pattern
 						data_in <= not memory_data_in;
 						state <= st_increment;
 					end if;
