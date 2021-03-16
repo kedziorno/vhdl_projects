@@ -13,7 +13,7 @@ use IEEE.STD_LOGIC_1164.all;
 package p_constants is
 	constant G_BOARD_CLOCK : integer := 50_000_000;
 	constant NUMBER_BITS : integer := 8;
-	constant G_MemoryAddress : integer := 5;
+	constant G_MemoryAddress : integer := 8;
 	constant G_MemoryData : integer := NUMBER_BITS;
 	subtype MemoryAddress is std_logic_vector(1 to G_MemoryAddress-1);
 	subtype MemoryAddressALL is std_logic_vector(0 to G_MemoryAddress-1);

@@ -212,12 +212,12 @@ NET "btn0"      LOC = "B18";     # Bank = 1, Pin name = IP, Type = INPUT,       
 ##JA
 NET "JA<0>"       LOC = "L15";     # Bank = 1, Pin name = IO_L09N_1/A11, Type = DUAL,                    Sch name = JA1
 NET "JA<1>"       LOC = "K12";     # Bank = 1, Pin name = IO_L11N_1/A9/RHCLK1, Type = RHCLK/DUAL,        Sch name = JA2
-NET "JA<2>"       LOC = "L17";     # Bank = 1, Pin name = IO_L10N_1/VREF_1, Type = VREF,                 Sch name = JA3
-NET "JA<3>"       LOC = "M15";     # Bank = 1, Pin name = IO_L07P_1, Type = I/O,                         Sch name = JA4
-NET "JA<4>"       LOC = "K13";     # Bank = 1, Pin name = IO_L11P_1/A10/RHCLK0, Type = RHCLK/DUAL,       Sch name = JA7
-NET "JA<5>"       LOC = "L16";     # Bank = 1, Pin name = IO_L09P_1/A12, Type = DUAL,                    Sch name = JA8
-NET "JA<6>"       LOC = "M14";     # Bank = 1, Pin name = IO_L05P_1, Type = I/O,                         Sch name = JA9
-NET "JA<7>"       LOC = "M16";     # Bank = 1, Pin name = IO_L07N_1, Type = I/O,                         Sch name = JA10
+#NET "JA<2>"       LOC = "L17";     # Bank = 1, Pin name = IO_L10N_1/VREF_1, Type = VREF,                 Sch name = JA3
+#NET "JA<3>"       LOC = "M15";     # Bank = 1, Pin name = IO_L07P_1, Type = I/O,                         Sch name = JA4
+#NET "JA<4>"       LOC = "K13";     # Bank = 1, Pin name = IO_L11P_1/A10/RHCLK0, Type = RHCLK/DUAL,       Sch name = JA7
+#NET "JA<5>"       LOC = "L16";     # Bank = 1, Pin name = IO_L09P_1/A12, Type = DUAL,                    Sch name = JA8
+#NET "JA<6>"       LOC = "M14";     # Bank = 1, Pin name = IO_L05P_1, Type = I/O,                         Sch name = JA9
+#NET "JA<7>"       LOC = "M16";     # Bank = 1, Pin name = IO_L07N_1, Type = I/O,                         Sch name = JA10
 
 ##JB
 NET "JB<0>"       LOC = "M13";     # Bank = 1, Pin name = IO_L05N_1/VREF_1, Type = VREF,                 Sch name = JB1
@@ -246,5 +246,5 @@ NET "JC<7>"       LOC = "J12";     # Bank = 1, Pin name = IO_L15P_1/A2, Type = D
 #NET "JD<3>"       LOC = "P18";     # Bank = 1, Pin name = IO_L06N_1, Type = I/O,                         Sch name = JD4
 
 ## RS232 connector
-NET "RsRx"        LOC = "U6";      # Bank = 2, Pin name = IP, Type = INPUT,                              Sch name = RS-RX
+#NET "RsRx"        LOC = "U6";      # Bank = 2, Pin name = IP, Type = INPUT,                              Sch name = RS-RX
 NET "RsTx"        LOC = "P9";      # Bank = 2, Pin name = IO, Type = I/O,                                Sch name = RS-TX
