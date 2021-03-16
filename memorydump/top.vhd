@@ -88,10 +88,10 @@ architecture Behavioral of top is
 	signal enable : std_logic;
 	signal data_in : STD_LOGIC_VECTOR(NUMBER_BITS-1 downto 0);
 
-	-- XXX test pattern
-	constant ARRAY_LENGTH : integer := 11;
-	type ARRAY_BYTES is array(0 to ARRAY_LENGTH-1) of std_logic_vector(NUMBER_BITS-1 downto 0);
-	signal bytes : ARRAY_BYTES := (x"30",x"31",x"32",x"33",x"34",x"35",x"36",x"37",x"38",x"39",x"20");
+--	-- XXX test pattern
+--	constant ARRAY_LENGTH : integer := 11;
+--	type ARRAY_BYTES is array(0 to ARRAY_LENGTH-1) of std_logic_vector(NUMBER_BITS-1 downto 0);
+--	signal bytes : ARRAY_BYTES := (x"30",x"31",x"32",x"33",x"34",x"35",x"36",x"37",x"38",x"39",x"20");
 
 	type state_type is (st_send,st_memory_enable,st_memory_read_enable,st_memory_wait0,st_memory_read_disable,st_memory_disable,st_increment,st_waiting,st_send_nl,st_increment_nl,st_waiting_nl);
 	signal state : state_type := st_send;
@@ -171,10 +171,10 @@ begin
 	);
 
 	p0 : process (clk,reset) is
-		variable index : integer range 0 to ARRAY_LENGTH-1 := 0; -- XXX test pattern
+--		variable index : integer range 0 to ARRAY_LENGTH-1 := 0; -- XXX test pattern
 	begin
 		if (reset = '1') then
-			index := 0; -- XXX test pattern
+--			index := 0; -- XXX test pattern
 			state <= st_send;
 			enable <= '0';
 			memory_address_max <= (others => '1');
@@ -211,18 +211,18 @@ begin
 					--REPORT integer'image(G_BOARD_CLOCK) SEVERITY NOTE;
 					enable <= '1';
 					if (ready = '1') then
-						data_in <= not bytes(index); -- XXX test pattern
-						--data_in <= not memory_data_in;
+--						data_in <= not bytes(index); -- XXX test pattern
+						data_in <= not memory_data_in;
 						state <= st_increment;
 					end if;
 				when st_increment =>
 					if (ready = '0') then
 						state <= st_waiting;
-						if (index < ARRAY_LENGTH-1) then -- XXX test pattern
-							index := index + 1;
-						else
-							index := 0;
-						end if;
+--						if (index < ARRAY_LENGTH-1) then -- XXX test pattern
+--							index := index + 1;
+--						else
+--							index := 0;
+--						end if;
 					end if;
 				when st_waiting =>
 					if (busy = '1') then
