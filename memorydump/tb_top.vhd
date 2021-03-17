@@ -47,10 +47,10 @@ ARCHITECTURE behavior OF tb_top IS
 		clk : IN  std_logic;
 		btn0 : IN  std_logic;
 		RsTx : OUT  std_logic;
-		RsRx : IN  std_logic;
 		JA : INOUT std_logic_vector(7 downto 0);
 		JB : INOUT std_logic_vector(7 downto 0);
-		JC : INOUT std_logic_vector(7 downto 0)
+		JC : INOUT std_logic_vector(7 downto 0);
+		JD : INOUT std_logic_vector(7 downto 0)
 		);
 	END COMPONENT;
 
@@ -61,6 +61,7 @@ ARCHITECTURE behavior OF tb_top IS
 	signal JA : std_logic_vector(7 downto 0) := (others => '0');
 	signal JB : std_logic_vector(7 downto 0) := (others => '0');
 	signal JC : std_logic_vector(7 downto 0) := (others => '0');
+	signal JD : std_logic_vector(7 downto 0) := (others => '0');
 
 	--Outputs
 	signal RsTx : std_logic;
@@ -78,10 +79,10 @@ BEGIN
 		clk => clk,
 		btn0 => rst,
 		RsTx => RsTx,
-		RsRx => RsRx,
 		JA => JA,
 		JB => JB,
-		JC => JC
+		JC => JC,
+		JD => JD
 	);
 
 	-- Clock process definitions
