@@ -38,18 +38,9 @@ i_enable : in std_logic;
 i_read : in std_logic;
 o_busy : out std_logic;
 i_MemAdr : in MemoryAddressALL;
-i_MemDB : in MemoryDataByte;
-o_MemDB : out MemoryDataByte;
 io_MemOE : out std_logic;
-io_MemWR : out std_logic;
-io_RamAdv : out std_logic;
 io_RamCS : out std_logic;
-io_RamLB : out std_logic;
-io_RamCRE : out std_logic;
-io_RamUB : out std_logic;
-io_RamClk : out std_logic;
-io_MemAdr : out MemoryAddressALL;
-io_MemDB : inout MemoryDataByte
+io_MemAdr : out MemoryAddressALL
 );
 end memorymodule;
 
@@ -66,36 +57,16 @@ architecture Behavioral of memorymodule is
 	signal cstate : state;
 
 	signal MemOE : std_logic;
-	signal MemWR : std_logic;
-	signal RamAdv : std_logic;
 	signal RamCS : std_logic;
-	signal RamLB : std_logic;
-	signal RamCRE : std_logic;
-	signal RamUB : std_logic;
-	signal RamClk : std_logic;
 	signal MemAdr : MemoryAddressALL;
 
 begin
 
 	io_MemOE <= MemOE;
-	io_MemWR <= MemWR;
-	io_RamAdv <= RamAdv;
 	io_RamCS <= RamCS;
-	io_RamLB <= RamLB;
-	io_RamCRE <= RamCRE;
-	io_RamUB <= RamUB;
-	io_RamClk <= RamClk;
 	io_MemAdr <= MemAdr;
 
-	RamLB <= '0';
-	RamUB <= '0';
-	RamCRE <= '0';
-	RamAdv <= '0';
-	RamClk <= '0';
-
-	MemAdr <= i_MemAdr when (RamCS = '0' and (MemWR = '0' or MemOE = '0')) else (others => 'Z');
-	o_MemDB <= io_MemDB when (cstate = idle) else (others => 'Z');
-	io_MemDB <= i_MemDB when (RamCS = '0' and MemWR = '0') else (others => 'Z');
+	MemAdr <= i_MemAdr when (RamCS = '0' and MemOE = '0') else (others => 'Z');
 
 	p0 : process (i_clock,i_reset) is
 		constant cw : integer := (G_BOARD_CLOCK/G_BAUD_RATE);
@@ -108,7 +79,6 @@ begin
 			t := (others => '0');
 			tz := (others => 'Z');
 			RamCS <= '1';
-			MemWR <= '1';
 			MemOE <= '1';
 		elsif (rising_edge(i_clock)) then
 			if (w = cw-1) then
@@ -130,7 +100,6 @@ begin
 						cstate <= start;
 					end if;
 					RamCS <= '1';
-					MemWR <= '1';
 					MemOE <= '1';
 				when read_setup =>
 					if (w = cw-1) then

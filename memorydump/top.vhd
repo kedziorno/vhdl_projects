@@ -35,9 +35,9 @@ Port (
 	clk : in STD_LOGIC;
 	btn0 : in STD_LOGIC;
 	RsTx : out STD_LOGIC;
-	JA : inout STD_LOGIC_VECTOR(7 downto 0);
+	JA : inout STD_LOGIC_VECTOR(1 downto 0);
 	JB : inout STD_LOGIC_VECTOR(7 downto 0);
-	JC : inout STD_LOGIC_VECTOR(7 downto 0);
+	JC : inout STD_LOGIC_VECTOR(6 downto 0);
 	JD : inout STD_LOGIC_VECTOR(7 downto 0)
 );
 end top;
@@ -68,18 +68,9 @@ architecture Behavioral of top is
 		i_read : in std_logic;
 		o_busy : out std_logic;
 		i_MemAdr : in MemoryAddressALL;
-		i_MemDB : in MemoryDataByte;
-		o_MemDB : out MemoryDataByte;
 		io_MemOE : out std_logic;
-		io_MemWR : out std_logic;
-		io_RamAdv : out std_logic;
 		io_RamCS : out std_logic;
-		io_RamLB : out std_logic;
-		io_RamCRE : out std_logic;
-		io_RamUB : out std_logic;
-		io_RamClk : out std_logic;
-		io_MemAdr : out MemoryAddressALL;
-		io_MemDB : inout MemoryDataByte
+		io_MemAdr : out MemoryAddressALL
 	);
 	END COMPONENT memorymodule;
 
@@ -107,7 +98,7 @@ architecture Behavioral of top is
 	signal state : state_type := st_memory_enable;
 
 	signal memory_address_out,memory_address,memory_address_max : MemoryAddressALL;
-	signal memory_data_in,memory_data_null : MemoryDataByte;
+	signal memory_data_in : MemoryDataByte;
 	signal memory_ce : std_logic;
 	signal memory_oe : std_logic;
 	signal memory_enable,memory_read,memory_busy : std_logic;
@@ -141,7 +132,6 @@ begin
 	JC(4) <= memory_address_out(12);
 	JC(5) <= memory_address_out(13);
 	JC(6) <= memory_address_out(14);
-	--JC(7) <= memory_address_out(15);
 
 	mm: memorymodule
 	PORT MAP (
@@ -151,18 +141,9 @@ begin
 		i_read => memory_read,
 		o_busy => memory_busy,
 		i_MemAdr => memory_address,
-		i_MemDB => memory_data_null,
-		o_MemDB => open,
 		io_MemOE => memory_oe,
-		io_MemWR => open,
-		io_RamAdv => open,
 		io_RamCS => memory_ce,
-		io_RamLB => open,
-		io_RamCRE => open,
-		io_RamUB => open,
-		io_RamClk => open,
-		io_MemAdr => memory_address_out,
-		io_MemDB => open
+		io_MemAdr => memory_address_out
 	);
 
 	uut_rs232 : rs232
@@ -189,7 +170,6 @@ begin
 			enable <= '0';
 			memory_address_max <= (others => '1');
 			memory_address <= (others => '0');
-			memory_data_null <= (others => '0');
 			memory_enable <= '0';
 			memory_read <= '0';
 		elsif (rising_edge(clk)) then
