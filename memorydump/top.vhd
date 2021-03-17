@@ -63,8 +63,8 @@ architecture Behavioral of top is
 	COMPONENT memorymodule IS
 	Port (
 		i_clock : in std_logic;
+		i_reset : in std_logic;
 		i_enable : in std_logic;
-		i_write : in std_logic;
 		i_read : in std_logic;
 		o_busy : out std_logic;
 		i_MemAdr : in MemoryAddressALL;
@@ -93,8 +93,18 @@ architecture Behavioral of top is
 --	type ARRAY_BYTES is array(0 to ARRAY_LENGTH-1) of std_logic_vector(NUMBER_BITS-1 downto 0);
 --	signal bytes : ARRAY_BYTES := (x"30",x"31",x"32",x"33",x"34",x"35",x"36",x"37",x"38",x"39",x"20");
 
-	type state_type is (st_send,st_memory_enable,st_memory_read_enable,st_memory_wait0,st_memory_read_disable,st_memory_disable,st_increment,st_waiting,st_send_nl,st_increment_nl,st_waiting_nl);
-	signal state : state_type := st_send;
+	type state_type is (
+	st_memory_enable,
+	st_memory_read_enable,
+	st_memory_wait0,
+	st_memory_read_disable,
+	st_memory_disable,
+	st_send,
+	st_increment,
+	st_waiting,
+	st_increment_address,
+	st_stop);
+	signal state : state_type := st_memory_enable;
 
 	signal memory_address_out,memory_address,memory_address_max : MemoryAddressALL;
 	signal memory_data_in,memory_data_null : MemoryDataByte;
@@ -131,13 +141,13 @@ begin
 	JC(4) <= memory_address_out(12);
 	JC(5) <= memory_address_out(13);
 	JC(6) <= memory_address_out(14);
-	JC(7) <= memory_address_out(15);
+	--JC(7) <= memory_address_out(15);
 
 	mm: memorymodule
 	PORT MAP (
 		i_clock => clk,
+		i_reset => reset,
 		i_enable => memory_enable,
-		i_write => '0',
 		i_read => memory_read,
 		o_busy => memory_busy,
 		i_MemAdr => memory_address,
@@ -175,7 +185,7 @@ begin
 	begin
 		if (reset = '1') then
 --			index := 0; -- XXX test pattern
-			state <= st_send;
+			state <= st_memory_enable;
 			enable <= '0';
 			memory_address_max <= (others => '1');
 			memory_address <= (others => '0');
@@ -190,11 +200,6 @@ begin
 				when st_memory_read_enable =>
 					state <= st_memory_wait0;
 					memory_read <= '1';
-					if (memory_address = memory_address_max) then
-						memory_address <= (others => '0');
-					else
-						memory_address <= std_logic_vector(to_unsigned(to_integer(unsigned(memory_address) + 1),G_MemoryAddress));
-					end if;
 				when st_memory_wait0 =>
 					if (memory_busy = '1') then
 						state <= st_memory_wait0;
@@ -216,6 +221,8 @@ begin
 --						data_in <= memory_data_in; -- XXX test pattern
 						data_in <= not memory_data_in;
 						state <= st_increment;
+					else
+						state <= st_send;
 					end if;
 				when st_increment =>
 					if (ready = '0') then
@@ -225,35 +232,25 @@ begin
 --						else
 --							index := 0;
 --						end if;
+					else
+						state <= st_increment;
 					end if;
 				when st_waiting =>
 					if (busy = '1') then
 						enable <= '0';
 						state <= st_waiting;
 					else
-						state <= st_send_nl;
+						state <= st_increment_address;
 					end if;
-				when st_send_nl =>
-					if (memory_address = std_logic_vector(to_unsigned(to_integer(unsigned(memory_address_max)),G_MemoryAddress))) then
-						enable <= '1';
-						if (ready = '1') then
-							state <= st_increment_nl;
-							data_in <= not x"0A";
-						end if;
+				when st_increment_address =>
+					if (memory_address = std_logic_vector(to_unsigned(to_integer(unsigned(memory_address_max) - 1),G_MemoryAddress))) then
+						state <= st_stop;
 					else
+						memory_address <= std_logic_vector(to_unsigned(to_integer(unsigned(memory_address) + 1),G_MemoryAddress));
 						state <= st_memory_enable;
 					end if;
-				when st_increment_nl =>
-					if (ready = '0') then
-						state <= st_waiting_nl;
-					end if;
-				when st_waiting_nl =>
-					if (busy = '1') then
-						enable <= '0';
-						state <= st_waiting_nl;
-					else
-						state <= st_memory_enable;
-					end if;
+				when st_stop =>
+					state <= st_stop;
 			end case;
 		end if;
 	end process p0;
