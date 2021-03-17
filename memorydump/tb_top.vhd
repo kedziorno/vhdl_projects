@@ -47,9 +47,9 @@ ARCHITECTURE behavior OF tb_top IS
 		clk : IN  std_logic;
 		btn0 : IN  std_logic;
 		RsTx : OUT  std_logic;
-		JA : INOUT std_logic_vector(7 downto 0);
+		JA : INOUT std_logic_vector(1 downto 0);
 		JB : INOUT std_logic_vector(7 downto 0);
-		JC : INOUT std_logic_vector(7 downto 0);
+		JC : INOUT std_logic_vector(6 downto 0);
 		JD : INOUT std_logic_vector(7 downto 0)
 		);
 	END COMPONENT;
@@ -58,9 +58,9 @@ ARCHITECTURE behavior OF tb_top IS
 	signal clk : std_logic := '0';
 	signal rst : std_logic := '0';
 	signal RsRx : std_logic := '0';
-	signal JA : std_logic_vector(7 downto 0) := (others => '0');
+	signal JA : std_logic_vector(1 downto 0) := (others => '0');
 	signal JB : std_logic_vector(7 downto 0) := (others => '0');
-	signal JC : std_logic_vector(7 downto 0) := (others => '0');
+	signal JC : std_logic_vector(6 downto 0) := (others => '0');
 	signal JD : std_logic_vector(7 downto 0) := (others => '0');
 
 	--Outputs
