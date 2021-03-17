@@ -33,8 +33,8 @@ use IEEE.NUMERIC_STD.ALL;
 entity memorymodule is
 Port (
 i_clock : in std_logic;
+i_reset : in std_logic;
 i_enable : in std_logic;
-i_write : in std_logic;
 i_read : in std_logic;
 o_busy : out std_logic;
 i_MemAdr : in MemoryAddressALL;
@@ -58,14 +58,10 @@ architecture Behavioral of memorymodule is
 	type state is (
 	idle,
 	start,
-	write_setup,
 	read_setup,
-	write_enable,
-	wait1,
-	write_disable,
-	stop,
-	read1,
-	wait2
+	read_current,
+	read_wait,
+	stop
 	);
 	signal cstate : state;
 
@@ -82,7 +78,7 @@ architecture Behavioral of memorymodule is
 begin
 
 	io_MemOE <= MemOE;
-	io_MemWR <= MemWR when (i_write = '1') else 'Z';
+	io_MemWR <= MemWR;
 	io_RamAdv <= RamAdv;
 	io_RamCS <= RamCS;
 	io_RamLB <= RamLB;
@@ -101,15 +97,24 @@ begin
 	o_MemDB <= io_MemDB when (cstate = idle) else (others => 'Z');
 	io_MemDB <= i_MemDB when (RamCS = '0' and MemWR = '0') else (others => 'Z');
 
-	p0 : process (i_clock) is
-		constant cw : integer := 6;
-		variable w : integer range 0 to cw := 0;
+	p0 : process (i_clock,i_reset) is
+		constant cw : integer := (G_BOARD_CLOCK/G_BAUD_RATE);
+		variable w : integer range 0 to cw-1;
 		variable t : std_logic_vector(G_MemoryData-1 downto 0);
-		variable tz : std_logic_vector(G_MemoryData-1 downto 0) := (others => 'Z');
+		variable tz : std_logic_vector(G_MemoryData-1 downto 0);
 	begin
-		if (rising_edge(i_clock)) then
-			if (w > 0) then
-				w := w - 1;
+		if (i_reset = '1') then
+			w := 0;
+			t := (others => '0');
+			tz := (others => 'Z');
+			RamCS <= '1';
+			MemWR <= '1';
+			MemOE <= '1';
+		elsif (rising_edge(i_clock)) then
+			if (w = cw-1) then
+				w := 0;
+			else
+				w := w + 1;
 			end if;
 			case cstate is
 				when idle =>
@@ -119,9 +124,7 @@ begin
 						cstate <= idle;
 					end if;
 				when start =>
-					if (i_write = '1') then
-						cstate <= write_setup;
-					elsif (i_read = '1') then
+					if (i_read = '1') then
 						cstate <= read_setup;
 					else
 						cstate <= start;
@@ -129,48 +132,24 @@ begin
 					RamCS <= '1';
 					MemWR <= '1';
 					MemOE <= '1';
-				when write_setup =>
-					if (w = 0) then
-						cstate <= write_enable;
-						o_busy <= '1';
-						MemOE <= '1';
-					else
-						cstate <= write_setup;
-					end if;
-				when write_enable =>
-					cstate <= wait1;
-					MemWR <= '0';
-					RamCS <= '0';
-					w := cw;
-				when wait1 =>
-					if (w = 0) then
-						cstate <= write_disable;
-					else
-						cstate <= wait1;
-					end if;
-				when write_disable =>
-					cstate <= stop;
-					RamCS <= '1';
-					MemWR <= '1';
 				when read_setup =>
-					if (w = 0) then
-						cstate <= read1;
+					if (w = cw-1) then
+						cstate <= read_current;
 						RamCS <= '0';
---						MemOE <= '1';
-						MemOE <= '0';
+						MemOE <= '1';
 						o_busy <= '1';
 					else
 						cstate <= read_setup;
 					end if;
-				when read1 =>
-					cstate <= wait2;
---					MemOE <= '0';
-					w := cw;
-				when wait2 =>
-					if (w = 0) then
+				when read_current =>
+					cstate <= read_wait;
+					MemOE <= '0';
+					w := 0;
+				when read_wait =>
+					if (w = cw-1) then
 						cstate <= stop;
 					else
-						cstate <= wait2;
+						cstate <= read_wait;
 					end if;
 				when stop =>
 					cstate <= idle;
