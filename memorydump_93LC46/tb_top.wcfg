@@ -12,7 +12,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="3" />
+   <WVObjectSize size="4" />
    <wvobject fp_name="group17" type="group">
       <obj_property name="label">tb</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -143,6 +143,30 @@
       <wvobject fp_name="/tb_top/uut/c_rs232/g_baud_rate" type="other" db_ref_id="1">
          <obj_property name="ElementShortName">g_baud_rate</obj_property>
          <obj_property name="ObjectShortName">g_baud_rate</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group53" type="group">
+      <obj_property name="label">c_cd_div1</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_top/uut/c_cd_div1/i_reset" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_reset</obj_property>
+         <obj_property name="ObjectShortName">i_reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/c_cd_div1/i_clock" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clock</obj_property>
+         <obj_property name="ObjectShortName">i_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/c_cd_div1/o_clock" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_clock</obj_property>
+         <obj_property name="ObjectShortName">o_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/c_cd_div1/g_board_clock" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">g_board_clock</obj_property>
+         <obj_property name="ObjectShortName">g_board_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/c_cd_div1/g_divider" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">g_divider</obj_property>
+         <obj_property name="ObjectShortName">g_divider</obj_property>
       </wvobject>
    </wvobject>
 </wave_config>

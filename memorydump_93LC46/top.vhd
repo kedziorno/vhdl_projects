@@ -60,8 +60,21 @@ architecture Behavioral of top is
 	);
 	END COMPONENT rs232;
 
+	COMPONENT clock_divider_count IS
+	Generic (
+		g_board_clock : integer := G_BOARD_CLOCK;
+		g_divider : integer := 1
+	);
+	Port (
+		i_reset : in STD_LOGIC;
+		i_clock : in STD_LOGIC;
+		o_clock : out STD_LOGIC
+	);
+	END COMPONENT clock_divider_count;
+
 	signal rs232_enable,rs232_busy,rs232_ready : std_logic;
 	signal rs232_byte_to_send : MemoryDataByte;
+	signal cd_o_clock : std_logic;
 
 begin
 
@@ -78,6 +91,17 @@ begin
 		busy => rs232_busy,
 		ready => rs232_ready,
 		RsTx => o_RsTx
+	);
+
+	c_cd_div1 : clock_divider_count -- XXX SPI 1 MHZ
+	GENERIC MAP (
+		g_board_clock => G_BOARD_CLOCK,
+		g_divider => G_CLOCK_DIV1
+	)
+	PORT MAP (
+		i_reset => i_reset,
+		i_clock => i_clock,
+		o_clock => cd_o_clock
 	);
 
 end Behavioral;

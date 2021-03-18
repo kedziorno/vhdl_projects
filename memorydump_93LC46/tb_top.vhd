@@ -27,6 +27,7 @@
 --------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
+USE WORK.p_constants.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -63,7 +64,7 @@ ARCHITECTURE behavior OF tb_top IS
 	signal o_RsTx : std_logic;
 
 	-- Clock period definitions
-	constant i_clock_period : time := 10 ns;
+	constant i_clock_period : time := (1_000_000_000/G_BOARD_CLOCK) * 1 ns;
 
 BEGIN
 
