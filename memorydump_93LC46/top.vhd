@@ -113,7 +113,7 @@ begin
 	c_cd_div1 : clock_divider_count -- XXX SPI 1 MHZ
 	GENERIC MAP (
 		g_board_clock => G_BOARD_CLOCK,
-		g_divider => G_CLOCK_DIV1
+		g_divider => G_BOARD_CLOCK/G_CLOCK_DIV1
 	)
 	PORT MAP (
 		i_reset => i_reset,
@@ -130,8 +130,8 @@ begin
 		if (i_reset = '1') then
 			state <= start;
 			cs <= '0';
-			di <= 'Z';
-			do <= 'Z';
+			di <= '0';
+			do <= '0';
 			memory_address <= (others => '0');
 			memory_address_index <= 0;
 			memory_data <= (others => '0');
@@ -140,35 +140,35 @@ begin
 			sk <= cd_o_clock;
 			case (state) is
 				when start =>
-					if (cd_o_clock /= cd_o_clock_prev) then
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						state <= di0;
 						cs <= '1';
 					else
 						state <= start;
 					end if;
 				when di0 =>
-					if (cd_o_clock /= cd_o_clock_prev) then
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						state <= di1;
 						di <= '1';
 					else
 						state <= di0;
 					end if;
 				when di1 =>
-					if (cd_o_clock /= cd_o_clock_prev) then
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						state <= di2;
 						di <= '1';
 					else
 						state <= di1;
 					end if;
 				when di2 =>
-					if (cd_o_clock /= cd_o_clock_prev) then
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						state <= di_address;
 						di <= '0';
 					else
 						state <= di2;
 					end if;
 				when di_address =>
-					if (cd_o_clock /= cd_o_clock_prev) then
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						if (memory_address_index = G_MemoryAddress - 1) then
 							state <= do_data;
 							di <= '0';
@@ -182,7 +182,7 @@ begin
 						state <= di_address;
 					end if;
 				when do_data =>
-					if (cd_o_clock /= cd_o_clock_prev) then
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						if (memory_data_index = G_MemoryData - 1) then
 							state <= st_rs232_ready;
 							memory_data_index <= 0;
@@ -197,8 +197,8 @@ begin
 					rs232_enable <= '1';
 					if (rs232_ready = '1') then
 						state <= st_rs232_send;
-						--rs232_byte_to_send <= not memory_data;
-						rs232_byte_to_send <= not ('0' & memory_address);
+						--rs232_byte_to_send <= not ('0' & memory_address);
+						rs232_byte_to_send <= not memory_data;
 					else
 						state <= st_rs232_ready;
 					end if;
@@ -216,16 +216,17 @@ begin
 						state <= di_address_increment;
 					end if;
 				when di_address_increment =>						
-					if (memory_address = std_logic_vector(to_unsigned(to_integer(unsigned(MemoryAddressMAX) - 1),G_MemoryAddress))) then
+					if (memory_address = std_logic_vector(to_unsigned(to_integer(unsigned(MemoryAddressMAX)),G_MemoryAddress))) then
 						state <= stop;
 					else
 						memory_address <= std_logic_vector(to_unsigned(to_integer(unsigned(memory_address) + 1),G_MemoryAddress));
 						state <= start;
 					end if;
 				when stop =>
-					state <= stop;
-					cs <= '0';
-					di <= '0';
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						cs <= '0';
+						di <= '0';
+					end if;
 			end case;
 		end if;
 	end process p0;
