@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use WORK.p_constants.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -43,6 +44,40 @@ end top;
 
 architecture Behavioral of top is
 
+	COMPONENT rs232 IS
+	Generic (
+		G_BOARD_CLOCK : integer := G_BOARD_CLOCK;
+		G_BAUD_RATE : integer := G_BAUD_RATE
+	);
+	Port(
+		clk : in  STD_LOGIC;
+		rst : in  STD_LOGIC;
+		enable : in  STD_LOGIC;
+		byte_to_send : in  STD_LOGIC_VECTOR (G_MemoryData-1 downto 0);
+		busy : out  STD_LOGIC;
+		ready : out  STD_LOGIC;
+		RsTx : out  STD_LOGIC
+	);
+	END COMPONENT rs232;
+
+	signal rs232_enable,rs232_busy,rs232_ready : std_logic;
+	signal rs232_byte_to_send : MemoryDataByte;
+
 begin
+
+	c_rs232 : rs232
+	GENERIC MAP (
+		G_BOARD_CLOCK => G_BOARD_CLOCK,
+		G_BAUD_RATE => G_BAUD_RATE
+	)
+	PORT MAP (
+		clk => i_clock,
+		rst => i_reset,
+		enable => rs232_enable,
+		byte_to_send => rs232_byte_to_send,
+		busy => rs232_busy,
+		ready => rs232_ready,
+		RsTx => o_RsTx
+	);
 
 end Behavioral;
