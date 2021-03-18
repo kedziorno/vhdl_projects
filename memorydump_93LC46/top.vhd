@@ -197,7 +197,8 @@ begin
 					rs232_enable <= '1';
 					if (rs232_ready = '1') then
 						state <= st_rs232_send;
-						rs232_byte_to_send <= not memory_data;
+						--rs232_byte_to_send <= not memory_data;
+						rs232_byte_to_send <= not ('0' & memory_address);
 					else
 						state <= st_rs232_ready;
 					end if;
