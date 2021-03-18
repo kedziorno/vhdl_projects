@@ -3,7 +3,7 @@
    <wave_state>
    </wave_state>
    <db_ref_list>
-      <db_ref path="/home/user/workspace/vhdl_projects/memorydump_93LC46/tb_top_isim_beh.wdb" id="1" type="auto">
+      <db_ref path="./tb_top_isim.beh.wdb" id="1" type="auto">
          <top_modules>
             <top_module name="numeric_std" />
             <top_module name="p_constants" />
@@ -13,6 +13,9 @@
       </db_ref>
    </db_ref_list>
    <WVObjectSize size="4" />
+   <wave_markers>
+      <marker time="780000500000000" label="" />
+   </wave_markers>
    <wvobject fp_name="group17" type="group">
       <obj_property name="label">tb</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -47,54 +50,6 @@
       <wvobject fp_name="/tb_top/i_clock_period" type="other" db_ref_id="1">
          <obj_property name="ElementShortName">i_clock_period</obj_property>
          <obj_property name="ObjectShortName">i_clock_period</obj_property>
-      </wvobject>
-   </wvobject>
-   <wvobject fp_name="group29" type="group">
-      <obj_property name="label">uut</obj_property>
-      <obj_property name="DisplayName">label</obj_property>
-      <wvobject fp_name="/tb_top/uut/i_clock" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">i_clock</obj_property>
-         <obj_property name="ObjectShortName">i_clock</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/i_reset" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">i_reset</obj_property>
-         <obj_property name="ObjectShortName">i_reset</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/o_cs" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">o_cs</obj_property>
-         <obj_property name="ObjectShortName">o_cs</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/o_sk" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">o_sk</obj_property>
-         <obj_property name="ObjectShortName">o_sk</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/o_di" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">o_di</obj_property>
-         <obj_property name="ObjectShortName">o_di</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/i_do" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">i_do</obj_property>
-         <obj_property name="ObjectShortName">i_do</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/o_rstx" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">o_rstx</obj_property>
-         <obj_property name="ObjectShortName">o_rstx</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/rs232_enable" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">rs232_enable</obj_property>
-         <obj_property name="ObjectShortName">rs232_enable</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/rs232_busy" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">rs232_busy</obj_property>
-         <obj_property name="ObjectShortName">rs232_busy</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/rs232_ready" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">rs232_ready</obj_property>
-         <obj_property name="ObjectShortName">rs232_ready</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/rs232_byte_to_send" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">rs232_byte_to_send[7:0]</obj_property>
-         <obj_property name="ObjectShortName">rs232_byte_to_send[7:0]</obj_property>
       </wvobject>
    </wvobject>
    <wvobject fp_name="group41" type="group">
@@ -167,6 +122,91 @@
       <wvobject fp_name="/tb_top/uut/c_cd_div1/g_divider" type="other" db_ref_id="1">
          <obj_property name="ElementShortName">g_divider</obj_property>
          <obj_property name="ObjectShortName">g_divider</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group68" type="group">
+      <obj_property name="label">uut</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_top/uut/i_clock" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clock</obj_property>
+         <obj_property name="ObjectShortName">i_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/i_reset" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_reset</obj_property>
+         <obj_property name="ObjectShortName">i_reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/o_cs" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_cs</obj_property>
+         <obj_property name="ObjectShortName">o_cs</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/o_sk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_sk</obj_property>
+         <obj_property name="ObjectShortName">o_sk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/o_di" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_di</obj_property>
+         <obj_property name="ObjectShortName">o_di</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/i_do" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_do</obj_property>
+         <obj_property name="ObjectShortName">i_do</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/o_rstx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_rstx</obj_property>
+         <obj_property name="ObjectShortName">o_rstx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/state" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">state</obj_property>
+         <obj_property name="ObjectShortName">state</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/rs232_enable" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rs232_enable</obj_property>
+         <obj_property name="ObjectShortName">rs232_enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/rs232_busy" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rs232_busy</obj_property>
+         <obj_property name="ObjectShortName">rs232_busy</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/rs232_ready" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rs232_ready</obj_property>
+         <obj_property name="ObjectShortName">rs232_ready</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/rs232_byte_to_send" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">rs232_byte_to_send[7:0]</obj_property>
+         <obj_property name="ObjectShortName">rs232_byte_to_send[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/cd_o_clock" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">cd_o_clock</obj_property>
+         <obj_property name="ObjectShortName">cd_o_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/cs" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">cs</obj_property>
+         <obj_property name="ObjectShortName">cs</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/sk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">sk</obj_property>
+         <obj_property name="ObjectShortName">sk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/di" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">di</obj_property>
+         <obj_property name="ObjectShortName">di</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/do" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">do</obj_property>
+         <obj_property name="ObjectShortName">do</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/memory_address" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">memory_address[6:0]</obj_property>
+         <obj_property name="ObjectShortName">memory_address[6:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/memory_address_index" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">memory_address_index</obj_property>
+         <obj_property name="ObjectShortName">memory_address_index</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/uut/memory_data" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">memory_data[7:0]</obj_property>
+         <obj_property name="ObjectShortName">memory_data[7:0]</obj_property>
       </wvobject>
    </wvobject>
 </wave_config>

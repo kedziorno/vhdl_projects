@@ -52,8 +52,10 @@ p0 : process (i_clock,i_reset) is
 begin
 	if (i_reset = '1') then
 		counter := 0;
+		clock_out := '0';
 	elsif (rising_edge(i_clock)) then
 		if (counter = divider - 1) then
+			--clock_out := not clock_out;
 			clock_out := '1';
 			counter := 0;
 		else

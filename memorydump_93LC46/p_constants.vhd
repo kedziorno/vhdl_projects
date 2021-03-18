@@ -11,8 +11,8 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 
 package p_constants is
-	constant G_BOARD_CLOCK : integer := 50_000_000;
-	constant G_CLOCK_DIV1 : integer := 50; -- XXX SPI
+	constant G_BOARD_CLOCK : integer := 1_000_000;
+	constant G_CLOCK_DIV1 : integer := 50; -- XXX SPI MAX 1MHZ,VCC=3V+/-10%
 	constant NUMBER_BITS : integer := 8;
 	constant G_MemoryAddress : integer := 7; -- XXX 1K 93LC46 128x8 or 64x16
 	constant G_MemoryData : integer := NUMBER_BITS;
