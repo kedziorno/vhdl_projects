@@ -55,11 +55,11 @@ begin
 		clock_out := '0';
 	elsif (rising_edge(i_clock)) then
 		if (counter = divider - 1) then
-			--clock_out := not clock_out;
-			clock_out := '1';
+			clock_out := not clock_out;
+			--clock_out := '1';
 			counter := 0;
 		else
-			clock_out := '0';
+			--clock_out := '0';
 			counter := counter + 1;
 		end if;
 	end if;
