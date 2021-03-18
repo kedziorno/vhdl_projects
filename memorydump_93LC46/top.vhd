@@ -23,7 +23,7 @@ use WORK.p_constants.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
@@ -72,9 +72,26 @@ architecture Behavioral of top is
 	);
 	END COMPONENT clock_divider_count;
 
+	type state_type is
+	(start,
+	di0,di1,di2,
+	di_address,
+	do_data,
+	st_rs232_ready,
+	st_rs232_send,
+	st_rs232_waiting,
+	di_address_increment,
+	stop);
+	signal state : state_type;
+
 	signal rs232_enable,rs232_busy,rs232_ready : std_logic;
 	signal rs232_byte_to_send : MemoryDataByte;
 	signal cd_o_clock : std_logic;
+	signal cs,sk,di,do : std_logic;
+	signal memory_address : MemoryAddress;
+	signal memory_address_index : integer range 0 to G_MemoryAddress-1;
+	signal memory_data : MemoryDataByte;
+	signal memory_data_index : integer range 0 to G_MemoryData-1;
 
 begin
 
@@ -103,5 +120,86 @@ begin
 		i_clock => i_clock,
 		o_clock => cd_o_clock
 	);
+
+	o_cs <= cs;
+	o_sk <= cd_o_clock;
+	o_di <= di;
+
+	p0 : process (cd_o_clock,i_reset) is
+	begin
+		if (i_reset = '1') then
+			state <= start;
+			cs <= '0';
+			di <= 'Z';
+			do <= 'Z';
+			memory_address <= (others => '0');
+			memory_address_index <= 0;
+			memory_data <= (others => '0');
+		elsif (rising_edge(cd_o_clock)) then
+			case (state) is
+				when start =>
+					state <= di0;
+					cs <= '1';
+				when di0 =>
+					state <= di1;
+					di <= '1';
+				when di1 =>
+					state <= di2;
+					di <= '1';
+				when di2 =>
+					state <= di_address;
+					di <= '0';
+				when di_address =>
+					if (memory_address_index = G_MemoryAddress - 1) then
+						state <= do_data;
+						memory_address_index <= 0;
+					else
+						state <= di_address;
+						di <= memory_address(memory_address_index);
+						memory_address_index <= memory_address_index + 1;
+					end if;
+				when do_data =>
+					if (memory_data_index = G_MemoryData - 1) then
+						state <= st_rs232_ready;
+						memory_data_index <= 0;
+					else
+						memory_data(G_MemoryData-1 downto 0) <= memory_data(G_MemoryData-2 downto 0) & i_do;
+						memory_data_index <= memory_data_index + 1;
+					end if;
+				when st_rs232_ready =>
+					rs232_enable <= '1';
+					if (rs232_ready = '1') then
+						state <= st_rs232_send;
+						rs232_byte_to_send <= not memory_data;
+					else
+						state <= st_rs232_ready;
+					end if;
+				when st_rs232_send =>
+					if (rs232_ready = '0') then
+						state <= st_rs232_waiting;
+					else
+						state <= st_rs232_send;
+					end if;
+				when st_rs232_waiting =>
+					if (rs232_busy = '1') then
+						state <= st_rs232_waiting;
+						rs232_enable <= '0';
+					else
+						state <= di_address_increment;
+					end if;
+				when di_address_increment =>						
+					if (memory_address = std_logic_vector(to_unsigned(to_integer(unsigned(MemoryAddressMAX) - 1),G_MemoryAddress))) then
+						state <= stop;
+					else
+						memory_address <= std_logic_vector(to_unsigned(to_integer(unsigned(memory_address) + 1),G_MemoryAddress));
+						state <= start;
+					end if;
+				when stop =>
+					state <= stop;
+					cs <= '0';
+					di <= '0';
+			end case;
+		end if;
+	end process p0;
 
 end Behavioral;
