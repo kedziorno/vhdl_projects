@@ -62,10 +62,9 @@ ARCHITECTURE behavior OF tb_debounce IS
 		reset : in std_logic;
 		clk : in std_logic;
 		enable : in std_logic;
-		input : in std_logic_vector (G_SIZE-1 downto 0);
-		output : out std_logic_vector (G_SIZE-1 downto 0)
+		count : out std_logic_vector (G_SIZE-1 downto 0) -- lfsr output
 	);
-	END COMPONENT graycode;
+	END COMPONENT lfsr1;
 
 	COMPONENT graycode IS
 	GENERIC (G_SIZE : integer);

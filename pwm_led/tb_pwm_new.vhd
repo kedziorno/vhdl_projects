@@ -115,23 +115,6 @@ BEGIN
 				wait for i_clock_period*wait_pwm;
 			end loop;
 
-			i_load <= '1';
-			i_data <= 0;
-			wait for i_clock_period;
-			i_load <= '0';
-
-			i_reset <= '1';
-			wait for i_clock_period;
-			i_reset <= '0';
-
-			for i in 0 to 2**PWM_WIDTH-1 loop
-				i_load <= '1';
-				i_data <= ((2**PWM_WIDTH-1) - i);
-				wait for i_clock_period;
-				i_load <= '0';
-				wait for i_clock_period*wait_pwm;
-			end loop;
-
 			wait;
    end process;
 
