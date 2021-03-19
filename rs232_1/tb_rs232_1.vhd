@@ -103,31 +103,45 @@ BEGIN
 		wait for clk_period/2;
 	end process;
 
-	rst <= '1','0' after clk_period;
-
 	-- Stimulus process
 	stim_proc: process
+		type test_array is array(0 to 10) of std_logic_vector(7 downto 0);
+		variable test : test_array := (x"AA",x"55",x"FF",x"00",x"41",x"42",x"43",x"44",x"45",x"46",x"47");
 	begin
-		RsRx <= '1';
-		wait for one_uart_bit;
-		RsRx <= '0';
-		wait for one_uart_bit;
-		RsRx <= '1';
-		wait for one_uart_bit;
-		RsRx <= '0';
-		wait for one_uart_bit;
-		RsRx <= '1';
-		wait for one_uart_bit;
-		RsRx <= '0';
-		wait for one_uart_bit;
-		RsRx <= '1';
-		wait for one_uart_bit;
-		RsRx <= '0';
-		wait for one_uart_bit;
-		RsRx <= '1';
-		wait for one_uart_bit;
-		RsRx <= '0';
-		wait for one_uart_bit;
+		rst <= '1';
+		wait for clk_period;
+		rst <= '0';
+		wait for clk_period;
+
+		enable <= '1';
+		wait for clk_period;
+		enable <= '0';
+		wait for clk_period;
+
+		byte_to_send <= x"AA";
+		wait for 1 ms;
+		byte_to_send <= x"00";
+
+		enable <= '1';
+		wait for clk_period;
+		enable <= '0';
+		wait for clk_period;
+
+		l0 : for i in 0 to 10 loop
+			enable <= '1';
+			wait for one_uart_bit;
+			RsRx <= '1';
+			wait for one_uart_bit;
+			l1 : for j in 0 to 7 loop
+				RsRx <= test(i)(j);
+				wait for one_uart_bit;
+			end loop l1;
+			RsRx <= '0';
+			wait for one_uart_bit;
+			enable <= '0';
+			wait for one_uart_bit;
+		end loop l0;
+
 		wait;
 	end process;
 
