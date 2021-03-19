@@ -39,6 +39,7 @@ Port(
 	rst : in  STD_LOGIC;
 	enable : in  STD_LOGIC;
 	byte_to_send : in  STD_LOGIC_VECTOR (7 downto 0);
+	byte_received : out  STD_LOGIC_VECTOR (7 downto 0);
 	busy : out  STD_LOGIC;
 	ready : out  STD_LOGIC;
 	RsTx : out  STD_LOGIC;

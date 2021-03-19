@@ -36,55 +36,98 @@ ENTITY tb_rs232_1 IS END tb_rs232_1;
 
 ARCHITECTURE behavior OF tb_rs232_1 IS 
 
+	constant G_BOARD_CLOCK : integer := 50_000_000;
+	constant G_BAUD_RATE : integer := 9_600;
+	-- Clock period definitions
+	constant clk_period : time := (1_000_000_000/G_BOARD_CLOCK) * 1 ns;
+	constant one_uart_bit : time := (G_BOARD_CLOCK/G_BAUD_RATE) * clk_period;
+
 	-- Component Declaration for the Unit Under Test (UUT)
-	COMPONENT rs232_1
-	PORT(
-		clk : IN  std_logic_vector(0 downto 0);
-		rst : IN  std_logic_vector(0 downto 0);
-		RsTx : OUT  std_logic_vector(0 downto 0);
-		RsRx : IN  std_logic_vector(0 downto 0)
+	COMPONENT rs232 IS
+	Generic (
+		G_BOARD_CLOCK : integer := G_BOARD_CLOCK;
+		G_BAUD_RATE : integer := G_BAUD_RATE
 	);
-	END COMPONENT;
+	Port(
+		clk : in  STD_LOGIC;
+		rst : in  STD_LOGIC;
+		enable : in  STD_LOGIC;
+		byte_to_send : in  STD_LOGIC_VECTOR (7 downto 0);
+		byte_received : out  STD_LOGIC_VECTOR (7 downto 0);
+		busy : out  STD_LOGIC;
+		ready : out  STD_LOGIC;
+		RsTx : out  STD_LOGIC;
+		RsRx : in  STD_LOGIC
+	);
+	END COMPONENT rs232;
 
 	--Inputs
-	signal clk : std_logic_vector(0 downto 0) := (others => '0');
-	signal rst : std_logic_vector(0 downto 0) := (others => '0');
-	signal rx : std_logic_vector(0 downto 0) := (others => '0');
+	signal clk : std_logic := '0';
+	signal rst : std_logic := '0';
+	signal enable : std_logic := '0';
+	signal byte_to_send : std_logic_vector(7 downto 0) := (others => '0');
+	signal RsRx : std_logic := '0';
 
 	--Outputs
-	signal tx : std_logic_vector(0 downto 0) := (others => '0');
-
-	-- Clock period definitions
-	constant clk_period : time := 20 ns;
+	signal byte_received : std_logic_vector(7 downto 0);
+	signal busy : std_logic;
+	signal ready : std_logic;
+	signal RsTx : std_logic;
 
 BEGIN
 
 	-- Instantiate the Unit Under Test (UUT)
-	uut: rs232_1 PORT MAP (
+	uut : rs232
+	GENERIC MAP (
+		G_BOARD_CLOCK => G_BOARD_CLOCK,
+		G_BAUD_RATE => G_BAUD_RATE
+	)
+	PORT MAP (
 		clk => clk,
 		rst => rst,
-		RsTx => tx,
-		RsRx => rx
+		enable => enable,
+		byte_to_send => byte_to_send,
+		byte_received => byte_received,
+		busy => busy,
+		ready => ready,
+		RsTx => RsTx, -- byte_to_send => 
+		RsRx => RsRx -- byte_received <=
 	);
 
 	-- Clock process definitions
 	clk_process :process
 	begin
-		clk <= std_logic_vector(to_unsigned(0,1));
+		clk <= '0';
 		wait for clk_period/2;
-		clk <= std_logic_vector(to_unsigned(1,1));
+		clk <= '1';
 		wait for clk_period/2;
 	end process;
+
+	rst <= '1','0' after clk_period;
 
 	-- Stimulus process
 	stim_proc: process
 	begin
-		-- hold reset state for 100 ns.
-		rst(0) <= '1';
-		wait for 100 ns;
-		rst(0) <= '0';
-		--wait for clk_period*10;
-		-- insert stimulus here
+		RsRx <= '1';
+		wait for one_uart_bit;
+		RsRx <= '0';
+		wait for one_uart_bit;
+		RsRx <= '1';
+		wait for one_uart_bit;
+		RsRx <= '0';
+		wait for one_uart_bit;
+		RsRx <= '1';
+		wait for one_uart_bit;
+		RsRx <= '0';
+		wait for one_uart_bit;
+		RsRx <= '1';
+		wait for one_uart_bit;
+		RsRx <= '0';
+		wait for one_uart_bit;
+		RsRx <= '1';
+		wait for one_uart_bit;
+		RsRx <= '0';
+		wait for one_uart_bit;
 		wait;
 	end process;
 
