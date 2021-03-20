@@ -39,6 +39,10 @@
          <obj_property name="ElementShortName">byte_received[7:0]</obj_property>
          <obj_property name="ObjectShortName">byte_received[7:0]</obj_property>
       </wvobject>
+      <wvobject fp_name="/tb_rs232_1/is_byte_received" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">is_byte_received</obj_property>
+         <obj_property name="ObjectShortName">is_byte_received</obj_property>
+      </wvobject>
       <wvobject fp_name="/tb_rs232_1/busy" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">busy</obj_property>
          <obj_property name="ObjectShortName">busy</obj_property>
@@ -102,6 +106,10 @@
       <wvobject fp_name="/tb_rs232_1/uut/byte_received" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">byte_received[7:0]</obj_property>
          <obj_property name="ObjectShortName">byte_received[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_rs232_1/uut/is_byte_received" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">is_byte_received</obj_property>
+         <obj_property name="ObjectShortName">is_byte_received</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_rs232_1/uut/rsrx" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">rsrx</obj_property>

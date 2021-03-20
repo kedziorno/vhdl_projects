@@ -42,6 +42,7 @@ Port(
 	byte_received : out  STD_LOGIC_VECTOR (7 downto 0);
 	busy : out  STD_LOGIC;
 	ready : out  STD_LOGIC;
+	is_byte_received : out STD_LOGIC;
 	RsTx : out  STD_LOGIC;
 	RsRx : in  STD_LOGIC
 );
@@ -49,7 +50,7 @@ end rs232;
 
 architecture Behavioral of rs232 is
 
-	constant recv_bits : integer := 10;
+	constant recv_bits : integer := 11;
 	constant a : integer := (G_BOARD_CLOCK/G_BAUD_RATE);
 
 	signal clk_div1 : std_logic;
@@ -92,6 +93,7 @@ begin
 						r_state <= start;
 						v_i <= (others => '0');
 						v_w <= (others => '0');
+						is_byte_received <= '0';
 					elsif (enable = '0') then
 						r_state <= idle;
 					end if;
@@ -131,6 +133,7 @@ begin
 				when stop =>
 					r_state <= idle;
 					byte_received <= temp(recv_bits-2 downto 1);
+					is_byte_received <= '1';
 			end case;
 		end if;
 	end process p1;

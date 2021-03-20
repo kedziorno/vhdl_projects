@@ -56,6 +56,7 @@ ARCHITECTURE behavior OF tb_rs232_1 IS
 		byte_received : out  STD_LOGIC_VECTOR (7 downto 0);
 		busy : out  STD_LOGIC;
 		ready : out  STD_LOGIC;
+		is_byte_received : out STD_LOGIC;
 		RsTx : out  STD_LOGIC;
 		RsRx : in  STD_LOGIC
 	);
@@ -70,6 +71,7 @@ ARCHITECTURE behavior OF tb_rs232_1 IS
 
 	--Outputs
 	signal byte_received : std_logic_vector(7 downto 0);
+	signal is_byte_received : std_logic;
 	signal busy : std_logic;
 	signal ready : std_logic;
 	signal RsTx : std_logic;
@@ -90,6 +92,7 @@ BEGIN
 		byte_received => byte_received,
 		busy => busy,
 		ready => ready,
+		is_byte_received => is_byte_received,
 		RsTx => RsTx, -- byte_to_send => 
 		RsRx => RsRx -- byte_received <=
 	);
