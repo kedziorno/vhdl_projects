@@ -83,7 +83,6 @@
       <wvobject fp_name="/tb_top/uut/byte_to_send" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">byte_to_send[7:0]</obj_property>
          <obj_property name="ObjectShortName">byte_to_send[7:0]</obj_property>
-         <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/byte_received" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">byte_received[7:0]</obj_property>
@@ -165,13 +164,13 @@
          <obj_property name="ElementShortName">temp[9:0]</obj_property>
          <obj_property name="ObjectShortName">temp[9:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb_top/uut/c_rs232/c_state" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">c_state</obj_property>
-         <obj_property name="ObjectShortName">c_state</obj_property>
+      <wvobject fp_name="/tb_top/uut/c_rs232/tx_state" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">tx_state</obj_property>
+         <obj_property name="ObjectShortName">tx_state</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb_top/uut/c_rs232/r_state" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">r_state</obj_property>
-         <obj_property name="ObjectShortName">r_state</obj_property>
+      <wvobject fp_name="/tb_top/uut/c_rs232/rx_state" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">rx_state</obj_property>
+         <obj_property name="ObjectShortName">rx_state</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/c_rs232/g_board_clock" type="other" db_ref_id="1">
          <obj_property name="ElementShortName">g_board_clock</obj_property>
