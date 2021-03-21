@@ -92,13 +92,14 @@ BEGIN
 	stim_proc: process
 		type test_array is array(0 to 10) of std_logic_vector(7 downto 0);
 		variable test : test_array := (x"AA",x"55",x"FF",x"00",x"41",x"42",x"43",x"44",x"45",x"46",x"47");
+		--variable test : test_array := (x"6F",x"70",x"4F",x"50",x"6F",x"70",x"4F",x"50",x"00",x"FF",x"00");
 	begin
 		i_reset <= '1';
 		wait for i_clock_period;
 		i_reset <= '0';
-		wait for i_clock_period;
+		wait for 40 ms; -- must wait for user key
 		-- insert stimulus here
-		l0 : for i in 0 to 10 loop
+		l0 : for i in 0 to 10 loop -- data for cp1202
 			i_RsRX <= '1';
 			wait for one_uart_bit;
 			l1 : for j in 0 to 7 loop
