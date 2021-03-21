@@ -37,7 +37,8 @@ Generic (
 Port(
 	clk : in  STD_LOGIC;
 	rst : in  STD_LOGIC;
-	enable : in  STD_LOGIC;
+	enable_tx : in  STD_LOGIC;
+	enable_rx : in  STD_LOGIC;
 	byte_to_send : in  STD_LOGIC_VECTOR (7 downto 0);
 	byte_received : out  STD_LOGIC_VECTOR (7 downto 0);
 	busy : out  STD_LOGIC;
@@ -89,12 +90,12 @@ begin
 		elsif (rising_edge(clk)) then
 			case (r_state) is
 				when idle =>
-					if (enable = '1') then
+					if (enable_rx = '1') then
 						r_state <= start;
 						v_i <= (others => '0');
 						v_w <= (others => '0');
 						is_byte_received <= '0';
-					elsif (enable = '0') then
+					elsif (enable_rx = '0') then
 						r_state <= idle;
 					end if;
 				when start =>
@@ -149,9 +150,7 @@ begin
 		elsif (rising_edge(clk)) then
 			case c_state is
 				when idle =>
-					if (enable = '0') then
-						c_state <= idle;
-					elsif (enable = '1') then
+					if (enable_tx = '1') then
 						c_state <= start;
 					end if;
 				when start =>

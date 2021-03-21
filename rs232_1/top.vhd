@@ -53,7 +53,8 @@ architecture Behavioral of top is
 	Port(
 		clk : in  STD_LOGIC;
 		rst : in  STD_LOGIC;
-		enable : in  STD_LOGIC;
+		enable_tx : in  STD_LOGIC;
+		enable_rx : in  STD_LOGIC;
 		byte_to_send : in  STD_LOGIC_VECTOR (7 downto 0);
 		byte_received : out  STD_LOGIC_VECTOR (7 downto 0);
 		busy : out  STD_LOGIC;
@@ -64,15 +65,19 @@ architecture Behavioral of top is
 	);
 	END COMPONENT rs232;
 
-	signal enable,busy,ready,is_byte_received : std_logic;
-	signal byte_to_send : std_logic_vector(7 downto 0);
-	signal byte_received : std_logic_vector(7 downto 0);
+	signal enable_tx,enable_rx,busy,ready,is_byte_received : std_logic;
+	signal byte_to_send,byte_received : std_logic_vector(7 downto 0);
 
 	type state_type is (
 	idle,
-	start,
-	send,
-	stop
+	st_enable_rx,
+	st_rs_rx,
+	st_disable_rx,
+	st_enable_tx,
+	st_rs232_ready,
+	st_rs232_send,
+	st_rs232_waiting,
+	st_disable_tx
 	);
 	signal state : state_type;
 
@@ -86,7 +91,8 @@ begin
 	PORT MAP (
 		clk => i_clock,
 		rst => i_reset,
-		enable => enable,
+		enable_tx => enable_tx,
+		enable_rx => enable_rx,
 		byte_to_send => byte_to_send,
 		byte_received => byte_received,
 		busy => busy,
@@ -96,33 +102,57 @@ begin
 		RsRx => i_RsRX
 	);
 
-	enable <= '1';
-
 	p0 : process (i_clock,i_reset) is
 	begin
 		if (i_reset = '1') then
 			state <= idle;
+			enable_tx <= '0';
+			enable_rx <= '0';
 		elsif (rising_edge(i_clock)) then
 			case (state) is
 				when idle =>
 					if (ready = '1') then
-						state <= start;
+						state <= st_enable_rx;
 					else
 						state <= idle;
 					end if;
-				when start =>
+				when st_enable_rx =>
+					state <= st_rs_rx;
+					enable_rx <= '1';
+				when st_rs_rx =>
 					if (is_byte_received = '1') then
-						state <= send;
-					end if;
-				when send =>
-						state <= stop;
+						state <= st_disable_rx;
 						byte_to_send <= byte_received;
-				when stop =>
-					if (busy = '1') then
-						state <= stop;
 					else
-						state <= idle;
+						state <= st_rs_rx;
 					end if;
+				when st_disable_rx =>
+					state <= st_enable_tx;
+					enable_rx <= '0';
+				when st_enable_tx =>
+					state <= st_rs232_ready;
+					enable_tx <= '1';
+				when st_rs232_ready =>
+					if (ready = '1') then
+						state <= st_rs232_send;
+					else
+						state <= st_rs232_ready;
+					end if;
+				when st_rs232_send =>
+					if (ready = '0') then
+						state <= st_rs232_waiting;
+					else
+						state <= st_rs232_send;
+					end if;
+				when st_rs232_waiting =>
+					if (busy = '1') then
+						state <= st_rs232_waiting;
+					else
+						state <= st_disable_tx;
+					end if;
+				when st_disable_tx =>
+					state <= idle;
+					enable_tx <= '0';
 			end case;
 		end if;
 	end process p0;

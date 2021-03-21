@@ -96,7 +96,7 @@ BEGIN
 		i_reset <= '1';
 		wait for i_clock_period;
 		i_reset <= '0';
-		wait for i_clock_period;
+		wait for 40 ms; -- must wait for user key
 		-- insert stimulus here
 		l0 : for i in 0 to 10 loop
 			i_RsRX <= '1';
