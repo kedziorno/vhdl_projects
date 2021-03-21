@@ -83,10 +83,12 @@
       <wvobject fp_name="/tb_top/uut/byte_to_send" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">byte_to_send[7:0]</obj_property>
          <obj_property name="ObjectShortName">byte_to_send[7:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/byte_received" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">byte_received[7:0]</obj_property>
          <obj_property name="ObjectShortName">byte_received[7:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/state" type="other" db_ref_id="1">
          <obj_property name="ElementShortName">state</obj_property>

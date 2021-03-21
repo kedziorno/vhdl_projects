@@ -98,7 +98,7 @@ BEGIN
 		i_reset <= '0';
 		wait for 40 ms; -- must wait for user key
 		-- insert stimulus here
-		l0 : for i in 0 to 10 loop
+		l0 : for i in 0 to 10 loop -- data for cp1202
 			i_RsRX <= '1';
 			wait for one_uart_bit;
 			l1 : for j in 0 to 7 loop
