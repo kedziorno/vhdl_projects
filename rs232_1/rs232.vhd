@@ -74,6 +74,7 @@ architecture Behavioral of rs232 is
 		recv,
 		wait0,
 		increment,
+		parity,
 		stop
 	);
 	signal r_state : s_recv;
@@ -124,13 +125,16 @@ begin
 						r_state <= wait0;
 					end if;
 				when increment =>
-					if (to_integer(unsigned(v_i)) = recv_bits-1) then
-						r_state <= stop;
+					if (to_integer(unsigned(v_i)) = recv_bits-2) then
+						r_state <= parity;
 						v_i <= (others => '0');
 					else
 						v_i <= std_logic_vector(to_unsigned(to_integer(unsigned(v_i)) + 1,32));
 						r_state <= recv;
 					end if;
+				when parity =>
+					r_state <= stop;
+					temp(recv_bits-2) <= temp(1) xor temp(2) xor temp(3) xor temp(4) xor temp(5) xor temp(6) xor temp(7) xor temp(8);
 				when stop =>
 					r_state <= idle;
 					byte_received <= temp(recv_bits-2 downto 1);
