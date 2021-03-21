@@ -55,8 +55,10 @@ architecture Behavioral of top is
 		rst : in  STD_LOGIC;
 		enable_tx : in  STD_LOGIC;
 		enable_rx : in  STD_LOGIC;
-		byte_to_send : in  STD_LOGIC_VECTOR (7 downto 0);
+		byte_to_send : in  STD_LOGIC_VECTOR (8 downto 0);
 		byte_received : out  STD_LOGIC_VECTOR (7 downto 0);
+		parity_tx : out  STD_LOGIC;
+		parity_rx : out  STD_LOGIC;
 		busy : out  STD_LOGIC;
 		ready : out  STD_LOGIC;
 		is_byte_received : out STD_LOGIC;
@@ -65,19 +67,20 @@ architecture Behavioral of top is
 	);
 	END COMPONENT rs232;
 
-	signal enable_tx,enable_rx,busy,ready,is_byte_received : std_logic;
-	signal byte_to_send,byte_received : std_logic_vector(7 downto 0);
+	signal enable_tx,enable_rx,busy,ready,is_byte_received,parity_tx,parity_rx : std_logic;
+	signal byte_to_send : std_logic_vector(8 downto 0);
+	signal byte_received : std_logic_vector(7 downto 0);
 
 	type state_type is (
-	idle,
-	st_enable_rx,
-	st_rs_rx,
-	st_disable_rx,
-	st_enable_tx,
-	st_rs232_ready,
-	st_rs232_send,
-	st_rs232_waiting,
-	st_disable_tx
+		idle,
+		st_enable_rx,
+		st_rs_rx,
+		st_disable_rx,
+		st_enable_tx,
+		st_rs232_ready,
+		st_rs232_send,
+		st_rs232_waiting,
+		st_disable_tx
 	);
 	signal state : state_type;
 
@@ -95,6 +98,8 @@ begin
 		enable_rx => enable_rx,
 		byte_to_send => byte_to_send,
 		byte_received => byte_received,
+		parity_tx => parity_tx,
+		parity_rx => parity_rx,
 		busy => busy,
 		ready => ready,
 		is_byte_received => is_byte_received,
@@ -122,7 +127,7 @@ begin
 				when st_rs_rx =>
 					if (is_byte_received = '1') then
 						state <= st_disable_rx;
-						byte_to_send <= byte_received;
+						byte_to_send <= parity_rx & byte_received;
 					else
 						state <= st_rs_rx;
 					end if;

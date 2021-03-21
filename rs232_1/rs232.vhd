@@ -39,8 +39,10 @@ Port(
 	rst : in  STD_LOGIC;
 	enable_tx : in  STD_LOGIC;
 	enable_rx : in  STD_LOGIC;
-	byte_to_send : in  STD_LOGIC_VECTOR (7 downto 0);
+	byte_to_send : in  STD_LOGIC_VECTOR (8 downto 0);
 	byte_received : out  STD_LOGIC_VECTOR (7 downto 0);
+	parity_tx : out  STD_LOGIC;
+	parity_rx : out  STD_LOGIC;
 	busy : out  STD_LOGIC;
 	ready : out  STD_LOGIC;
 	is_byte_received : out STD_LOGIC;
@@ -58,6 +60,7 @@ architecture Behavioral of rs232 is
 	signal v_w : std_logic_vector(31 downto 0);
 	signal t_w : std_logic_vector(31 downto 0);
 	signal temp : std_logic_vector(recv_bits - 1 downto 0);
+	signal p_tx,p_rx : std_logic;
 
 	type t_state is (
 		idle,
@@ -135,7 +138,7 @@ begin
 					end if;
 				when parity =>
 					rx_state <= wparity;
-					temp(recv_bits-1) <= temp(1) xor temp(2) xor temp(3) xor temp(4) xor temp(5) xor temp(6) xor temp(7) xor temp(8);
+					p_rx <= temp(1) xor temp(2) xor temp(3) xor temp(4) xor temp(5) xor temp(6) xor temp(7) xor temp(8);
 				when wparity =>
 					if (to_integer(unsigned(v_w)) = a-1) then
 						rx_state <= stop;
@@ -146,8 +149,9 @@ begin
 					end if;
 				when stop =>
 					rx_state <= idle;
-					byte_received <= temp(recv_bits-2 downto 1);
 					is_byte_received <= '1';
+					byte_received <= temp(recv_bits-2 downto 1);
+					parity_rx <= p_rx; -- recv_bits-1
 			end case;
 		end if;
 	end process p0;
@@ -269,7 +273,8 @@ begin
 					end if;
 				when parity =>
 					tx_state <= wparity;
-					RsTx <= byte_to_send(0) xor byte_to_send(1) xor byte_to_send(2) xor byte_to_send(3) xor byte_to_send(4) xor byte_to_send(5) xor byte_to_send(6) xor byte_to_send(7);
+					p_tx <= byte_to_send(0) xor byte_to_send(1) xor byte_to_send(2) xor byte_to_send(3) xor byte_to_send(4) xor byte_to_send(5) xor byte_to_send(6) xor byte_to_send(7);
+					RsTx <= p_tx;
 				when wparity =>
 					if (to_integer(unsigned(t_w)) = a-1) then
 						tx_state <= stop;
@@ -286,6 +291,7 @@ begin
 				when wstop =>
 					if (to_integer(unsigned(t_w)) = a-1) then
 						tx_state <= idle;
+						parity_tx <= p_tx;
 						t_w <= (others => '0');
 					else
 						tx_state <= wstop;

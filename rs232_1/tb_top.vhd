@@ -92,6 +92,7 @@ BEGIN
 	stim_proc: process
 		type test_array is array(0 to 10) of std_logic_vector(7 downto 0);
 		variable test : test_array := (x"AA",x"55",x"FF",x"00",x"41",x"42",x"43",x"44",x"45",x"46",x"47");
+		--variable test : test_array := (x"6F",x"70",x"4F",x"50",x"6F",x"70",x"4F",x"50",x"00",x"FF",x"00");
 	begin
 		i_reset <= '1';
 		wait for i_clock_period;
