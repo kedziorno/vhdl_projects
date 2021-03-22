@@ -41,6 +41,10 @@ ARCHITECTURE behavior OF tb_top IS
 	-- Component Declaration for the Unit Under Test (UUT)
 
 	COMPONENT top
+	GENERIC(
+	G_BOARD_CLOCK : integer := G_BOARD_CLOCK_SIMULATE;
+	G_BAUD_RATE : integer := G_BAUD_RATE
+	);
 	PORT(
 	i_clock : IN  std_logic;
 	i_reset : IN  std_logic;
@@ -64,12 +68,17 @@ ARCHITECTURE behavior OF tb_top IS
 	signal o_RsTx : std_logic;
 
 	-- Clock period definitions
-	constant i_clock_period : time := (1_000_000_000/G_BOARD_CLOCK) * 1 ns;
+	constant i_clock_period : time := (1_000_000_000/G_BOARD_CLOCK_SIMULATE) * 1 ns;
 
 BEGIN
 
 	-- Instantiate the Unit Under Test (UUT)
-	uut: top PORT MAP (
+	uut: top
+	GENERIC MAP (
+		G_BOARD_CLOCK => G_BOARD_CLOCK_SIMULATE,
+		G_BAUD_RATE => G_BAUD_RATE
+	)
+	PORT MAP (
 		i_clock => i_clock,
 		i_reset => i_reset,
 		o_cs => o_cs,

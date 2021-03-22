@@ -31,6 +31,10 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity top is
+Generic (
+	G_BOARD_CLOCK : integer := G_BOARD_CLOCK_HARDWARE;
+	G_BAUD_RATE : integer := G_BAUD_RATE
+);
 Port (
 	i_clock : in  STD_LOGIC;
 	i_reset : in  STD_LOGIC;

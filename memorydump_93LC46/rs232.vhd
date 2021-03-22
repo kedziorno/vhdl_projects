@@ -32,7 +32,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity rs232 is
 Generic (
-	G_BOARD_CLOCK : integer := G_BOARD_CLOCK;
+	G_BOARD_CLOCK : integer := G_BOARD_CLOCK_HARDWARE;
 	G_BAUD_RATE : integer := G_BAUD_RATE
 );
 Port(
