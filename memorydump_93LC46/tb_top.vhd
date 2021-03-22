@@ -52,7 +52,8 @@ ARCHITECTURE behavior OF tb_top IS
 	o_sk : OUT  std_logic;
 	o_di : OUT  std_logic;
 	i_do : IN  std_logic;
-	o_RsTx : OUT  std_logic
+	o_RsTx : OUT  std_logic;
+	i_RsRx : IN  std_logic
 	);
 	END COMPONENT;
 
@@ -60,6 +61,7 @@ ARCHITECTURE behavior OF tb_top IS
 	signal i_clock : std_logic := '0';
 	signal i_reset : std_logic := '0';
 	signal i_do : std_logic := '0';
+	signal i_RsRx : std_logic := '0';
 
 	--Outputs
 	signal o_cs : std_logic;
@@ -85,7 +87,8 @@ BEGIN
 		o_sk => o_sk,
 		o_di => o_di,
 		i_do => i_do,
-		o_RsTx => o_RsTx
+		o_RsTx => o_RsTx,
+		i_RsRx => i_RsRx
 	);
 
 	-- Clock process definitions

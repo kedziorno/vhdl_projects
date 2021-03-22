@@ -42,7 +42,8 @@ Port (
 	o_sk : out  STD_LOGIC;
 	o_di : out  STD_LOGIC;
 	i_do : in  STD_LOGIC;
-	o_RsTx : out  STD_LOGIC
+	o_RsTx : out  STD_LOGIC;
+	i_RsRx : in  STD_LOGIC
 );
 end top;
 
@@ -56,11 +57,15 @@ architecture Behavioral of top is
 	Port(
 		clk : in  STD_LOGIC;
 		rst : in  STD_LOGIC;
-		enable : in  STD_LOGIC;
-		byte_to_send : in  STD_LOGIC_VECTOR (G_MemoryData-1 downto 0);
+		enable_tx : in  STD_LOGIC;
+		enable_rx : in  STD_LOGIC;
+		byte_to_send : in  MemoryDataByte;
+		byte_received : out  MemoryDataByte;
 		busy : out  STD_LOGIC;
 		ready : out  STD_LOGIC;
-		RsTx : out  STD_LOGIC
+		is_byte_received : out STD_LOGIC;
+		RsTx : out  STD_LOGIC;
+		RsRx : in  STD_LOGIC
 	);
 	END COMPONENT rs232;
 
@@ -76,20 +81,23 @@ architecture Behavioral of top is
 	);
 	END COMPONENT clock_divider_count;
 
-	type state_type is
-	(start,
-	di0,di1,di2,
-	di_address,
-	do_data,
-	st_rs232_ready,
-	st_rs232_send,
-	st_rs232_waiting,
-	di_address_increment,
-	stop);
+	type state_type is (
+		start,
+		di0,di1,di2,
+		di_address,
+		do_data,
+		st_rs232_enable_tx,
+		st_rs232_ready,
+		st_rs232_send,
+		st_rs232_waiting,
+		st_rs232_disable_tx,
+		di_address_increment,
+		stop
+	);
 	signal state : state_type;
 
-	signal rs232_enable,rs232_busy,rs232_ready : std_logic;
-	signal rs232_byte_to_send : MemoryDataByte;
+	signal rs232_enable_tx,rs232_enable_rx,rs232_busy,rs232_ready,rs232_is_byte_received : std_logic;
+	signal rs232_byte_to_send,rs232_byte_received : MemoryDataByte;
 	signal cd_o_clock,cd_o_clock_prev : std_logic;
 	signal cs,sk,di,do : std_logic;
 	signal memory_address : MemoryAddress;
@@ -107,11 +115,15 @@ begin
 	PORT MAP (
 		clk => i_clock,
 		rst => i_reset,
-		enable => rs232_enable,
+		enable_tx => rs232_enable_tx,
+		enable_rx => rs232_enable_rx,
 		byte_to_send => rs232_byte_to_send,
+		byte_received => rs232_byte_received,
 		busy => rs232_busy,
 		ready => rs232_ready,
-		RsTx => o_RsTx
+		is_byte_received => rs232_is_byte_received,
+		RsTx => o_RsTx,
+		RsRx => i_RsRx
 	);
 
 	c_cd_div1 : clock_divider_count -- XXX SPI 1 MHZ
@@ -188,7 +200,7 @@ begin
 				when do_data =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						if (memory_data_index = G_MemoryData - 1) then
-							state <= st_rs232_ready;
+							state <= st_rs232_enable_tx;
 							memory_data_index <= 0;
 						else
 							memory_data(G_MemoryData-1 downto 0) <= memory_data(G_MemoryData-2 downto 0) & i_do;
@@ -197,11 +209,13 @@ begin
 					else
 						state <= do_data;
 					end if;
+				when st_rs232_enable_tx =>
+					state <= st_rs232_ready;
+					rs232_enable_tx <= '1';
 				when st_rs232_ready =>
-					rs232_enable <= '1';
 					if (rs232_ready = '1') then
 						state <= st_rs232_send;
-						--rs232_byte_to_send <= not ('0' & memory_address);
+						--rs232_byte_to_send <= not ('0' & memory_address); -- XXX for tb
 						rs232_byte_to_send <= not memory_data;
 					else
 						state <= st_rs232_ready;
@@ -215,10 +229,12 @@ begin
 				when st_rs232_waiting =>
 					if (rs232_busy = '1') then
 						state <= st_rs232_waiting;
-						rs232_enable <= '0';
 					else
-						state <= di_address_increment;
+						state <= st_rs232_disable_tx;
 					end if;
+				when st_rs232_disable_tx =>
+					state <= di_address_increment;
+					rs232_enable_tx <= '0';
 				when di_address_increment =>						
 					if (memory_address = std_logic_vector(to_unsigned(to_integer(unsigned(MemoryAddressMAX)),G_MemoryAddress))) then
 						state <= stop;

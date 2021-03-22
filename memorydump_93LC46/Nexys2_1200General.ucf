@@ -251,5 +251,5 @@ NET "I_DO"       LOC = "M15";     # Bank = 1, Pin name = IO_L07P_1, Type = I/O, 
 #NET "JD<3>"       LOC = "P18";     # Bank = 1, Pin name = IO_L06N_1, Type = I/O,                         Sch name = JD4
 
 ## RS232 connector
-#NET "i_RsRx"        LOC = "U6";      # Bank = 2, Pin name = IP, Type = INPUT,                              Sch name = RS-RX
+NET "i_RsRx"        LOC = "U6";      # Bank = 2, Pin name = IP, Type = INPUT,                              Sch name = RS-RX
 NET "o_RsTx"        LOC = "P9";      # Bank = 2, Pin name = IO, Type = I/O,                                Sch name = RS-TX

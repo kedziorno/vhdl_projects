@@ -40,8 +40,8 @@ Port(
 	rst : in  STD_LOGIC;
 	enable_tx : in  STD_LOGIC;
 	enable_rx : in  STD_LOGIC;
-	byte_to_send : in  STD_LOGIC_VECTOR (7 downto 0);
-	byte_received : out  STD_LOGIC_VECTOR (7 downto 0);
+	byte_to_send : in  STD_LOGIC_VECTOR (G_MemoryData-1 downto 0);
+	byte_received : out  STD_LOGIC_VECTOR (G_MemoryData-1 downto 0);
 	busy : out  STD_LOGIC;
 	ready : out  STD_LOGIC;
 	is_byte_received : out STD_LOGIC;
@@ -61,11 +61,11 @@ architecture Behavioral of rs232 is
 	signal temp : std_logic_vector(recv_bits - 1 downto 0);
 
 	type state is (
-	idle,
-	start,wstart,
-	b1,wb1,b2,wb2,b3,wb3,b4,wb4,b5,wb5,b6,wb6,b7,wb7,b8,wb8,
-	parity,wparity,
-	stop,wstop
+		idle,
+		start,wstart,
+		b1,wb1,b2,wb2,b3,wb3,b4,wb4,b5,wb5,b6,wb6,b7,wb7,b8,wb8,
+		parity,wparity,
+		stop,wstop
 	);
 	signal c_state : state;
 
