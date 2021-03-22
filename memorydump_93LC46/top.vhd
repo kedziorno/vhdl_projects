@@ -82,10 +82,23 @@ architecture Behavioral of top is
 	END COMPONENT clock_divider_count;
 
 	type state_type is (
+		some_wait,
 		start,
+		
+		tw_di0,tw_di1,tw_di2,tw_di3,tw_di4,
+		tw_disable_cs,tw_enable_cs,
+		
+		tv_di0,tv_di1,tv_di2,tv_di3,tv_di4,
+		tv_disable_cs,tv_wait1,tv_enable_cs,
+		
+		tu_di0,tu_di1,tu_di2,tu_di3,tu_di4,
+		tu_disable_cs,tu_enable_cs,
+		
 		di0,di1,di2,
 		di_address,
+		di_set_di1,
 		do_data,
+		di_set_di2,
 		st_rs232_enable_tx,
 		st_rs232_ready,
 		st_rs232_send,
@@ -104,6 +117,13 @@ architecture Behavioral of top is
 	signal memory_address_index : integer range 0 to G_MemoryAddress-1;
 	signal memory_data : MemoryDataByte;
 	signal memory_data_index : integer range 0 to G_MemoryData-1;
+	constant TW_C_WAIT1 : integer := (4 * 1000); -- XXX 4ms
+	signal tw_v_wait1 : std_logic_vector(31 downto 0);
+	signal tw_memory_data_1 : MemoryDataByte;
+	signal tw_memory_address_1 : MemoryAddress;
+
+	constant SW : integer := 2*G_BOARD_CLOCK;
+	signal index : integer;
 
 begin
 
@@ -144,25 +164,212 @@ begin
 	p0 : process (i_clock,i_reset) is
 	begin
 		if (i_reset = '1') then
-			state <= start;
+			index <= 0;
+			state <= some_wait;
 			cs <= '0';
 			di <= '0';
-			do <= '0';
+			do <= 'Z';
 			memory_address <= (others => '0');
 			memory_address_index <= 0;
 			memory_data <= (others => '0');
+			memory_data_index <= 0;
+			tw_v_wait1 <= (others => '0');
+			tw_memory_data_1 <= x"00";
+			tw_memory_address_1 <= "0000000";
 		elsif (rising_edge(i_clock)) then
 			cd_o_clock_prev <= cd_o_clock; -- wait for clock transition
 			sk <= cd_o_clock;
 			case (state) is
-				when start =>
+				when some_wait => -- wait
+					if (index = SW-1) then
+						state <= start;
+						index <= 0;
+					else
+						state <= some_wait;
+						index <= index + 1;
+					end if;
+				when start => -- start
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= di0;
-						cs <= '1';
+						state <= tw_di0;
+						cs <= '1'; -- XXX CS
 					else
 						state <= start;
 					end if;
-				when di0 =>
+					
+					
+					
+					
+				when tw_di0 => -- send EWEN
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tw_di1;
+						di <= '1';
+					else
+						state <= tw_di0;
+					end if;
+				when tw_di1 =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tw_di2;
+						di <= '0';
+					else
+						state <= tw_di1;
+					end if;
+				when tw_di2 =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tw_di3;
+						di <= '0';
+					else
+						state <= tw_di2;
+					end if;
+				when tw_di3 =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tw_di4;
+						di <= '1';
+					else
+						state <= tw_di3;
+					end if;
+				when tw_di4 =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tw_disable_cs;
+						di <= '1';
+					else
+						state <= tw_di4;
+					end if;
+				when tw_disable_cs =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tw_enable_cs;
+						cs <= '0'; -- XXX CS
+						di <= '0';
+					else
+						state <= tw_disable_cs;
+					end if;
+				when tw_enable_cs =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tv_di0;
+						cs <= '1'; -- XXX CS
+					else
+						state <= tw_enable_cs;
+					end if;
+				
+				
+				
+				
+				when tv_di0 =>  -- erase all
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tv_di1;
+						di <= '1';
+					else
+						state <= tv_di0;
+					end if;
+				when tv_di1 =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tv_di2;
+						di <= '0';
+					else
+						state <= tv_di1;
+					end if;
+				when tv_di2 =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tv_di3;
+						di <= '0';
+					else
+						state <= tv_di2;
+					end if;
+				when tv_di3 =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tv_di4;
+						di <= '1';
+					else
+						state <= tv_di3;
+					end if;
+				when tv_di4 =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tv_wait1;
+						di <= '0';
+					else
+						state <= tv_di4;
+					end if;
+				when tv_wait1 =>
+					if (to_integer(unsigned(tw_v_wait1)) = SW-1) then
+						state <= tv_disable_cs; 
+						tw_v_wait1 <= (others => '0');
+					else
+						state <= tv_wait1;
+						tw_v_wait1 <= std_logic_vector(to_unsigned(to_integer(unsigned(tw_v_wait1)) + 1,32));
+					end if;
+				when tv_disable_cs =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tv_enable_cs;
+						cs <= '0'; -- XXX CS
+						di <= '0';
+					else
+						state <= tv_disable_cs;
+					end if;
+				when tv_enable_cs =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tu_di0;
+						cs <= '1'; -- XXX CS
+					else
+						state <= tv_enable_cs;
+					end if;
+					
+					
+					
+					
+				when tu_di0 => -- send EWDS
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tu_di1;
+						di <= '1';
+					else
+						state <= tu_di0;
+					end if;
+				when tu_di1 =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tu_di2;
+						di <= '0';
+					else
+						state <= tu_di1;
+					end if;
+				when tu_di2 =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tu_di3;
+						di <= '0';
+					else
+						state <= tu_di2;
+					end if;
+				when tu_di3 =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tu_di4;
+						di <= '0';
+					else
+						state <= tu_di3;
+					end if;
+				when tu_di4 =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tu_disable_cs;
+						di <= '0';
+					else
+						state <= tu_di4;
+					end if;
+				when tu_disable_cs =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tu_enable_cs;
+						cs <= '0'; -- XXX CS
+						di <= '0';
+					else
+						state <= tu_disable_cs;
+					end if;
+				when tu_enable_cs =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= di0;
+						cs <= '1'; -- XXX CS
+					else
+						state <= tu_enable_cs;
+					end if;
+					
+					
+					
+					
+				when di0 => -- read and send
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						state <= di1;
 						di <= '1';
@@ -186,8 +393,8 @@ begin
 				when di_address =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						if (memory_address_index = G_MemoryAddress - 1) then
-							state <= do_data;
-							di <= '0';
+							state <= di_set_di1;
+							di <= memory_address(G_MemoryAddress - 1);
 							memory_address_index <= 0;
 						else
 							state <= di_address;
@@ -197,10 +404,18 @@ begin
 					else
 						state <= di_address;
 					end if;
+				when di_set_di1 =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= do_data;
+						di <= '0';
+					else
+						state <= di_set_di1;
+					end if;
 				when do_data =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						if (memory_data_index = G_MemoryData - 1) then
-							state <= st_rs232_enable_tx;
+							state <= di_set_di2;
+							memory_data(G_MemoryData-1) <= i_do;
 							memory_data_index <= 0;
 						else
 							memory_data(G_MemoryData-1 downto 0) <= memory_data(G_MemoryData-2 downto 0) & i_do;
@@ -208,6 +423,13 @@ begin
 						end if;
 					else
 						state <= do_data;
+					end if;
+				when di_set_di2 =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= st_rs232_enable_tx;
+						di <= '0';
+					else
+						state <= di_set_di2;
 					end if;
 				when st_rs232_enable_tx =>
 					state <= st_rs232_ready;
@@ -240,13 +462,14 @@ begin
 						state <= stop;
 					else
 						memory_address <= std_logic_vector(to_unsigned(to_integer(unsigned(memory_address) + 1),G_MemoryAddress));
-						state <= start;
+						state <= tu_enable_cs;
 					end if;
 				when stop =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						cs <= '0';
+						cs <= '0'; -- XXX CS
 						di <= '0';
 					end if;
+				--when others => null;
 			end case;
 		end if;
 	end process p0;

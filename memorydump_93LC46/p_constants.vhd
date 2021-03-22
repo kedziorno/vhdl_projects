@@ -27,11 +27,11 @@ package p_constants is
 --	constant G_BAUD_RATE : integer := 57600;
 --	constant G_BAUD_RATE : integer := 38400;
 --	constant G_BAUD_RATE : integer := 19200;
-	constant G_BAUD_RATE : integer := 9600;
+--	constant G_BAUD_RATE : integer := 9600;
 --	constant G_BAUD_RATE : integer := 4800;
 --	constant G_BAUD_RATE : integer := 2400;
 --	constant G_BAUD_RATE : integer := 1200;
---	constant G_BAUD_RATE : integer := 300;
+	constant G_BAUD_RATE : integer := 300;
 --	constant G_BR_OVERSAMPLING : integer := 16;
 --	constant G_PARITY : integer := 0;
 --	constant G_PARITY_EO : std_logic := '0'; -- even/odd
