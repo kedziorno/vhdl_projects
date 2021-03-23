@@ -32,7 +32,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity clock_divider_count is
 Generic (
-	g_board_clock : integer := G_BOARD_CLOCK;
+	g_board_clock : integer := G_BOARD_CLOCK_HARDWARE;
 	g_divider : integer := 1
 );
 Port (
