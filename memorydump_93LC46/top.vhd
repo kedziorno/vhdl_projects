@@ -88,7 +88,7 @@ architecture Behavioral of top is
 		tw_di0,tw_di1,tw_di2,tw_di3,tw_di4, -- send EWEN
 		tw_disable_cs,tw_enable_cs,
 		
-		tv_di0,tv_di1,tv_di2,tv_di3,tv_di4, -- erase all
+		tv_di0,tv_di1,tv_di2,tv_di3,tv_di4,tv_di5,tv_di6,tv_di7,tv_di8,tv_di9, -- erase all
 		tv_disable_cs,tv_wait1,tv_enable_cs,tv_disable_cs1, -- in tv_wait1 check the READY/bBUSY
 		
 		tu_di0,tu_di1,tu_di2,tu_di3,tu_di4, -- send EWDS
@@ -253,7 +253,7 @@ begin
 				
 				
 				
-				when tv_di0 =>  -- erase all
+				when tv_di0 =>  -- erase
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						state <= tv_di1;
 						di <= '1';
@@ -263,30 +263,65 @@ begin
 				when tv_di1 =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						state <= tv_di2;
-						di <= '0';
+						di <= '1';
 					else
 						state <= tv_di1;
 					end if;
 				when tv_di2 =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						state <= tv_di3;
-						di <= '0';
+						di <= '1';
 					else
 						state <= tv_di2;
 					end if;
 				when tv_di3 =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						state <= tv_di4;
-						di <= '1';
+						di <= '0';
 					else
 						state <= tv_di3;
 					end if;
 				when tv_di4 =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tv_disable_cs;
+						state <= tv_di5;
 						di <= '0';
 					else
 						state <= tv_di4;
+					end if;
+				when tv_di5 =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tv_di6;
+						di <= '0';
+					else
+						state <= tv_di5;
+					end if;
+				when tv_di6 =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tv_di7;
+						di <= '0';
+					else
+						state <= tv_di6;
+					end if;
+				when tv_di7 =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tv_di8;
+						di <= '0';
+					else
+						state <= tv_di7;
+					end if;
+				when tv_di8 =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tv_di9;
+						di <= '0';
+					else
+						state <= tv_di8;
+					end if;
+				when tv_di9 =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tv_disable_cs;
+						di <= '0';
+					else
+						state <= tv_di9;
 					end if;
 				when tv_disable_cs =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
