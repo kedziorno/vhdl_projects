@@ -85,14 +85,14 @@ architecture Behavioral of top is
 		some_wait,
 		start,
 		
-		tw_di0,tw_di1,tw_di2,tw_di3,tw_di4,
+		tw_di0,tw_di1,tw_di2,tw_di3,tw_di4, -- send EWEN
 		tw_disable_cs,tw_enable_cs,
 		
-		tv_di0,tv_di1,tv_di2,tv_di3,tv_di4,
-		tv_disable_cs,tv_wait1,tv_enable_cs,
+		tv_di0,tv_di1,tv_di2,tv_di3,tv_di4, -- erase all
+		tv_disable_cs,tv_wait1,tv_enable_cs,tv_disable_cs1, -- in tv_wait1 check the READY/bBUSY
 		
-		tu_di0,tu_di1,tu_di2,tu_di3,tu_di4,
-		tu_disable_cs,tu_enable_cs,
+		tu_di0,tu_di1,tu_di2,tu_di3,tu_di4, -- send EWDS
+		tu_disable_cs,tu_enable_cs,tu_enable_cs1,
 		
 		di0,di1,di2,
 		di_address,
@@ -283,18 +283,10 @@ begin
 					end if;
 				when tv_di4 =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tv_wait1;
+						state <= tv_disable_cs;
 						di <= '0';
 					else
 						state <= tv_di4;
-					end if;
-				when tv_wait1 =>
-					if (to_integer(unsigned(tw_v_wait1)) = SW-1) then
-						state <= tv_disable_cs; 
-						tw_v_wait1 <= (others => '0');
-					else
-						state <= tv_wait1;
-						tw_v_wait1 <= std_logic_vector(to_unsigned(to_integer(unsigned(tw_v_wait1)) + 1,32));
 					end if;
 				when tv_disable_cs =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
@@ -306,15 +298,42 @@ begin
 					end if;
 				when tv_enable_cs =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tu_di0;
+						state <= tv_wait1;
 						cs <= '1'; -- XXX CS
 					else
 						state <= tv_enable_cs;
 					end if;
+				when tv_wait1 =>
+					if (i_do = '1') then
+						state <= tv_disable_cs1;
+					elsif (i_do = '0') then
+						state <= tv_wait1;
+					end if;
+--					if (to_integer(unsigned(tw_v_wait1)) = SW-1) then
+--						state <= tv_enable_cs; 
+--						tw_v_wait1 <= (others => '0');
+--					else
+--						state <= tv_wait1;
+--						tw_v_wait1 <= std_logic_vector(to_unsigned(to_integer(unsigned(tw_v_wait1)) + 1,32));
+--					end if;
+				when tv_disable_cs1 =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tu_enable_cs1;
+						cs <= '0'; -- XXX CS
+						di <= '0';
+					else
+						state <= tv_disable_cs1;
+					end if;
 					
 					
 					
-					
+				when tu_enable_cs1 =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tu_di0;
+						cs <= '1'; -- XXX CS
+					else
+						state <= tu_enable_cs1;
+					end if;	
 				when tu_di0 => -- send EWDS
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						state <= tu_di1;
@@ -462,7 +481,7 @@ begin
 						state <= stop;
 					else
 						memory_address <= std_logic_vector(to_unsigned(to_integer(unsigned(memory_address) + 1),G_MemoryAddress));
-						state <= tu_enable_cs;
+						state <=  tu_enable_cs; -- XXX tu_disable_cs , di_set_di1 - omit the addresses
 					end if;
 				when stop =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
