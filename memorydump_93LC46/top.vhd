@@ -113,13 +113,14 @@ architecture Behavioral of top is
 		start,
 		send1,send2,send3,send4,send5,
 		wait1,wait2,wait3,wait4,wait5,
-		read_data,
+		before_read_data,read_data,read_data_busy,
 		st_rs232_enable_tx,
 		st_rs232_ready,
 		st_rs232_send,
 		st_rs232_waiting,
 		st_rs232_disable_tx,
 		di_address_increment,
+
 		stop
 	);
 	signal state : state_type;
@@ -345,6 +346,7 @@ begin
 						state <= start;
 					end if;
 				when start => -- start
+					enable <= '1';
 					state <= send1;
 					cpol <= '0';
 					cpha <= '0';
@@ -402,17 +404,30 @@ begin
 					if (busy = '1') then
 						state <= wait5;
 					else
-						state <= read_data;
+						state <= before_read_data;
 						enable <= '0';
-						cont <= '0';
-						index <= 0;
 					end if;
+				when before_read_data =>
+					state <= read_data;
+					enable <= '1';
+					tw_memory_data_1 <= (others => '0');
+					cont <= '1';
+					index <= 0;
 				when read_data =>
-					if (index = (G_MemoryData/d_width)-1) then
+					if (index = (G_MemoryData/d_width)) then
 						state <= st_rs232_enable_tx;
 						index <= 0;
+						enable <= '0';
+						cont <= '0';
 					else
 						memory_data(G_MemoryData-1 downto 0) <= memory_data(G_MemoryData-d_width-1 downto 0) & rx_data;
+						state <= read_data_busy;						
+					end if;
+				when read_data_busy =>
+					if (busy = '1') then
+						state <= read_data_busy;
+					else
+						state <= read_data;
 						index <= index + 1;
 					end if;
 				when st_rs232_enable_tx =>

@@ -69,6 +69,11 @@
          <obj_property name="ElementShortName">i_reset</obj_property>
          <obj_property name="ObjectShortName">i_reset</obj_property>
       </wvobject>
+      <wvobject fp_name="/tb_top/uut/memory_address" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">memory_address[6:0]</obj_property>
+         <obj_property name="ObjectShortName">memory_address[6:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
       <wvobject fp_name="/tb_top/uut/o_cs" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">o_cs</obj_property>
          <obj_property name="ObjectShortName">o_cs</obj_property>
@@ -148,10 +153,6 @@
       <wvobject fp_name="/tb_top/uut/do" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">do</obj_property>
          <obj_property name="ObjectShortName">do</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/memory_address" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">memory_address[6:0]</obj_property>
-         <obj_property name="ObjectShortName">memory_address[6:0]</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/memory_address_index" type="other" db_ref_id="1">
          <obj_property name="ElementShortName">memory_address_index</obj_property>
