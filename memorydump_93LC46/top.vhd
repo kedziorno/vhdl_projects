@@ -81,23 +81,39 @@ architecture Behavioral of top is
 	);
 	END COMPONENT clock_divider_count;
 
+	COMPONENT spi_master IS
+		GENERIC(
+			slaves  : INTEGER := slaves;  --number of spi slaves
+			d_width : INTEGER := d_width); --data bus width
+		PORT(
+			clock   : IN     STD_LOGIC;                             --system clock
+			reset_n : IN     STD_LOGIC;                             --asynchronous reset
+			enable  : IN     STD_LOGIC;                             --initiate transaction
+			cpol    : IN     STD_LOGIC;                             --spi clock polarity
+			cpha    : IN     STD_LOGIC;                             --spi clock phase
+			cont    : IN     STD_LOGIC;                             --continuous mode command
+			clk_div : IN     INTEGER;                               --system clock cycles per 1/2 period of sclk
+			addr    : IN     INTEGER;                               --address of slave
+			tx_data : IN     STD_LOGIC_VECTOR(d_width-1 DOWNTO 0);  --data to transmit
+			miso    : IN     STD_LOGIC;                             --master in, slave out
+			sclk    : BUFFER STD_LOGIC;                             --spi clock
+			ss_n    : BUFFER STD_LOGIC_VECTOR(slaves-1 DOWNTO 0);   --slave select
+			mosi    : OUT    STD_LOGIC;                             --master out, slave in
+			busy    : OUT    STD_LOGIC;                             --busy / data ready signal
+			rx_data : OUT    STD_LOGIC_VECTOR(d_width-1 DOWNTO 0)); --data received
+	END COMPONENT spi_master;
+
 	type state_type is (
 		some_wait,
+
+		w_start,
+		w_send1,w_send2,w_send3,w_send4,w_send5,w_send6,w_send7,w_send8,w_send9,
+		w_wait1,w_wait2,w_wait3,w_wait4,w_wait5,w_wait6,w_wait7,w_wait8,w_wait9,
+		off,off_busy,
 		start,
-		
-		tw_di0,tw_di1,tw_di2,tw_di3,tw_di4, -- send EWEN
-		tw_disable_cs,tw_wait1,tw_enable_cs,
-		
-		tv_di0,tv_di1,tv_di2,tv_address,tv_data, -- write at
-		tv_disable_cs,tv_wait2,tv_enable_cs,tv_wait1,tv_disable_cs1,tv_wait3, -- in tv_wait1 check the READY/bBUSY
-		
-		tu_enable_cs1,tu_di0,tu_di1,tu_di2,tu_di3,tu_di4, -- send EWDS
-		tu_disable_cs,tu_wait1,tu_enable_cs,
-		
-		di0,di1,di2,
-		di_address,
-		do_data,
-		di_set_di2,
+		send1,send2,send3,send4,send5,
+		wait1,wait2,wait3,wait4,wait5,
+		read_data,
 		st_rs232_enable_tx,
 		st_rs232_ready,
 		st_rs232_send,
@@ -119,13 +135,39 @@ architecture Behavioral of top is
 	constant TW_C_WAIT1 : integer := (4 * (G_BOARD_CLOCK/1000)); -- XXX 4ms
 	signal tw_index : integer;
 	signal tw_v_wait1 : std_logic_vector(31 downto 0);
-	signal tw_memory_data_1 : MemoryDataByte;
-	signal tw_memory_address_1 : MemoryAddress;
+	signal tw_memory_data_1 : std_logic_vector(d_width-1 downto 0);
+	signal tw_memory_address_1 : std_logic_vector(d_width-1 downto 0);
 
-	constant SW : integer := 2*G_BOARD_CLOCK;
+	constant SW : integer := 1; --2*G_BOARD_CLOCK;
 	signal index : integer;
 
+	signal enable,cpol,cpha,cont,miso,sclk,mosi,busy : std_logic;
+	signal addr : integer;
+	signal tx_data,rx_data : std_logic_vector(d_width-1 downto 0);
+	signal ss_n : std_logic_vector(slaves-1 downto 0);
+	
 begin
+
+	spim : spi_master
+		GENERIC MAP (
+			slaves  => slaves,  --number of spi slaves
+			d_width => d_width) --data bus width
+		PORT MAP (
+			clock => i_clock,                             --system clock
+			reset_n => i_reset,                             --asynchronous reset
+			enable => enable,                             --initiate transaction
+			cpol => cpol,                             --spi clock polarity
+			cpha => cpha,                             --spi clock phase
+			cont => cont,                             --continuous mode command
+			clk_div => G_CLOCK_DIV1,                               --system clock cycles per 1/2 period of sclk
+			addr => addr,                               --address of slave
+			tx_data => tw_memory_data_1,  --data to transmit
+			miso => miso,                             --master in, slave out
+			sclk => sclk,                             --spi clock
+			ss_n => ss_n,   --slave select
+			mosi => mosi,                             --master out, slave in
+			busy => busy,                             --busy / data ready signal
+			rx_data => rx_data); --data received
 
 	c_rs232 : rs232
 	GENERIC MAP (
@@ -157,9 +199,10 @@ begin
 		o_clock => cd_o_clock
 	);
 
-	o_cs <= cs;
-	o_sk <= sk;
-	o_di <= di;
+	o_cs <= not ss_n(0);
+	o_sk <= sclk;
+	o_di <= mosi;
+	miso <= i_do;
 
 	p0 : process (i_clock,i_reset) is
 	begin
@@ -174,343 +217,203 @@ begin
 			memory_data <= (others => '0');
 			memory_data_index <= 0;
 			tw_v_wait1 <= (others => '0');
-			tw_memory_data_1 <= x"FF";
-			tw_memory_address_1 <= "0000010";
+			tw_memory_data_1 <= (others => '0');
+			tw_memory_address_1 <= (others => '0');
 		elsif (rising_edge(i_clock)) then
-			cd_o_clock_prev <= cd_o_clock; -- wait for clock transition
-			sk <= cd_o_clock;
-			if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-				di <= '0';
-			end if;
 			case (state) is
 				when some_wait => -- wait
 					if (index = SW-1) then
-						state <= start;
+						state <= w_start;
 						index <= 0;
 					else
 						state <= some_wait;
 						index <= index + 1;
 					end if;
-				when start => -- start
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tw_di0;
-						cs <= '1'; -- XXX CS
+				when w_start =>
+					state <= w_send1;
+					enable <= '1';
+					cpol <= '0';
+					cpha <= '0';
+					addr <= 0;
+					cont <= '1';
+				when w_send1 =>
+					state <= w_wait1;
+					tw_memory_data_1 <= "10";
+					enable <= '1';
+				when w_wait1 =>
+					if (busy = '1') then
+						state <= w_wait1;
+					else
+						state <= w_send2;
+						enable <= '0';
+					end if;
+				when w_send2 =>
+					state <= w_wait2;
+					tw_memory_data_1 <= "10";
+					enable <= '1';
+				when w_wait2 =>
+					if (busy = '1') then
+						state <= w_wait2;
+					else
+						state <= w_send3;
+						enable <= '0';
+					end if;					
+				when w_send3 =>
+					state <= w_wait3;
+					tw_memory_data_1 <= "00";
+					enable <= '1';
+				when w_wait3 =>
+					if (busy = '1') then
+						state <= w_wait3;
+					else
+						state <= w_send4;
+						enable <= '0';
+					end if;
+				when w_send4 =>
+					state <= w_wait4;
+					tw_memory_data_1 <= "00";
+					enable <= '1';
+				when w_wait4 =>
+					if (busy = '1') then
+						state <= w_wait4;
+					else
+						state <= w_send5;
+						enable <= '0';
+					end if;
+				when w_send5 =>
+					state <= w_wait5;
+					tw_memory_data_1 <= "00";
+					enable <= '1';
+				when w_wait5 =>
+					if (busy = '1') then
+						state <= w_wait5;
+					else
+						state <= w_send6;
+						enable <= '0';
+					end if;
+				when w_send6 =>
+					state <= w_wait6;
+					tw_memory_data_1 <= "11";
+					enable <= '1';
+				when w_wait6 =>
+					if (busy = '1') then
+						state <= w_wait6;
+					else
+						state <= w_send7;
+						enable <= '0';
+					end if;
+				when w_send7 =>
+					state <= w_wait7;
+					tw_memory_data_1 <= "11";
+					enable <= '1';
+				when w_wait7 =>
+					if (busy = '1') then
+						state <= w_wait7;
+					else
+						state <= w_send8;
+						enable <= '0';
+					end if;
+				when w_send8 =>
+					state <= w_wait8;
+					tw_memory_data_1 <= "11";
+					enable <= '1';
+				when w_wait8 =>
+					if (busy = '1') then
+						state <= w_wait8;
+					else
+						state <= w_send9;
+						enable <= '0';
+					end if;					
+				when w_send9 =>
+					state <= w_wait9;
+					tw_memory_data_1 <= "11";
+					enable <= '1';
+				when w_wait9 =>
+					if (busy = '1') then
+						state <= w_wait9;
+					else
+						state <= off;
+					end if;
+				when off =>
+					state <= off_busy;
+					enable <= '0';
+					cont <= '0';
+				when off_busy =>
+					if (busy = '1') then
+						state <= off_busy;
 					else
 						state <= start;
 					end if;
-					
-					
-					
-					
-				when tw_di0 => -- send EWEN
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tw_di1;
-						di <= '1';
+				when start => -- start
+					state <= send1;
+					cpol <= '0';
+					cpha <= '0';
+					addr <= 0;
+					cont <= '1';
+				when send1 =>
+					state <= wait1;
+					tw_memory_data_1 <= "11";
+					enable <= '1';
+				when wait1 =>
+					if (busy = '1') then
+						state <= wait1;
 					else
-						state <= tw_di0;
+						state <= send2;
+						enable <= '0';
 					end if;
-				when tw_di1 =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tw_di2;
-						di <= '0';
+				when send2 =>
+					state <= wait2;
+					tw_memory_data_1 <= "0" & memory_address(6);
+					enable <= '1';
+				when wait2 =>
+					if (busy = '1') then
+						state <= wait2;
 					else
-						state <= tw_di1;
+						state <= send3;
+						enable <= '0';
 					end if;
-				when tw_di2 =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tw_di3;
-						di <= '0';
+				when send3 =>
+					state <= wait3;
+					tw_memory_data_1 <= memory_address(5 downto 4);
+					enable <= '1';
+				when wait3 =>
+					if (busy = '1') then
+						state <= wait3;
 					else
-						state <= tw_di2;
+						state <= send4;
+						enable <= '0';
 					end if;
-				when tw_di3 =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tw_di4;
-						di <= '1';
+				when send4 =>
+					state <= wait4;
+					tw_memory_data_1 <= memory_address(3 downto 2);
+					enable <= '1';
+				when wait4 =>
+					if (busy = '1') then
+						state <= wait4;
 					else
-						state <= tw_di3;
+						state <= send5;
+						enable <= '0';
 					end if;
-				when tw_di4 =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tw_disable_cs;
-						di <= '1';
+				when send5 =>
+					state <= wait5;
+					tw_memory_data_1 <= memory_address(1 downto 0);
+					enable <= '1';
+				when wait5 =>
+					if (busy = '1') then
+						state <= wait5;
 					else
-						state <= tw_di4;
-					end if;
---				when tw_di5 =>
---					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
---						state <= tw_disable_cs;
---						di <= '0';
---					else
---						state <= tw_di5;
---					end if;
-				when tw_disable_cs =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tw_wait1;
-						cs <= '0'; -- XXX CS
-						di <= '0';
-					else
-						state <= tw_disable_cs;
-					end if;
-				when tw_wait1 =>
-					if (index = TW_C_WAIT1-1) then
-						state <= tw_enable_cs;
+						state <= read_data;
+						enable <= '0';
+						cont <= '0';
 						index <= 0;
-					else
-						state <= tw_wait1;
-						index <= index + 1;
 					end if;
-				when tw_enable_cs =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tv_di0;
-						cs <= '1'; -- XXX CS
-					else
-						state <= tw_enable_cs;
-					end if;
-				
-				
-				
-				
-				when tv_di0 =>  -- write at
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tv_di1;
-						di <= '1';
-					else
-						state <= tv_di0;
-					end if;
-				when tv_di1 =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tv_di2;
-						di <= '0';
-					else
-						state <= tv_di1;
-					end if;
-				when tv_di2 =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tv_address;
-						di <= '1';
-					else
-						state <= tv_di2;
-					end if;
-				when tv_address =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						if (memory_address_index = G_MemoryAddress - 1) then
-							state <= tv_data;
-							--di <= tw_memory_address(G_MemoryAddress - 1);
-							memory_address_index <= 0;
-						else
-							state <= tv_address;
-							di <= tw_memory_address_1(memory_address_index);
-							memory_address_index <= memory_address_index + 1;
-						end if;
-					else
-						state <= tv_address;
-					end if;
-				when tv_data =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						if (memory_data_index = G_MemoryData - 1) then
-							state <= tv_disable_cs;
-							--memory_data(G_MemoryData-1) <= i_do;
-							memory_data_index <= 0;
-						else
-							di <= tw_memory_data_1(memory_data_index);
-							memory_data_index <= memory_data_index + 1;
-						end if;
-					else
-						state <= tv_data;
-					end if;
-
-
-				when tv_disable_cs =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tv_wait2;
-						cs <= '0'; -- XXX CS
-					else
-						state <= tv_disable_cs;
-					end if;
-				when tv_wait2 =>
-					if (index = TW_C_WAIT1-1) then
-						state <= tv_enable_cs;
-						index <= 0;
-					else
-						state <= tv_wait2;
-						index <= index + 1;
-					end if;
-				when tv_enable_cs =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tv_wait1;
-						cs <= '1'; -- XXX CS
-					else
-						state <= tv_enable_cs;
-					end if;
-				when tv_wait1 =>
-					if (i_do = '1') then
-						state <= tv_disable_cs1;
-					elsif (i_do = '0') then
-						state <= tv_wait1;
-					end if;
---					if (to_integer(unsigned(tw_v_wait1)) = SW-1) then
---						state <= tv_enable_cs; 
---						tw_v_wait1 <= (others => '0');
---					else
---						state <= tv_wait1;
---						tw_v_wait1 <= std_logic_vector(to_unsigned(to_integer(unsigned(tw_v_wait1)) + 1,32));
---					end if;
-				when tv_disable_cs1 =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tv_wait3;
-						cs <= '0'; -- XXX CS
-						di <= '0';
-					else
-						state <= tv_disable_cs1;
-					end if;
-				when tv_wait3 =>
-					if (index = TW_C_WAIT1-1) then
-						state <= tu_enable_cs1;
-						index <= 0;
-					else
-						state <= tv_wait3;
-						index <= index + 1;
-					end if;
-					
-					
-				when tu_enable_cs1 =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tu_di0;
-						cs <= '1'; -- XXX CS
-					else
-						state <= tu_enable_cs1;
-					end if;	
-				when tu_di0 => -- send EWDS
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tu_di1;
-						di <= '1';
-					else
-						state <= tu_di0;
-					end if;
-				when tu_di1 =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tu_di2;
-						di <= '0';
-					else
-						state <= tu_di1;
-					end if;
-				when tu_di2 =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tu_di3;
-						di <= '0';
-					else
-						state <= tu_di2;
-					end if;
-				when tu_di3 =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tu_di4;
-						di <= '0';
-					else
-						state <= tu_di3;
-					end if;
-				when tu_di4 =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tu_disable_cs;
-						di <= '0';
-					else
-						state <= tu_di4;
-					end if;
---				when tu_di5 =>
---					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
---						state <= tu_disable_cs;
---						di <= '0';
---					else
---						state <= tu_di5;
---					end if;
-				when tu_disable_cs =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tu_wait1;
-						cs <= '0'; -- XXX CS
-						di <= '0';
-					else
-						state <= tu_disable_cs;
-					end if;
-				when tu_wait1 =>
-					if (index = TW_C_WAIT1-1) then
-						state <= tu_enable_cs;
-						index <= 0;
-					else
-						state <= tu_wait1;
-						index <= index + 1;
-					end if;
-				when tu_enable_cs =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= di0;
-						cs <= '1'; -- XXX CS
-					else
-						state <= tu_enable_cs;
-					end if;
-					
-					
-					
-					
-				when di0 => -- read and send
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= di1;
-						di <= '1';
-					else
-						state <= di0;
-					end if;
-				when di1 =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= di2;
-						di <= '1';
-					else
-						state <= di1;
-					end if;
-				when di2 =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= di_address;
-						di <= '0';
-					else
-						state <= di2;
-					end if;
-				when di_address =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						if (memory_address_index = G_MemoryAddress - 1) then
-							state <= do_data;
-							di <= memory_address(G_MemoryAddress - 1);
-							memory_address_index <= 0;
-						else
-							state <= di_address;
-							di <= memory_address(memory_address_index);
-							memory_address_index <= memory_address_index + 1;
-						end if;
-					else
-						state <= di_address;
-					end if;
---				when di_set_di1 =>
---					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
---						state <= do_data;
---						di <= '0';
---					else
---						state <= di_set_di1;
---					end if;
-				when do_data =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						if (memory_data_index = G_MemoryData - 1) then
-							state <= di_set_di2;
-							--memory_data(G_MemoryData-1) <= i_do;
-							memory_data_index <= 0;
-						else
-							memory_data(G_MemoryData-1 downto 0) <= memory_data(G_MemoryData-2 downto 0) & i_do;
-							memory_data_index <= memory_data_index + 1;
-						end if;
-					else
-						state <= do_data;
-					end if;
-				when di_set_di2 =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+				when read_data =>
+					if (index = (G_MemoryData/d_width)-1) then
 						state <= st_rs232_enable_tx;
-						cs <= '0';
+						index <= 0;
 					else
-						state <= di_set_di2;
+						memory_data(G_MemoryData-1 downto 0) <= memory_data(G_MemoryData-d_width-1 downto 0) & rx_data;
+						index <= index + 1;
 					end if;
 				when st_rs232_enable_tx =>
 					state <= st_rs232_ready;
@@ -543,13 +446,10 @@ begin
 						state <= stop;
 					else
 						memory_address <= std_logic_vector(to_unsigned(to_integer(unsigned(memory_address) + 1),G_MemoryAddress));
-						state <=  tu_enable_cs; -- XXX tu_disable_cs , di_set_di1 - omit the addresses
+						state <= start;
 					end if;
 				when stop =>
-					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						cs <= '0'; -- XXX CS
-						di <= '0';
-					end if;
+					state <= stop;
 				when others => null;
 			end case;
 		end if;
