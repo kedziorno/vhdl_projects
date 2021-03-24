@@ -156,6 +156,7 @@
       <wvobject fp_name="/tb_top/uut/memory_address" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">memory_address[6:0]</obj_property>
          <obj_property name="ObjectShortName">memory_address[6:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/tw_memory_address_1" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">tw_memory_address_1[6:0]</obj_property>
