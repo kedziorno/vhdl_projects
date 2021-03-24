@@ -13,6 +13,11 @@
       </db_ref>
    </db_ref_list>
    <WVObjectSize size="4" />
+   <wave_markers>
+      <marker time="6001450250000000" label="" />
+      <marker time="2001450250000000" label="" />
+      <marker time="10666751000000000" label="" />
+   </wave_markers>
    <wvobject fp_name="group144" type="group">
       <obj_property name="label">tb</obj_property>
       <obj_property name="DisplayName">label</obj_property>
