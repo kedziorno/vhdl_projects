@@ -62,7 +62,7 @@ architecture Behavioral of hd44780 is
 
 begin
 
-	o_db <= db when (state = wait1 or state = send or state = wait2 or state = stop) else (others => 'Z');
+	o_db <= db when (rs = '0' or rs = '1') else (others => 'Z');
 	o_rs <= rs;
 	o_rw <= rw;
 	o_e <= e;
@@ -88,6 +88,7 @@ begin
 				when start =>
 					state <= wait1;
 					o_busy <= '1';
+					db <= i_data;
 					rw <= '0';
 					e <= '0';
 					if (i_data_type = '0') then -- command
@@ -120,9 +121,9 @@ begin
 				when stop => -- 10 ns
 					if (index = 1) then
 						state <= idle;
+						db <= (others => 'Z');
 						index <= 0;
 						rs <= 'Z';
-						db <= (others => '0');
 						rw <= '1';
 						o_busy <= '0';
 					else
