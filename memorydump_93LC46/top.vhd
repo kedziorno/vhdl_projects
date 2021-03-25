@@ -106,10 +106,27 @@ architecture Behavioral of top is
 	type state_type is (
 		some_wait,
 
+		w_start_ewen,
+		w_send_ewen_1,w_send_ewen_2,w_send_ewen_3,w_send_ewen_4,w_send_ewen_5,
+		w_wait_ewen_1,w_wait_ewen_2,w_wait_ewen_3,w_wait_ewen_4,w_wait_ewen_5,
+		w_stop_ewen,w_stop_ewen_busy,
+
+		wait1a,
+
+		w_start_ewds,
+		w_send_ewds_1,w_send_ewds_2,w_send_ewds_3,w_send_ewds_4,w_send_ewds_5,
+		w_wait_ewds_1,w_wait_ewds_2,w_wait_ewds_3,w_wait_ewds_4,w_wait_ewds_5,
+		w_stop_ewds,w_stop_ewds_busy,
+
+		wait1b,
+
 		w_start,
 		w_send1,w_send2,w_send3,w_send4,w_send5,w_send6,w_send7,w_send8,w_send9,
 		w_wait1,w_wait2,w_wait3,w_wait4,w_wait5,w_wait6,w_wait7,w_wait8,w_wait9,
 		off,off_busy,
+
+		wait1c,
+
 		start,
 		send1,send2,send3,send4,send5,
 		wait1,wait2,wait3,wait4,wait5,
@@ -139,71 +156,15 @@ architecture Behavioral of top is
 	signal tw_memory_data_1 : std_logic_vector(d_width-1 downto 0);
 	signal tw_memory_address_1 : std_logic_vector(d_width-1 downto 0);
 
-	constant SW : integer := 1; --2*G_BOARD_CLOCK;
+	constant SW : integer := TW_C_WAIT1; -- XXX some wait
 	signal index : integer;
 
 	signal enable,cpol,cpha,cont,miso,sclk,mosi,busy : std_logic;
 	signal addr : integer;
 	signal tx_data,rx_data : std_logic_vector(d_width-1 downto 0);
 	signal ss_n : std_logic_vector(slaves-1 downto 0);
-	
+
 begin
-
-	spim : spi_master
-		GENERIC MAP (
-			slaves  => slaves,  --number of spi slaves
-			d_width => d_width) --data bus width
-		PORT MAP (
-			clock => i_clock,                             --system clock
-			reset_n => i_reset,                             --asynchronous reset
-			enable => enable,                             --initiate transaction
-			cpol => cpol,                             --spi clock polarity
-			cpha => cpha,                             --spi clock phase
-			cont => cont,                             --continuous mode command
-			clk_div => G_CLOCK_DIV1,                               --system clock cycles per 1/2 period of sclk
-			addr => addr,                               --address of slave
-			tx_data => tw_memory_data_1,  --data to transmit
-			miso => miso,                             --master in, slave out
-			sclk => sclk,                             --spi clock
-			ss_n => ss_n,   --slave select
-			mosi => mosi,                             --master out, slave in
-			busy => busy,                             --busy / data ready signal
-			rx_data => rx_data); --data received
-
-	c_rs232 : rs232
-	GENERIC MAP (
-		G_BOARD_CLOCK => G_BOARD_CLOCK,
-		G_BAUD_RATE => G_BAUD_RATE
-	)
-	PORT MAP (
-		clk => i_clock,
-		rst => i_reset,
-		enable_tx => rs232_enable_tx,
-		enable_rx => rs232_enable_rx,
-		byte_to_send => rs232_byte_to_send,
-		byte_received => rs232_byte_received,
-		busy => rs232_busy,
-		ready => rs232_ready,
-		is_byte_received => rs232_is_byte_received,
-		RsTx => o_RsTx,
-		RsRx => i_RsRx
-	);
-
-	c_cd_div1 : clock_divider_count -- XXX SPI 1 MHZ
-	GENERIC MAP (
-		g_board_clock => G_BOARD_CLOCK,
-		g_divider => G_BOARD_CLOCK/G_CLOCK_DIV1
-	)
-	PORT MAP (
-		i_reset => i_reset,
-		i_clock => i_clock,
-		o_clock => cd_o_clock
-	);
-
-	o_cs <= not ss_n(0);
-	o_sk <= sclk;
-	o_di <= mosi;
-	miso <= i_do;
 
 	p0 : process (i_clock,i_reset) is
 	begin
@@ -224,13 +185,75 @@ begin
 			case (state) is
 				when some_wait => -- wait
 					if (index = SW-1) then
-						state <= w_start;
+						state <= w_start_ewen;
 						index <= 0;
 					else
 						state <= some_wait;
 						index <= index + 1;
 					end if;
-				when w_start =>
+				
+				when w_start_ewen => -- send ewen
+					state <= w_send_ewen_1;
+					enable <= '1';
+					cpol <= '0';
+					cpha <= '0';
+					addr <= 0;
+					cont <= '1';
+				when w_send_ewen_1 =>
+					state <= w_wait_ewen_1;
+					tw_memory_data_1 <= "10";
+					enable <= '1';
+				when w_wait_ewen_1 =>
+					if (busy = '1') then
+						state <= w_wait_ewen_1;
+					else
+						state <= w_send_ewen_2;
+						enable <= '0';
+					end if;
+				when w_send_ewen_2 =>
+					state <= w_wait_ewen_2;
+					tw_memory_data_1 <= "01";
+					enable <= '1';
+				when w_wait_ewen_2 =>
+					if (busy = '1') then
+						state <= w_wait_ewen_2;
+					else
+						state <= w_send_ewen_3;
+						enable <= '0';
+					end if;
+				when w_send_ewen_3 =>
+					state <= w_wait_ewen_3;
+					tw_memory_data_1 <= "1X";
+					enable <= '1';
+				when w_wait_ewen_3 =>
+					if (busy = '1') then
+						state <= w_wait_ewen_3;
+					else
+						state <= w_stop_ewen;
+						enable <= '0';
+					end if;
+				when w_stop_ewen =>
+					state <= w_stop_ewen_busy;
+					tw_memory_data_1 <= "00";
+					enable <= '0';
+					cont <= '0';
+				when w_stop_ewen_busy =>
+					if (busy = '1') then
+						state <= w_stop_ewen_busy;
+					else
+						state <= wait1a;
+					end if;
+
+				when wait1a => -- wait
+					if (index = SW-1) then
+						state <= w_start;
+						index <= 0;
+					else
+						state <= wait1a;
+						index <= index + 1;
+					end if;
+
+				when w_start => -- write at
 					state <= w_send1;
 					enable <= '1';
 					cpol <= '0';
@@ -337,15 +360,87 @@ begin
 					end if;
 				when off =>
 					state <= off_busy;
+					tw_memory_data_1 <= "00";
 					enable <= '0';
 					cont <= '0';
 				when off_busy =>
 					if (busy = '1') then
 						state <= off_busy;
 					else
-						state <= start;
+						state <= wait1b;
 					end if;
-				when start => -- start
+
+				when wait1b => -- wait
+					if (index = SW-1) then
+						state <= w_start_ewds;
+						index <= 0;
+					else
+						state <= wait1b;
+						index <= index + 1;
+					end if;
+
+				when w_start_ewds => -- send ewds
+					state <= w_send_ewds_1;
+					enable <= '1';
+					cpol <= '0';
+					cpha <= '0';
+					addr <= 0;
+					cont <= '1';
+				when w_send_ewds_1 =>
+					state <= w_wait_ewds_1;
+					tw_memory_data_1 <= "10";
+					enable <= '1';
+				when w_wait_ewds_1 =>
+					if (busy = '1') then
+						state <= w_wait_ewds_1;
+					else
+						state <= w_send_ewds_2;
+						enable <= '0';
+					end if;
+				when w_send_ewds_2 =>
+					state <= w_wait_ewds_2;
+					tw_memory_data_1 <= "00";
+					enable <= '1';
+				when w_wait_ewds_2 =>
+					if (busy = '1') then
+						state <= w_wait_ewds_2;
+					else
+						state <= w_send_ewds_3;
+						enable <= '0';
+					end if;
+				when w_send_ewds_3 =>
+					state <= w_wait_ewds_3;
+					tw_memory_data_1 <= "0X";
+					enable <= '1';
+				when w_wait_ewds_3 =>
+					if (busy = '1') then
+						state <= w_wait_ewds_3;
+					else
+						state <= w_stop_ewds;
+						enable <= '0';
+					end if;
+				when w_stop_ewds =>
+					state <= w_stop_ewds_busy;
+					tw_memory_data_1 <= "00";
+					enable <= '0';
+					cont <= '0';
+				when w_stop_ewds_busy =>
+					if (busy = '1') then
+						state <= w_stop_ewds_busy;
+					else
+						state <= wait1c;
+					end if;
+
+				when wait1c => -- wait
+					if (index = SW-1) then
+						state <= start;
+						index <= 0;
+					else
+						state <= wait1c;
+						index <= index + 1;
+					end if;
+
+				when start => -- send address
 					enable <= '1';
 					state <= send1;
 					cpol <= '0';
@@ -413,14 +508,15 @@ begin
 					tw_memory_data_1 <= (others => '0');
 					cont <= '1';
 					index <= 0;
-				when read_data =>
+				when read_data => -- read data
 					if (index = (G_MemoryData/d_width)) then
 						state <= st_rs232_enable_tx;
 						index <= 0;
 						enable <= '0';
 						cont <= '0';
 					else
-						memory_data(G_MemoryData-1 downto 0) <= memory_data(G_MemoryData-d_width-1 downto 0) & rx_data;
+						memory_data <= memory_data(G_MemoryData-d_width-1 downto 0) & rx_data;
+						--memory_data <= rx_data & memory_data(G_MemoryData-d_width-1 downto 0);
 						state <= read_data_busy;						
 					end if;
 				when read_data_busy =>
@@ -430,7 +526,7 @@ begin
 						state <= read_data;
 						index <= index + 1;
 					end if;
-				when st_rs232_enable_tx =>
+				when st_rs232_enable_tx => -- send rs232 tx
 					state <= st_rs232_ready;
 					rs232_enable_tx <= '1';
 				when st_rs232_ready =>
@@ -469,5 +565,63 @@ begin
 			end case;
 		end if;
 	end process p0;
+
+	spim : spi_master
+	GENERIC MAP (
+		slaves  => slaves,
+		d_width => d_width
+	)
+	PORT MAP (
+		clock => i_clock,
+		reset_n => not i_reset,
+		enable => enable,
+		cpol => cpol,
+		cpha => cpha,
+		cont => cont,
+		clk_div => G_CLOCK_DIV1,
+		addr => addr,
+		tx_data => tw_memory_data_1,
+		miso => miso,
+		sclk => sclk,
+		ss_n => ss_n,
+		mosi => mosi,
+		busy => busy,
+		rx_data => rx_data
+	);
+
+	c_rs232 : rs232
+	GENERIC MAP (
+		G_BOARD_CLOCK => G_BOARD_CLOCK,
+		G_BAUD_RATE => G_BAUD_RATE
+	)
+	PORT MAP (
+		clk => i_clock,
+		rst => i_reset,
+		enable_tx => rs232_enable_tx,
+		enable_rx => rs232_enable_rx,
+		byte_to_send => rs232_byte_to_send,
+		byte_received => rs232_byte_received,
+		busy => rs232_busy,
+		ready => rs232_ready,
+		is_byte_received => rs232_is_byte_received,
+		RsTx => o_RsTx,
+		RsRx => i_RsRx
+	);
+
+	c_cd_div1 : clock_divider_count -- XXX SPI 1 MHZ
+	GENERIC MAP (
+		g_board_clock => G_BOARD_CLOCK,
+		g_divider => G_BOARD_CLOCK/G_CLOCK_DIV1
+	)
+	PORT MAP (
+		i_reset => i_reset,
+		i_clock => i_clock,
+		o_clock => cd_o_clock
+	);
+
+	o_cs <= not ss_n(0);
+	o_sk <= sclk;
+	o_di <= mosi;
+	miso <= i_do;
 
 end Behavioral;

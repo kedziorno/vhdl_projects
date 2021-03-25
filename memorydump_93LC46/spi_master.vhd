@@ -65,7 +65,7 @@ BEGIN
   PROCESS(clock, reset_n)
   BEGIN
 
-    IF(reset_n = '1') THEN        --reset system
+    IF(reset_n = '0') THEN        --reset system
       busy <= '1';                --set busy signal
       ss_n <= (OTHERS => '1');    --deassert all slave select lines
       mosi <= 'Z';                --set master out to high impedance
