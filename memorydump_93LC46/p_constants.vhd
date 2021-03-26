@@ -35,8 +35,8 @@ package p_constants is
 --	constant G_BR_OVERSAMPLING : integer := 16;
 --	constant G_PARITY : integer := 0;
 --	constant G_PARITY_EO : std_logic := '0'; -- even/odd
-	constant slaves : integer := 1;
-	constant d_width : integer := 2;
+	constant d_width : INTEGER := 2; -- data bus width
+	constant slaves : INTEGER := 1; -- number of spi slaves
 end p_constants;
 
 package body p_constants is
