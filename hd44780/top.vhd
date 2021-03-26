@@ -60,15 +60,20 @@ architecture Behavioral of top is
 	signal data : std_logic_vector(7 downto 0);
 	signal enable,data_type,busy : std_logic;
 
-	constant C_LEN_LCD_PATTERN : integer := 8;
-	type A_LCD_PATTERN is array(0 to C_LEN_LCD_PATTERN-1) of std_logic_vector(7 downto 0);
-	signal LCD_PATTERN : A_LCD_PATTERN := (x"38",x"06",x"0E",x"01",x"41",x"42",x"43",x"44");
+	constant C_LEN_LCD_PATTERN : integer := 11;
+	type A_LCD_PATTERN_TYPE is array(0 to C_LEN_LCD_PATTERN-1) of std_logic;
+	type A_LCD_PATTERN_DATA is array(0 to C_LEN_LCD_PATTERN-1) of std_logic_vector(7 downto 0);
+	signal LCD_PATTERN_TYPE : A_LCD_PATTERN_TYPE := ('0','0','0','0','0','0','0','1','1','1','1');
+	signal LCD_PATTERN_DATA : A_LCD_PATTERN_DATA := (x"38",x"38",x"38",x"38",x"0F",x"01",x"06",x"41",x"42",x"43",x"44");
 	signal index : integer;
 
 	type state_type is (
-		idle,send,st_busy,increment,stop
+		idle,send,st_busy,st_wait,increment,stop
 	);
 	signal state : state_type;
+
+	constant C_WAIT_MS : integer := 1_000_000;
+	signal t_wait_ms : integer;
 
 begin
 
@@ -77,20 +82,35 @@ begin
 		if (i_reset = '1') then
 			state <= idle;
 			index <= 0;
+			t_wait_ms <= 0;
 		elsif (rising_edge(i_clock)) then
 			case (state) is
 				when idle =>
-					state <= send;
-					enable <= '1';
+					--if (t_wait_ms = 4*C_WAIT_MS-1) then
+						state <= send;
+						enable <= '1';
+						--t_wait_ms <= 0;
+					--else
+						--t_wait_ms <= t_wait_ms + 1;
+					--end if;
 				when send =>
 					state <= st_busy;
-					data_type <= '0';
-					data <= LCD_PATTERN(index);
+					data_type <= LCD_PATTERN_TYPE(index);
+					data <= LCD_PATTERN_DATA(index);
 				when st_busy =>
 					if (busy = '1') then
 						state <= st_busy;
 					else
+						state <= st_wait;
+						enable <= '0';
+						data <= x"00";
+					end if;
+				when st_wait =>
+					if (t_wait_ms = 4*C_WAIT_MS-1) then
 						state <= increment;
+						t_wait_ms <= 0;
+					else
+						t_wait_ms <= t_wait_ms + 1;
 					end if;
 				when increment =>
 					if (index = C_LEN_LCD_PATTERN-1) then
@@ -103,8 +123,6 @@ begin
 					end if;
 				when stop =>
 					state <= stop;
-					enable <= '0';
-					data <= x"00";
 			end case;
 		end if;
 	end process p0;
