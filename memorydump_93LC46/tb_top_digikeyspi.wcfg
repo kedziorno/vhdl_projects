@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="/home/user/workspace/vhdl_projects/memorydump_93LC46/tb_top_digikeyspi_isim_beh.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="numeric_std" />
+            <top_module name="p_constants" />
+            <top_module name="std_logic_1164" />
+            <top_module name="std_logic_arith" />
+            <top_module name="std_logic_unsigned" />
+            <top_module name="tb_top_digikeyspi" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="5" />
+   <wvobject fp_name="group19" type="group">
+      <obj_property name="label">tb</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_top_digikeyspi/i_clock" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clock</obj_property>
+         <obj_property name="ObjectShortName">i_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/i_reset" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_reset</obj_property>
+         <obj_property name="ObjectShortName">i_reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/i_do" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_do</obj_property>
+         <obj_property name="ObjectShortName">i_do</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/i_rsrx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_rsrx</obj_property>
+         <obj_property name="ObjectShortName">i_rsrx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/o_cs" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_cs</obj_property>
+         <obj_property name="ObjectShortName">o_cs</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/o_sk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_sk</obj_property>
+         <obj_property name="ObjectShortName">o_sk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/o_di" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_di</obj_property>
+         <obj_property name="ObjectShortName">o_di</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/o_rstx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_rstx</obj_property>
+         <obj_property name="ObjectShortName">o_rstx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/i_clock_period" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clock_period</obj_property>
+         <obj_property name="ObjectShortName">i_clock_period</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group67" type="group">
+      <obj_property name="label">top</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/i_clock" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clock</obj_property>
+         <obj_property name="ObjectShortName">i_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/i_reset" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_reset</obj_property>
+         <obj_property name="ObjectShortName">i_reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/o_cs" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_cs</obj_property>
+         <obj_property name="ObjectShortName">o_cs</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/o_sk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_sk</obj_property>
+         <obj_property name="ObjectShortName">o_sk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/o_di" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_di</obj_property>
+         <obj_property name="ObjectShortName">o_di</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/i_do" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_do</obj_property>
+         <obj_property name="ObjectShortName">i_do</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/o_rstx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_rstx</obj_property>
+         <obj_property name="ObjectShortName">o_rstx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/i_rsrx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_rsrx</obj_property>
+         <obj_property name="ObjectShortName">i_rsrx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/state" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">state</obj_property>
+         <obj_property name="ObjectShortName">state</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/rs232_enable_tx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rs232_enable_tx</obj_property>
+         <obj_property name="ObjectShortName">rs232_enable_tx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/rs232_enable_rx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rs232_enable_rx</obj_property>
+         <obj_property name="ObjectShortName">rs232_enable_rx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/rs232_busy" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rs232_busy</obj_property>
+         <obj_property name="ObjectShortName">rs232_busy</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/rs232_ready" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rs232_ready</obj_property>
+         <obj_property name="ObjectShortName">rs232_ready</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/rs232_is_byte_received" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rs232_is_byte_received</obj_property>
+         <obj_property name="ObjectShortName">rs232_is_byte_received</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/rs232_byte_to_send" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">rs232_byte_to_send[7:0]</obj_property>
+         <obj_property name="ObjectShortName">rs232_byte_to_send[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/rs232_byte_received" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">rs232_byte_received[7:0]</obj_property>
+         <obj_property name="ObjectShortName">rs232_byte_received[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/cd_o_clock" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">cd_o_clock</obj_property>
+         <obj_property name="ObjectShortName">cd_o_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/cd_o_clock_prev" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">cd_o_clock_prev</obj_property>
+         <obj_property name="ObjectShortName">cd_o_clock_prev</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/cs" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">cs</obj_property>
+         <obj_property name="ObjectShortName">cs</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/sk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">sk</obj_property>
+         <obj_property name="ObjectShortName">sk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/di" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">di</obj_property>
+         <obj_property name="ObjectShortName">di</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/do" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">do</obj_property>
+         <obj_property name="ObjectShortName">do</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/memory_address" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">memory_address[6:0]</obj_property>
+         <obj_property name="ObjectShortName">memory_address[6:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/memory_address_index" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">memory_address_index</obj_property>
+         <obj_property name="ObjectShortName">memory_address_index</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/memory_data" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">memory_data[7:0]</obj_property>
+         <obj_property name="ObjectShortName">memory_data[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/memory_data_index" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">memory_data_index</obj_property>
+         <obj_property name="ObjectShortName">memory_data_index</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/tw_index" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">tw_index</obj_property>
+         <obj_property name="ObjectShortName">tw_index</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/tw_v_wait1" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">tw_v_wait1[31:0]</obj_property>
+         <obj_property name="ObjectShortName">tw_v_wait1[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/tw_memory_data_1" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">tw_memory_data_1[1:0]</obj_property>
+         <obj_property name="ObjectShortName">tw_memory_data_1[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/tw_memory_address_1" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">tw_memory_address_1[1:0]</obj_property>
+         <obj_property name="ObjectShortName">tw_memory_address_1[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/index" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">index</obj_property>
+         <obj_property name="ObjectShortName">index</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/enable" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">enable</obj_property>
+         <obj_property name="ObjectShortName">enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/cpol" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">cpol</obj_property>
+         <obj_property name="ObjectShortName">cpol</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/cpha" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">cpha</obj_property>
+         <obj_property name="ObjectShortName">cpha</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/cont" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">cont</obj_property>
+         <obj_property name="ObjectShortName">cont</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/miso" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">miso</obj_property>
+         <obj_property name="ObjectShortName">miso</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/sclk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">sclk</obj_property>
+         <obj_property name="ObjectShortName">sclk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/mosi" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">mosi</obj_property>
+         <obj_property name="ObjectShortName">mosi</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/busy" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">busy</obj_property>
+         <obj_property name="ObjectShortName">busy</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/addr" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">addr</obj_property>
+         <obj_property name="ObjectShortName">addr</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/tx_data" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">tx_data[1:0]</obj_property>
+         <obj_property name="ObjectShortName">tx_data[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/rx_data" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">rx_data[1:0]</obj_property>
+         <obj_property name="ObjectShortName">rx_data[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/ss_n" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">ss_n[0:0]</obj_property>
+         <obj_property name="ObjectShortName">ss_n[0:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/g_board_clock" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">g_board_clock</obj_property>
+         <obj_property name="ObjectShortName">g_board_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/g_baud_rate" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">g_baud_rate</obj_property>
+         <obj_property name="ObjectShortName">g_baud_rate</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/tw_c_wait1" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">tw_c_wait1</obj_property>
+         <obj_property name="ObjectShortName">tw_c_wait1</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/sw" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">sw</obj_property>
+         <obj_property name="ObjectShortName">sw</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group95" type="group">
+      <obj_property name="label">spim</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/clock" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">clock</obj_property>
+         <obj_property name="ObjectShortName">clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/reset_n" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">reset_n</obj_property>
+         <obj_property name="ObjectShortName">reset_n</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/enable" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">enable</obj_property>
+         <obj_property name="ObjectShortName">enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/cpol" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">cpol</obj_property>
+         <obj_property name="ObjectShortName">cpol</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/cpha" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">cpha</obj_property>
+         <obj_property name="ObjectShortName">cpha</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/cont" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">cont</obj_property>
+         <obj_property name="ObjectShortName">cont</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/clk_div" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">clk_div</obj_property>
+         <obj_property name="ObjectShortName">clk_div</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/addr" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">addr</obj_property>
+         <obj_property name="ObjectShortName">addr</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/tx_data" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">tx_data[1:0]</obj_property>
+         <obj_property name="ObjectShortName">tx_data[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/miso" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">miso</obj_property>
+         <obj_property name="ObjectShortName">miso</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/sclk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">sclk</obj_property>
+         <obj_property name="ObjectShortName">sclk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/ss_n" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">ss_n[0:0]</obj_property>
+         <obj_property name="ObjectShortName">ss_n[0:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/mosi" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">mosi</obj_property>
+         <obj_property name="ObjectShortName">mosi</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/busy" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">busy</obj_property>
+         <obj_property name="ObjectShortName">busy</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/rx_data" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">rx_data[1:0]</obj_property>
+         <obj_property name="ObjectShortName">rx_data[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/state" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">state</obj_property>
+         <obj_property name="ObjectShortName">state</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/slave" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">slave</obj_property>
+         <obj_property name="ObjectShortName">slave</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/clk_ratio" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">clk_ratio</obj_property>
+         <obj_property name="ObjectShortName">clk_ratio</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/count" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">count</obj_property>
+         <obj_property name="ObjectShortName">count</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/clk_toggles" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">clk_toggles</obj_property>
+         <obj_property name="ObjectShortName">clk_toggles</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/assert_data" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">assert_data</obj_property>
+         <obj_property name="ObjectShortName">assert_data</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/continue" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">continue</obj_property>
+         <obj_property name="ObjectShortName">continue</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/rx_buffer" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">rx_buffer[1:0]</obj_property>
+         <obj_property name="ObjectShortName">rx_buffer[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/tx_buffer" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">tx_buffer[1:0]</obj_property>
+         <obj_property name="ObjectShortName">tx_buffer[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/last_bit_rx" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">last_bit_rx</obj_property>
+         <obj_property name="ObjectShortName">last_bit_rx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/slaves" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">slaves</obj_property>
+         <obj_property name="ObjectShortName">slaves</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/spim/d_width" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">d_width</obj_property>
+         <obj_property name="ObjectShortName">d_width</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group117" type="group">
+      <obj_property name="label">rs232</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_rs232/clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_rs232/rst" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rst</obj_property>
+         <obj_property name="ObjectShortName">rst</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_rs232/enable_tx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">enable_tx</obj_property>
+         <obj_property name="ObjectShortName">enable_tx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_rs232/enable_rx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">enable_rx</obj_property>
+         <obj_property name="ObjectShortName">enable_rx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_rs232/byte_to_send" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">byte_to_send[7:0]</obj_property>
+         <obj_property name="ObjectShortName">byte_to_send[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_rs232/byte_received" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">byte_received[7:0]</obj_property>
+         <obj_property name="ObjectShortName">byte_received[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_rs232/busy" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">busy</obj_property>
+         <obj_property name="ObjectShortName">busy</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_rs232/ready" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">ready</obj_property>
+         <obj_property name="ObjectShortName">ready</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_rs232/is_byte_received" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">is_byte_received</obj_property>
+         <obj_property name="ObjectShortName">is_byte_received</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_rs232/rstx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rstx</obj_property>
+         <obj_property name="ObjectShortName">rstx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_rs232/rsrx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rsrx</obj_property>
+         <obj_property name="ObjectShortName">rsrx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_rs232/v_i" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">v_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">v_i[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_rs232/v_w" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">v_w[31:0]</obj_property>
+         <obj_property name="ObjectShortName">v_w[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_rs232/t_w" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">t_w[31:0]</obj_property>
+         <obj_property name="ObjectShortName">t_w[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_rs232/temp" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">temp[9:0]</obj_property>
+         <obj_property name="ObjectShortName">temp[9:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_rs232/c_state" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">c_state</obj_property>
+         <obj_property name="ObjectShortName">c_state</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_rs232/r_state" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">r_state</obj_property>
+         <obj_property name="ObjectShortName">r_state</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_rs232/g_board_clock" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">g_board_clock</obj_property>
+         <obj_property name="ObjectShortName">g_board_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_rs232/g_baud_rate" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">g_baud_rate</obj_property>
+         <obj_property name="ObjectShortName">g_baud_rate</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_rs232/recv_bits" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">recv_bits</obj_property>
+         <obj_property name="ObjectShortName">recv_bits</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_rs232/a" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">a</obj_property>
+         <obj_property name="ObjectShortName">a</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group123" type="group">
+      <obj_property name="label">clkdiv</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_cd_div1/i_reset" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_reset</obj_property>
+         <obj_property name="ObjectShortName">i_reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_cd_div1/i_clock" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clock</obj_property>
+         <obj_property name="ObjectShortName">i_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_cd_div1/o_clock" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_clock</obj_property>
+         <obj_property name="ObjectShortName">o_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_cd_div1/g_board_clock" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">g_board_clock</obj_property>
+         <obj_property name="ObjectShortName">g_board_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top_digikeyspi/uut/c_cd_div1/g_divider" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">g_divider</obj_property>
+         <obj_property name="ObjectShortName">g_divider</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>
