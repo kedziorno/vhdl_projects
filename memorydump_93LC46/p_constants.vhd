@@ -12,7 +12,7 @@ use IEEE.STD_LOGIC_1164.all;
 
 package p_constants is
 	constant G_BOARD_CLOCK_HARDWARE : integer := 50_000_000;
-	constant G_BOARD_CLOCK_SIMULATE : integer := 50_000_000;
+	constant G_BOARD_CLOCK_SIMULATE : integer := 1_000_000;
 	constant G_CLOCK_DIV1 : integer := 50; -- XXX SPI MAX 1MHZ,VCC=3V+/-10%
 	constant NUMBER_BITS : integer := 8;
 	constant G_MemoryAddress : integer := 7; -- XXX 1K 93LC46 128x8 or 64x16
@@ -35,6 +35,8 @@ package p_constants is
 --	constant G_BR_OVERSAMPLING : integer := 16;
 --	constant G_PARITY : integer := 0;
 --	constant G_PARITY_EO : std_logic := '0'; -- even/odd
+	constant slaves  : INTEGER := 1; -- number of spi slaves
+	constant d_width : INTEGER := 2; -- data bus width
 end p_constants;
 
 package body p_constants is
