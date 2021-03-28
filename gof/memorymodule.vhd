@@ -33,6 +33,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity memorymodule is
 Port (
 i_clock : in std_logic;
+i_reset : in std_logic;
 i_enable : in std_logic;
 i_write : in std_logic;
 i_read : in std_logic;
@@ -80,7 +81,7 @@ architecture Behavioral of memorymodule is
 	signal MemAdr : MemoryAddressALL;
 	signal MemDB : MemoryDataByte;
 
-    signal mc : MEMORY := memory_content;
+    signal mc : MEMORY;
 
 begin
 
@@ -100,24 +101,39 @@ begin
 	RamAdv <= '0';
 	RamClk <= '0';
 
---	MemAdr <= i_MemAdr when (RamCS = '0' and (MemWR = '0' or MemOE = '0')) else (others => 'Z');
---	o_MemDB <= io_MemDB when (cstate = idle) else (others => 'Z');
 	io_MemDB <= i_MemDB when (RamCS = '0' and MemWR = '0') else (others => 'Z');
 	MemAdr <= i_MemAdr when (RamCS = '0' and (MemWR = '0' or MemOE = '0')) else (others => 'Z');
-	mc(to_integer(unsigned(MemAdr)))(16 to 31) <= i_MemDB when ((to_integer(unsigned(MemAdr)) mod 2) = 1 and (cstate = idle)) else (others => 'Z');
-	mc(to_integer(unsigned(MemAdr)))(0 to 15) <= i_MemDB when ((to_integer(unsigned(MemAdr)) mod 2) = 0 and (cstate = idle)) else (others => 'Z');
-	o_MemDB <= mc(to_integer(unsigned(MemAdr)))(16 to 31) when ((to_integer(unsigned(MemAdr)) mod 2) = 1 and RamCS = '0' and MemWR = '0') else (others => 'Z');
-	o_MemDB <= mc(to_integer(unsigned(MemAdr)))(0 to 15) when ((to_integer(unsigned(MemAdr)) mod 2) = 0 and RamCS = '0' and MemWR = '0') else (others => 'Z');
---	io_MemDB <= i_MemDB when ((to_integer(unsigned(MemAdr)) mod 2) = 1 and RamCS = '0' and MemWR = '0') else (others => 'Z');
---	io_MemDB <= i_MemDB when ((to_integer(unsigned(MemAdr)) mod 2) = 0 and RamCS = '0' and MemWR = '0') else (others => 'Z');
-
-	p0 : process (i_clock) is
+    mc(to_integer(unsigned(MemAdr)))(16 to 31) <= i_MemDB when to_integer(unsigned(MemAdr)) mod 2 = 1 else (others => 'Z');
+    mc(to_integer(unsigned(MemAdr)))(0  to 15) <= i_MemDB when to_integer(unsigned(MemAdr)) mod 2 = 0 else (others => 'Z');
+    o_MemDB <= mc(to_integer(unsigned(MemAdr)))(16 to 31) when to_integer(unsigned(MemAdr)) mod 2 = 1 else (others => 'Z');
+    o_MemDB <= mc(to_integer(unsigned(MemAdr)))(0  to 15) when to_integer(unsigned(MemAdr)) mod 2 = 0 else (others => 'Z');
+     
+	p0 : process (i_clock,i_reset) is
 		constant cw : integer := 6;
 		variable w : integer range 0 to cw := 0;
 		variable t : std_logic_vector(G_MemoryData-1 downto 0);
 		variable tz : std_logic_vector(G_MemoryData-1 downto 0) := (others => 'Z');
 	begin
-		if (rising_edge(i_clock)) then
+        if (i_reset = '1') then
+            cstate <= idle;
+	       --MemAdr <= (others => '0');
+	       MemOE <= '1';
+           MemWR <= '1';
+           RamCS <= '1';
+           mc <= memory_content;
+        elsif (rising_edge(i_clock)) then
+--            if (to_integer(unsigned(MemAdr)) mod 2 = 1) then
+--                mc(to_integer(unsigned(MemAdr)))(16 to 31) <= i_MemDB;
+--            end if;
+--            if (to_integer(unsigned(MemAdr)) mod 2 = 0) then
+--                mc(to_integer(unsigned(MemAdr)))(0 to 15) <= i_MemDB;            
+--            end if;
+--            if (to_integer(unsigned(MemAdr)) mod 2 = 1) then
+--                o_MemDB <= mc(to_integer(unsigned(MemAdr)))(16 to 31);
+--            end if;
+--            if (to_integer(unsigned(MemAdr)) mod 2 = 0) then
+--                o_MemDB <= mc(to_integer(unsigned(MemAdr)))(0 to 15);            
+--            end if;
 			if (w > 0) then
 				w := w - 1;
 			end if;

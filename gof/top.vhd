@@ -112,6 +112,7 @@ for all : clock_divider use entity WORK.clock_divider(Behavioral);
 component memorymodule is
 Port (
 i_clock : in std_logic;
+i_reset : in std_logic;
 i_enable : in std_logic;
 i_write : in std_logic;
 i_read : in std_logic;
@@ -334,6 +335,7 @@ port map (
 
 mm : memorymodule PORT MAP (
 	i_clock => clk_1s,
+	i_reset => btn_1,
 	i_enable => i_enable,
 	i_write => i_write,
 	i_read => i_read,
@@ -376,6 +378,8 @@ begin
 		vppYb := 0;
 		vppYp := 0;
 		cstate <= set_cd_memorycopy;
+		i_MemAdr <= (others => '0');
+		i_MemDB <= (others => '0');
 	elsif (rising_edge(clk_1s)) then
 		startAddress0 <= std_logic_vector(to_unsigned(to_integer(unsigned(startAddress))+0,G_MemoryAddress));
 		startAddress1 <= std_logic_vector(to_unsigned(to_integer(unsigned(startAddress))+1,G_MemoryAddress));
