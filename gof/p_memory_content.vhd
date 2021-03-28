@@ -15,14 +15,14 @@ package p_memory_content is
 	constant G_BOARD_CLOCK : integer := 50_000_000;
 	constant G_BUS_CLOCK : integer := 100_000;
 	constant G_ClockDivider : integer := 10000;
-	constant G_MemoryAddress : integer := 3;
+	constant G_MemoryAddress : integer := 4;
 	constant G_MemoryData : integer := 16;
 	subtype MemoryAddress is std_logic_vector(1 to G_MemoryAddress-1);
 	subtype MemoryAddressALL is std_logic_vector(0 to G_MemoryAddress-1);
 	subtype MemoryDataByte is std_logic_vector(0 to G_MemoryData-1);
 	constant G_HalfHex : integer := 4;
 	constant G_FullHex : integer := G_HalfHex*2;
-	constant ROWS : integer := 8;
+	constant ROWS : integer := (2**G_MemoryAddress);
 	constant ROWS_BITS : integer := 3;
 	constant COLS_PIXEL : integer := 32;
 	constant COLS_PIXEL_BITS : integer := 5;
@@ -50,7 +50,15 @@ package p_memory_content is
 		("10000001100000011000000110000001"),
 		("10000001100000011000000110000001"),
 		("10011101101110011001110110111001"),
-		("10111000000111011011100000011101") -- 8
+		("10111000000111011011100000011101"), -- 8
+		("00000000000000000000000000000000"),
+		("00000000000000000000000000000000"),
+		("00000000000000000000000000000000"),
+		("00000000000000000000000000000000"),
+		("00000000000000000000000000000000"),
+		("00000000000000000000000000000000"),
+		("00000000000000000000000000000000"),
+		("00000000000000000000000000000000")
 	);
 
 end p_memory_content;

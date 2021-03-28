@@ -248,8 +248,8 @@ signal RamClk : std_logic;
 signal MemAdr : MemoryAddressALL;
 signal MemDB : MemoryDataByte;
 
-constant address1 : integer := 2222;
-constant address2 : integer := 8888;
+constant address1 : integer := 0;
+constant address2 : integer := 8;
 constant startAddressValue : integer := address1;
 signal startAddress : MemoryAddressALL := std_logic_vector(to_unsigned(startAddressValue,G_MemoryAddress));
 signal startAddress0 : MemoryAddressALL;
@@ -281,7 +281,7 @@ begin
 		if (flag) then
 			LCDChar <= (MemDB(12 to 15),MemDB(8 to 11),MemDB(4 to 7),MemDB(0 to 3));
 		else
-			LCDChar <= (MemAdr(12 to 15),MemAdr(8 to 11),MemAdr(4 to 7),MemAdr(0 to 3));
+			--LCDChar <= (MemAdr(12 to 15),MemAdr(8 to 11),MemAdr(4 to 7),MemAdr(0 to 3));
 		end if;
 		if (counter < 1) then
 			counter := counter + 1;

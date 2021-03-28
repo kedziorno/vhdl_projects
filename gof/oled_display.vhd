@@ -48,7 +48,7 @@ end oled_display;
 
 architecture Behavioral of oled_display is
 
-constant WIDTH : integer := 128; -- XXX
+constant WIDTH : integer := WIDTH_O; -- XXX
 constant HEIGHT : integer := 4; -- XXX
 
 constant OLED_PAGES_ALL : integer := WIDTH * HEIGHT;
