@@ -15,7 +15,7 @@ package p_memory_content is
 	constant G_BOARD_CLOCK : integer := 50_000_000;
 	constant G_BUS_CLOCK : integer := 100_000;
 	constant G_ClockDivider : integer := 10000;
-	constant G_MemoryAddress : integer := 24;
+	constant G_MemoryAddress : integer := 3;
 	constant G_MemoryData : integer := 16;
 	subtype MemoryAddress is std_logic_vector(1 to G_MemoryAddress-1);
 	subtype MemoryAddressALL is std_logic_vector(0 to G_MemoryAddress-1);
