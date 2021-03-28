@@ -103,10 +103,10 @@ begin
 
 	io_MemDB <= i_MemDB when (RamCS = '0' and MemWR = '0') else (others => 'Z');
 	MemAdr <= i_MemAdr when (RamCS = '0' and (MemWR = '0' or MemOE = '0')) else (others => 'Z');
-    mc(to_integer(unsigned(MemAdr)))(16 to 31) <= i_MemDB when to_integer(unsigned(MemAdr)) mod 2 = 1 else (others => 'Z');
-    mc(to_integer(unsigned(MemAdr)))(0  to 15) <= i_MemDB when to_integer(unsigned(MemAdr)) mod 2 = 0 else (others => 'Z');
-    o_MemDB <= mc(to_integer(unsigned(MemAdr)))(16 to 31) when to_integer(unsigned(MemAdr)) mod 2 = 1 else (others => 'Z');
-    o_MemDB <= mc(to_integer(unsigned(MemAdr)))(0  to 15) when to_integer(unsigned(MemAdr)) mod 2 = 0 else (others => 'Z');
+    --mc(to_integer(unsigned(MemAdr)))(16 to 31) <= i_MemDB when (to_integer(unsigned(MemAdr)) mod 2 = 1) else (others => 'Z');
+    --mc(to_integer(unsigned(MemAdr)))(0  to 15) <= i_MemDB when (to_integer(unsigned(MemAdr)) mod 2 = 0) else (others => 'Z');
+    o_MemDB <= mc(to_integer(unsigned(MemAdr)))(16 to 31) when (to_integer(unsigned(MemAdr)) mod 2 = 1) else (others => 'Z');
+    o_MemDB <= mc(to_integer(unsigned(MemAdr)))(0  to 15) when (to_integer(unsigned(MemAdr)) mod 2 = 0) else (others => 'Z');
      
 	p0 : process (i_clock,i_reset) is
 		constant cw : integer := 6;
@@ -122,12 +122,12 @@ begin
            RamCS <= '1';
            mc <= memory_content;
         elsif (rising_edge(i_clock)) then
---            if (to_integer(unsigned(MemAdr)) mod 2 = 1) then
---                mc(to_integer(unsigned(MemAdr)))(16 to 31) <= i_MemDB;
---            end if;
---            if (to_integer(unsigned(MemAdr)) mod 2 = 0) then
---                mc(to_integer(unsigned(MemAdr)))(0 to 15) <= i_MemDB;            
---            end if;
+            if (to_integer(unsigned(MemAdr)) mod 2 = 1) then
+                mc(to_integer(unsigned(MemAdr)))(16 to 31) <= i_MemDB;
+            end if;
+            if (to_integer(unsigned(MemAdr)) mod 2 = 0) then
+                mc(to_integer(unsigned(MemAdr)))(0 to 15) <= i_MemDB;            
+            end if;
 --            if (to_integer(unsigned(MemAdr)) mod 2 = 1) then
 --                o_MemDB <= mc(to_integer(unsigned(MemAdr)))(16 to 31);
 --            end if;
