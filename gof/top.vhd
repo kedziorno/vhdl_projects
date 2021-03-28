@@ -611,9 +611,9 @@ begin
 			when set_c1 =>
 				cstate <= c1;
 				if (vppYm1 > (COLS_PIXEL/2)-1) then
-					i_MemAdr <= std_logic_vector(to_unsigned(vppX+1,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+1,G_MemoryAddress));
 				else
-					i_MemAdr <= std_logic_vector(to_unsigned(vppX+0,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+0,G_MemoryAddress));
 				end if;
 			when c1 =>
 				cstate <= c1_mdr;
@@ -651,9 +651,9 @@ begin
 			when set_c2 =>
 				cstate <= c2;
 				if (vppYp1 > (COLS_PIXEL/2)-1) then
-					i_MemAdr <= std_logic_vector(to_unsigned(vppX+1,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+1,G_MemoryAddress));
 				else
-					i_MemAdr <= std_logic_vector(to_unsigned(vppX+0,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+0,G_MemoryAddress));
 				end if;
 			when c2 =>
 				cstate <= c2_mdr;
@@ -691,9 +691,9 @@ begin
 			when set_c3 =>
 				cstate <= c3;
 				if (vppYp > (COLS_PIXEL/2)-1) then
-					i_MemAdr <= std_logic_vector(to_unsigned(vppXp1+1,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXp1+1,G_MemoryAddress));
 				else
-					i_MemAdr <= std_logic_vector(to_unsigned(vppXp1+0,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXp1+0,G_MemoryAddress));
 				end if;
 			when c3 =>
 				cstate <= c3_mdr;
@@ -731,9 +731,9 @@ begin
 			when set_c4 =>
 				cstate <= c4;
 				if (vppYp > (COLS_PIXEL/2)-1) then
-					i_MemAdr <= std_logic_vector(to_unsigned(vppXm1+1,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXm1+1,G_MemoryAddress));
 				else
-					i_MemAdr <= std_logic_vector(to_unsigned(vppXm1+0,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXm1+0,G_MemoryAddress));
 				end if;
 			when c4 =>
 				cstate <= c4_mdr;
@@ -771,9 +771,9 @@ begin
 			when set_c5 =>
 				cstate <= c5;
 				if (vppYm1 > (COLS_PIXEL/2)-1) then
-					i_MemAdr <= std_logic_vector(to_unsigned(vppXm1+1,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXm1+1,G_MemoryAddress));
 				else
-					i_MemAdr <= std_logic_vector(to_unsigned(vppXm1+0,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXm1+0,G_MemoryAddress));
 				end if;
 			when c5 =>
 				cstate <= c5_mdr;
@@ -811,9 +811,9 @@ begin
 			when set_c6 =>
 				cstate <= c6;
 				if (vppYm1 > (COLS_PIXEL/2)-1) then
-					i_MemAdr <= std_logic_vector(to_unsigned(vppXp1+1,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXp1+1,G_MemoryAddress));
 				else
-					i_MemAdr <= std_logic_vector(to_unsigned(vppXp1+0,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXp1+0,G_MemoryAddress));
 				end if;
 			when c6 =>
 				cstate <= c6_mdr;
@@ -851,9 +851,9 @@ begin
 			when set_c7 =>
 				cstate <= c7;
 				if (vppYp1 > (COLS_PIXEL/2)-1) then
-					i_MemAdr <= std_logic_vector(to_unsigned(vppXm1+1,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXm1+1,G_MemoryAddress));
 				else
-					i_MemAdr <= std_logic_vector(to_unsigned(vppXm1+0,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXm1+0,G_MemoryAddress));
 				end if;
 			when c7 =>
 				cstate <= c7_mdr;
@@ -891,9 +891,9 @@ begin
 			when set_c8 =>
 				cstate <= c8;
 				if (vppYp1 > (COLS_PIXEL/2)-1) then
-					i_MemAdr <= std_logic_vector(to_unsigned(vppXp1+1,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXp1+1,G_MemoryAddress));
 				else
-					i_MemAdr <= std_logic_vector(to_unsigned(vppXp1+0,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXp1+0,G_MemoryAddress));
 				end if;
 			when c8 =>
 				cstate <= c8_mdr;
