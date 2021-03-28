@@ -434,7 +434,7 @@ begin
 				cstate <= check_ranges_write;
 				i_enable <= '0';
 			when check_ranges_write =>
-				if (rowIndex < ROWS-1) then
+				if (rowIndex < ROWS/2-1) then
 					cstate <= enable_memory_module;
 					startAddress <= std_logic_vector(to_unsigned(to_integer(unsigned(startAddress))+2,G_MemoryAddress));
 					rowIndex := rowIndex + 1;
@@ -566,7 +566,7 @@ begin
 					cstate <= check_ranges_read;
 				end if;
 			when check_ranges_read =>
-				if (rowIndex < ROWS-1) then
+				if (rowIndex < ROWS/2-1) then
 					cstate <= enable_memory_module_read_fh;
 					startAddress <= std_logic_vector(to_unsigned(to_integer(unsigned(startAddress))+2,G_MemoryAddress));
 					rowIndex := rowIndex + 1;
