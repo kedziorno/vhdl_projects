@@ -249,7 +249,7 @@ signal MemAdr : MemoryAddressALL;
 signal MemDB : MemoryDataByte;
 
 constant address1 : integer := 6666;
-constant address2 : integer := 9999;
+constant address2 : integer := 6666;
 constant startAddressValue : integer := address1;
 signal startAddress : MemoryAddressALL := std_logic_vector(to_unsigned(startAddressValue,G_MemoryAddress));
 signal startAddress0 : MemoryAddressALL;
@@ -930,7 +930,7 @@ begin
 				i_write <= '1';
 			when store_count_alive_sa =>
 				cstate <= store_count_alive;
-				i_MemAdr <= std_logic_vector(to_unsigned(6666+vppX+vppYp,G_MemoryAddress));
+				i_MemAdr <= std_logic_vector(to_unsigned(address2+vppX+vppYp,G_MemoryAddress));
 			when store_count_alive =>
 				cstate <= store_count_alive_wd;
 				i_MemDB <= std_logic_vector(to_unsigned(vcountAlive,G_MemoryData));
@@ -1019,7 +1019,7 @@ begin
 				i_read <= '1';
 			when check_cell_alive_1 =>
 				cstate <= check_cell_alive_1a;
-				i_MemAdr <= std_logic_vector(to_unsigned(6666+vppX+vppYp,G_MemoryAddress));
+				i_MemAdr <= std_logic_vector(to_unsigned(address2+vppX+vppYp,G_MemoryAddress));
 			when check_cell_alive_1a =>
 				cstate <= check_cell_alive_2;
 				if (vCellAlive = true) then
