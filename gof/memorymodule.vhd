@@ -94,7 +94,7 @@ begin
 	io_RamUB <= RamUB;
 	io_RamClk <= RamClk;
 	--io_MemAdr <= MemAdr;
-    o_MemDB <= MemDB;
+--    o_MemDB <= MemDB;
 
 	RamLB <= '0';
 	RamUB <= '0';
@@ -103,7 +103,6 @@ begin
 	RamClk <= '0';
 
 	--io_MemDB <= i_MemDB when (RamCS = '0' and MemWR = '0') else (others => 'Z');
-	MemAdr <= i_MemAdr when (RamCS = '0' and (MemWR = '0' or MemOE = '0')) else (others => 'Z');
     --mc(to_integer(unsigned(MemAdr)))(16 to 31) <= i_MemDB when (to_integer(unsigned(MemAdr)) mod 2 = 1) else (others => 'Z');
     --mc(to_integer(unsigned(MemAdr)))(0  to 15) <= i_MemDB when (to_integer(unsigned(MemAdr)) mod 2 = 0) else (others => 'Z');
 --    o_MemDB <= mc(to_integer(unsigned(MemAdr)))(16 to 31) when (to_integer(unsigned(MemAdr)) mod 2 = 1) else (others => 'Z');
@@ -117,7 +116,7 @@ begin
 	begin
         if (i_reset = '1') then
             cstate <= idle;
-	       MemAdr <= (others => '0');
+	       --MemAdr <= (others => '0');
 	       MemOE <= '1';
            MemWR <= '1';
            RamCS <= '1';
@@ -142,18 +141,13 @@ begin
 				when idle =>
 					if (i_enable = '1') then
 						cstate <= start; -- XXX check CSb
-						if (to_integer(unsigned(MemAdr)) mod 2 = 1) then
-                mc(to_integer(unsigned(MemAdr)))(16 to 31) <= i_MemDB;
-            end if;
-            if (to_integer(unsigned(MemAdr)) mod 2 = 0) then
-                mc(to_integer(unsigned(MemAdr)))(0 to 15) <= i_MemDB;            
-            end if;
-            if (to_integer(unsigned(MemAdr)) mod 2 = 1) then
-                MemDB <= mc(to_integer(unsigned(MemAdr)))(16 to 31);
-            end if;
-            if (to_integer(unsigned(MemAdr)) mod 2 = 0) then
-                MemDB <= mc(to_integer(unsigned(MemAdr)))(0 to 15);            
-            end if;
+						case (to_integer(unsigned(i_MemAdr)) mod 2) is
+						  when 0 =>
+						      mc(to_integer(unsigned(i_MemAdr)))(16 to 31) <= i_MemDB;
+						  when 1 =>
+						      mc(to_integer(unsigned(i_MemAdr)))(0 to 15) <= i_MemDB;
+						  when others => null;
+					    end case;
 					else
 						cstate <= idle;
 					end if;
@@ -214,6 +208,13 @@ begin
 					o_busy <= '0';
 					RamCS <= '1';
 					MemOE <= '1';
+					case (to_integer(unsigned(i_MemAdr)) mod 2) is
+						  when 0 =>
+						      o_MemDB <= mc(to_integer(unsigned(i_MemAdr)))(16 to 31);
+						  when 1 =>
+						      o_MemDB <= mc(to_integer(unsigned(i_MemAdr)))(0 to 15); 
+						  when others => null;
+					    end case;
 				when others => null;
 			end case;
 		end if;

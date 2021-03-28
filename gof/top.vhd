@@ -256,7 +256,7 @@ signal startAddress : MemoryAddressALL := std_logic_vector(to_unsigned(startAddr
 signal startAddress0 : MemoryAddressALL;
 signal startAddress1 : MemoryAddressALL;
 signal stppY : std_logic_vector(31 downto 0);
-
+signal m1 : MEMORY;
 begin
 
 io_FlashCS <= '1'; -- flash is always off
@@ -367,7 +367,6 @@ gof_logic : process (clk_1s,i_reset) is
 	variable vppYp1 : integer range 0 to COLS_PIXEL;
 	variable vcountAlive : integer;
 	variable vCellAlive,newCellAlive : boolean;
-	variable m1 : MEMORY := memory_content;
 	variable rowIndex : integer range 0 to ROWS-1;
 	variable tppY : integer;
 	variable t : MemoryDataByte;
@@ -380,6 +379,7 @@ begin
 		cstate <= set_cd_memorycopy;
 		i_MemAdr <= (others => '0');
 		i_MemDB <= (others => '0');
+		m1 <= memory_content;
 	elsif (rising_edge(clk_1s)) then
 		startAddress0 <= std_logic_vector(to_unsigned(to_integer(unsigned(startAddress))+0,G_MemoryAddress));
 		startAddress1 <= std_logic_vector(to_unsigned(to_integer(unsigned(startAddress))+1,G_MemoryAddress));
