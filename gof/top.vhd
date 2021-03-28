@@ -451,6 +451,10 @@ begin
 				vppX := 0;
 				vppYb := 0;
 				vppYp := 0;
+				vppXm1 := 0;
+				vppXp1 := 0;
+				vppYm1 := 0;
+				vppYp1 := 0;
 				all_pixels <= '0';
 				startAddress <= std_logic_vector(to_unsigned(startAddressValue,G_MemoryAddress));
 				rowIndex := 0;
@@ -577,6 +581,10 @@ begin
 				vppX := 0;
 				vppYb := 0;
 				vppYp := 0;
+				vppXm1 := 0;
+				vppXp1 := 0;
+				vppYm1 := 0;
+				vppYp1 := 0;
 			when check_coordinations =>
 				cstate <= memory_enable_bit;
 				vppXm1 := vppX-1;
@@ -933,7 +941,7 @@ begin
 				i_MemAdr <= std_logic_vector(to_unsigned(address2+vppX+vppYp,G_MemoryAddress));
 			when store_count_alive =>
 				cstate <= store_count_alive_wd;
-				i_MemDB <= std_logic_vector(to_unsigned(vcountAlive,G_MemoryData));
+				i_MemDB <= std_logic_vector(to_unsigned(vcountAlive,G_MemoryData)); -- XXX store proper val?
 			when store_count_alive_wd =>
 				cstate <= store_count_alive_wm;
 				i_write <= '0';
