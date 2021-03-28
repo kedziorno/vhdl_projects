@@ -248,8 +248,8 @@ signal RamClk : std_logic;
 signal MemAdr : MemoryAddressALL;
 signal MemDB : MemoryDataByte;
 
-constant address1 : integer := 6666;
-constant address2 : integer := 6666;
+constant address1 : integer := 2222;
+constant address2 : integer := 8888;
 constant startAddressValue : integer := address1;
 signal startAddress : MemoryAddressALL := std_logic_vector(to_unsigned(startAddressValue,G_MemoryAddress));
 signal startAddress0 : MemoryAddressALL;
@@ -930,7 +930,7 @@ begin
 				i_write <= '1';
 			when store_count_alive_sa =>
 				cstate <= store_count_alive;
-				i_MemAdr <= std_logic_vector(to_unsigned(address2+vppX+vppYp,G_MemoryAddress));
+				i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+vppYp,G_MemoryAddress));
 			when store_count_alive =>
 				cstate <= store_count_alive_wd;
 				i_MemDB <= std_logic_vector(to_unsigned(vcountAlive,G_MemoryData));
@@ -978,9 +978,9 @@ begin
 			when memory_sa1 =>
 				cstate <= get_alive;
 				if (vppYp > (COLS_PIXEL/2)-1) then
-					i_MemAdr <= std_logic_vector(to_unsigned(vppX+1,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+1,G_MemoryAddress));
 				else
-					i_MemAdr <= std_logic_vector(to_unsigned(vppX+0,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+0,G_MemoryAddress));
 				end if;
 			when get_alive =>
 				cstate <= get_alive1;
@@ -1019,7 +1019,7 @@ begin
 				i_read <= '1';
 			when check_cell_alive_1 =>
 				cstate <= check_cell_alive_1a;
-				i_MemAdr <= std_logic_vector(to_unsigned(address2+vppX+vppYp,G_MemoryAddress));
+				i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+vppYp,G_MemoryAddress));
 			when check_cell_alive_1a =>
 				cstate <= check_cell_alive_2;
 				if (vCellAlive = true) then
@@ -1056,9 +1056,9 @@ begin
 			when aaaa =>
 				cstate <= aaaaa;
 				if (vppYp > (COLS_PIXEL/2)-1) then
-					i_MemAdr <= std_logic_vector(to_unsigned(vppX+1,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+1,G_MemoryAddress));
 				else
-					i_MemAdr <= std_logic_vector(to_unsigned(vppX+0,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+0,G_MemoryAddress));
 				end if;
 			when aaaaa =>
 				cstate <= disable_write_to_memory;
