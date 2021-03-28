@@ -249,7 +249,7 @@ signal MemAdr : MemoryAddressALL;
 signal MemDB : MemoryDataByte;
 
 constant address1 : integer := 0;
-constant address2 : integer := 8;
+constant address2 : integer := (2**ROWS)/2;
 constant startAddressValue : integer := address1;
 signal startAddress : MemoryAddressALL := std_logic_vector(to_unsigned(startAddressValue,G_MemoryAddress));
 signal startAddress0 : MemoryAddressALL;

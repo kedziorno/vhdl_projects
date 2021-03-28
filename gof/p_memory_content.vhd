@@ -17,13 +17,13 @@ package p_memory_content is
 	constant G_ClockDivider : integer := 10000;
 	constant G_MemoryAddress : integer := 4;
 	constant G_MemoryData : integer := 16;
-	subtype MemoryAddress is std_logic_vector(1 to G_MemoryAddress-1);
+	subtype MemoryAddress is std_logic_vector(0 to G_MemoryAddress-1);
 	subtype MemoryAddressALL is std_logic_vector(0 to G_MemoryAddress-1);
 	subtype MemoryDataByte is std_logic_vector(0 to G_MemoryData-1);
 	constant G_HalfHex : integer := 4;
 	constant G_FullHex : integer := G_HalfHex*2;
 	constant ROWS : integer := (2**G_MemoryAddress);
-	constant ROWS_BITS : integer := 3;
+	constant ROWS_BITS : integer := G_MemoryAddress;
 	constant COLS_PIXEL : integer := 32;
 	constant COLS_PIXEL_BITS : integer := 5;
 	constant COLS_BLOCK : integer := 4;
