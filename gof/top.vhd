@@ -446,7 +446,7 @@ begin
 			when idle =>
 				if (display_initialize = '1') then
 					cstate <= display_is_initialize;
-					i_MemDB <= (others=> '0');
+					i_MemDB <= (others=> 'Z');
 				else
 					cstate <= idle;
 				end if;

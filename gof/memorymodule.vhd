@@ -113,6 +113,8 @@ begin
 		variable w : integer range 0 to cw := 0;
 		variable t : std_logic_vector(G_MemoryData-1 downto 0);
 		variable tz : std_logic_vector(G_MemoryData-1 downto 0) := (others => 'Z');
+		variable ima : integer;
+		variable mdb : MemoryDataByte;
 	begin
         if (i_reset = '1') then
             cstate <= idle;
@@ -122,6 +124,7 @@ begin
            RamCS <= '1';
            mc <= (others => (others => '0'));
         elsif (rising_edge(i_clock)) then
+            ima := to_integer(unsigned(i_MemAdr));
 --            if (to_integer(unsigned(i_MemAdr)) mod 2 = 1) then
 --                mc(to_integer(unsigned(i_MemAdr)))(16 to 31) <= i_MemDB;
 --            end if;
@@ -141,11 +144,11 @@ begin
 				when idle =>
 					if (i_enable = '1') then
 						cstate <= start; -- XXX check CSb
-						case (to_integer(unsigned(i_MemAdr)) mod 2) is
+						case (ima mod 2) is
 						  when 0 =>
-						      mc(to_integer(unsigned(i_MemAdr)))(16 to 31) <= i_MemDB;
+						      mc(ima)(16 to 31) <= i_MemDB;
 						  when 1 =>
-						      mc(to_integer(unsigned(i_MemAdr)))(0 to 15) <= i_MemDB;
+						      mc(ima)(0 to 15) <= i_MemDB;
 						  when others => null;
 					    end case;
 					else
@@ -208,16 +211,17 @@ begin
 					o_busy <= '0';
 					RamCS <= '1';
 					MemOE <= '1';
-					case (to_integer(unsigned(i_MemAdr)) mod 2) is
+					case (ima mod 2) is
 						  when 0 =>
-						      o_MemDB <= mc(to_integer(unsigned(i_MemAdr)))(16 to 31);
+						      mdb := mc(ima)(16 to 31);
 						  when 1 =>
-						      o_MemDB <= mc(to_integer(unsigned(i_MemAdr)))(0 to 15); 
+						      mdb := mc(ima)(0 to 15); 
 						  when others => null;
 					    end case;
 				when others => null;
 			end case;
 		end if;
+		o_MemDB <= mdb;
 	end process p0;
 
 end Behavioral;
