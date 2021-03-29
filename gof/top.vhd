@@ -991,24 +991,24 @@ begin
 					cstate <= store_count_alive_md;
 				end if;
 			when store_count_alive_md =>
-				cstate <= update_row1; -- XXX maube col?
+				cstate <= update_col1; -- XXX maube col?
 				i_enable2 <= '0';
 				i_MemDB2 <= (others => 'Z');
 			when update_row1 =>
 				if (vppX < ROWS/2-1) then
 					vppX := vppX + 1;
 					cstate <= check_coordinations;
+					vppYp := 0;
 				else
-					cstate <= update_col1;
+					cstate <= reset_counters1;
+					vppX := 0;
 				end if;
 			when update_col1 =>
 				if (vppYp < COLS_PIXEL-1) then
 					vppYp := vppYp + 1;
 					cstate <= check_coordinations;
-					vppX := 0;
 				else
-					cstate <= reset_counters1;
-					vppYp := 0;
+					cstate <= update_row1;
 				end if;
 			----------------------------------------------------------------------------------
 			-- store bits in memory
