@@ -1125,24 +1125,24 @@ begin
 					cstate <= vvv;
 				end if;
 			when vvv =>
-				cstate <= update_row2;
+				cstate <= update_col2;
 				i_enable <= '0';
 			when update_row2 =>
-				if (vppX < ROWS-1) then
+				if (vppX < ROWS/2-1) then
 					vppX := vppX + 1;
 					cstate <= get_alive;
+					vppYp := 0;
+					vppYb := 0;
 				else
-					cstate <= update_col2;
+					cstate <= disable_memory;
+					vppX := 0;
 				end if;
 			when update_col2 =>
 				if (vppYp < COLS_PIXEL-1) then
 					vppYp := vppYp + 1;
 					cstate <= get_alive;
-					vppX := 0;
 				else
-					cstate <= disable_memory;
-					vppYp := 0;
-					vppYb := 0;
+					cstate <= update_row2;
 				end if;
 			when disable_memory =>
 				cstate <= stop;
