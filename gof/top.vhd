@@ -197,14 +197,14 @@ stop
 );
 signal cstate : state;
 
-signal i_enable : std_logic;
-signal i_write : std_logic;
-signal i_read : std_logic;
-signal o_membusy : std_logic;
+signal i_enable,i_enable2 : std_logic;
+signal i_write,i_write2 : std_logic;
+signal i_read,i_read2 : std_logic;
+signal o_membusy,o_membusy2 : std_logic;
 signal o_disbusy : std_logic;
-signal i_MemAdr : MemoryAddressALL;
-signal i_MemDB : MemoryDataByte;
-signal o_MemDB : MemoryDataByte;
+signal i_MemAdr,i_MemAdr2 : MemoryAddressALL;
+signal i_MemDB,i_MemDB2 : MemoryDataByte;
+signal o_MemDB,o_MemDB2 : MemoryDataByte;
 constant W : integer := 1;
 signal waiting : integer range W-1 downto 0 := 0;
 signal ppX : std_logic_vector(ROWS_BITS-1 downto 0);
@@ -239,16 +239,16 @@ signal LCDChar : LCDHex;
 signal o_Mem1 : MemoryDataByte;
 signal o_Mem2 : MemoryDataByte;
 
-signal MemOE : std_logic;
-signal MemWR : std_logic;
-signal RamAdv : std_logic;
-signal RamCS : std_logic;
-signal RamLB : std_logic;
-signal RamUB : std_logic;
-signal RamCRE : std_logic;
-signal RamClk : std_logic;
-signal MemAdr : MemoryAddressALL;
-signal MemDB : MemoryDataByte;
+signal MemOE,MemOE2 : std_logic;
+signal MemWR,MemWR2 : std_logic;
+signal RamAdv,RamAdv2 : std_logic;
+signal RamCS,RamCS2 : std_logic;
+signal RamLB,RamLB2 : std_logic;
+signal RamUB,RamUB2 : std_logic;
+signal RamCRE,RamCRE2 : std_logic;
+signal RamClk,RamClk2 : std_logic;
+signal MemAdr,MemAdr2 : MemoryAddressALL;
+signal MemDB,MemDB2 : MemoryDataByte;
 
 constant address1 : integer := 0;
 constant address2 : integer := 8; -- XXX (2**ROWS)/2;
@@ -258,7 +258,7 @@ signal startAddress0 : MemoryAddressALL;
 signal startAddress1 : MemoryAddressALL;
 signal stppY : std_logic_vector(31 downto 0);
 signal m1 : MEMORY;
-signal i_db_fs : std_logic;
+signal i_db_fs,i_db_fs2 : std_logic;
 
 begin
 
@@ -357,6 +357,29 @@ mm : memorymodule PORT MAP (
 	io_RamClk => RamClk,
 	io_MemAdr => MemAdr,
 	io_MemDB => MemDB
+);
+
+mm2 : memorymodule PORT MAP (
+	i_clock => clk_1s,
+	i_reset => btn_1,
+	i_enable => i_enable2,
+	i_write => i_write2,
+	i_read => i_read2,
+	i_db_fs => i_db_fs2,
+	o_busy => o_membusy2,
+	i_MemAdr => i_MemAdr2,
+	i_MemDB => i_MemDB2,
+	o_MemDB => o_MemDB2,
+	io_MemOE => MemOE2,
+	io_MemWR => MemWR2,
+	io_RamAdv => RamAdv2,
+	io_RamCS => RamCS2,
+	io_RamLB => RamLB2,
+	io_RamUB => RamUB2,
+	io_RamCRE => RamCRE2,
+	io_RamClk => RamClk2,
+	io_MemAdr => MemAdr2,
+	io_MemDB => MemDB2
 );
 
 gof_logic : process (clk_1s,i_reset) is
@@ -947,30 +970,30 @@ begin
 			--
 			when store_count_alive_me =>
 				cstate <= store_count_alive_we;
-				i_enable <= '1';
+				i_enable2 <= '1';
 			when store_count_alive_we =>
 				cstate <= store_count_alive_sa;
-				i_write <= '1';
-				i_db_fs <= '0';
+				i_write2 <= '1';
+				i_db_fs2 <= '0';
 			when store_count_alive_sa =>
 				cstate <= store_count_alive;
-				i_MemAdr <= std_logic_vector(to_unsigned(address2+vppX+vppYp,G_MemoryAddress));
+				i_MemAdr2 <= std_logic_vector(to_unsigned(address1+vppX+vppYp,G_MemoryAddress));
 			when store_count_alive =>
 				cstate <= store_count_alive_wd;
-				i_MemDB <= std_logic_vector(to_unsigned(vcountAlive,G_MemoryData)); -- XXX store proper val?
+				i_MemDB2 <= std_logic_vector(to_unsigned(vcountAlive,G_MemoryData)); -- XXX store proper val?
 			when store_count_alive_wd =>
 				cstate <= store_count_alive_wm;
-				i_write <= '0';
+				i_write2 <= '0';
 			when store_count_alive_wm =>
-				if (o_membusy='1') then
+				if (o_membusy2='1') then
 					cstate <= store_count_alive_wm;
 				else
 					cstate <= store_count_alive_md;
 				end if;
 			when store_count_alive_md =>
 				cstate <= update_row1; -- XXX maube col?
-				i_enable <= '0';
-				i_MemDB <= (others => 'Z');
+				i_enable2 <= '0';
+				i_MemDB2 <= (others => 'Z');
 			when update_row1 =>
 				if (vppX < ROWS/2-1) then
 					vppX := vppX + 1;
@@ -996,16 +1019,16 @@ begin
 				vppYp := 0;
 			when memory_enable_bit1 =>
 				cstate <= get_alive;
-				i_enable <= '1';
+				i_enable2 <= '1';
 			when memory_enable_read1 =>
 				cstate <= memory_sa1;
-				i_read <= '1';
+				i_read2 <= '1';
 			when memory_sa1 =>
 				cstate <= get_alive;
 				if (vppYp > (COLS_PIXEL/2)-1) then
-					i_MemAdr <= std_logic_vector(to_unsigned(address2+vppX+1,G_MemoryAddress));
+					i_MemAdr2 <= std_logic_vector(to_unsigned(address1+vppX+1,G_MemoryAddress));
 				else
-					i_MemAdr <= std_logic_vector(to_unsigned(address2+vppX+0,G_MemoryAddress));
+					i_MemAdr2 <= std_logic_vector(to_unsigned(address1+vppX+0,G_MemoryAddress));
 				end if;
 			when get_alive =>
 				cstate <= get_alive1;
@@ -1019,23 +1042,23 @@ begin
 				end if;
 			when get_alive1 =>
 				cstate <= memory_disable_read1;
-				if (o_MemDB(tppY) = '1') then -- xxx up before read=0
+				if (o_MemDB2(tppY) = '1') then -- xxx up before read=0
 					vCellAlive := true;
 				else
 					vCellAlive := false;
 				end if;
 			when memory_disable_read1 =>
 				cstate <= memory_disable_read1_wm;
-				i_read <= '0';
+				i_read2 <= '0';
 			when memory_disable_read1_wm =>
-				if (o_membusy='1') then
+				if (o_membusy2='1') then
 					cstate <= memory_disable_read1_wm;
 				else
 					cstate <= memory_disable_bit1;
 				end if;
 			when memory_disable_bit1 =>
 				cstate <= enable_m2;
-				i_enable <= '0';
+				i_enable2 <= '0';
 			when enable_m2 =>
 				cstate <= enable_write_to_memory;
 				i_enable <= '1';
@@ -1044,7 +1067,7 @@ begin
 				i_read <= '1';
 			when check_cell_alive_1 =>
 				cstate <= check_cell_alive_1a;
-				i_MemAdr <= std_logic_vector(to_unsigned(address2+vppX+vppYp,G_MemoryAddress));
+				i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+vppYp,G_MemoryAddress)); -- XXX mm2 ?
 			when check_cell_alive_1a =>
 				cstate <= check_cell_alive_2;
 				if (vCellAlive = true) then
