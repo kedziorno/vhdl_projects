@@ -116,6 +116,7 @@ i_reset : in std_logic;
 i_enable : in std_logic;
 i_write : in std_logic;
 i_read : in std_logic;
+i_db_fs : in std_logic;
 o_busy : out std_logic;
 i_MemAdr : in MemoryAddressALL;
 i_MemDB : in MemoryDataByte;
@@ -250,13 +251,15 @@ signal MemAdr : MemoryAddressALL;
 signal MemDB : MemoryDataByte;
 
 constant address1 : integer := 0;
-constant address2 : integer := (2**ROWS)/2;
+constant address2 : integer := 8; -- XXX (2**ROWS)/2;
 constant startAddressValue : integer := address1;
 signal startAddress : MemoryAddressALL := std_logic_vector(to_unsigned(startAddressValue,G_MemoryAddress));
 signal startAddress0 : MemoryAddressALL;
 signal startAddress1 : MemoryAddressALL;
 signal stppY : std_logic_vector(31 downto 0);
 signal m1 : MEMORY;
+signal i_db_fs : std_logic;
+
 begin
 
 io_FlashCS <= '1'; -- flash is always off
@@ -339,6 +342,7 @@ mm : memorymodule PORT MAP (
 	i_enable => i_enable,
 	i_write => i_write,
 	i_read => i_read,
+	i_db_fs => i_db_fs,
 	o_busy => o_membusy,
 	i_MemAdr => i_MemAdr,
 	i_MemDB => i_MemDB,
@@ -377,8 +381,8 @@ begin
 		vppYb := 0;
 		vppYp := 0;
 		cstate <= set_cd_memorycopy;
-		i_MemAdr <= (others => '0');
-		i_MemDB <= (others => '0');
+		i_MemAdr <= (others => 'Z');
+		i_MemDB <= (others => 'Z');
 		m1 <= memory_content;
 	elsif (rising_edge(clk_1s)) then
 		startAddress0 <= std_logic_vector(to_unsigned(to_integer(unsigned(startAddress))+0,G_MemoryAddress));
@@ -398,9 +402,11 @@ begin
 			when enable_memory_module =>
 				cstate <= enable_write_fh;
 				i_enable <= '1';
+				
 			when enable_write_fh =>
 				cstate <= copy_first_halfword;
 				i_write <= '1';
+				i_db_fs <= '0';
 			when copy_first_halfword =>
 				cstate <= disable_write_fh;
 				i_MemAdr <= startAddress0(0 to G_MemoryAddress-1);
@@ -417,9 +423,10 @@ begin
 			when enable_write_sh =>
 				cstate <= copy_second_halfword;
 				i_write <= '1';
+				i_db_fs <= '1';
 			when copy_second_halfword =>
 				cstate <= disable_write_sh;
-				i_MemAdr <= startAddress1(0 to G_MemoryAddress-1);
+				i_MemAdr <= startAddress0(0 to G_MemoryAddress-1);
 				i_MemDB <= m1(rowIndex)(16 to 31);
 			when disable_write_sh =>
 				cstate <= memory_wait_sh;
@@ -434,9 +441,9 @@ begin
 				cstate <= check_ranges_write;
 				i_enable <= '0';
 			when check_ranges_write =>
-				if (rowIndex < ROWS/2-1) then
+				if (rowIndex < ROWS-1) then
 					cstate <= enable_memory_module;
-					startAddress <= std_logic_vector(to_unsigned(to_integer(unsigned(startAddress))+2,G_MemoryAddress));
+					startAddress <= std_logic_vector(to_unsigned(to_integer(unsigned(startAddress))+1,G_MemoryAddress)); -- XXX +2
 					rowIndex := rowIndex + 1;
 				else
 					cstate <= idle;
@@ -506,6 +513,7 @@ begin
 				cstate <= send_sh1;
 				i_enable <= '0';
 			when send_fh1 =>
+			i_db_fs <= '0';
 				if (o_membusy = '1') then
 					cstate <= send_fh1;
 				else
@@ -521,6 +529,7 @@ begin
 					cstate <= send_fh2;
 				end if;
 			when send_fh2 =>
+			i_db_fs <= '0';
 				if (o_membusy = '1') then
 					cstate <= send_fh2;
 				else
@@ -536,6 +545,7 @@ begin
 					cstate <= enable_memory_module_read_sh;
 				end if;
 			when send_sh1 =>
+			i_db_fs <= '1';
 				if (o_membusy = '1') then
 					cstate <= send_sh1;
 				else
@@ -551,6 +561,7 @@ begin
 					cstate <= send_sh2;
 				end if;
 			when send_sh2 =>
+			i_db_fs <= '1';
 				if (o_membusy = '1') then
 					cstate <= send_sh2;
 				else
@@ -940,6 +951,7 @@ begin
 			when store_count_alive_we =>
 				cstate <= store_count_alive_sa;
 				i_write <= '1';
+				i_db_fs <= '0';
 			when store_count_alive_sa =>
 				cstate <= store_count_alive;
 				i_MemAdr <= std_logic_vector(to_unsigned(address2+vppX+vppYp,G_MemoryAddress));
@@ -958,6 +970,7 @@ begin
 			when store_count_alive_md =>
 				cstate <= update_row1;
 				i_enable <= '0';
+				i_MemDB <= (others => 'Z');
 			when update_row1 =>
 				if (vppX < ROWS-1) then
 					vppX := vppX + 1;

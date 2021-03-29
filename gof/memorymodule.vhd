@@ -38,6 +38,7 @@ i_enable : in std_logic;
 i_write : in std_logic;
 i_read : in std_logic;
 o_busy : out std_logic;
+i_db_fs : in std_logic;
 i_MemAdr : in MemoryAddressALL;
 i_MemDB : in MemoryDataByte;
 o_MemDB : out MemoryDataByte;
@@ -116,6 +117,7 @@ begin
 		variable ima : integer;
 		variable mdb : MemoryDataByte;
 	begin
+	    ima := to_integer(unsigned(i_MemAdr));
         if (i_reset = '1') then
             cstate <= idle;
 	       --MemAdr <= (others => '0');
@@ -124,7 +126,6 @@ begin
            RamCS <= '1';
            mc <= (others => (others => '0'));
         elsif (rising_edge(i_clock)) then
-            ima := to_integer(unsigned(i_MemAdr));
 --            if (to_integer(unsigned(i_MemAdr)) mod 2 = 1) then
 --                mc(to_integer(unsigned(i_MemAdr)))(16 to 31) <= i_MemDB;
 --            end if;
@@ -144,13 +145,6 @@ begin
 				when idle =>
 					if (i_enable = '1') then
 						cstate <= start; -- XXX check CSb
-						case (ima mod 2) is
-						  when 0 =>
-						      mc(ima)(16 to 31) <= i_MemDB;
-						  when 1 =>
-						      mc(ima)(0 to 15) <= i_MemDB;
-						  when others => null;
-					    end case;
 					else
 						cstate <= idle;
 					end if;
@@ -166,6 +160,7 @@ begin
 					MemWR <= '1';
 					MemOE <= '1';
 				when write_setup =>
+				
 					if (w = 0) then
 						cstate <= write_enable;
 						o_busy <= '1';
@@ -179,6 +174,7 @@ begin
 					RamCS <= '0';
 					w := cw;
 				when wait1 =>
+                    
 					if (w = 0) then
 						cstate <= write_disable;
 					else
@@ -188,7 +184,15 @@ begin
 					cstate <= stop;
 					RamCS <= '1';
 					MemWR <= '1';
+					case (i_db_fs) is
+                      when '0' =>
+                          mc(ima)(16 to 31) <= i_MemDB;
+                      when '1' =>
+                          mc(ima)(0 to 15) <= i_MemDB;
+                      when others => null;
+                    end case;
 				when read_setup =>
+				 
 					if (w = 0) then
 						cstate <= read1;
 						RamCS <= '0';
@@ -201,6 +205,13 @@ begin
 					cstate <= wait2;
 					w := cw;
 				when wait2 =>
+				   case (i_db_fs) is
+                      when '0' =>
+                          mdb := mc(ima)(16 to 31);
+                      when '1' =>
+                          mdb := mc(ima)(0 to 15); 
+                      when others => null;
+                    end case;
 					if (w = 0) then
 						cstate <= stop;
 					else
@@ -211,13 +222,7 @@ begin
 					o_busy <= '0';
 					RamCS <= '1';
 					MemOE <= '1';
-					case (ima mod 2) is
-						  when 0 =>
-						      mdb := mc(ima)(16 to 31);
-						  when 1 =>
-						      mdb := mc(ima)(0 to 15); 
-						  when others => null;
-					    end case;
+					
 				when others => null;
 			end case;
 		end if;
