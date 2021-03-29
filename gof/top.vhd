@@ -968,11 +968,11 @@ begin
 					cstate <= store_count_alive_md;
 				end if;
 			when store_count_alive_md =>
-				cstate <= update_row1;
+				cstate <= update_row1; -- XXX maube col?
 				i_enable <= '0';
 				i_MemDB <= (others => 'Z');
 			when update_row1 =>
-				if (vppX < ROWS-1) then
+				if (vppX < ROWS/2-1) then
 					vppX := vppX + 1;
 					cstate <= check_coordinations;
 				else

@@ -160,7 +160,6 @@ begin
 					MemWR <= '1';
 					MemOE <= '1';
 				when write_setup =>
-				
 					if (w = 0) then
 						cstate <= write_enable;
 						o_busy <= '1';
@@ -174,7 +173,6 @@ begin
 					RamCS <= '0';
 					w := cw;
 				when wait1 =>
-                    
 					if (w = 0) then
 						cstate <= write_disable;
 					else
@@ -192,7 +190,6 @@ begin
                       when others => null;
                     end case;
 				when read_setup =>
-				 
 					if (w = 0) then
 						cstate <= read1;
 						RamCS <= '0';
@@ -222,7 +219,6 @@ begin
 					o_busy <= '0';
 					RamCS <= '1';
 					MemOE <= '1';
-					
 				when others => null;
 			end case;
 		end if;
