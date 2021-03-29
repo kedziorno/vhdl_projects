@@ -993,24 +993,24 @@ begin
 					cstate <= store_count_alive_md;
 				end if;
 			when store_count_alive_md =>
-				cstate <= update_col1; -- XXX maube col?
+				cstate <= update_row1; -- XXX maube col?
 				i_enable2 <= '0';
 				i_MemDB2 <= (others => 'Z');
 			when update_row1 =>
 				if (vppX < ROWS-1) then
 					vppX := vppX + 1;
 					cstate <= check_coordinations;
-					vppYp := 0;
 				else
-					cstate <= reset_counters1;
-					vppX := 0;
+					cstate <= update_col1;
 				end if;
 			when update_col1 =>
 				if (vppYp < COLS_PIXEL-1) then
 					vppYp := vppYp + 1;
 					cstate <= check_coordinations;
+					vppX := 0;
 				else
-					cstate <= update_row1;
+					cstate <= reset_counters1;
+					vppYp := 0;
 				end if;
 			----------------------------------------------------------------------------------
 			-- store bits in memory
@@ -1129,24 +1129,24 @@ begin
 					cstate <= vvv;
 				end if;
 			when vvv =>
-				cstate <= update_col2;
+				cstate <= update_row2;
 				i_enable <= '0';
 			when update_row2 =>
 				if (vppX < ROWS-1) then
 					vppX := vppX + 1;
 					cstate <= get_alive;
-					vppYp := 0;
-					vppYb := 0;
 				else
-					cstate <= disable_memory;
-					vppX := 0;
+					cstate <= update_col2;
 				end if;
 			when update_col2 =>
 				if (vppYp < COLS_PIXEL-1) then
 					vppYp := vppYp + 1;
 					cstate <= get_alive;
+					vppX := 0;
 				else
-					cstate <= update_row2;
+					cstate <= disable_memory;
+					vppYp := 0;
+					vppYb := 0;
 				end if;
 			when disable_memory =>
 				cstate <= stop;
