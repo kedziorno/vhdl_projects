@@ -970,7 +970,7 @@ begin
 				vppYb := 0;
 				vppYp := 0;
 			when memory_enable_bit1 =>
-				cstate <= get_alive;
+				cstate <= memory_enable_read1;
 				i_enable <= '1';
 			when memory_enable_read1 =>
 				cstate <= memory_sa1;
