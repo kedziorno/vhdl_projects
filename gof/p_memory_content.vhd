@@ -15,7 +15,7 @@ package p_memory_content is
 	constant G_BOARD_CLOCK : integer := 50_000_000;
 	constant G_BUS_CLOCK : integer := 100_000;
 	constant G_ClockDivider : integer := 1000;
-	constant G_MemoryAddress : integer := 4;
+	constant G_MemoryAddress : integer := 3;
 	constant G_MemoryData : integer := 16;
 	subtype MemoryAddress is std_logic_vector(0 to G_MemoryAddress-1);
 	subtype MemoryAddressALL is std_logic_vector(0 to G_MemoryAddress-1);
@@ -42,23 +42,15 @@ package p_memory_content is
 	type LiveArrayType is array(ROWS-1 downto 0) of LiveSubArray;
 
 	constant memory_content : MEMORY :=
-	( -- f              0f              0
-		("00000001000000000000001100000000"),
-		("00000001000000000000001100000000"),
-		("00000001000000000000000000000000"),
+	( -- f              0f               0
 		("00000000000000000000000000000000"),
 		("00000000000000000000000000000000"),
 		("00000000000000000000000000000000"),
 		("00000000000000000000000000000000"),
 		("00000000000000000000000000000000"),
 		("00000000000000000000000000000000"),
-		("00000000000000000000000000000000"),
-		("00000000000000000000000000000000"),
-		("00000000000000000000000000000000"),
-		("00000000000000000000000000000000"),
-		("00000000000000000000000000000000"),
-		("00000000000000000000000000000000"),
-		("00000000000000000000000000000000")
+		("00000000000000000000000000000011"),
+		("00000000000000000000000000000011")
 	);
 	
 --constant memory_content : MEMORY :=

@@ -429,7 +429,7 @@ begin
 			when enable_write_fh =>
 				cstate <= copy_first_halfword;
 				i_write <= '1';
-				i_db_fs <= '0';
+				i_db_fs <= '1';
 			when copy_first_halfword =>
 				cstate <= disable_write_fh;
 				i_MemAdr <= startAddress0(0 to G_MemoryAddress-1);
@@ -446,7 +446,7 @@ begin
 			when enable_write_sh =>
 				cstate <= copy_second_halfword;
 				i_write <= '1';
-				i_db_fs <= '1';
+				i_db_fs <= '0';
 			when copy_second_halfword =>
 				cstate <= disable_write_sh;
 				i_MemAdr <= startAddress0(0 to G_MemoryAddress-1);
@@ -600,9 +600,9 @@ begin
 					cstate <= check_ranges_read;
 				end if;
 			when check_ranges_read =>
-				if (rowIndex < ROWS/2-1) then
+				if (rowIndex < ROWS-1) then -- XXX 2x in oled ?
 					cstate <= enable_memory_module_read_fh;
-					startAddress <= std_logic_vector(to_unsigned(to_integer(unsigned(startAddress))+2,G_MemoryAddress));
+					startAddress <= std_logic_vector(to_unsigned(to_integer(unsigned(startAddress))+1,G_MemoryAddress));
 					rowIndex := rowIndex + 1;
 				else
 					cstate <= set_cd_calculate;
@@ -624,6 +624,7 @@ begin
 				vppYm1 := 0;
 				vppYp1 := 0;
 			when check_coordinations =>
+			     i_db_fs <= '0';
 				cstate <= memory_enable_bit;
 				vppXm1 := vppX-1;
 				if (vppXm1 < 0) then
@@ -969,6 +970,7 @@ begin
 				i_enable <= '0';
 			--
 			when store_count_alive_me =>
+			 i_db_fs2 <= '0';
 				cstate <= store_count_alive_we;
 				i_enable2 <= '1';
 			when store_count_alive_we =>
@@ -995,7 +997,7 @@ begin
 				i_enable2 <= '0';
 				i_MemDB2 <= (others => 'Z');
 			when update_row1 =>
-				if (vppX < ROWS/2-1) then
+				if (vppX < ROWS-1) then
 					vppX := vppX + 1;
 					cstate <= check_coordinations;
 					vppYp := 0;
@@ -1017,8 +1019,9 @@ begin
 				vppX := 0;
 				vppYb := 0;
 				vppYp := 0;
+				i_db_fs2 <= '0';
 			when memory_enable_bit1 =>
-				cstate <= get_alive;
+				cstate <= memory_enable_read1; -- XXX bug from begining
 				i_enable2 <= '1';
 			when memory_enable_read1 =>
 				cstate <= memory_sa1;
@@ -1094,6 +1097,7 @@ begin
 				end if;
 			when check_cell_alive_3 =>
 				cstate <= aa;
+				i_db_fs2 <= '0';
 				i_enable2 <= '0';
 			when aa =>
 				cstate <= aaa;
@@ -1128,7 +1132,7 @@ begin
 				cstate <= update_col2;
 				i_enable <= '0';
 			when update_row2 =>
-				if (vppX < ROWS/2-1) then
+				if (vppX < ROWS-1) then
 					vppX := vppX + 1;
 					cstate <= get_alive;
 					vppYp := 0;
