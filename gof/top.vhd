@@ -1061,23 +1061,23 @@ begin
 				i_enable2 <= '0';
 			when enable_m2 =>
 				cstate <= enable_write_to_memory;
-				i_enable <= '1';
+				i_enable2 <= '1';
 			when enable_write_to_memory =>
 				cstate <= check_cell_alive_1;
-				i_read <= '1';
+				i_read2 <= '1';
 			when check_cell_alive_1 =>
 				cstate <= check_cell_alive_1a;
-				i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+vppYp,G_MemoryAddress)); -- XXX mm2 ?
+				i_MemAdr2 <= std_logic_vector(to_unsigned(address1+vppX+vppYp,G_MemoryAddress)); -- XXX mm2 ?
 			when check_cell_alive_1a =>
 				cstate <= check_cell_alive_2;
 				if (vCellAlive = true) then
-					if ((to_integer(unsigned(o_MemDB)) = 2) or (to_integer(unsigned(o_MemDB)) = 3)) then
+					if ((to_integer(unsigned(o_MemDB2)) = 2) or (to_integer(unsigned(o_MemDB2)) = 3)) then
 						newCellAlive := true;
 					else
 						newCellAlive := false;
 					end if;
 				elsif (vCellAlive = false) then
-					if ((to_integer(unsigned(o_MemDB)) = 3)) then
+					if ((to_integer(unsigned(o_MemDB2)) = 3)) then
 						newCellAlive := true;
 					else
 						newCellAlive := false;
@@ -1085,16 +1085,16 @@ begin
 				end if;				
 			when check_cell_alive_2 =>
 				cstate <= check_cell_alive_wm;
-				i_read <= '0';
+				i_read2 <= '0';
 			when check_cell_alive_wm =>
-				if (o_membusy='1') then
+				if (o_membusy2='1') then
 					cstate <= check_cell_alive_wm;
 				else
 					cstate <= check_cell_alive_3;
 				end if;
 			when check_cell_alive_3 =>
 				cstate <= aa;
-				i_enable <= '0';
+				i_enable2 <= '0';
 			when aa =>
 				cstate <= aaa;
 				i_enable <= '1';
