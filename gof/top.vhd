@@ -1021,7 +1021,7 @@ begin
 				vppYp := 0;
 				i_db_fs2 <= '0';
 			when memory_enable_bit1 =>
-				cstate <= memory_enable_read1; -- XXX bug from begining
+				cstate <= memory_enable_read1;
 				i_enable2 <= '1';
 			when memory_enable_read1 =>
 				cstate <= memory_sa1;
