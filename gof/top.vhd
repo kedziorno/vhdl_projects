@@ -251,8 +251,8 @@ signal RamClk,RamClk2 : std_logic;
 signal MemAdr,MemAdr2 : MemoryAddressALL;
 signal MemDB,MemDB2 : MemoryDataByte;
 
-constant address1 : integer := 0000;
-constant address2 : integer := 4096;
+constant address1 : integer := 0;
+constant address2 : integer := 128;
 constant startAddressValue : integer := address1;
 signal startAddress : MemoryAddressALL := std_logic_vector(to_unsigned(startAddressValue,G_MemoryAddress));
 signal startAddress0 : MemoryAddressALL;

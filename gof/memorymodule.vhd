@@ -536,11 +536,11 @@ INV_SET_RESET <= NOT i_reset;
 -- Block SelectRAM Instantiation
 U_RAMB16_S36: RAMB16_S36
 port map (
-DI     => MemDB(31 downto 0), -- insert 32 bits data in bus (<31 downto 0>)
+DI     => i_MemDB(31 downto 0), -- insert 32 bits data in bus (<31 downto 0>)
 DIP    => parity, -- insert 4 bits parity data in bus (or <35 downto 32>)
-ADDR   => MemAdr, -- insert 9 bits address bus        
-EN     => enable, -- insert enable signal
-WE     => write1, -- insert write enable signal
+ADDR   => i_MemAdr, -- insert 9 bits address bus        
+EN     => i_enable, -- insert enable signal
+WE     => i_write, -- insert write enable signal
 SSR    => i_reset, -- insert set/reset signal
 CLK    => CLK_BUFG, -- insert clock signal
 DO     => o_MemDB(31 downto 0), -- insert 32 bits data out bus (<31 downto 0>)
