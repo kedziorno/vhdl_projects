@@ -984,32 +984,32 @@ i_db_fs <= '1';
 				i_enable <= '0';
 			--
 			when store_count_alive_me =>
-			 i_db_fs2 <= '0';
+			 i_db_fs <= '0';
 				cstate <= store_count_alive_we;
-				i_enable2 <= '1';
+				i_enable <= '1';
 			when store_count_alive_we =>
 				cstate <= store_count_alive_sa;
-				i_write2 <= '1';
-				i_db_fs2 <= '0';
+				i_write <= '1';
+				i_db_fs <= '0';
 			when store_count_alive_sa =>
 				cstate <= store_count_alive;
-				i_MemAdr2 <= std_logic_vector(to_unsigned(address1+vppX+vppYp,G_MemoryAddress));
+				i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+vppYp,G_MemoryAddress));
 			when store_count_alive =>
 				cstate <= store_count_alive_wd;
-				i_MemDB2 <= std_logic_vector(to_unsigned(vcountAlive,G_MemoryData)); -- XXX store proper val?
+				i_MemDB <= std_logic_vector(to_unsigned(vcountAlive,G_MemoryData)); -- XXX store proper val?
 			when store_count_alive_wd =>
 				cstate <= store_count_alive_wm;
-				i_write2 <= '0';
+				i_write <= '0';
 			when store_count_alive_wm =>
-				if (o_membusy2='1') then
+				if (o_membusy='1') then
 					cstate <= store_count_alive_wm;
 				else
 					cstate <= store_count_alive_md;
 				end if;
 			when store_count_alive_md =>
 				cstate <= update_row1; -- XXX maube col?
-				i_enable2 <= '0';
-				i_MemDB2 <= (others => 'Z');
+				i_enable <= '0';
+				i_MemDB <= (others => 'Z');
 			when update_row1 =>
 				if (vppX < ROWS-1) then
 					vppX := vppX + 1;
@@ -1033,19 +1033,19 @@ i_db_fs <= '1';
 				vppX := 0;
 				vppYb := 0;
 				vppYp := 0;
-				i_db_fs2 <= '0';
+				i_db_fs <= '0';
 			when memory_enable_bit1 =>
 				cstate <= memory_enable_read1;
-				i_enable2 <= '1';
+				i_enable <= '1';
 			when memory_enable_read1 =>
 				cstate <= memory_sa1;
-				i_read2 <= '1';
+				i_read <= '1';
 			when memory_sa1 =>
 				cstate <= get_alive;
 				if (vppYp > (COLS_PIXEL/2)-1) then
-					i_MemAdr2 <= std_logic_vector(to_unsigned(address1+vppX+1,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+1,G_MemoryAddress));
 				else
-					i_MemAdr2 <= std_logic_vector(to_unsigned(address1+vppX+0,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+0,G_MemoryAddress));
 				end if;
 			when get_alive =>
 				cstate <= get_alive1;
@@ -1059,42 +1059,42 @@ i_db_fs <= '1';
 				end if;
 			when get_alive1 =>
 				cstate <= memory_disable_read1;
-				if (o_MemDB2(tppY) = '1') then -- xxx up before read=0
+				if (o_MemDB(tppY) = '1') then -- xxx up before read=0
 					vCellAlive := true;
 				else
 					vCellAlive := false;
 				end if;
 			when memory_disable_read1 =>
 				cstate <= memory_disable_read1_wm;
-				i_read2 <= '0';
+				i_read <= '0';
 			when memory_disable_read1_wm =>
-				if (o_membusy2='1') then
+				if (o_membusy='1') then
 					cstate <= memory_disable_read1_wm;
 				else
 					cstate <= memory_disable_bit1;
 				end if;
 			when memory_disable_bit1 =>
 				cstate <= enable_m2;
-				i_enable2 <= '0';
+				i_enable <= '0';
 			when enable_m2 =>
 				cstate <= enable_write_to_memory;
-				i_enable2 <= '1';
+				i_enable <= '1';
 			when enable_write_to_memory =>
 				cstate <= check_cell_alive_1;
-				i_read2 <= '1';
+				i_read <= '1';
 			when check_cell_alive_1 =>
 				cstate <= check_cell_alive_1a;
-				i_MemAdr2 <= std_logic_vector(to_unsigned(address1+vppX+vppYp,G_MemoryAddress)); -- XXX mm2 ?
+				i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+vppYp,G_MemoryAddress)); -- XXX mm2 ?
 			when check_cell_alive_1a =>
 				cstate <= check_cell_alive_2;
 				if (vCellAlive = true) then
-					if ((to_integer(unsigned(o_MemDB2)) = 2) or (to_integer(unsigned(o_MemDB2)) = 3)) then
+					if ((to_integer(unsigned(o_MemDB)) = 2) or (to_integer(unsigned(o_MemDB)) = 3)) then
 						newCellAlive := true;
 					else
 						newCellAlive := false;
 					end if;
 				elsif (vCellAlive = false) then
-					if ((to_integer(unsigned(o_MemDB2)) = 3)) then
+					if ((to_integer(unsigned(o_MemDB)) = 3)) then
 						newCellAlive := true;
 					else
 						newCellAlive := false;
@@ -1102,17 +1102,17 @@ i_db_fs <= '1';
 				end if;				
 			when check_cell_alive_2 =>
 				cstate <= check_cell_alive_wm;
-				i_read2 <= '0';
+				i_read <= '0';
 			when check_cell_alive_wm =>
-				if (o_membusy2='1') then
+				if (o_membusy='1') then
 					cstate <= check_cell_alive_wm;
 				else
 					cstate <= check_cell_alive_3;
 				end if;
 			when check_cell_alive_3 =>
 				cstate <= aa;
-				i_db_fs2 <= '0';
-				i_enable2 <= '0';
+				i_db_fs <= '0';
+				i_enable <= '0';
 			when aa =>
 				cstate <= aaa;
 				i_enable <= '1';
