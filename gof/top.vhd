@@ -260,6 +260,7 @@ signal startAddress1 : MemoryAddressALL;
 signal stppY : std_logic_vector(31 downto 0);
 signal m1 : MEMORY;
 signal i_db_fs,i_db_fs2 : std_logic;
+signal srowindex : std_logic_vector(ROWS_BITS-1 downto 0);
 
 begin
 
@@ -361,29 +362,6 @@ mm : memorymodule PORT MAP (
 	io_MemDB => MemDB
 );
 
-mm2 : memorymodule PORT MAP (
-	i_clock => clk_1s,
-	i_reset => btn_1,
-	i_enable => i_enable2,
-	i_write => i_write2,
-	i_read => i_read2,
-	i_db_fs => i_db_fs2,
-	o_busy => o_membusy2,
-	i_MemAdr => i_MemAdr2,
-	i_MemDB => i_MemDB2,
-	o_MemDB => o_MemDB2,
-	io_MemOE => MemOE2,
-	io_MemWR => MemWR2,
-	io_RamAdv => RamAdv2,
-	io_RamCS => RamCS2,
-	io_RamLB => RamLB2,
-	io_RamUB => RamUB2,
-	io_RamCRE => RamCRE2,
-	io_RamClk => RamClk2,
-	io_MemAdr => MemAdr2,
-	io_MemDB => MemDB2
-);
-
 gof_logic : process (clk_1s,i_reset) is
 	constant W : integer := 1;
 	variable waiting : integer range W downto 0 := W;
@@ -411,6 +389,7 @@ begin
 		startAddress1 <= (others => '0');
 		stppY <= (others => '0');
 		i_MemAdr <= (others => '0');
+		m1 <= memory_content;
 	elsif (rising_edge(clk_1s)) then
 		startAddress0 <= std_logic_vector(to_unsigned(to_integer(unsigned(startAddress))+0,G_MemoryAddress));
 		startAddress1 <= std_logic_vector(to_unsigned(to_integer(unsigned(startAddress))+1,G_MemoryAddress));
@@ -429,7 +408,6 @@ begin
 			when enable_memory_module =>
 				cstate <= enable_write_fh;
 				i_enable <= '1';
-				
 			when enable_write_fh =>
 				cstate <= copy_first_halfword;
 				i_write <= '1';
@@ -1203,6 +1181,7 @@ i_db_fs <= '1';
 	ppYm1 <= std_logic_vector(to_unsigned(vppYm1,COLS_PIXEL_BITS));
 	ppYp1 <= std_logic_vector(to_unsigned(vppYp1,COLS_PIXEL_BITS));
 	stppY <= std_logic_vector(to_unsigned(tppY,32));
+	srowindex <= std_logic_vector(to_unsigned(rowindex,ROWS_BITS));
 end process gof_logic;
 
 end Behavioral;

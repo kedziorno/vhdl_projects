@@ -58,6 +58,7 @@ i_enable : in std_logic;
 i_write : in std_logic;
 i_read : in std_logic;
 o_busy : out std_logic;
+i_db_fs : in std_logic;
 i_MemAdr : in MemoryAddressALL;
 i_MemDB : in MemoryDataByte;
 o_MemDB : out MemoryDataByte;
@@ -535,11 +536,11 @@ INV_SET_RESET <= NOT i_reset;
 -- Block SelectRAM Instantiation
 U_RAMB16_S36: RAMB16_S36
 port map (
-DI     => MemDB(31 downto 0), -- insert 32 bits data in bus (<31 downto 0>)
+DI     => i_MemDB(31 downto 0), -- insert 32 bits data in bus (<31 downto 0>)
 DIP    => parity, -- insert 4 bits parity data in bus (or <35 downto 32>)
-ADDR   => MemAdr, -- insert 9 bits address bus        
-EN     => enable, -- insert enable signal
-WE     => write1, -- insert write enable signal
+ADDR   => i_MemAdr, -- insert 9 bits address bus        
+EN     => i_enable, -- insert enable signal
+WE     => i_write, -- insert write enable signal
 SSR    => i_reset, -- insert set/reset signal
 CLK    => CLK_BUFG, -- insert clock signal
 DO     => o_MemDB(31 downto 0), -- insert 32 bits data out bus (<31 downto 0>)
@@ -594,14 +595,14 @@ DOP    => parity  -- insert 4 bits parity data out bus (or <35 downto 32>)
 					RamCS <= '1';
 					MemWR <= '1';
 					MemOE <= '1';
+					MemAdr <= i_MemAdr;
+					MemDB <= i_MemDB;
 				when write_setup =>
 					if (w = 0) then
 						cstate <= write_enable;
 						o_busy <= '1';
 						MemOE <= '1';
 						enable <= '1';
-						MemAdr <= i_MemAdr;
-					      MemDB <= i_MemDB;
 					else
 						cstate <= write_setup;
 					end if;
@@ -630,8 +631,6 @@ DOP    => parity  -- insert 4 bits parity data out bus (or <35 downto 32>)
 						MemOE <= '0';
 						o_busy <= '1';
 						enable <= '1';
-						MemAdr <= i_MemAdr;
-					   MemDB <= i_MemDB;
 					else
 						cstate <= read_setup;
 					end if;

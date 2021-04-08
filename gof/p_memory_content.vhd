@@ -22,12 +22,12 @@ package p_memory_content is
 	subtype MemoryDataByte is std_logic_vector(G_MemoryData-1 downto 0);
 	constant G_HalfHex : integer := 4;
 	constant G_FullHex : integer := G_HalfHex*2;
-	constant ROWS : integer := (2**G_MemoryAddress);
-	constant ROWS_BITS : integer := G_MemoryAddress;
-	constant COLS_PIXEL : integer := 32;
+	constant ROWS_BITS : integer := 7;
+	constant ROWS : integer := (2**ROWS_BITS);
 	constant COLS_PIXEL_BITS : integer := 5;
-	constant COLS_BLOCK : integer := 4;
+	constant COLS_PIXEL : integer := (2**COLS_PIXEL_BITS);
 	constant COLS_BLOCK_BITS : integer := 2;
+	constant COLS_BLOCK : integer := (2**COLS_BLOCK_BITS);
 	constant BYTE_BITS : integer := 8;
 	constant WORD_BITS : integer := COLS_BLOCK*BYTE_BITS;
 	constant G_LCDSegment : integer := 7;
