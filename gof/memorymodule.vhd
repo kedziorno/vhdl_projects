@@ -568,7 +568,7 @@ DOP    => parity  -- insert 4 bits parity data out bus (or <35 downto 32>)
 	--io_MemDB <= i_MemDB when (RamCS = '0' and MemWR = '0') else (others => 'Z');
 
 	p0 : process (i_clock) is
-		constant cw : integer := 1;
+		constant cw : integer := 6;
 		variable w : integer range 0 to cw := 0;
 		variable t : std_logic_vector(G_MemoryData-1 downto 0);
 		variable tz : std_logic_vector(G_MemoryData-1 downto 0) := (others => 'Z');
