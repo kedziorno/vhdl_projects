@@ -594,14 +594,14 @@ DOP    => parity  -- insert 4 bits parity data out bus (or <35 downto 32>)
 					RamCS <= '1';
 					MemWR <= '1';
 					MemOE <= '1';
-					MemAdr <= i_MemAdr;
-					MemDB <= i_MemDB;
-					enable <= '1';
 				when write_setup =>
 					if (w = 0) then
 						cstate <= write_enable;
 						o_busy <= '1';
 						MemOE <= '1';
+						enable <= '1';
+						MemAdr <= i_MemAdr;
+					      MemDB <= i_MemDB;
 					else
 						cstate <= write_setup;
 					end if;
@@ -622,12 +622,16 @@ DOP    => parity  -- insert 4 bits parity data out bus (or <35 downto 32>)
 					RamCS <= '1';
 					MemWR <= '1';
 					write1 <= '0';
+					enable <= '0';
 				when read_setup =>
 					if (w = 0) then
 						cstate <= read1;
 						RamCS <= '0';
 						MemOE <= '0';
 						o_busy <= '1';
+						enable <= '1';
+						MemAdr <= i_MemAdr;
+					   MemDB <= i_MemDB;
 					else
 						cstate <= read_setup;
 					end if;
