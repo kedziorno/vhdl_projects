@@ -252,7 +252,7 @@ signal MemAdr,MemAdr2 : MemoryAddressALL;
 signal MemDB,MemDB2 : MemoryDataByte;
 
 constant address1 : integer := 0000;
-constant address2 : integer := 0000;
+constant address2 : integer := 4096;
 constant startAddressValue : integer := address1;
 signal startAddress : MemoryAddressALL := std_logic_vector(to_unsigned(startAddressValue,G_MemoryAddress));
 signal startAddress0 : MemoryAddressALL;
@@ -993,7 +993,7 @@ i_db_fs <= '1';
 				i_db_fs <= '0';
 			when store_count_alive_sa =>
 				cstate <= store_count_alive;
-				i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+vppYp,G_MemoryAddress));
+				i_MemAdr <= std_logic_vector(to_unsigned(address2+vppX+vppYp,G_MemoryAddress));
 			when store_count_alive =>
 				cstate <= store_count_alive_wd;
 				i_MemDB <= std_logic_vector(to_unsigned(vcountAlive,G_MemoryData)); -- XXX store proper val?
@@ -1043,9 +1043,9 @@ i_db_fs <= '1';
 			when memory_sa1 =>
 				cstate <= get_alive;
 				if (vppYp > (COLS_PIXEL/2)-1) then
-					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+1,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address2+vppX+1,G_MemoryAddress));
 				else
-					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+0,G_MemoryAddress));
+					i_MemAdr <= std_logic_vector(to_unsigned(address2+vppX+0,G_MemoryAddress));
 				end if;
 			when get_alive =>
 				cstate <= get_alive1;
@@ -1084,7 +1084,7 @@ i_db_fs <= '1';
 				i_read <= '1';
 			when check_cell_alive_1 =>
 				cstate <= check_cell_alive_1a;
-				i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+vppYp,G_MemoryAddress)); -- XXX mm2 ?
+				i_MemAdr <= std_logic_vector(to_unsigned(address2+vppX+vppYp,G_MemoryAddress)); -- XXX mm2 ?
 			when check_cell_alive_1a =>
 				cstate <= check_cell_alive_2;
 				if (vCellAlive = true) then
