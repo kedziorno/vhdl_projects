@@ -38,7 +38,7 @@ END tb_top;
 
 ARCHITECTURE behavior OF tb_top IS
 
-	constant IC : integer := G_BOARD_CLOCK;
+	constant IC : integer := 1_000_000;
 	constant BC : integer := G_BUS_CLOCK;
 	constant DC : integer := G_ClockDivider;
 

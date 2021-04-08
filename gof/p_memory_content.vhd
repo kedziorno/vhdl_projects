@@ -15,11 +15,11 @@ package p_memory_content is
 	constant G_BOARD_CLOCK : integer := 50_000_000;
 	constant G_BUS_CLOCK : integer := 100_000;
 	constant G_ClockDivider : integer := 10000;
-	constant G_MemoryAddress : integer := 24;
-	constant G_MemoryData : integer := 16;
-	subtype MemoryAddress is std_logic_vector(1 to G_MemoryAddress-1);
-	subtype MemoryAddressALL is std_logic_vector(0 to G_MemoryAddress-1);
-	subtype MemoryDataByte is std_logic_vector(0 to G_MemoryData-1);
+	constant G_MemoryAddress : integer := 9;
+	constant G_MemoryData : integer := 32;
+	subtype MemoryAddress is std_logic_vector(G_MemoryAddress-1 downto 1);
+	subtype MemoryAddressALL is std_logic_vector(G_MemoryAddress-1 downto 0);
+	subtype MemoryDataByte is std_logic_vector(G_MemoryData-1 downto 0);
 	constant G_HalfHex : integer := 4;
 	constant G_FullHex : integer := G_HalfHex*2;
 	constant ROWS : integer := 128;
@@ -36,13 +36,13 @@ package p_memory_content is
 	constant G_Button : integer := 4;
 	constant G_Led : integer := 8;
 	type LCDHex is array(G_LCDAnode-1 downto 0) of std_logic_vector(G_HalfHex-1 downto 0);
-	subtype WORD is std_logic_vector(0 to WORD_BITS-1);
-	type MEMORY is array(0 to ROWS-1) of WORD;
+	subtype WORD is std_logic_vector(WORD_BITS-1 downto 0);
+	type MEMORY is array(ROWS-1 downto 0) of WORD;
 	type LiveSubArray is array(WORD_BITS-1 downto 0) of std_logic_vector(2 downto 0);
 	type LiveArrayType is array(ROWS-1 downto 0) of LiveSubArray;
 
 	constant memory_content : MEMORY :=
-	( -- f              0f              0
+	(-- f              0f              0
 		("11111111111111111111111111111111"), -- F
 		("10010000000010011001000000001001"),
 		("10010000000010011001000000001001"),
