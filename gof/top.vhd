@@ -179,7 +179,7 @@ check_cell_alive_wm,
 c1_mdr,c2_mdr,c3_mdr,c4_mdr,c5_mdr,c6_mdr,c7_mdr,c8_mdr,
 c1_me,c1_mr,c1_md,c2_me,c2_mr,c2_md,c3_me,c3_mr,c3_md,c4_me,c4_mr,c4_md,c5_me,c5_mr,c5_md,c6_me,c6_mr,c6_md,c7_me,c7_mr,c7_md,c8_me,c8_mr,c8_md,
 set_c1,c1,set_c2,c2,set_c3,c3,set_c4,c4,set_c5,c5,set_c6,c6,set_c7,c7,set_c8,c8,
-c7_read,c2_read,c1_read,c3_read,c4_read,c5_read,c6_read,
+c7_read,c2_read,c1_read,c3_read,c4_read,c5_read,c6_read,c8_read,
 waitfor,
 memory_disable_bit,
 store_count_alive_me,store_count_alive_we,store_count_alive_sa,store_count_alive,store_count_alive_wd,store_count_alive_md,update_row1,
@@ -252,7 +252,7 @@ signal MemAdr,MemAdr2 : MemoryAddressALL;
 signal MemDB,MemDB2 : MemoryDataByte;
 
 constant address1 : integer := 0;
-constant address2 : integer := 128;
+constant address2 : integer := 256;
 constant startAddressValue : integer := address1;
 signal startAddress : MemoryAddressALL := std_logic_vector(to_unsigned(startAddressValue,G_MemoryAddress));
 signal startAddress0 : MemoryAddressALL;
@@ -635,7 +635,7 @@ begin
 				cstate <= c1_mr;
 			when c1_mr =>
 				cstate <= set_c1;
---				i_read <= '1';
+				i_read <= '1';
 			when set_c1 =>
 				cstate <= c1_read;
 				i_enable <= '1';
@@ -673,7 +673,7 @@ begin
 					cstate <= c1_mdr;
 				else
 					cstate <= c1_md;
-					--i_read <= '0';
+					i_read <= '0';
 				end if;
 			when c1_md =>
 				cstate <= c2_me;
@@ -684,7 +684,7 @@ begin
 				i_enable <= '1';
 			when c2_mr =>
 				cstate <= set_c2;
-				--i_read <= '1';
+				i_read <= '1';
 			when set_c2 =>
 				cstate <= c2_read;
 				i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX,G_MemoryAddress));
@@ -720,7 +720,7 @@ i_db_fs <= '1';
 					cstate <= c2_mdr;
 				else
 					cstate <= c2_md;
-					--i_read <= '0';
+					i_read <= '0';
 				end if;
 			when c2_md =>
 				cstate <= c3_me;
@@ -731,7 +731,7 @@ i_db_fs <= '1';
 				i_enable <= '1';
 			when c3_mr =>
 				cstate <= set_c3;
---				i_read <= '1';
+				i_read <= '1';
 			when set_c3 =>
 				cstate <= c3_read;
 				i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXp1,G_MemoryAddress));
@@ -778,7 +778,7 @@ i_db_fs <= '1';
 				i_enable <= '1';
 			when c4_mr =>
 				cstate <= set_c4;
-				--i_read <= '1';
+				i_read <= '1';
 			when set_c4 =>
 				cstate <= c4_read;
 				i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXm1,G_MemoryAddress));
@@ -825,7 +825,7 @@ i_db_fs <= '1';
 				i_enable <= '1';
 			when c5_mr =>
 				cstate <= set_c5;
---				i_read <= '1';
+				i_read <= '1';
 			when set_c5 =>
 				cstate <= c5_read;
 				i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXm1,G_MemoryAddress));
@@ -872,7 +872,7 @@ i_db_fs <= '1';
 				i_enable <= '1';
 			when c6_mr =>
 				cstate <= set_c6;
---				i_read <= '1';
+				i_read <= '1';
 			when set_c6 =>
 				cstate <= c6_read;
 				i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXp1,G_MemoryAddress));
@@ -979,7 +979,7 @@ i_db_fs <= '1';
 --					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXp1+0,G_MemoryAddress));
 --				end if;
 			when c8 =>
-				cstate <= c8_mdr;
+				cstate <= c8_read;
 				if ((vppX /= ROWS-1) and (vppYp /= COLS_PIXEL-1)) then
 					if (vppYp1 > (COLS_PIXEL/2)-1) then
 						tppY := (COLS_PIXEL/2)-vppYp1;
@@ -989,12 +989,15 @@ i_db_fs <= '1';
 					else
 						tppY := vppYp1;
 					end if;
+					end if;
+			when c8_read =>
+			 cstate <= c8_mdr;
 					--if (o_MemDB(tppY) = '1') then
 					if (o_MemDB(vppYp1) = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
 					countAlive <= std_logic_vector(to_unsigned(vcountALive,3));
-				end if;
+				
 			when c8_mdr =>
 				if (o_membusy = '1') then
 					cstate <= c8_mdr;
@@ -1032,7 +1035,7 @@ i_db_fs <= '1';
 					cstate <= store_count_alive_md;
 				end if;
 			when store_count_alive_md =>
-				cstate <= update_row1; -- XXX maube col?
+				cstate <= update_col1; -- XXX maube col?
 				i_enable <= '0';
 				i_MemDB <= (others => '0');
 			when update_row1 =>
@@ -1040,15 +1043,16 @@ i_db_fs <= '1';
 					vppX := vppX + 1;
 					cstate <= check_coordinations;
 				else
-					cstate <= update_col1;
+					cstate <= reset_counters1;
+					vppX := 0;
+					vppYp := 0;
 				end if;
 			when update_col1 =>
 				if (vppYp < COLS_PIXEL-1) then
 					vppYp := vppYp + 1;
 					cstate <= check_coordinations;
-					vppX := 0;
 				else
-					cstate <= reset_counters1;
+					cstate <= update_row1;
 					vppYp := 0;
 				end if;
 			----------------------------------------------------------------------------------
@@ -1075,8 +1079,8 @@ i_db_fs <= '1';
 --				end if;
 			when get_alive =>
 				cstate <= get_alive1;
-				if (vppYp > (COLS_PIXEL/2)-1) then
-					tppY := (COLS_PIXEL/2)-vppYp;
+				if (vppYp > (COLS_PIXEL)-1) then
+					tppY := (COLS_PIXEL)-vppYp;
 					if (tppY < 0) then
 						tppY := -tppY;
 					end if;
@@ -1173,24 +1177,24 @@ i_db_fs <= '1';
 					cstate <= vvv;
 				end if;
 			when vvv =>
-				cstate <= update_row2;
+				cstate <= update_col2;
 				i_enable <= '0';
 			when update_row2 =>
 				if (vppX < ROWS-1) then
 					vppX := vppX + 1;
 					cstate <= get_alive;
+					vppYp := 0;
+					vppYb := 0;
 				else
-					cstate <= update_col2;
+					cstate <= disable_memory;
+					vppX := 0;
 				end if;
 			when update_col2 =>
 				if (vppYp < COLS_PIXEL-1) then
 					vppYp := vppYp + 1;
 					cstate <= get_alive;
-					vppX := 0;
 				else
-					cstate <= disable_memory;
-					vppYp := 0;
-					vppYb := 0;
+					cstate <= update_row2;
 				end if;
 			when disable_memory =>
 				cstate <= stop;
