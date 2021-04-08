@@ -458,7 +458,7 @@ begin
 			when idle =>
 				if (display_initialize = '1') then
 					cstate <= display_is_initialize;
-					i_MemDB <= (others=> 'Z');
+					i_MemDB <= (others=> '0');
 				else
 					cstate <= idle;
 				end if;
@@ -1032,7 +1032,7 @@ i_db_fs <= '1';
 			when store_count_alive_md =>
 				cstate <= update_row1; -- XXX maube col?
 				i_enable <= '0';
-				i_MemDB <= (others => 'Z');
+				i_MemDB <= (others => '0');
 			when update_row1 =>
 				if (vppX < ROWS-1) then
 					vppX := vppX + 1;
