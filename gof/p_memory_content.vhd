@@ -22,8 +22,8 @@ package p_memory_content is
 	subtype MemoryDataByte is std_logic_vector(G_MemoryData-1 downto 0);
 	constant G_HalfHex : integer := 4;
 	constant G_FullHex : integer := G_HalfHex*2;
-	constant ROWS : integer := 128;
-	constant ROWS_BITS : integer := 7;
+	constant ROWS : integer := (2**G_MemoryAddress);
+	constant ROWS_BITS : integer := G_MemoryAddress;
 	constant COLS_PIXEL : integer := 32;
 	constant COLS_PIXEL_BITS : integer := 5;
 	constant COLS_BLOCK : integer := 4;
@@ -42,7 +42,7 @@ package p_memory_content is
 	type LiveArrayType is array(ROWS-1 downto 0) of LiveSubArray;
 
 	constant memory_content : MEMORY :=
-	(-- f              0f              0
+	(--   f              0f              0
 		("11111111111111111111111111111111"), -- F
 		("10010000000010011001000000001001"),
 		("10010000000010011001000000001001"),
@@ -172,7 +172,26 @@ package p_memory_content is
 		("10000000000000011000000000000001"), -- 1
 		("11111111111111111111111111111111")  -- 0
 	);
-
+	
+--constant memory_content : MEMORY :=
+--	( -- f              0f              0
+--		("11111111111111111111111111111111"), -- F
+--		("10010000000010011001000000001001"),
+--		("10010000000010011001000000001001"),
+--		("10010001100010011001000110001001"),
+--		("10000001100000011000000110000001"),
+--		("10000001100000011000000110000001"),
+--		("10011101101110011001110110111001"),
+--		("10111000000111011011100000011101"), -- 8
+--		("00000000000000000000000000000000"),
+--		("00000000000000000000000000000000"),
+--		("00000000000000000000000000000000"),
+--		("00000000000000000000000000000000"),
+--		("00000000000000000000000000000000"),
+--		("00000000000000000000000000000000"),
+--		("00000000000000000000000000000000"),
+--		("00000000000000000000000000000000")
+--	);
 end p_memory_content;
 
 package body p_memory_content is
