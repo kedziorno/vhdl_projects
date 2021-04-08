@@ -633,12 +633,12 @@ begin
 			--
 			when c1_me =>
 				cstate <= c1_mr;
-				i_enable <= '1';
 			when c1_mr =>
 				cstate <= set_c1;
-				i_read <= '1';
+--				i_read <= '1';
 			when set_c1 =>
-				cstate <= c1;
+				cstate <= c1_read;
+				i_enable <= '1';
 				i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX,G_MemoryAddress));
 --				if (vppYm1 > (COLS_PIXEL/2)-1) then
 --					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+1,G_MemoryAddress));
@@ -673,7 +673,7 @@ begin
 					cstate <= c1_mdr;
 				else
 					cstate <= c1_md;
-					i_read <= '0';
+					--i_read <= '0';
 				end if;
 			when c1_md =>
 				cstate <= c2_me;
@@ -684,9 +684,9 @@ begin
 				i_enable <= '1';
 			when c2_mr =>
 				cstate <= set_c2;
-				i_read <= '1';
+				--i_read <= '1';
 			when set_c2 =>
-				cstate <= c2;
+				cstate <= c2_read;
 				i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX,G_MemoryAddress));
 --				if (vppYp1 > (COLS_PIXEL/2)-1) then
 --					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+1,G_MemoryAddress));
@@ -720,7 +720,7 @@ i_db_fs <= '1';
 					cstate <= c2_mdr;
 				else
 					cstate <= c2_md;
-					i_read <= '0';
+					--i_read <= '0';
 				end if;
 			when c2_md =>
 				cstate <= c3_me;
@@ -731,9 +731,9 @@ i_db_fs <= '1';
 				i_enable <= '1';
 			when c3_mr =>
 				cstate <= set_c3;
-				i_read <= '1';
+--				i_read <= '1';
 			when set_c3 =>
-				cstate <= c3;
+				cstate <= c3_read;
 				i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXp1,G_MemoryAddress));
 --				if (vppYp > (COLS_PIXEL/2)-1) then
 --					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXp1+1,G_MemoryAddress));
@@ -778,9 +778,9 @@ i_db_fs <= '1';
 				i_enable <= '1';
 			when c4_mr =>
 				cstate <= set_c4;
-				i_read <= '1';
+				--i_read <= '1';
 			when set_c4 =>
-				cstate <= c4;
+				cstate <= c4_read;
 				i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXm1,G_MemoryAddress));
 --				if (vppYp > (COLS_PIXEL/2)-1) then
 --					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXm1+1,G_MemoryAddress));
@@ -825,9 +825,9 @@ i_db_fs <= '1';
 				i_enable <= '1';
 			when c5_mr =>
 				cstate <= set_c5;
-				i_read <= '1';
+--				i_read <= '1';
 			when set_c5 =>
-				cstate <= c5;
+				cstate <= c5_read;
 				i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXm1,G_MemoryAddress));
 --				if (vppYm1 > (COLS_PIXEL/2)-1) then
 --					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXm1+1,G_MemoryAddress));
@@ -872,9 +872,9 @@ i_db_fs <= '1';
 				i_enable <= '1';
 			when c6_mr =>
 				cstate <= set_c6;
-				i_read <= '1';
+--				i_read <= '1';
 			when set_c6 =>
-				cstate <= c6;
+				cstate <= c6_read;
 				i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXp1,G_MemoryAddress));
 --				if (vppYm1 > (COLS_PIXEL/2)-1) then
 --					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXp1+1,G_MemoryAddress));
@@ -921,7 +921,7 @@ i_db_fs <= '1';
 				cstate <= set_c7;
 				i_read <= '1';
 			when set_c7 =>
-				cstate <= c7;
+				cstate <= c7_read;
 				i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXm1,G_MemoryAddress));
 --				if (vppYp1 > (COLS_PIXEL/2)-1) then
 --					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppXm1+1,G_MemoryAddress));
@@ -1012,14 +1012,16 @@ i_db_fs <= '1';
 				i_enable <= '1';
 			when store_count_alive_we =>
 				cstate <= store_count_alive_sa;
-				i_write <= '1';
 				i_db_fs <= '0';
 			when store_count_alive_sa =>
+							i_write <= '1';
+	i_MemDB <= std_logic_vector(to_unsigned(vcountAlive,G_MemoryData)); -- XXX store proper val?
+			
 				cstate <= store_count_alive;
 				i_MemAdr <= std_logic_vector(to_unsigned(address2+vppX+vppYp,G_MemoryAddress));
 			when store_count_alive =>
 				cstate <= store_count_alive_wd;
-				i_MemDB <= std_logic_vector(to_unsigned(vcountAlive,G_MemoryData)); -- XXX store proper val?
+				i_write <= '0';
 			when store_count_alive_wd =>
 				cstate <= store_count_alive_wm;
 				i_write <= '0';
@@ -1065,11 +1067,12 @@ i_db_fs <= '1';
 				i_read <= '1';
 			when memory_sa1 =>
 				cstate <= get_alive;
-				if (vppYp > (COLS_PIXEL/2)-1) then
-					i_MemAdr <= std_logic_vector(to_unsigned(address2+vppX+1,G_MemoryAddress));
-				else
-					i_MemAdr <= std_logic_vector(to_unsigned(address2+vppX+0,G_MemoryAddress));
-				end if;
+				i_MemAdr <= std_logic_vector(to_unsigned(address2+vppX,G_MemoryAddress));
+--				if (vppYp > (COLS_PIXEL/2)-1) then
+--					i_MemAdr <= std_logic_vector(to_unsigned(address2+vppX+1,G_MemoryAddress));
+--				else
+--					i_MemAdr <= std_logic_vector(to_unsigned(address2+vppX+0,G_MemoryAddress));
+--				end if;
 			when get_alive =>
 				cstate <= get_alive1;
 				if (vppYp > (COLS_PIXEL/2)-1) then
@@ -1082,7 +1085,8 @@ i_db_fs <= '1';
 				end if;
 			when get_alive1 =>
 				cstate <= memory_disable_read1;
-				if (o_MemDB(tppY) = '1') then -- xxx up before read=0
+				--if (o_MemDB(tppY) = '1') then -- xxx up before read=0
+				if (o_MemDB(vppYp) = '1') then -- xxx up before read=0
 					vCellAlive := true;
 				else
 					vCellAlive := false;
@@ -1105,9 +1109,10 @@ i_db_fs <= '1';
 			when enable_write_to_memory =>
 				cstate <= check_cell_alive_1;
 				i_read <= '1';
+				i_MemAdr <= std_logic_vector(to_unsigned(address2+vppX+vppYp,G_MemoryAddress)); -- XXX mm2 ?
 			when check_cell_alive_1 =>
 				cstate <= check_cell_alive_1a;
-				i_MemAdr <= std_logic_vector(to_unsigned(address2+vppX+vppYp,G_MemoryAddress)); -- XXX mm2 ?
+				
 			when check_cell_alive_1a =>
 				cstate <= check_cell_alive_2;
 				if (vCellAlive = true) then
@@ -1141,20 +1146,22 @@ i_db_fs <= '1';
 				i_enable <= '1';
 			when aaa =>
 				cstate <= aaaa;
-				i_write <= '1';
+				
 			when aaaa =>
 				cstate <= aaaaa;
-				if (vppYp > (COLS_PIXEL/2)-1) then
-					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+1,G_MemoryAddress));
-				else
-					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+0,G_MemoryAddress));
-				end if;
+				i_write <= '1';
+				i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX,G_MemoryAddress));
+--				if (vppYp > (COLS_PIXEL/2)-1) then
+--					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+1,G_MemoryAddress));
+--				else
+--					i_MemAdr <= std_logic_vector(to_unsigned(address1+vppX+0,G_MemoryAddress));
+--				end if;
 			when aaaaa =>
 				cstate <= disable_write_to_memory;
 				if (newCellAlive = true) then
-					i_MemDB(tppY) <= '1';
+					i_MemDB(vppYp) <= '1';
 				else
-					i_MemDB(tppY) <= '0';
+					i_MemDB(vppYp) <= '0';
 				end if;
 			when disable_write_to_memory =>
 				cstate <= vvv_wm;

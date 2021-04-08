@@ -88,7 +88,7 @@ component RAMB16_S36
 -- pragma translate_off
 generic (
 -- "Read during Write" attribute for functional simulation
-WRITE_MODE : string := "READ_FIRST" ; -- WRITE_FIRST(default)/ READ_FIRST/ NO_CHANGE 	
+WRITE_MODE : string := "NO_CHANGE" ; -- WRITE_FIRST(default)/ READ_FIRST/ NO_CHANGE 	
 -- Output value after configuration       	
 INIT : bit_vector(35 downto 0)  := X"000000000";
 -- Output value if SSR active       
@@ -334,7 +334,7 @@ attribute INIT_3E: string;
 attribute INIT_3F: string;
 --
 -- Attribute "Read during Write mode" = WRITE_FIRST(default)/ READ_FIRST/ NO_CHANGE
-attribute WRITE_MODE of U_RAMB16_S36: label is "READ_FIRST"; 
+attribute WRITE_MODE of U_RAMB16_S36: label is "NO_CHANGE"; 
 attribute INIT of U_RAMB16_S36: label is "000000000";
 attribute SRVAL of U_RAMB16_S36: label is "012345678";
 --
@@ -536,11 +536,11 @@ INV_SET_RESET <= NOT i_reset;
 -- Block SelectRAM Instantiation
 U_RAMB16_S36: RAMB16_S36
 port map (
-DI     => MemDB(31 downto 0), -- insert 32 bits data in bus (<31 downto 0>)
+DI     => i_MemDB(31 downto 0), -- insert 32 bits data in bus (<31 downto 0>)
 DIP    => parity, -- insert 4 bits parity data in bus (or <35 downto 32>)
-ADDR   => MemAdr, -- insert 9 bits address bus        
-EN     => enable, -- insert enable signal
-WE     => write1, -- insert write enable signal
+ADDR   => i_MemAdr, -- insert 9 bits address bus        
+EN     => i_enable, -- insert enable signal
+WE     => i_write, -- insert write enable signal
 SSR    => i_reset, -- insert set/reset signal
 CLK    => CLK_BUFG, -- insert clock signal
 DO     => o_MemDB(31 downto 0), -- insert 32 bits data out bus (<31 downto 0>)
