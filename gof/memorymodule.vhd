@@ -536,11 +536,11 @@ INV_SET_RESET <= NOT i_reset;
 -- Block SelectRAM Instantiation
 U_RAMB16_S36: RAMB16_S36
 port map (
-DI     => i_MemDB(31 downto 0), -- insert 32 bits data in bus (<31 downto 0>)
+DI     => MemDB(31 downto 0), -- insert 32 bits data in bus (<31 downto 0>)
 DIP    => parity, -- insert 4 bits parity data in bus (or <35 downto 32>)
-ADDR   => i_MemAdr, -- insert 9 bits address bus        
-EN     => i_enable, -- insert enable signal
-WE     => i_write, -- insert write enable signal
+ADDR   => MemAdr, -- insert 9 bits address bus        
+EN     => enable, -- insert enable signal
+WE     => write1, -- insert write enable signal
 SSR    => i_reset, -- insert set/reset signal
 CLK    => CLK_BUFG, -- insert clock signal
 DO     => o_MemDB(31 downto 0), -- insert 32 bits data out bus (<31 downto 0>)
@@ -568,7 +568,7 @@ DOP    => parity  -- insert 4 bits parity data out bus (or <35 downto 32>)
 	--io_MemDB <= i_MemDB when (RamCS = '0' and MemWR = '0') else (others => 'Z');
 
 	p0 : process (i_clock) is
-		constant cw : integer := 6;
+		constant cw : integer := 6*16;
 		variable w : integer range 0 to cw := 0;
 		variable t : std_logic_vector(G_MemoryData-1 downto 0);
 		variable tz : std_logic_vector(G_MemoryData-1 downto 0) := (others => 'Z');
@@ -632,6 +632,7 @@ DOP    => parity  -- insert 4 bits parity data out bus (or <35 downto 32>)
 						MemOE <= '0';
 						o_busy <= '1';
 						enable <= '1';
+						write1 <= '0';
 					else
 						cstate <= read_setup;
 					end if;
