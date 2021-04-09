@@ -37,7 +37,7 @@ END tb_top;
  
 ARCHITECTURE behavior OF tb_top IS 
 
-	constant IC : integer := 50_000_000;
+	constant IC : integer := 1_000_000;
 	constant BC : integer := 100_000;
 	constant DC : integer := 1_000;
 

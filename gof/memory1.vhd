@@ -64,7 +64,8 @@ WRITE_MODE : string := "NO_CHANGE" ; -- WRITE_FIRST(default)/ READ_FIRST/NO_CHAN
 INIT : bit_vector(35 downto 0) := X"000000000";
 SRVAL : bit_vector(35 downto 0) := X"012345678");
 -- pragma translate_on
-port (DI    : in std_logic_vector (31 downto 0);
+port (
+DI    : in std_logic_vector (31 downto 0);
 DIP   : in std_logic_vector (3 downto 0);
 ADDR  : in std_logic_vector (8 downto 0);
 EN    : in STD_LOGIC;
@@ -72,7 +73,8 @@ WE    : in STD_LOGIC;
 SSR   : in STD_LOGIC;
 CLK   : in STD_LOGIC;
 DO    : out std_logic_vector (31 downto 0);
-DOP   : out std_logic_vector (3 downto 0));
+DOP   : out std_logic_vector (3 downto 0)
+);
 end component;
 
 attribute WRITE_MODE : string;
@@ -85,13 +87,19 @@ attribute SRVAL of U_RAMB16_S36: label is "012345678";
 signal CLK_BUFG: std_logic;
 signal INV_SET_RESET : std_logic;
 
-signal DATA_IN,DATA_IN_TEMP : std_logic_vector(31 downto 0);
-signal DATA_INP : std_logic_vector(3 downto 0);
-signal ADDRESS : std_logic_vector(8 downto 0);
+signal DATA_IN : std_logic_vector(WORD_BITS-1 downto 0);
+signal DATA_INP : std_logic_vector(PARITY_BITS-1 downto 0);
+signal ADDRESS : std_logic_vector(BRAM_ADDRESS_BITS-1 downto 0);
 signal ENABLE : std_logic;
 signal WRITE_EN : std_logic;
-signal DATA_OUT : std_logic_vector(31 downto 0);
-signal DATA_OUTP : std_logic_vector(3 downto 0);
+signal DATA_OUT : std_logic_vector(WORD_BITS-1 downto 0);
+signal DATA_OUTP : std_logic_vector(PARITY_BITS-1 downto 0);
+
+type state is (idle,start,write_content,stop);
+signal st : state;
+
+signal copy_content : std_logic;
+signal index : integer;
 
 --	shared variable m1 : MEMORY := memory_content;
 --	signal obyte : std_logic_vector(BYTE_BITS-1 downto 0);
@@ -118,56 +126,99 @@ DO => DATA_OUT,
 DOP => DATA_OUTP
 );
 
-pa : process (i_clk,i_reset) is
+pa : process (i_clk,i_reset,copy_content) is
 begin
     if (i_reset = '1') then
+        DATA_IN <= (others => '0');
+        ADDRESS <= (others => '0');
     elsif (rising_edge(i_clk)) then
-        case (to_integer(unsigned(i_col_block))) is
-            when 0 to 7 =>
-                if (i_write_byte = '1') then
-                    DATA_IN <= DATA_IN(31 downto 8) & i_byte;
-                else
+        if (copy_content = '1') then
+            case (to_integer(unsigned(i_col_block))) is
+                when 0 =>
+                    if (i_write_byte = '1') then
+                        DATA_IN <= DATA_IN(31 downto 8) & i_byte;
+                    end if;
                     o_byte <= DATA_OUT(7 downto 0);
-                end if;
-            when 8 to 15 =>
-                if (i_write_byte = '1') then
-                    DATA_IN <= DATA_IN(31 downto 16) & i_byte & DATA_IN(7 downto 0);
-                else
+                when 1 =>
+                    if (i_write_byte = '1') then
+                        DATA_IN <= DATA_IN(31 downto 16) & i_byte & DATA_IN(7 downto 0);
+                    end if;
                     o_byte <= DATA_OUT(15 downto 8);
-                end if;
-            when 16 to 23 =>
-                if (i_write_byte = '1') then
-                    DATA_IN <= DATA_IN(31 downto 24) & i_byte & DATA_IN(15 downto 0);
-                else
+                when 2 =>
+                    if (i_write_byte = '1') then
+                        DATA_IN <= DATA_IN(31 downto 24) & i_byte & DATA_IN(15 downto 0);
+                    end if;
                     o_byte <= DATA_OUT(23 downto 16);
-                end if;
-            when 24 to 31 =>
-                if (i_write_byte = '1') then
-                    DATA_IN <= i_byte & DATA_IN(23 downto 0);
-                else
+                when 3 =>
+                    if (i_write_byte = '1') then
+                        DATA_IN <= i_byte & DATA_IN(23 downto 0);
+                    end if;
                     o_byte <= DATA_OUT(31 downto 24);
-                end if;
-            when others =>
-                DATA_IN <= DATA_IN;
-        end case;
+                when others =>
+                    --DATA_IN <= DATA_IN;
+            end case;
+        else
+            --DATA_IN <= DATA_IN;
+        end if;
     end if;
 end process pa;
 
 pb : process (i_clk,i_reset) is
 begin
     if (i_reset = '1') then
+        DATA_IN <= (others => '0');
+        ADDRESS <= (others => '0');
     elsif (rising_edge(i_clk)) then
-        if (i_write_bit = '1') then
-            DATA_IN(to_integer(unsigned(i_col_pixel))) <= i_bit;
+        if (copy_content = '1') then
+            if (i_write_bit = '1') then
+                DATA_IN(to_integer(unsigned(i_col_pixel))) <= i_bit;
+            end if;
+            o_bit <= DATA_OUT(to_integer(unsigned(i_col_pixel)));
         else
+            --DATA_IN <= DATA_IN;
             o_bit <= DATA_OUT(to_integer(unsigned(i_col_pixel)));
         end if;
     end if;
 end process pb;
 
+pc : process(i_clk,i_reset) is
+begin
+    if (i_reset = '1') then
+        st <= idle;
+        copy_content <= '0';
+        index <= 0;
+        DATA_IN <= (others => '0');
+        ADDRESS <= (others => '0');
+    elsif (rising_edge(i_clk)) then
+        case (st) is
+            when idle =>
+                st <= start;
+                ENABLE <= '0';
+                WRITE_EN <= '0';
+            when start =>
+                ENABLE <= '1';
+                WRITE_EN <= '0';
+                if (index = ROWS-1) then
+                    st <= stop;
+                    copy_content <= '1';
+                else
+                    st <= write_content;
+                    index <= index + 1;
+                end if;
+            when write_content =>
+                st <= start;
+                WRITE_EN <= '1';
+                ADDRESS <= std_logic_vector(to_unsigned(index,BRAM_ADDRESS_BITS));
+                DATA_IN <= memory_content(index);
+            when stop =>
+                st <= stop;
+        end case;
+    end if;
+end process pc;
+
 ADDRESS(ROWS_BITS-1 downto 0) <= i_row when (i_enable_byte = '1' or i_enable_bit = '1') else (others => 'Z');
-ENABLE <= '1' when (i_enable_byte = '1' or i_enable_bit = '1') else '0';
-WRITE_EN <= '1' when (i_write_byte = '1' or i_write_bit = '1') else '0';
+--ENABLE <= '1' when (i_enable_byte = '1' or i_enable_bit = '1' or st = start) else '0';
+--WRITE_EN <= '1' when (i_write_byte = '1' or i_write_bit = '1' or st = write_content) else '0';
 
 --i_enable_byte : in std_logic;
 --i_enable_bit : in std_logic;
