@@ -186,10 +186,9 @@ signal ppYp1 : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
 signal oppX : std_logic_vector(ROWS_BITS-1 downto 0);
 signal oppY : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
 signal countAlive : std_logic_vector(3 downto 0);
-signal slivearray : std_logic_vector(3 downto 0);
 signal CellAlive : std_logic;
 signal CD : integer := DIVIDER_CLOCK;
-signal CD_DISPLAY : integer := DIVIDER_CLOCK*10; -- XXX
+signal CD_DISPLAY : integer := DIVIDER_CLOCK*1; -- XXX
 signal CD_CALCULATE : integer := DIVIDER_CLOCK*10000; -- XXX
 
 function To_Std_Logic(x_vot : BOOLEAN) return std_ulogic is
@@ -484,7 +483,7 @@ begin
 				cstate <= update_row1;
 				ENABLE <= '1';
 				WRITE_EN <= '1';
-				ADDRESS <= std_logic_vector(to_unsigned(WORD_BITS*vppX+vppYp,12));
+				ADDRESS <= std_logic_vector(to_unsigned(vppX+vppYp*WORD_BITS,12));
 				DATA_IN <= countAlive;
 			when update_row1 =>
 			     ENABLE <= '0';
@@ -517,7 +516,6 @@ begin
 				cstate <= get_alive1;
 				row <= ppX;
 				col_pixel <= ppYp;
-				--slivearray <= LiveArray(vppX)(vppYp);
 			when get_alive1 =>
 				cstate <= enable_write_to_memory;
 				if (o_bit = '1') then
@@ -530,7 +528,7 @@ begin
 				i_mem_write_bit <= '1';
 			     ENABLE <= '1';
 			     WRITE_EN <= '0';
-			     ADDRESS <= std_logic_vector(to_unsigned(WORD_BITS*vppX+vppYp,12));
+			     ADDRESS <= std_logic_vector(to_unsigned(vppX+vppYp*WORD_BITS,12));
 			when write_count_alive =>
 				cstate <= disable_write_to_memory;
 				if (vCellAlive = true) then
