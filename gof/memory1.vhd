@@ -60,7 +60,7 @@ end component;
 component RAMB16_S36
 -- pragma translate_off
 generic (
-WRITE_MODE : string := "NO_CHANGE" ; -- WRITE_FIRST(default)/ READ_FIRST/NO_CHANGE
+WRITE_MODE : string := "WRITE_FIRST" ; -- WRITE_FIRST(default)/ READ_FIRST/NO_CHANGE
 INIT : bit_vector(35 downto 0) := X"000000000";
 SRVAL : bit_vector(35 downto 0) := X"012345678");
 -- pragma translate_on
@@ -114,6 +114,9 @@ O => CLK_BUFG
 );
 
 U_RAMB16_S36: RAMB16_S36
+generic map (
+WRITE_MODE => "WRITE_FIRST"
+)
 port map (
 DI => DATA_IN,
 DIP => DATA_INP,
