@@ -83,6 +83,7 @@ for all : clock_divider use entity WORK.clock_divider(Behavioral);
 component memory1 is
 Port (
 i_clk : in std_logic;
+i_reset : in std_logic;
 i_enable_byte : in std_logic;
 i_enable_bit : in std_logic;
 i_write_byte : in std_logic;
@@ -95,7 +96,7 @@ i_bit : in std_logic;
 o_byte : out std_logic_vector(BYTE_BITS-1 downto 0);
 o_bit : out std_logic);
 end component memory1;
-for all : memory1 use entity WORK.memory1(Behavioral);
+--for all : memory1 use entity WORK.memory1(Behavioral);
 
 signal row : std_logic_vector(ROWS_BITS-1 downto 0) := (others => '0');
 signal col_pixel : std_logic_vector(COLS_PIXEL_BITS-1 downto 0) := (others => '0');
@@ -212,6 +213,7 @@ port map (
 m1 : memory1
 port map (
 	i_clk => clk,
+	i_reset => btn_1,
 	i_enable_byte => i_mem_e_byte,
 	i_enable_bit => i_mem_e_bit,
 	i_write_byte => '0',
