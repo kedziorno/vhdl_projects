@@ -80,7 +80,7 @@ end component;
 attribute WRITE_MODE : string;
 attribute INIT: string;
 attribute SRVAL: string;
-attribute WRITE_MODE of U_RAMB16_S36: label is "NO_CHANGE";
+attribute WRITE_MODE of U_RAMB16_S36: label is "WRITE_FIRST";
 attribute INIT of U_RAMB16_S36: label is "000000000";
 attribute SRVAL of U_RAMB16_S36: label is "012345678";
 
