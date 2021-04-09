@@ -126,7 +126,7 @@ DO => DATA_OUT,
 DOP => DATA_OUTP
 );
 
-pc : process(i_clk,i_reset) is
+pc : process(CLK_BUFG,i_reset) is
 begin
     if (i_reset = '1') then
         st <= idle;
@@ -134,7 +134,7 @@ begin
         index <= 0;
         DATA_IN <= (others => '0');
         ADDRESS <= (others => '0');
-    elsif (rising_edge(i_clk)) then
+    elsif (rising_edge(CLK_BUFG)) then
         case (st) is
             when idle =>
                 st <= start;

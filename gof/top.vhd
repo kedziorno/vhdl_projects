@@ -27,8 +27,8 @@ use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
+library UNISIM;
+use UNISIM.VComponents.all;
 
 entity top is
 generic(
@@ -69,7 +69,12 @@ signal o_display_initialize : inout std_logic;
 signal io_sda,io_scl : inout std_logic);
 end component oled_display;
 for all : oled_display use entity WORK.oled_display(Behavioral);
-	
+
+component BUFG
+port (I : in std_logic;
+O : out std_logic); 
+end component;
+
 component clock_divider is
 Port(
 i_clk : in STD_LOGIC;
@@ -113,6 +118,8 @@ signal i_mem_e_byte : std_logic;
 signal i_mem_e_bit : std_logic;
 signal i_mem_write_bit : std_logic;
 signal i_bit : std_logic;
+
+signal CLK_BUFG : std_logic;
 
 type state is (
 idle,
@@ -177,11 +184,17 @@ end function To_Std_Logic;
 
 begin
 
+U_BUFG: BUFG 
+port map (
+I => clk,
+O => CLK_BUFG
+);
+
 i_reset <= btn_1;
 
 clk_div : clock_divider
 port map (
-	i_clk => clk,
+	i_clk => CLK_BUFG,
 	i_board_clock => INPUT_CLOCK,
 	i_divider => CD,
 	o_clk => clk_1s
@@ -197,7 +210,7 @@ generic map (
 	H_BITS => COLS_BLOCK_BITS,
 	BYTE_SIZE => BYTE_BITS)
 port map (
-	i_clk => clk,
+	i_clk => CLK_BUFG,
 	i_rst => btn_1,
 	i_clear => btn_2,
 	i_draw => btn_3,
@@ -212,7 +225,7 @@ port map (
 
 m1 : memory1
 port map (
-	i_clk => clk,
+	i_clk => CLK_BUFG,
 	i_reset => btn_1,
 	i_enable_byte => i_mem_e_byte,
 	i_enable_bit => i_mem_e_bit,
