@@ -158,18 +158,29 @@ begin
             when check_byte =>
                 st <= check_bit;
                 if (copy_content = '1' and i_write_byte = '1') then
+                    WRITE_EN <= '1';
+                    ADDRESS(ROWS_BITS-1 downto 0) <= i_row;
                     case (to_integer(unsigned(i_col_block))) is
                         when 0 =>
                             DATA_IN <= DATA_IN(31 downto 8) & i_byte;
-                            o_byte <= DATA_OUT(7 downto 0);
                         when 1 =>
                             DATA_IN <= DATA_IN(31 downto 16) & i_byte & DATA_IN(7 downto 0);
-                            o_byte <= DATA_OUT(15 downto 8);
                         when 2 =>
                             DATA_IN <= DATA_IN(31 downto 24) & i_byte & DATA_IN(15 downto 0);
-                            o_byte <= DATA_OUT(23 downto 16);
                         when 3 =>
                             DATA_IN <= i_byte & DATA_IN(23 downto 0);
+                        when others => null;
+                    end case;
+                else
+                    WRITE_EN <= '0';
+                    case (to_integer(unsigned(i_col_block))) is
+                        when 0 =>
+                            o_byte <= DATA_OUT(7 downto 0);
+                        when 1 =>
+                            o_byte <= DATA_OUT(15 downto 8);
+                        when 2 =>
+                            o_byte <= DATA_OUT(23 downto 16);
+                        when 3 =>
                             o_byte <= DATA_OUT(31 downto 24);
                         when others => null;
                     end case;
@@ -177,9 +188,12 @@ begin
             when check_bit =>
                 st <= check_byte;
                 if (copy_content = '1' and i_write_bit = '1') then
-                    if (i_write_bit = '1') then
-                        DATA_IN(to_integer(unsigned(i_col_pixel))) <= i_bit;
-                    end if;
+                    WRITE_EN <= '1';
+                    ADDRESS(ROWS_BITS-1 downto 0) <= i_row;
+                    DATA_IN(to_integer(unsigned(i_col_pixel))) <= i_bit;
+                else
+                    WRITE_EN <= '0';
+                    ADDRESS(ROWS_BITS-1 downto 0) <= i_row;
                     o_bit <= DATA_OUT(to_integer(unsigned(i_col_pixel)));
                 end if;
         end case;
