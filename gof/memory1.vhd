@@ -173,6 +173,7 @@ begin
                     end case;
                 else
                     WRITE_EN <= '0';
+                    ADDRESS(ROWS_BITS-1 downto 0) <= i_row;
                     case (to_integer(unsigned(i_col_block))) is
                         when 0 =>
                             o_byte <= DATA_OUT(7 downto 0);
