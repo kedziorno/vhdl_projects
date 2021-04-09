@@ -24,9 +24,6 @@ package p_memory_content is
 	
 	subtype WORD is std_logic_vector(WORD_BITS-1 downto 0);
 	type MEMORY is array(ROWS-1 downto 0) of WORD;
-	
-	type LiveSubArray is array(WORD_BITS-1 downto 0) of std_logic_vector(2 downto 0);
-	type LiveArrayType is array(ROWS-1 downto 0) of LiveSubArray;
 
 	-- https://www.conwaylife.com/patterns/gosperglidergun.cells
 	-- !Name: Gosper glider gun
