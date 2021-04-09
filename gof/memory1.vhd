@@ -95,7 +95,7 @@ signal WRITE_EN : std_logic;
 signal DATA_OUT : std_logic_vector(WORD_BITS-1 downto 0);
 signal DATA_OUTP : std_logic_vector(PARITY_BITS-1 downto 0);
 
-type state is (idle,start,write_content,stop);
+type state is (idle,start,write_content,check_byte,check_bit);
 signal st : state;
 
 signal copy_content : std_logic;
@@ -126,61 +126,6 @@ DO => DATA_OUT,
 DOP => DATA_OUTP
 );
 
-pa : process (i_clk,i_reset,copy_content) is
-begin
-    if (i_reset = '1') then
-        DATA_IN <= (others => '0');
-        ADDRESS <= (others => '0');
-    elsif (rising_edge(i_clk)) then
-        if (copy_content = '1') then
-            case (to_integer(unsigned(i_col_block))) is
-                when 0 =>
-                    if (i_write_byte = '1') then
-                        DATA_IN <= DATA_IN(31 downto 8) & i_byte;
-                    end if;
-                    o_byte <= DATA_OUT(7 downto 0);
-                when 1 =>
-                    if (i_write_byte = '1') then
-                        DATA_IN <= DATA_IN(31 downto 16) & i_byte & DATA_IN(7 downto 0);
-                    end if;
-                    o_byte <= DATA_OUT(15 downto 8);
-                when 2 =>
-                    if (i_write_byte = '1') then
-                        DATA_IN <= DATA_IN(31 downto 24) & i_byte & DATA_IN(15 downto 0);
-                    end if;
-                    o_byte <= DATA_OUT(23 downto 16);
-                when 3 =>
-                    if (i_write_byte = '1') then
-                        DATA_IN <= i_byte & DATA_IN(23 downto 0);
-                    end if;
-                    o_byte <= DATA_OUT(31 downto 24);
-                when others =>
-                    --DATA_IN <= DATA_IN;
-            end case;
-        else
-            --DATA_IN <= DATA_IN;
-        end if;
-    end if;
-end process pa;
-
-pb : process (i_clk,i_reset) is
-begin
-    if (i_reset = '1') then
-        DATA_IN <= (others => '0');
-        ADDRESS <= (others => '0');
-    elsif (rising_edge(i_clk)) then
-        if (copy_content = '1') then
-            if (i_write_bit = '1') then
-                DATA_IN(to_integer(unsigned(i_col_pixel))) <= i_bit;
-            end if;
-            o_bit <= DATA_OUT(to_integer(unsigned(i_col_pixel)));
-        else
-            --DATA_IN <= DATA_IN;
-            o_bit <= DATA_OUT(to_integer(unsigned(i_col_pixel)));
-        end if;
-    end if;
-end process pb;
-
 pc : process(i_clk,i_reset) is
 begin
     if (i_reset = '1') then
@@ -199,7 +144,7 @@ begin
                 ENABLE <= '1';
                 WRITE_EN <= '0';
                 if (index = ROWS-1) then
-                    st <= stop;
+                    st <= check_byte;
                     copy_content <= '1';
                 else
                     st <= write_content;
@@ -210,13 +155,38 @@ begin
                 WRITE_EN <= '1';
                 ADDRESS <= std_logic_vector(to_unsigned(index,BRAM_ADDRESS_BITS));
                 DATA_IN <= memory_content(index);
-            when stop =>
-                st <= stop;
+            when check_byte =>
+                st <= check_bit;
+                if (copy_content = '1' and i_write_byte = '1') then
+                    case (to_integer(unsigned(i_col_block))) is
+                        when 0 =>
+                            DATA_IN <= DATA_IN(31 downto 8) & i_byte;
+                            o_byte <= DATA_OUT(7 downto 0);
+                        when 1 =>
+                            DATA_IN <= DATA_IN(31 downto 16) & i_byte & DATA_IN(7 downto 0);
+                            o_byte <= DATA_OUT(15 downto 8);
+                        when 2 =>
+                            DATA_IN <= DATA_IN(31 downto 24) & i_byte & DATA_IN(15 downto 0);
+                            o_byte <= DATA_OUT(23 downto 16);
+                        when 3 =>
+                            DATA_IN <= i_byte & DATA_IN(23 downto 0);
+                            o_byte <= DATA_OUT(31 downto 24);
+                        when others => null;
+                    end case;
+                end if;
+            when check_bit =>
+                st <= check_byte;
+                if (copy_content = '1' and i_write_bit = '1') then
+                    if (i_write_bit = '1') then
+                        DATA_IN(to_integer(unsigned(i_col_pixel))) <= i_bit;
+                    end if;
+                    o_bit <= DATA_OUT(to_integer(unsigned(i_col_pixel)));
+                end if;
         end case;
     end if;
 end process pc;
 
-ADDRESS(ROWS_BITS-1 downto 0) <= i_row when (i_enable_byte = '1' or i_enable_bit = '1') else (others => 'Z');
+--ADDRESS(ROWS_BITS-1 downto 0) <= i_row when (i_enable_byte = '1' or i_enable_bit = '1') else (others => 'Z');
 --ENABLE <= '1' when (i_enable_byte = '1' or i_enable_bit = '1' or st = start) else '0';
 --WRITE_EN <= '1' when (i_write_byte = '1' or i_write_bit = '1' or st = write_content) else '0';
 
