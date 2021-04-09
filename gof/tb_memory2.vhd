@@ -40,31 +40,39 @@ ARCHITECTURE behavior OF tb_memory2 IS
 
 	COMPONENT memory1
 	PORT(
-		i_clk : IN  std_logic;
-		i_enable : IN  std_logic;
-		i_write : IN  std_logic;
-		i_row : IN  std_logic_vector(6 downto 0);
-		i_col_pixel : IN  std_logic_vector(4 downto 0);
-		i_col_block : IN  std_logic_vector(1 downto 0);
-		i_byte : IN  std_logic_vector(7 downto 0);
-		o_bit : OUT  std_logic;
-		o_byte : OUT  std_logic_vector(7 downto 0));
+	i_clk : in std_logic;
+	i_reset : in std_logic;
+	i_enable_byte : in std_logic;
+	i_enable_bit : in std_logic;
+	i_write_byte : in std_logic;
+	i_write_bit : in std_logic;
+	i_row : in std_logic_vector(ROWS_BITS-1 downto 0);
+	i_col_pixel : in std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
+	i_col_block : in std_logic_vector(COLS_BLOCK_BITS-1 downto 0);
+	i_byte : in std_logic_vector(BYTE_BITS-1 downto 0);
+	i_bit : in std_logic;
+	o_byte : out std_logic_vector(BYTE_BITS-1 downto 0);
+	o_bit : out std_logic);
 	END COMPONENT;
 
 	--Inputs
 	signal i_clk : std_logic;
-	signal i_enable : std_logic;
-	signal i_write : std_logic;
-	signal i_row : std_logic_vector(6 downto 0);
-	signal i_col_pixel : std_logic_vector(4 downto 0);
-	signal i_col_block : std_logic_vector(1 downto 0);
-	signal i_byte : std_logic_vector(7 downto 0);
-	signal i : integer range 0 to ROWS-1;
-	signal j : integer range 0 to COLS_BLOCK-1;
+	signal i_reset : std_logic;
+	signal i_enable_byte : std_logic;
+	signal i_enable_bit : std_logic;
+	signal i_write_byte : std_logic;
+	signal i_write_bit : std_logic;
+	signal i_row : std_logic_vector(ROWS_BITS-1 downto 0);
+	signal i_col_pixel : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
+	signal i_col_block : std_logic_vector(COLS_BLOCK_BITS-1 downto 0);
+	signal i_byte : std_logic_vector(BYTE_BITS-1 downto 0);
+	signal i_bit : std_logic;
+	signal i : integer range 0 to ROWS-1 := 0;
+	signal j : integer range 0 to COLS_BLOCK-1 := 0;
 
 	--Outputs
 	signal o_bit : std_logic;
-	signal o_byte : std_logic_vector(7 downto 0);
+	signal o_byte : std_logic_vector(BYTE_BITS-1 downto 0);
 
 	-- Clock period definitions
 	constant i_clk_period : time := 20 ns;
@@ -74,14 +82,18 @@ BEGIN
 	-- Instantiate the Unit Under Test (UUT)
 	uut: memory1 PORT MAP (
 		i_clk => i_clk,
-		i_enable => i_enable,
-		i_write => i_write,
+		i_reset => i_reset,
+		i_enable_byte => i_enable_byte,
+		i_enable_bit => i_enable_bit,
+		i_write_byte => i_write_byte,
+		i_write_bit => i_write_bit,
 		i_row => i_row,
 		i_col_pixel => i_col_pixel,
 		i_col_block => i_col_block,
 		i_byte => i_byte,
-		o_bit => o_bit,
-		o_byte => o_byte
+		i_bit => i_bit,
+		o_byte => o_byte,
+		o_bit => o_bit
 	);
 
 	-- Clock process definitions
@@ -93,13 +105,14 @@ BEGIN
 		wait for i_clk_period/2;
 	end process;
 
-	i_enable <= '1';
+	i_enable_bit <= '1';
+	--i_enable_bit <= '1';
 
 	-- Stimulus process
 	p0 : process (i_clk) is
 	begin
 		if (rising_edge(i_clk)) then
-			if (j < COLS_BLOCK) then
+			if (j < COLS_BLOCK-1) then
 				if (i < ROWS-1) then
 					i <= i + 1;
 				else
