@@ -188,7 +188,7 @@ signal oppY : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
 signal countAlive : std_logic_vector(3 downto 0);
 signal CellAlive : std_logic;
 signal CD : integer := DIVIDER_CLOCK;
-signal CD_DISPLAY : integer := DIVIDER_CLOCK*10; -- XXX
+signal CD_DISPLAY : integer := DIVIDER_CLOCK*1; -- XXX
 signal CD_CALCULATE : integer := DIVIDER_CLOCK*10000; -- XXX
 
 function To_Std_Logic(x_vot : BOOLEAN) return std_ulogic is
@@ -211,11 +211,6 @@ O => CLK_BUFG
 i_reset <= btn_1;
 
 U_RAMB16_S4: RAMB16_S4
-generic map (
-INIT=>X"0",
-SRVAL=>X"0",
-WRITE_MODE=>"WRITE_FIRST"
-)
 port map (
 DI => DATA_IN,
 ADDR => ADDRESS,

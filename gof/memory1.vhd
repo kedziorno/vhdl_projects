@@ -60,7 +60,7 @@ end component;
 component RAMB16_S36
 -- pragma translate_off
 generic (
-WRITE_MODE : string := "WRITE_FIRST" ; -- WRITE_FIRST(default)/ READ_FIRST/NO_CHANGE
+WRITE_MODE : string := "NO_CHANGE" ; -- WRITE_FIRST(default)/ READ_FIRST/NO_CHANGE
 INIT : bit_vector(35 downto 0) := X"000000000";
 SRVAL : bit_vector(35 downto 0) := X"012345678");
 -- pragma translate_on
@@ -95,7 +95,7 @@ signal WRITE_EN : std_logic;
 signal DATA_OUT : std_logic_vector(WORD_BITS-1 downto 0);
 signal DATA_OUTP : std_logic_vector(PARITY_BITS-1 downto 0);
 
-type state is (idle,start,write_content,disable_mem1,check_byte,disable_mem2,check_bit);
+type state is (idle,start,write_content,disable_mem1,check,check_byte,disable_mem2,check_bit);
 signal st : state;
 
 signal copy_content : std_logic;
@@ -114,9 +114,6 @@ O => CLK_BUFG
 );
 
 U_RAMB16_S36: RAMB16_S36
-generic map (
-WRITE_MODE => "WRITE_FIRST"
-)
 port map (
 DI => DATA_IN,
 DIP => DATA_INP,
@@ -159,10 +156,10 @@ begin
                 ADDRESS <= std_logic_vector(to_unsigned(index,BRAM_ADDRESS_BITS));
                 DATA_IN <= memory_content(index);
 						when disable_mem1 =>
-							st <= check_byte;
+							st <= check;
 							ENABLE <= '1';
-            when check_byte =>
-                st <= disable_mem2;
+            when check =>
+                st <= disable_mem1;
 								ENABLE <= '1';
 								                    ADDRESS(ROWS_BITS-1 downto 0) <= i_row;
 											WRITE_EN <= '0';
@@ -195,23 +192,18 @@ begin
 											end case;
 									end if;
 								end if;
-						when disable_mem2 =>
-							st <= check_bit;
-							ENABLE <= '1';
-            when check_bit =>
-                st <= disable_mem1;
-								ENABLE <= '1';
-                if (i_enable_bit = '1') then
+								if (i_enable_bit = '1') then
 									if (i_write_bit = '1') then
                     WRITE_EN <= '1';
                     ADDRESS(ROWS_BITS-1 downto 0) <= i_row;
                     DATA_IN(to_integer(unsigned(i_col_pixel))) <= i_bit;
-									else
+									end if;
 											WRITE_EN <= '0';
 											ADDRESS(ROWS_BITS-1 downto 0) <= i_row;
 											o_bit <= DATA_OUT(to_integer(unsigned(i_col_pixel)));
-									end if;
+									
 								end if;
+					when others => null;
         end case;
     end if;
 end process pc;
