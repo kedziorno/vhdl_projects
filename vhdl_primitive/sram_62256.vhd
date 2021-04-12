@@ -59,6 +59,7 @@ architecture Behavioral of sram_62256 is
 	constant memory_bits_rows : integer := 9;
 	constant memory_bits_cols : integer := 6;	
 
+	-- 512x512 = 256k = 2**9x2**6*8bit
 	type memory_array is array(0 to (2**memory_bits_rows-1)*(2**memory_bits_cols-1)) of std_logic_vector(data_size-1 downto 0);
 
 	signal memory : memory_array;
@@ -79,8 +80,8 @@ begin
 	decoder_row_input <= i_address(10 downto 2); -- XXX
 	decoder_col_input <= i_address(14 downto 11) & i_address(1 downto 0); -- XXX
 
-	memory(to_integer(unsigned(decoder_row_output))+to_integer(unsigned(decoder_col_output))) <= data when tristate_input = '1';
-	data <= memory(to_integer(unsigned(decoder_row_output))+to_integer(unsigned(decoder_col_output))) when tristate_output = '1';
+	memory(to_integer(unsigned(decoder_row_input))*to_integer(unsigned(decoder_col_input))) <= data when tristate_input = '1';
+	data <= memory(to_integer(unsigned(decoder_row_input))*to_integer(unsigned(decoder_col_input))) when tristate_output = '1';
 
 	decoder_row : decoder
 	Generic map (SIZE => memory_bits_rows)
