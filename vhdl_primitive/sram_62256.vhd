@@ -82,6 +82,7 @@ begin
 
 	memory(to_integer(unsigned(decoder_row_input))*to_integer(unsigned(decoder_col_input))) <= data when tristate_input = '1';
 	data <= memory(to_integer(unsigned(decoder_row_input))*to_integer(unsigned(decoder_col_input))) when tristate_output = '1';
+	-- memory(decoder_row_output*decoder_col_output) <= io_data;
 
 	decoder_row : decoder
 	Generic map (SIZE => memory_bits_rows)
