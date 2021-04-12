@@ -63,7 +63,7 @@ end generate LDCE_generate;
 OBUFT_generate : for i in 0 to nbit-1 generate
 begin
 OBUFT_inst : OBUFT
-port map (O => o_q(i),I => q(i),T => not i_oeb);
+port map (O => o_q(i),I => q(i),T => i_oeb);
 end generate OBUFT_generate;
 
 end Behavioral;

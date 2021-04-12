@@ -92,15 +92,19 @@ variable pattern : array_pattern := (
 begin
 -- insert stimulus here
 l0 : for i in 0 to npattern-1 loop
+i_oeb <= '1';
 i_d <= pattern(i);
---wait for wait0;
 i_le <= '1';
 wait for wait0;
 i_le <= '0';
-wait for wait0;
 i_oeb <= '1';
 wait for wait0;
+i_le <= '1';
 i_oeb <= '0';
+wait for wait0;
+i_le <= '0';
+i_oeb <= '0';
+wait for wait0;
 end loop l0;
 wait;
 end process;
