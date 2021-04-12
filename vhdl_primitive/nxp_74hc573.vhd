@@ -57,7 +57,7 @@ end generate IBUF_generate;
 LDCE_generate : for i in 0 to nbit-1 generate
 begin
 LDCE_inst : LDCE
-port map (Q => q(i),CLR => '0',D => d(i),G => d(i),GE => not i_le);
+port map (Q => q(i),CLR => '0',D => d(i),G => not i_le,GE => not i_le);
 end generate LDCE_generate;
 
 OBUFT_generate : for i in 0 to nbit-1 generate
