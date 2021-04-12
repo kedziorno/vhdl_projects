@@ -79,8 +79,8 @@ begin
 	decoder_row_input <= i_address(10 downto 2); -- XXX
 	decoder_col_input <= i_address(14 downto 11) & i_address(1 downto 0); -- XXX
 
-	memory(decoder_row_output*decoder_col_output) <= data when tristate_input = '1';
-	data <= memory(decoder_row_output*decoder_col_output) when tristate_output = '1';
+	memory(to_integer(unsigned(decoder_row_output))+to_integer(unsigned(decoder_col_output))) <= data when tristate_input = '1';
+	data <= memory(to_integer(unsigned(decoder_row_output))+to_integer(unsigned(decoder_col_output))) when tristate_output = '1';
 
 	decoder_row : decoder
 	Generic map (SIZE => memory_bits_rows)
