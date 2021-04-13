@@ -37,8 +37,8 @@ END tb_sram_62256;
 
 ARCHITECTURE behavior OF tb_sram_62256 IS
 
-constant address_size : integer := 2;
-constant data_size : integer := 2;
+constant address_size : integer := 15; -- 2;
+constant data_size : integer := 8; -- 2;
 
 -- Component Declaration for the Unit Under Test (UUT)
 COMPONENT sram_62256
@@ -99,10 +99,10 @@ i_ceb <= '0';
 wait for 01*clock_period;
 i_web <= '0';
 i_oeb <= '1';
---i_address <= "0000000" & x"00";
---io_data <= x"55";
-i_address <= '0'&'0';
-io_data <= '1'&'0';
+i_address <= "0000000" & x"0E";
+io_data <= x"55";
+--i_address <= '0'&'0';
+--io_data <= '1'&'0';
 wait for 01*clock_period;
 i_ceb <= '1';
 i_web <= '1';
@@ -113,10 +113,10 @@ i_ceb <= '0';
 wait for 01*clock_period;
 i_web <= '0';
 i_oeb <= '1';
---i_address <= "0000000" & x"01";
---io_data <= x"AA";
-i_address <= '0'&'1';
-io_data <= '0'&'1';
+i_address <= "0000000" & x"0F";
+io_data <= x"AA";
+--i_address <= '0'&'1';
+--io_data <= '0'&'1';
 wait for 01*clock_period;
 i_ceb <= '1';
 i_web <= '1';
@@ -127,9 +127,8 @@ i_ceb <= '0';
 wait for 01*clock_period;
 i_web <= '1';
 i_oeb <= '0';
-i_address <= '0'&'0';
---i_address <= "0000000" & x"01";
---io_data <= x"AA";
+--i_address <= '0'&'0';
+i_address <= "0000000" & x"0E";
 wait for 01*clock_period;
 i_ceb <= '1';
 i_web <= '1';
