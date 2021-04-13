@@ -67,7 +67,7 @@ signal io_data : std_logic_vector(data_size-1 downto 0) := (others => 'Z');
 
 -- No clocks detected in port list. Replace <clock> below with 
 -- appropriate port name 
-constant clock_period : time := 10 ns;
+constant clock_period : time := 100 ns;
 signal clock : std_logic := '0';
 
 BEGIN
@@ -120,9 +120,10 @@ i_oeb <= '1';
 io_data <= (others => 'Z');
 wait for 10*clock_period;
 i_ceb <= '0';
+wait for 01*clock_period;
 i_web <= '1';
 i_oeb <= '0';
-i_address <= "0000000" & x"00";
+i_address <= "0000000" & x"01";
 --io_data <= x"AA";
 wait for 01*clock_period;
 i_ceb <= '1';
