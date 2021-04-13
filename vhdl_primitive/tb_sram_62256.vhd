@@ -51,7 +51,8 @@ i_ceb : IN  std_logic;
 i_web : IN  std_logic;
 i_oeb : IN  std_logic;
 i_address : IN  std_logic_vector(address_size-1 downto 0);
-io_data : INOUT  std_logic_vector(data_size-1 downto 0)
+i_data : in  STD_LOGIC_VECTOR (data_size-1 downto 0);
+o_data : out  STD_LOGIC_VECTOR (data_size-1 downto 0)
 );
 END COMPONENT;
 
@@ -63,7 +64,8 @@ signal i_oeb : std_logic := '1';
 signal i_address : std_logic_vector(address_size-1 downto 0) := (others => '0');
 
 --BiDirs
-signal io_data : std_logic_vector(data_size-1 downto 0) := (others => 'Z');
+signal i_data : std_logic_vector(data_size-1 downto 0) := (others => 'Z');
+signal o_data : std_logic_vector(data_size-1 downto 0) := (others => 'Z');
 
 -- No clocks detected in port list. Replace <clock> below with 
 -- appropriate port name 
@@ -78,7 +80,8 @@ i_ceb => i_ceb,
 i_web => i_web,
 i_oeb => i_oeb,
 i_address => i_address,
-io_data => io_data
+i_data => i_data,
+o_data => o_data
 );
 
 -- Clock process definitions
@@ -100,28 +103,28 @@ wait for 01*clock_period;
 i_web <= '0';
 i_oeb <= '1';
 i_address <= "0000000" & x"0E";
-io_data <= x"55";
+i_data <= x"55";
 --i_address <= '0'&'0';
 --io_data <= '1'&'0';
 wait for 01*clock_period;
 i_ceb <= '1';
 i_web <= '1';
 i_oeb <= '1';
-io_data <= (others => 'Z');
+i_data <= (others => 'Z');
 wait for 10*clock_period;
 i_ceb <= '0';
 wait for 01*clock_period;
 i_web <= '0';
 i_oeb <= '1';
 i_address <= "0000000" & x"0F";
-io_data <= x"AA";
+i_data <= x"AA";
 --i_address <= '0'&'1';
 --io_data <= '0'&'1';
 wait for 01*clock_period;
 i_ceb <= '1';
 i_web <= '1';
 i_oeb <= '1';
-io_data <= (others => 'Z');
+i_data <= (others => 'Z');
 wait for 10*clock_period;
 i_ceb <= '0';
 wait for 01*clock_period;
@@ -133,7 +136,7 @@ wait for 01*clock_period;
 i_ceb <= '1';
 i_web <= '1';
 i_oeb <= '1';
-io_data <= (others => 'Z');
+i_data <= (others => 'Z');
 wait;
 end process;
 

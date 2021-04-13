@@ -35,7 +35,7 @@ SIZE : integer := 4
 );
 Port (
 input : in  integer range 0 to SIZE-1;
-output : out  integer range 1 to (2**SIZE)-1
+output : out  integer range 0 to (2**SIZE)-1
 );
 end decoder;
 
@@ -45,7 +45,7 @@ begin
 	 --output <= 0;
 	 p0 : process (input) is
 	 begin
-		output <= (2**input)-1;
+		output <= 2**input;
 	 end process p0;
 --	MUX : for i in 0 to (2**SIZE)-1 generate
 --	begin

@@ -39,7 +39,8 @@ i_ceb : in  STD_LOGIC;
 i_web : in  STD_LOGIC;
 i_oeb : in  STD_LOGIC;
 i_address : in  STD_LOGIC_VECTOR (address_size-1 downto 0);
-io_data : inout  STD_LOGIC_VECTOR (data_size-1 downto 0)
+i_data : in  STD_LOGIC_VECTOR (data_size-1 downto 0);
+o_data : out  STD_LOGIC_VECTOR (data_size-1 downto 0)
 );
 end sram_62256;
 
@@ -67,7 +68,7 @@ architecture Behavioral of sram_62256 is
 	type memory_array is array(0 to (2**memory_bits_cols)-1) of memory_row;
 
 	--signal memory : memory_array(0 to (2**memory_bits_rows)-1,0 to (2**memory_bits_cols)-1*data_size);
-	signal memory : memory_array;
+	signal memory : memory_array := (others => (others => (others => '0')));
 	signal ceb,web,oeb,tristate_input,tristate_output : std_logic;
 	signal data_in,data_out : std_logic_vector(data_size-1 downto 0);
 	signal decoder_row_input : integer range 0 to (address_size/2)-1;
@@ -87,10 +88,6 @@ begin
 	decoder_col_input <= to_integer(unsigned(i_address(14 downto 11)) & unsigned(i_address(1 downto 0))); -- XXX
 	--decoder_col_input <= to_integer(unsigned(i_address((address_size/2)-1 downto 0))); -- XXX pow2
 
-	memory(decoder_row_output)(decoder_col_output) <= data_in when tristate_input = '1';
-	data_out <= memory(decoder_row_output)(decoder_col_output) when tristate_output = '1';
-	-- memory(decoder_row_output*decoder_col_output) <= io_data;
-
 	decoder_row : decoder
 	Generic map (SIZE => memory_bits_rows)
 	Port map (input => decoder_row_input,output => decoder_row_output);
@@ -99,18 +96,28 @@ begin
 	Generic map (SIZE => memory_bits_cols)
 	Port map (input => decoder_col_input,output => decoder_col_output);
 
+	p0 : process (tristate_input,tristate_output) is
+	begin
+		if (tristate_input = '1') then
+			memory(decoder_row_output)(decoder_col_output) <= data_in;
+		end if;
+		if (tristate_output = '1') then
+			data_out <= memory(decoder_row_output)(decoder_col_output);
+		end if;
+	end process p0;
+
 	input_OBUFT_generate : for i in 0 to data_size-1 generate
 	begin
 	input_OBUFT_inst : OBUFT
 	--port map (O => memory(decoder_row_output)(decoder_col_output)(i),I => io_data(i),T => tristate_input);
-	port map (O => data_in(i),I => io_data(i),T => not tristate_input);
+	port map (O => data_in(i),I => i_data(i),T => not tristate_input);
 	end generate input_OBUFT_generate;
 
-	output_OBUFT_generate : for i in 0 to data_size-1 generate
+	output_IBUFT_generate : for i in 0 to data_size-1 generate
 	begin
-	output_OBUFT_inst : OBUFT
+	output_IBUFT_inst : IBUFT
 	--port map (O => io_data(i),I => memory(decoder_row_output)(decoder_col_output)(i),T => tristate_output);
-	port map (O => io_data(i),I => data_out(i),T => not tristate_output);
-	end generate output_OBUFT_generate;
+	port map (O => o_data(i),I => data_out(i),T => not tristate_output);
+	end generate output_IBUFT_generate;
 
 end Behavioral;
