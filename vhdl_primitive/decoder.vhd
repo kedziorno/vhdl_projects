@@ -45,7 +45,7 @@ begin
 	 --output <= 0;
 	 p0 : process (input) is
 	 begin
-		output <= 2**input;
+		output <= (2**input)-1;
 	 end process p0;
 --	MUX : for i in 0 to (2**SIZE)-1 generate
 --	begin

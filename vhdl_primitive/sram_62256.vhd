@@ -31,8 +31,8 @@ use UNISIM.VComponents.all;
 
 entity sram_62256 is
 Generic (
-address_size : integer := 2;
-data_size : integer := 2
+address_size : integer := 15;
+data_size : integer := 8
 );
 Port (
 i_ceb : in  STD_LOGIC;
@@ -82,10 +82,10 @@ begin
 	oeb <= not i_oeb;
 	tristate_input <= ceb and web;
 	tristate_output <= ceb and i_web and oeb;
-	--decoder_row_input <= to_integer(i_address(10 downto 2)); -- XXX
-	decoder_row_input <= to_integer(unsigned(i_address(address_size-1 downto address_size/2))); -- XXX
-	--decoder_col_input <= to_integer(i_address(14 downto 11) & i_address(1 downto 0)); -- XXX
-	decoder_col_input <= to_integer(unsigned(i_address((address_size/2)-1 downto 0))); -- XXX
+	decoder_row_input <= to_integer(unsigned(i_address(10 downto 2))); -- XXX
+	--decoder_row_input <= to_integer(unsigned(i_address(address_size-1 downto address_size/2))); -- XXX
+	decoder_col_input <= to_integer(unsigned(i_address(14 downto 11)) & unsigned(i_address(1 downto 0))); -- XXX
+	--decoder_col_input <= to_integer(unsigned(i_address((address_size/2)-1 downto 0))); -- XXX
 
 	memory(decoder_row_output)(decoder_col_output) <= data_in when tristate_input = '1';
 	data_out <= memory(decoder_row_output)(decoder_col_output) when tristate_output = '1';
