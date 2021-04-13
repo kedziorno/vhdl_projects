@@ -31,8 +31,8 @@ use UNISIM.VComponents.all;
 
 entity sram_62256 is
 Generic (
-address_size : integer := 15;
-data_size : integer := 8
+address_size : integer := 2;
+data_size : integer := 1
 );
 Port (
 i_ceb : in  STD_LOGIC;
@@ -48,28 +48,32 @@ architecture Behavioral of sram_62256 is
 
 	component decoder is
 	Generic (
-	SIZE : integer := 4
+	SIZE : integer := address_size
 	);
 	Port (
-	input : in  STD_LOGIC_VECTOR(SIZE-1 downto 0);
-	output : out  STD_LOGIC_VECTOR(2**SIZE-1 downto 0)
+	input : in  integer range 0 to SIZE-1;
+	output : out  integer range 0 to 2**SIZE-1
 	);
 	end component decoder;
 
-	constant memory_bits_rows : integer := 9;
-	constant memory_bits_cols : integer := 6;	
+	--constant memory_bits_rows : integer := 9;
+	constant memory_bits_rows : integer := address_size/2;
+	--constant memory_bits_cols : integer := 6;
+	constant memory_bits_cols : integer := address_size/2;
 
 	-- 512x512 = 256k = 2**9x2**6*8bit
 	--type memory_array is array(0 to (2**memory_bits_rows-1)*(2**memory_bits_cols-1)) of std_logic_vector(data_size-1 downto 0);
-	type memory_array is array(natural range <>,natural range <>) of std_logic;
+	type memory_row is array(0 to (2**memory_bits_rows)-1) of std_logic_vector(data_size-1 downto 0);
+	type memory_array is array(0 to (2**memory_bits_cols)-1) of memory_row;
 
-	signal memory : memory_array(0 to (2**memory_bits_rows)-1,0 to (2**memory_bits_cols)-1*data_size);
+	--signal memory : memory_array(0 to (2**memory_bits_rows)-1,0 to (2**memory_bits_cols)-1*data_size);
+	signal memory : memory_array;
 	signal ceb,web,oeb,tristate_input,tristate_output : std_logic;
-	signal data : std_logic_vector(data_size-1 downto 0);
-	signal decoder_row_input : std_logic_vector(memory_bits_rows-1 downto 0);
-	signal decoder_row_output : std_logic_vector(2**memory_bits_rows-1 downto 0);
-	signal decoder_col_input : std_logic_vector(memory_bits_cols-1 downto 0);
-	signal decoder_col_output : std_logic_vector(2**memory_bits_cols-1 downto 0);
+	signal data_in,data_out : std_logic_vector(data_size-1 downto 0);
+	signal decoder_row_input : integer;
+	signal decoder_row_output : integer;
+	signal decoder_col_input : integer;
+	signal decoder_col_output : integer;
 
 begin
 
@@ -78,25 +82,13 @@ begin
 	oeb <= not i_oeb;
 	tristate_input <= ceb and web;
 	tristate_output <= ceb and web and oeb;
-	decoder_row_input <= i_address(10 downto 2); -- XXX
-	decoder_col_input <= i_address(14 downto 11) & i_address(1 downto 0); -- XXX
+	--decoder_row_input <= to_integer(i_address(10 downto 2)); -- XXX
+	decoder_row_input <= to_integer(unsigned(i_address(address_size-1 downto address_size/2))); -- XXX
+	--decoder_col_input <= to_integer(i_address(14 downto 11) & i_address(1 downto 0)); -- XXX
+	decoder_col_input <= to_integer(unsigned(i_address((address_size/2)-1 downto 0))); -- XXX
 
-	memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+0) <= data(0) when tristate_input = '1';
-	memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+1) <= data(1) when tristate_input = '1';
-	memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+2) <= data(2) when tristate_input = '1';
-	memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+3) <= data(3) when tristate_input = '1';
-	memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+4) <= data(4) when tristate_input = '1';
-	memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+5) <= data(5) when tristate_input = '1';
-	memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+6) <= data(6) when tristate_input = '1';
-	memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+7) <= data(7) when tristate_input = '1';
-	data(0) <= memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+0) when tristate_output = '1';
-	data(1) <= memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+1) when tristate_output = '1';
-	data(2) <= memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+2) when tristate_output = '1';
-	data(3) <= memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+3) when tristate_output = '1';
-	data(4) <= memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+4) when tristate_output = '1';
-	data(5) <= memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+5) when tristate_output = '1';
-	data(6) <= memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+6) when tristate_output = '1';
-	data(7) <= memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+7) when tristate_output = '1';
+	memory(decoder_row_output)(decoder_col_output) <= data_in when tristate_input = '1' else (others => 'Z');
+	data_out <= memory(decoder_row_output)(decoder_col_output) when tristate_output = '1' else (others => 'Z');
 	-- memory(decoder_row_output*decoder_col_output) <= io_data;
 
 	decoder_row : decoder
@@ -110,13 +102,15 @@ begin
 	input_OBUFT_generate : for i in 0 to data_size-1 generate
 	begin
 	input_OBUFT_inst : OBUFT
-	port map (O => data(i),I => io_data(i),T => tristate_input);
+	--port map (O => memory(decoder_row_output)(decoder_col_output)(i),I => io_data(i),T => tristate_input);
+	port map (O => data_in(i),I => io_data(i),T => tristate_input);
 	end generate input_OBUFT_generate;
 
 	output_OBUFT_generate : for i in 0 to data_size-1 generate
 	begin
 	output_OBUFT_inst : OBUFT
-	port map (O => io_data(i),I => data(i),T => tristate_output);
+	--port map (O => io_data(i),I => memory(decoder_row_output)(decoder_col_output)(i),T => tristate_output);
+	port map (O => io_data(i),I => data_out(i),T => tristate_output);
 	end generate output_OBUFT_generate;
 
 end Behavioral;

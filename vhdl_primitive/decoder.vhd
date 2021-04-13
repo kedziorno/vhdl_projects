@@ -34,16 +34,19 @@ Generic (
 SIZE : integer := 4
 );
 Port (
-input : in  unsigned(SIZE-1 downto 0);
-output : out  unsigned(2**SIZE-1 downto 0)
+input : in  integer range 1 to SIZE-1;
+output : out  integer range 1 to (2**SIZE)-1
 );
 end decoder;
 
 architecture Behavioral of decoder is
 begin
 	-- XXX https://stackoverflow.com/a/4788661 https://stackoverflow.com/a/4788253
-	 output <= (others => '0');
-	 output(to_integer(unsigned(input))) <= '1';
+	 --output <= 0;
+	 p0 : process (input) is
+	 begin
+		output <= 2**input;
+	 end process p0;
 --	MUX : for i in 0 to (2**SIZE)-1 generate
 --	begin
 --		if (i = conv_integer(input)) then
