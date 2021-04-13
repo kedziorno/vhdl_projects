@@ -71,10 +71,14 @@ architecture Behavioral of sram_62256 is
 	signal memory : memory_array := (others => (others => (others => '0')));
 	signal ceb,web,oeb,tristate_input,tristate_output : std_logic;
 	signal data_in,data_out : std_logic_vector(data_size-1 downto 0);
-	signal decoder_row_input : integer range 0 to (address_size/2)-1;
-	signal decoder_row_output : integer range 1 to (2**(address_size/2))-1;
-	signal decoder_col_input : integer range 0 to (address_size/2)-1;
-	signal decoder_col_output : integer range 1 to (2**(address_size/2))-1;
+	--signal decoder_row_input : integer range 0 to (address_size/2)-1;
+	--signal decoder_row_output : integer range 1 to (2**(address_size/2))-1;
+	--signal decoder_col_input : integer range 0 to (address_size/2)-1;
+	--signal decoder_col_output : integer range 1 to (2**(address_size/2))-1;
+	signal decoder_row_input : integer range 0 to (memory_bits_rows)-1;
+	signal decoder_row_output : integer range 1 to (2**(memory_bits_rows))-1;
+	signal decoder_col_input : integer range 0 to (memory_bits_cols)-1;
+	signal decoder_col_output : integer range 1 to (2**(memory_bits_cols))-1;
 
 begin
 
