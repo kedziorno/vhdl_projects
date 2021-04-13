@@ -103,14 +103,14 @@ begin
 	begin
 	input_OBUFT_inst : OBUFT
 	--port map (O => memory(decoder_row_output)(decoder_col_output)(i),I => io_data(i),T => tristate_input);
-	port map (O => data_in(i),I => io_data(i),T => tristate_input);
+	port map (O => data_in(i),I => io_data(i),T => not tristate_input);
 	end generate input_OBUFT_generate;
 
 	output_OBUFT_generate : for i in 0 to data_size-1 generate
 	begin
 	output_OBUFT_inst : OBUFT
 	--port map (O => io_data(i),I => memory(decoder_row_output)(decoder_col_output)(i),T => tristate_output);
-	port map (O => io_data(i),I => data_out(i),T => tristate_output);
+	port map (O => io_data(i),I => data_out(i),T => not tristate_output);
 	end generate output_OBUFT_generate;
 
 end Behavioral;
