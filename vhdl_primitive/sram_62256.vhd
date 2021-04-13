@@ -81,8 +81,22 @@ begin
 	decoder_row_input <= i_address(10 downto 2); -- XXX
 	decoder_col_input <= i_address(14 downto 11) & i_address(1 downto 0); -- XXX
 
-	memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))) <= data when tristate_input = '1';
-	data <= memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))) when tristate_output = '1';
+	memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+0) <= data(0) when tristate_input = '1';
+	memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+1) <= data(1) when tristate_input = '1';
+	memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+2) <= data(2) when tristate_input = '1';
+	memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+3) <= data(3) when tristate_input = '1';
+	memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+4) <= data(4) when tristate_input = '1';
+	memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+5) <= data(5) when tristate_input = '1';
+	memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+6) <= data(6) when tristate_input = '1';
+	memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+7) <= data(7) when tristate_input = '1';
+	data(0) <= memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+0) when tristate_output = '1';
+	data(1) <= memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+1) when tristate_output = '1';
+	data(2) <= memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+2) when tristate_output = '1';
+	data(3) <= memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+3) when tristate_output = '1';
+	data(4) <= memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+4) when tristate_output = '1';
+	data(5) <= memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+5) when tristate_output = '1';
+	data(6) <= memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+6) when tristate_output = '1';
+	data(7) <= memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/8+7) when tristate_output = '1';
 	-- memory(decoder_row_output*decoder_col_output) <= io_data;
 
 	decoder_row : decoder
