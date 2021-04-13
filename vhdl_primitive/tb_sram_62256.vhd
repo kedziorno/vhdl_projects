@@ -64,8 +64,8 @@ signal i_oeb : std_logic := '1';
 signal i_address : std_logic_vector(address_size-1 downto 0) := (others => '0');
 
 --BiDirs
-signal i_data : std_logic_vector(data_size-1 downto 0) := (others => 'Z');
-signal o_data : std_logic_vector(data_size-1 downto 0) := (others => 'Z');
+signal i_data : std_logic_vector(data_size-1 downto 0) := (others => '0');
+signal o_data : std_logic_vector(data_size-1 downto 0);
 
 -- No clocks detected in port list. Replace <clock> below with 
 -- appropriate port name 
@@ -110,7 +110,7 @@ wait for 01*clock_period;
 i_ceb <= '1';
 i_web <= '1';
 i_oeb <= '1';
-i_data <= (others => 'Z');
+--i_data <= (others => 'Z');
 wait for 10*clock_period;
 i_ceb <= '0';
 wait for 01*clock_period;
@@ -124,7 +124,7 @@ wait for 01*clock_period;
 i_ceb <= '1';
 i_web <= '1';
 i_oeb <= '1';
-i_data <= (others => 'Z');
+--i_data <= (others => 'Z');
 wait for 10*clock_period;
 i_ceb <= '0';
 wait for 01*clock_period;
@@ -136,7 +136,7 @@ wait for 01*clock_period;
 i_ceb <= '1';
 i_web <= '1';
 i_oeb <= '1';
-i_data <= (others => 'Z');
+--i_data <= (others => 'Z');
 wait;
 end process;
 

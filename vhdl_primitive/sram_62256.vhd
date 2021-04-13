@@ -106,18 +106,16 @@ begin
 		end if;
 	end process p0;
 
-	input_OBUFT_generate : for i in 0 to data_size-1 generate
+	input_IOBUFDS_generate : for i in 0 to data_size-1 generate
 	begin
-	input_OBUFT_inst : OBUFT
-	--port map (O => memory(decoder_row_output)(decoder_col_output)(i),I => io_data(i),T => tristate_input);
+	input_IOBUFDS_inst : IOBUFDS
 	port map (O => data_in(i),I => i_data(i),T => not tristate_input);
-	end generate input_OBUFT_generate;
+	end generate input_IOBUFDS_generate;
 
-	output_IBUFT_generate : for i in 0 to data_size-1 generate
+	output_IOBUFDS_generate : for i in 0 to data_size-1 generate
 	begin
-	output_IBUFT_inst : IBUFT
-	--port map (O => io_data(i),I => memory(decoder_row_output)(decoder_col_output)(i),T => tristate_output);
-	port map (O => o_data(i),I => data_out(i),T => not tristate_output);
-	end generate output_IBUFT_generate;
+	output_IBUFDS_inst : IOBUFDS
+	port map (O => o_data(i),I => data_out(i),T => tristate_output);
+	end generate output_IOBUFDS_generate;
 
 end Behavioral;
