@@ -34,7 +34,7 @@ Generic (
 SIZE : integer := 4
 );
 Port (
-input : in  integer range 1 to SIZE-1;
+input : in  integer range 0 to SIZE-1;
 output : out  integer range 1 to (2**SIZE)-1
 );
 end decoder;
