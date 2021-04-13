@@ -31,8 +31,8 @@ use UNISIM.VComponents.all;
 
 entity sram_62256 is
 Generic (
-address_size : integer := 15;
-data_size : integer := 8
+address_size : integer := 2;
+data_size : integer := 2
 );
 Port (
 i_ceb : in  STD_LOGIC;
@@ -56,10 +56,10 @@ architecture Behavioral of sram_62256 is
 	);
 	end component decoder;
 
-	constant memory_bits_rows : integer := 9;
-	--constant memory_bits_rows : integer := address_size/2;
-	constant memory_bits_cols : integer := 6;
-	--constant memory_bits_cols : integer := address_size/2;
+	--constant memory_bits_rows : integer := 9;
+	constant memory_bits_rows : integer := address_size/2;
+	--constant memory_bits_cols : integer := 6;
+	constant memory_bits_cols : integer := address_size/2;
 
 	-- 512x512 = 256k = 2**9x2**6*8bit
 	--type memory_array is array(0 to (2**memory_bits_rows-1)*(2**memory_bits_cols-1)) of std_logic_vector(data_size-1 downto 0);
@@ -82,10 +82,10 @@ begin
 	oeb <= not i_oeb;
 	tristate_input <= ceb and web;
 	tristate_output <= ceb and i_web and oeb;
-	decoder_row_input <= to_integer(unsigned(i_address(10 downto 2))); -- XXX
-	--decoder_row_input <= to_integer(unsigned(i_address(address_size-1 downto address_size/2))); -- XXX
-	decoder_col_input <= to_integer(unsigned(i_address(14 downto 11)) & unsigned(i_address(1 downto 0))); -- XXX
-	--decoder_col_input <= to_integer(unsigned(i_address((address_size/2)-1 downto 0))); -- XXX
+	--decoder_row_input <= to_integer(unsigned(i_address(10 downto 2))); -- XXX
+	decoder_row_input <= to_integer(unsigned(i_address(address_size-1 downto address_size/2))); -- XXX
+	--decoder_col_input <= to_integer(unsigned(i_address(14 downto 11)) & unsigned(i_address(1 downto 0))); -- XXX
+	decoder_col_input <= to_integer(unsigned(i_address((address_size/2)-1 downto 0))); -- XXX
 
 	memory(decoder_row_output)(decoder_col_output) <= data_in when tristate_input = '1';
 	data_out <= memory(decoder_row_output)(decoder_col_output) when tristate_output = '1';
