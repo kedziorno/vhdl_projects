@@ -137,6 +137,18 @@ i_ceb <= '1';
 i_web <= '1';
 i_oeb <= '1';
 --i_data <= (others => 'Z');
+wait for 10*clock_period;
+i_ceb <= '0';
+wait for 01*clock_period;
+i_web <= '1';
+i_oeb <= '0';
+--i_address <= '0'&'0';
+i_address <= "0000000" & x"0F";
+wait for 01*clock_period;
+i_ceb <= '1';
+i_web <= '1';
+i_oeb <= '1';
+--i_data <= (others => 'Z');
 wait;
 end process;
 

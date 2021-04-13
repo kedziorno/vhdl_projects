@@ -96,15 +96,17 @@ begin
 	Generic map (SIZE => memory_bits_cols)
 	Port map (input => decoder_col_input,output => decoder_col_output);
 
-	p0 : process (tristate_input,tristate_output) is
-	begin
-		if (tristate_input = '1') then
-			memory(decoder_row_output)(decoder_col_output) <= data_in;
-		end if;
-		if (tristate_output = '1') then
-			data_out <= memory(decoder_row_output)(decoder_col_output);
-		end if;
-	end process p0;
+	memory(decoder_row_output)(decoder_col_output) <= data_in when tristate_input = '1';
+	data_out <= memory(decoder_row_output)(decoder_col_output) when tristate_output = '1';
+--	p0 : process (tristate_input,tristate_output) is
+--	begin
+--		if (tristate_input = '1') then
+--			memory(decoder_row_output)(decoder_col_output) <= data_in;
+--		end if;
+--		if (tristate_output = '1') then
+--			data_out <= memory(decoder_row_output)(decoder_col_output);
+--		end if;
+--	end process p0;
 
 	input_IOBUFDS_generate : for i in 0 to data_size-1 generate
 	begin
@@ -112,10 +114,10 @@ begin
 	port map (O => data_in(i),I => i_data(i),T => not tristate_input);
 	end generate input_IOBUFDS_generate;
 
-	output_IOBUFDS_generate : for i in 0 to data_size-1 generate
+	output_OBUFTDS_generate : for i in 0 to data_size-1 generate
 	begin
-	output_IBUFDS_inst : IOBUFDS
-	port map (O => o_data(i),I => data_out(i),T => tristate_output);
-	end generate output_IOBUFDS_generate;
+	output_OBUFTDS_inst : OBUFTDS
+	port map (O => o_data(i),I => data_out(i),T => not tristate_output);
+	end generate output_OBUFTDS_generate;
 
 end Behavioral;
