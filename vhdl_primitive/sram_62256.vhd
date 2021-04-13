@@ -32,7 +32,7 @@ use UNISIM.VComponents.all;
 entity sram_62256 is
 Generic (
 address_size : integer := 2;
-data_size : integer := 1
+data_size : integer := 2
 );
 Port (
 i_ceb : in  STD_LOGIC;
@@ -52,7 +52,7 @@ architecture Behavioral of sram_62256 is
 	);
 	Port (
 	input : in  integer range 0 to SIZE-1;
-	output : out  integer range 0 to 2**SIZE-1
+	output : out  integer range 1 to (2**SIZE)-1
 	);
 	end component decoder;
 
@@ -70,10 +70,10 @@ architecture Behavioral of sram_62256 is
 	signal memory : memory_array;
 	signal ceb,web,oeb,tristate_input,tristate_output : std_logic;
 	signal data_in,data_out : std_logic_vector(data_size-1 downto 0);
-	signal decoder_row_input : integer;
-	signal decoder_row_output : integer;
-	signal decoder_col_input : integer;
-	signal decoder_col_output : integer;
+	signal decoder_row_input : integer range 0 to (address_size/2)-1;
+	signal decoder_row_output : integer range 1 to (2**(address_size/2))-1;
+	signal decoder_col_input : integer range 0 to (address_size/2)-1;
+	signal decoder_col_output : integer range 1 to (2**(address_size/2))-1;
 
 begin
 
@@ -81,14 +81,14 @@ begin
 	web <= not i_web;
 	oeb <= not i_oeb;
 	tristate_input <= ceb and web;
-	tristate_output <= ceb and web and oeb;
+	tristate_output <= ceb and i_web and oeb;
 	--decoder_row_input <= to_integer(i_address(10 downto 2)); -- XXX
 	decoder_row_input <= to_integer(unsigned(i_address(address_size-1 downto address_size/2))); -- XXX
 	--decoder_col_input <= to_integer(i_address(14 downto 11) & i_address(1 downto 0)); -- XXX
 	decoder_col_input <= to_integer(unsigned(i_address((address_size/2)-1 downto 0))); -- XXX
 
-	memory(decoder_row_output)(decoder_col_output) <= data_in when tristate_input = '1' else (others => 'Z');
-	data_out <= memory(decoder_row_output)(decoder_col_output) when tristate_output = '1' else (others => 'Z');
+	memory(decoder_row_output)(decoder_col_output) <= data_in when tristate_input = '1';
+	data_out <= memory(decoder_row_output)(decoder_col_output) when tristate_output = '1';
 	-- memory(decoder_row_output*decoder_col_output) <= io_data;
 
 	decoder_row : decoder
