@@ -22,8 +22,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
-use IEEE.NUMERIC_STD.ALL;
---use IEEE.STD_LOGIC_ARITH.ALL;
+--use IEEE.NUMERIC_STD.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
@@ -108,9 +108,10 @@ architecture Behavioral of sram_62256 is
 --	signal decoder_col_input : integer range 0 to (memory_bits_cols)-1;
 --	signal decoder_col_output : integer range 1 to (2**(memory_bits_cols))-1;
 	signal decoder_row_input : std_logic_vector(memory_bits_rows-1 downto 0);
-	signal decoder_row_output : std_logic_vector(2**memory_bits_rows-1 downto 0);
+	signal decoder_row_output : unsigned(2**memory_bits_rows-1 downto 0);
 	signal decoder_col_input : std_logic_vector(memory_bits_cols-1 downto 0);
-	signal decoder_col_output : std_logic_vector(2**memory_bits_cols-1 downto 0);
+	signal decoder_col_output : unsigned(2**memory_bits_cols-1 downto 0);
+	signal decoder_row_int,decoder_col_int : integer;
 
 	constant C_DECODER_2x4_OUT : integer := 4;
 	signal enable_a_col : std_logic_vector(C_DECODER_2x4_OUT-1 downto 0);
@@ -371,11 +372,13 @@ begin
 		end generate zxc;
 	end generate aaa;
 
+	decoder_row_int <= conv_integer(decoder_row_output);
+	decoder_col_int <= conv_integer(decoder_col_output);
 	m1_generate : for i in 0 to data_size-1 generate
-		memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/data_size+i) <= data_in(i) when tristate_input = '1';
+		memory(decoder_row_int,decoder_col_int/data_size+i) <= data_in(i) when tristate_input = '1';
 	end generate m1_generate;
 	m2_generate : for i in 0 to data_size-1 generate
-		data_out(i) <= memory(to_integer(unsigned(decoder_row_output)),to_integer(unsigned(decoder_col_output))/data_size+i) when tristate_output = '1';
+		data_out(i) <= memory(decoder_row_int,decoder_col_int/data_size+i) when tristate_output = '1';
 	end generate m2_generate;
 
 --	memory(decoder_row_output)(decoder_col_output) <= data_in when tristate_input = '1';
