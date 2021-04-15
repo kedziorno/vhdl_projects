@@ -87,10 +87,10 @@ architecture Behavioral of top is
 		start,
 		
 		tw_di0,tw_di1,tw_di2,tw_di3,tw_di4, -- send EWEN
-		tw_disable_cs,tw_wait1,tw_enable_cs,
+		tw_disable_cs,tw_disable_cs_wait,tw_wait1,tw_enable_cs,
 		
-		tv_di0,tv_di1,tv_di2,tv_address,tv_data, -- write at
-		tv_disable_cs,tv_wait2,tv_enable_cs,tv_enable_cs1,tv_enable_cs_clk,tv_wait1,tv_disable_cs1,tv_wait3, -- in tv_wait1 check the READY/bBUSY
+		tv_di0,tv_di1,tv_di2,tv_address,tv_address_increment,tv_data,tv_data_increment, -- write at
+		tv_disable_cs,tv_disable_cs_wait,tv_wait2,tv_enable_cs,tv_enable_cs1,tv_enable_cs_clk,tv_wait1,tv_disable_cs1,tv_wait3, -- in tv_wait1 check the READY/bBUSY
 		
 		tu_enable_cs1,tu_di0,tu_di1,tu_di2,tu_di3,tu_di4, -- send EWDS
 		tu_disable_cs,tu_wait1,tu_enable_cs,tu_enable_cs_clk,
@@ -155,7 +155,7 @@ begin
 	PORT MAP (
 		i_reset => i_reset,
 		i_clock => i_clock,
-		i_enable => cd_i_enable,
+		i_enable => '1',
 		o_clock => cd_o_clock
 	);
 
@@ -198,8 +198,8 @@ begin
 				when start => -- start
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						state <= tw_di0;
-						cs <= '1'; -- XXX CS
-						cd_i_enable <= '1';
+						--cs <= '1'; -- XXX CS
+						--cd_i_enable <= '1';
 						--sk <= '0';
 					else
 						state <= start;
@@ -209,6 +209,7 @@ begin
 					
 					
 				when tw_di0 => -- send EWEN
+					cs <= '1'; -- XXX CS
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						state <= tw_di1;
 						di <= '1';
@@ -238,7 +239,8 @@ begin
 					end if;
 				when tw_di4 =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tw_disable_cs;
+						state <= tw_disable_cs_wait;
+						--cs <= '0'; -- XXX CS
 						di <= '1';
 					else
 						state <= tw_di4;
@@ -250,6 +252,13 @@ begin
 --					else
 --						state <= tw_di5;
 --					end if;
+				when tw_disable_cs_wait =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tw_disable_cs;
+						di <= '0';
+					else
+						state <= tw_disable_cs_wait;
+					end if;
 				when tw_disable_cs =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						state <= tw_wait1;
@@ -304,37 +313,47 @@ begin
 					end if;
 				when tv_address =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						if (memory_address_index = G_MemoryAddress - 1) then
-							state <= tv_data;
-							--di <= tw_memory_address(G_MemoryAddress - 1);
-							memory_address_index <= 0;
-						else
-							state <= tv_address;
-							di <= tw_memory_address_1(memory_address_index);
-							memory_address_index <= memory_address_index + 1;
-						end if;
+						di <= tw_memory_address_1(memory_address_index);
+						state <= tv_address_increment;
 					else
 						state <= tv_address;
 					end if;
+				when tv_address_increment =>
+					if (memory_address_index = G_MemoryAddress - 1) then
+						state <= tv_data;
+						--di <= tw_memory_address(G_MemoryAddress - 1);
+						memory_address_index <= 0;
+					else
+						state <= tv_address;
+						memory_address_index <= memory_address_index + 1;
+					end if;					
 				when tv_data =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						di <= tw_memory_data_1(memory_data_index);
-						if (memory_data_index = G_MemoryData - 1) then
-							state <= tv_disable_cs;
-							--memory_data(G_MemoryData-1) <= i_do;
-							memory_data_index <= 0;
-						else
-							
-							memory_data_index <= memory_data_index + 1;
-						end if;
+						state <= tv_data_increment;
 					else
 						state <= tv_data;
 					end if;
-
-
+				when tv_data_increment =>
+					if (memory_data_index = G_MemoryData - 1) then
+						state <= tv_disable_cs_wait;
+						--memory_data(G_MemoryData-1) <= i_do;
+						memory_data_index <= 0;
+					else
+						memory_data_index <= memory_data_index + 1;
+						state <= tv_data;
+					end if;
+				when tv_disable_cs_wait =>
+					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						state <= tv_disable_cs;
+						di <= '0';
+					else
+						state <= tv_disable_cs_wait;
+					end if;
 				when tv_disable_cs =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						state <= tv_enable_cs_clk;
+						--di <= tw_memory_data_1(G_MemoryData - 1);
 						cs <= '0'; -- XXX CS
 						--sk <= '0';
 						cd_i_enable <= '0';
@@ -356,7 +375,7 @@ begin
 				when tv_wait1 => -- XXX check write
 					if (i_do = '1') then
 						state <= tv_disable_cs1;
-					elsif (i_do = '0') then
+					elsif (i_do = '0' or i_do = 'Z') then
 						state <= tv_wait1;
 					end if;
 --					if (to_integer(unsigned(tw_v_wait1)) = SW-1) then
