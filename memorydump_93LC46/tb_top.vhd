@@ -106,9 +106,9 @@ BEGIN
 	stim_proc: process
 	begin
 		-- insert stimulus here
-		wait for 20.0145 ms + 250 ns; -- XXX use flag
+		wait for 2001.45 ms + 250 ns; -- XXX use flag
 		i_do <= '0';
-		wait for G_BOARD_CLOCK_SIMULATE/5*i_clock_period; -- XXX catch the ready on do pin
+		wait for 4*G_BOARD_CLOCK_SIMULATE*i_clock_period; -- XXX catch the ready on do pin
 		i_do <= '1';
 		wait for 200 ns + 1100 ns; -- XXX to re CLK
 		i_do <= 'Z';

@@ -77,6 +77,7 @@ architecture Behavioral of top is
 	Port (
 		i_reset : in STD_LOGIC;
 		i_clock : in STD_LOGIC;
+		i_enable : in STD_LOGIC;
 		o_clock : out STD_LOGIC
 	);
 	END COMPONENT clock_divider_count;
@@ -89,10 +90,10 @@ architecture Behavioral of top is
 		tw_disable_cs,tw_wait1,tw_enable_cs,
 		
 		tv_di0,tv_di1,tv_di2,tv_address,tv_data, -- write at
-		tv_disable_cs,tv_wait2,tv_enable_cs,tv_wait1,tv_disable_cs1,tv_wait3, -- in tv_wait1 check the READY/bBUSY
+		tv_disable_cs,tv_wait2,tv_enable_cs,tv_enable_cs1,tv_enable_cs_clk,tv_wait1,tv_disable_cs1,tv_wait3, -- in tv_wait1 check the READY/bBUSY
 		
 		tu_enable_cs1,tu_di0,tu_di1,tu_di2,tu_di3,tu_di4, -- send EWDS
-		tu_disable_cs,tu_wait1,tu_enable_cs,
+		tu_disable_cs,tu_wait1,tu_enable_cs,tu_enable_cs_clk,
 		
 		di0,di1,di2,
 		di_address,
@@ -110,7 +111,7 @@ architecture Behavioral of top is
 
 	signal rs232_enable_tx,rs232_enable_rx,rs232_busy,rs232_ready,rs232_is_byte_received : std_logic;
 	signal rs232_byte_to_send,rs232_byte_received : MemoryDataByte;
-	signal cd_o_clock,cd_o_clock_prev : std_logic;
+	signal cd_o_clock,cd_o_clock_prev,cd_i_enable : std_logic;
 	signal cs,sk,di,do : std_logic;
 	signal memory_address : MemoryAddress;
 	signal memory_address_index : integer range 0 to G_MemoryAddress-1;
@@ -154,6 +155,7 @@ begin
 	PORT MAP (
 		i_reset => i_reset,
 		i_clock => i_clock,
+		i_enable => cd_i_enable,
 		o_clock => cd_o_clock
 	);
 
@@ -187,6 +189,8 @@ begin
 					if (index = SW-1) then
 						state <= start;
 						index <= 0;
+						cd_i_enable <= '1';
+						--sk <= '0';
 					else
 						state <= some_wait;
 						index <= index + 1;
@@ -195,6 +199,8 @@ begin
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						state <= tw_di0;
 						cs <= '1'; -- XXX CS
+						cd_i_enable <= '1';
+						--sk <= '0';
 					else
 						state <= start;
 					end if;
@@ -249,12 +255,16 @@ begin
 						state <= tw_wait1;
 						cs <= '0'; -- XXX CS
 						di <= '0';
+						cd_i_enable <= '0';
+						--sk <= '0';
 					else
 						state <= tw_disable_cs;
 					end if;
 				when tw_wait1 =>
 					if (index = TW_C_WAIT1-1) then
 						state <= tw_enable_cs;
+						cd_i_enable <= '1';
+						--sk <= '0';
 						index <= 0;
 					else
 						state <= tw_wait1;
@@ -308,12 +318,13 @@ begin
 					end if;
 				when tv_data =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
+						di <= tw_memory_data_1(memory_data_index);
 						if (memory_data_index = G_MemoryData - 1) then
 							state <= tv_disable_cs;
 							--memory_data(G_MemoryData-1) <= i_do;
 							memory_data_index <= 0;
 						else
-							di <= tw_memory_data_1(memory_data_index);
+							
 							memory_data_index <= memory_data_index + 1;
 						end if;
 					else
@@ -323,19 +334,18 @@ begin
 
 				when tv_disable_cs =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
-						state <= tv_wait2;
+						state <= tv_enable_cs_clk;
 						cs <= '0'; -- XXX CS
+						--sk <= '0';
+						cd_i_enable <= '0';
 					else
 						state <= tv_disable_cs;
 					end if;
-				when tv_wait2 =>
-					if (index = TW_C_WAIT1-1) then
-						state <= tv_enable_cs;
-						index <= 0;
-					else
-						state <= tv_wait2;
-						index <= index + 1;
-					end if;
+					
+					
+				when tv_enable_cs_clk =>
+					state <= tv_enable_cs;
+					cd_i_enable <= '1';
 				when tv_enable_cs =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						state <= tv_wait1;
@@ -343,7 +353,7 @@ begin
 					else
 						state <= tv_enable_cs;
 					end if;
-				when tv_wait1 =>
+				when tv_wait1 => -- XXX check write
 					if (i_do = '1') then
 						state <= tv_disable_cs1;
 					elsif (i_do = '0') then
@@ -361,23 +371,44 @@ begin
 						state <= tv_wait3;
 						cs <= '0'; -- XXX CS
 						di <= '0';
+						cd_i_enable <= '0';
+						--sk <= '0';
 					else
 						state <= tv_disable_cs1;
 					end if;
 				when tv_wait3 =>
 					if (index = TW_C_WAIT1-1) then
-						state <= tu_enable_cs1;
+						state <= tv_wait2;
 						index <= 0;
+						cd_i_enable <= '1';
+						--sk <= '0';
 					else
 						state <= tv_wait3;
 						index <= index + 1;
 					end if;
 					
 					
+					
+				when tv_wait2 =>
+					if (index = TW_C_WAIT1-1) then
+						state <= tu_enable_cs1;
+						cd_i_enable <= '1';
+						--sk <= '0';
+						index <= 0;
+					else
+						state <= tv_wait2;
+						index <= index + 1;
+						cd_i_enable <= '0';
+						--sk <= '0';
+					end if;
+				
+					
+					
 				when tu_enable_cs1 =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						state <= tu_di0;
 						cs <= '1'; -- XXX CS
+						
 					else
 						state <= tu_enable_cs1;
 					end if;	
@@ -428,17 +459,23 @@ begin
 						state <= tu_wait1;
 						cs <= '0'; -- XXX CS
 						di <= '0';
+						cd_i_enable <= '0';
+						--sk <= '0';
 					else
 						state <= tu_disable_cs;
 					end if;
 				when tu_wait1 =>
 					if (index = TW_C_WAIT1-1) then
-						state <= tu_enable_cs;
+						state <= tu_enable_cs_clk;
 						index <= 0;
+						--sk <= '0';
 					else
 						state <= tu_wait1;
 						index <= index + 1;
 					end if;
+				when tu_enable_cs_clk =>
+					state <= tu_enable_cs;
+					cd_i_enable <= '1';
 				when tu_enable_cs =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						state <= di0;
@@ -509,11 +546,14 @@ begin
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						state <= st_rs232_enable_tx;
 						cs <= '0';
+						cd_i_enable <= '0';
+						--sk <= '0';
 					else
 						state <= di_set_di2;
 					end if;
 				when st_rs232_enable_tx =>
 					state <= st_rs232_ready;
+					cd_i_enable <= '0';
 					rs232_enable_tx <= '1';
 				when st_rs232_ready =>
 					if (rs232_ready = '1') then
@@ -543,12 +583,16 @@ begin
 						state <= stop;
 					else
 						memory_address <= std_logic_vector(to_unsigned(to_integer(unsigned(memory_address) + 1),G_MemoryAddress));
-						state <=  tu_enable_cs; -- XXX tu_disable_cs , di_set_di1 - omit the addresses
+						state <=  tu_enable_cs_clk; -- XXX tu_disable_cs , di_set_di1 - omit the addresses
+						--cd_i_enable <= '1';
+						--sk <= '0';
 					end if;
 				when stop =>
 					if (cd_o_clock_prev = '0' and cd_o_clock = '1') then
 						cs <= '0'; -- XXX CS
 						di <= '0';
+						cd_i_enable <= '0';
+						--sk <= '0';
 					end if;
 				when others => null;
 			end case;
