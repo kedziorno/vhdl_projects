@@ -110,7 +110,7 @@ architecture Behavioral of top_digikeyspi is
 		w_send_ewen_1,w_send_ewen_2,w_send_ewen_3,w_send_ewen_4,w_send_ewen_5,
 		w_wait_ewen_1,w_wait_ewen_2,w_wait_ewen_3,w_wait_ewen_4,w_wait_ewen_5,
 		w_stop_ewen,w_stop_ewen_busy,
-
+		w_verify_on,w_verify,w_verify_off,
 		wait1a,
 
 		w_start_ewds,
@@ -196,8 +196,8 @@ begin
 				when w_start_ewen => -- send ewen
 					state <= w_send_ewen_1;
 					enable <= '1';
-					cpol <= '0';
-					cpha <= '0';
+					--cpol <= '0';
+					--cpha <= '0';
 					addr <= 0;
 					cont <= '1';
 				when w_send_ewen_1 =>
@@ -257,8 +257,8 @@ begin
 				when w_start => -- write at
 					state <= w_send1;
 					enable <= '1';
-					cpol <= '0';
-					cpha <= '0';
+					--cpol <= '0';
+					--cpha <= '0';
 					addr <= 0;
 					cont <= '1';
 				when w_send1 =>
@@ -318,7 +318,7 @@ begin
 					end if;
 				when w_send6 =>
 					state <= w_wait6;
-					tw_memory_data_1 <= "11";
+					tw_memory_data_1 <= "00";
 					enable <= '1';
 				when w_wait6 =>
 					if (busy = '1') then
@@ -329,7 +329,7 @@ begin
 					end if;
 				when w_send7 =>
 					state <= w_wait7;
-					tw_memory_data_1 <= "11";
+					tw_memory_data_1 <= "00";
 					enable <= '1';
 				when w_wait7 =>
 					if (busy = '1') then
@@ -340,7 +340,7 @@ begin
 					end if;
 				when w_send8 =>
 					state <= w_wait8;
-					tw_memory_data_1 <= "11";
+					tw_memory_data_1 <= "00";
 					enable <= '1';
 				when w_wait8 =>
 					if (busy = '1') then
@@ -351,7 +351,7 @@ begin
 					end if;					
 				when w_send9 =>
 					state <= w_wait9;
-					tw_memory_data_1 <= "11";
+					tw_memory_data_1 <= "00";
 					enable <= '1';
 				when w_wait9 =>
 					if (busy = '1') then
@@ -361,16 +361,31 @@ begin
 					end if;
 				when off =>
 					state <= off_busy;
-					tw_memory_data_1 <= "00";
+					--tw_memory_data_1 <= "00";
 					enable <= '0';
 					cont <= '0';
 				when off_busy =>
 					if (busy = '1') then
 						state <= off_busy;
 					else
-						state <= wait1b;
+						state <= w_verify_on;
 					end if;
-
+				when w_verify_on =>
+					state <= w_verify;
+					enable <= '1';
+					addr <= 0;
+					cont <= '0';
+				when w_verify =>
+					if (rx_data(0) = '1' or rx_data(1) = '1') then
+						state <= w_verify_off;
+					else
+						state <= w_verify;
+					end if;
+				when w_verify_off =>
+					state <= wait1b;
+					addr <= 0;
+					enable <= '0';
+					cont <= '0';
 				when wait1b => -- wait
 					if (index = SW-1) then
 						state <= w_start_ewds;
@@ -383,8 +398,8 @@ begin
 				when w_start_ewds => -- send ewds
 					state <= w_send_ewds_1;
 					enable <= '1';
-					cpol <= '0';
-					cpha <= '0';
+					--cpol <= '0';
+					--cpha <= '0';
 					addr <= 0;
 					cont <= '1';
 				when w_send_ewds_1 =>
@@ -444,8 +459,8 @@ begin
 				when start => -- send address
 					enable <= '1';
 					state <= send1;
-					cpol <= '0';
-					cpha <= '0';
+					--cpol <= '0';
+					--cpha <= '0';
 					addr <= 0;
 					cont <= '1';
 				when send1 =>
@@ -582,8 +597,8 @@ begin
 		clock => i_clock,
 		reset_n => not i_reset,
 		enable => enable,
-		cpol => cpol,
-		cpha => cpha,
+		cpol => '1',
+		cpha => '0',
 		cont => cont,
 		clk_div => G_CLOCK_DIV1,
 		addr => addr,

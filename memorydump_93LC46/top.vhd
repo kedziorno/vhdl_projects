@@ -122,7 +122,7 @@ architecture Behavioral of top is
 	signal tw_memory_data_1 : MemoryDataByte;
 	signal tw_memory_address_1 : MemoryAddress;
 
-	constant SW : integer := 2*G_BOARD_CLOCK;
+	constant SW : integer := G_BOARD_CLOCK/5;
 	signal index : integer;
 
 begin

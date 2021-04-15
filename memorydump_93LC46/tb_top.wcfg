@@ -21,22 +21,6 @@
    <wvobject fp_name="group144" type="group">
       <obj_property name="label">tb</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <wvobject fp_name="/tb_top/i_clock" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">i_clock</obj_property>
-         <obj_property name="ObjectShortName">i_clock</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/i_reset" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">i_reset</obj_property>
-         <obj_property name="ObjectShortName">i_reset</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/i_do" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">i_do</obj_property>
-         <obj_property name="ObjectShortName">i_do</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/i_rsrx" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">i_rsrx</obj_property>
-         <obj_property name="ObjectShortName">i_rsrx</obj_property>
-      </wvobject>
       <wvobject fp_name="/tb_top/o_cs" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">o_cs</obj_property>
          <obj_property name="ObjectShortName">o_cs</obj_property>
@@ -48,6 +32,22 @@
       <wvobject fp_name="/tb_top/o_di" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">o_di</obj_property>
          <obj_property name="ObjectShortName">o_di</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/i_do" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_do</obj_property>
+         <obj_property name="ObjectShortName">i_do</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/i_clock" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clock</obj_property>
+         <obj_property name="ObjectShortName">i_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/i_reset" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_reset</obj_property>
+         <obj_property name="ObjectShortName">i_reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_top/i_rsrx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_rsrx</obj_property>
+         <obj_property name="ObjectShortName">i_rsrx</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/o_rstx" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">o_rstx</obj_property>
