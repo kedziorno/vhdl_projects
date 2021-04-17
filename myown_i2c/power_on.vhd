@@ -88,11 +88,11 @@ begin
 		end if;
 	end process p0;
 
-	p1 : process (i_clk,clock,i_reset) is
+	p1 : process (clock,i_reset) is
 	begin
 		if (i_reset = '1') then
-			c_state <= sda_start;
-			c_cmode <= c0;
+			n_state <= sda_start;
+			n_cmode <= c0;
 		elsif (rising_edge(clock)) then
 			c_state <= n_state;
 			c_cmode <= n_cmode;
@@ -105,7 +105,7 @@ begin
 					n_cmode <= c3;
 				when c3 =>
 					n_cmode <= c0;
-				when others => null;
+				when others => n_cmode <= c1;
 			end case;
 			case c_state is
 				when sda_start =>
@@ -194,7 +194,7 @@ begin
 						end if;
 					end if;
 				when get_instruction =>
-					if (instruction_index < BYTES_SEQUENCE_LENGTH) then
+					if (instruction_index < BYTES_SEQUENCE_LENGTH-1) then
 						n_state <= data;
 					else
 						n_state <= stop;
@@ -282,7 +282,7 @@ begin
 					slave_index <= 0;
 					sda_width <= 0;
 					n_state <= sda_stop;
-				when others => null;
+				when others => n_state <= sda_stop;
 			end case;
 		end if;
 	end process p1;
