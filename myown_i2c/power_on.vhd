@@ -46,10 +46,10 @@ architecture Behavioral of power_on is
 	constant BYTE_SIZE : integer := 8;
 	constant I2C_COUNTER_MAX : integer := (INPUT_CLOCK / I2C_CLOCK) / 4;
 
-	constant BYTES_SEQUENCE_LENGTH : natural := 26;
+	constant BYTES_SEQUENCE_LENGTH : natural := 29;
 	type ARRAY_BYTES_SEQUENCE is array (0 to BYTES_SEQUENCE_LENGTH-1) of std_logic_vector(0 to BYTE_SIZE-1);
 	signal Instrs : ARRAY_BYTES_SEQUENCE :=
-	(x"AE",x"D5",x"F0",x"A8",x"1F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"8F",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E",x"AF");
+	(x"00",x"AE",x"D5",x"80",x"A8",x"1F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"8F",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E",x"AF",x"40",x"00");
 
 	signal clock : std_logic;
 	signal temp_sda : std_logic;
