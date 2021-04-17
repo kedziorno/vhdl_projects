@@ -43,6 +43,8 @@ ARCHITECTURE behavior OF tb_test_oled IS
     COMPONENT test_oled
     PORT(
          i_clk : IN  std_logic;
+         i_rst : IN  std_logic;
+         i_refresh : IN  std_logic;
          i_char : in array1;
          io_sda : INOUT  std_logic;
          io_scl : INOUT  std_logic
@@ -52,7 +54,10 @@ ARCHITECTURE behavior OF tb_test_oled IS
 
    --Inputs
    signal clk : std_logic := '0';
-   signal char : array1(0 to 1) := ("000101000101","000101111101");
+   signal rst : std_logic := '0';
+   signal refresh : std_logic := '0';
+
+   signal text : array1(0 to 6-1) := (x"30",x"31",x"32",x"33",x"34",x"35"); -- 012345
 
 	--BiDirs
    signal sda : std_logic;
@@ -66,7 +71,9 @@ BEGIN
 	-- Instantiate the Unit Under Test (UUT)
 	uut: test_oled PORT MAP (
 		i_clk => clk,
-		i_char => char,
+		i_rst => rst,
+		i_refresh => refresh,
+		i_char => text,
 		io_sda => sda,
 		io_scl => scl
 	);
@@ -83,6 +90,10 @@ BEGIN
 	-- Stimulus process
 	stim_proc: process
 	begin
+--		wait for 60 ms;
+--		refresh <= '1';
+--		wait for 20 ns;
+--		refresh <= '0';
 		wait;
 	end process;
 
