@@ -7,12 +7,12 @@
 ## Both versions are provided in this file.
 ## Keep only the appropriate one, and remove or comment the other one.
 
-NET "CLK" LOC = "B8";
-NET "SDA" LOC = "L15";
+NET "I_CLK" LOC = "B8";
+NET "O_SDA" LOC = "L15";
 #NET "SDA" PULLUP;
-NET "SCL" LOC = "K12";
+NET "O_SCL" LOC = "K12";
 #NET "SCL" PULLUP;
-NET "BTN_1" LOC = "B18";
+NET "I_RESET" LOC = "B18";
 #NET "BTN_1" PULLUP;
 #NET "BTN_2" LOC = "D18";
 #NET "BTN_2" PULLUP;
@@ -261,3 +261,4 @@ NET "BTN_1" LOC = "B18";
 ## RS232 connector
 #NET "RsRx"        LOC = "U6";      # Bank = 2, Pin name = IP, Type = INPUT,                              Sch name = RS-RX
 #NET "RsTx"        LOC = "P9";      # Bank = 2, Pin name = IO, Type = I/O,                                Sch name = RS-TX
+
