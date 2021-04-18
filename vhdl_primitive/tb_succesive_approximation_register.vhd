@@ -104,6 +104,7 @@ wait for i_clock_period*(N+5);
 i_select <= '1';
 wait for i_clock_period;
 i_select <= '0';
+<<<<<<< HEAD
 wait for i_clock_period*3;
 i_select <= '1';
 wait for i_clock_period;
