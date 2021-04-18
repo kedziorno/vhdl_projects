@@ -31,7 +31,7 @@ use UNISIM.VComponents.all;
 
 entity PWM_generator is
 Generic (
-N : integer := 4
+N : integer := 8
 );
 Port (
 i_clock : in std_logic;
@@ -57,25 +57,31 @@ architecture Behavioral of PWM_generator is
 
 	constant C_NUM_COUNTERS : integer := N/2; -- 2 bit
 	signal counter_output : std_logic_vector(N-1 downto 0);
-	signal counter_enable : std_logic;
+	signal counter_enable : std_logic := '1';
 	signal counter_ceo : std_logic_vector(C_NUM_COUNTERS-1 downto 0);
 	signal counter_tc : std_logic_vector(C_NUM_COUNTERS-1 downto 0);
+
+	attribute KEEP : string;
+	attribute KEEP of counter_output : signal is "TRUE";
+	attribute KEEP of counter_enable : signal is "TRUE";
+	attribute KEEP of counter_ceo : signal is "TRUE";
+	attribute KEEP of counter_tc : signal is "TRUE";
+
 begin
 
+CB2CE_first : CB2CE
+port map (
+	CE => counter_enable,
+	C => i_clock,
+	CLR => i_reset,
+	Q0 => counter_output(0),
+	Q1 => counter_output(1),
+	CEO => counter_ceo(0),
+	TC => counter_tc(0)
+);
+
 COUNTER_g : for i in 0 to C_NUM_COUNTERS-1 generate
-	COUNTER_first : if (i=0) generate
-		CB2CE_inst : CB2CE
-		port map (
-			CE => counter_enable,
-			C => i_clock,
-			CLR => i_reset,
-			Q0 => counter_output(0),
-			Q1 => counter_output(1),
-			CEO => counter_ceo(0),
-			TC => counter_tc(0)
-		);
-	end generate COUNTER_first;
-	COUNTER_rest : if (0<i) generate
+	COUNTER_rest : if (i>0) generate
 		CB2CE_inst : CB2CE
 		port map (
 			CE => counter_ceo(i-1),
@@ -88,7 +94,6 @@ COUNTER_g : for i in 0 to C_NUM_COUNTERS-1 generate
 		);
 	end generate COUNTER_rest;
 end generate COUNTER_g;
-
 
 end Behavioral;
 
