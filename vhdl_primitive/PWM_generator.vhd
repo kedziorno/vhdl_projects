@@ -31,7 +31,7 @@ use UNISIM.VComponents.all;
 
 entity PWM_generator is
 Generic (
-N : integer := 8
+N : integer := 4
 );
 Port (
 i_clock : in std_logic;
@@ -55,11 +55,78 @@ architecture Behavioral of PWM_generator is
 	);
 	END COMPONENT CB2CE;
 
+	COMPONENT FTRSE IS
+	GENERIC (
+		INIT : bit := '0'
+	);
+	PORT (
+		Q   : out STD_LOGIC;
+		C   : in STD_LOGIC;
+		CE  : in STD_LOGIC;
+		R   : in STD_LOGIC;
+		S   : in STD_LOGIC;
+		T   : in STD_LOGIC
+	);
+	END COMPONENT FTRSE;
+
+	COMPONENT x3_nand_x1_nor IS
+	PORT (
+		A : in  STD_LOGIC;
+		B : in  STD_LOGIC;
+		Q : out  STD_LOGIC
+	);
+	END COMPONENT x3_nand_x1_nor;
+
+	COMPONENT OR_N_GATE IS
+	Generic (
+		N : integer
+	);
+	Port (
+		input : in  STD_LOGIC_VECTOR (N-1 downto 0);
+		output : out  STD_LOGIC
+	);
+	END COMPONENT OR_N_GATE;
+
+	COMPONENT AND_N_GATE IS
+	Generic (
+		N : integer
+	);
+	Port (
+		input : in  STD_LOGIC_VECTOR (N-1 downto 0);
+		output : out  STD_LOGIC
+	);
+	END COMPONENT AND_N_GATE;
+
+	COMPONENT FDCPE_Q_QB IS
+	Generic (
+		INIT : BIT := '0'
+	);
+	Port (
+		Q : out  STD_LOGIC;
+		QB : out  STD_LOGIC;
+		C : in  STD_LOGIC;
+		CE : in  STD_LOGIC;
+		CLR : in  STD_LOGIC;
+		D : in  STD_LOGIC;
+		PRE : in  STD_LOGIC
+	);
+	END COMPONENT FDCPE_Q_QB;
+
+	signal pull_up : std_logic;
+
 	constant C_NUM_COUNTERS : integer := N/2; -- 2 bit
 	signal counter_output : std_logic_vector(N-1 downto 0);
 	signal counter_enable : std_logic := '1';
 	signal counter_ceo : std_logic_vector(C_NUM_COUNTERS-1 downto 0);
 	signal counter_tc : std_logic_vector(C_NUM_COUNTERS-1 downto 0);
+
+	signal or_n_input : std_logic_vector(N-1 downto 0);
+	signal or_n_output : std_logic;
+	signal and_n_input : std_logic_vector(N-1 downto 0);
+	signal and_n_output : std_logic;
+
+	signal q_data_input : std_logic_vector(N-1 downto 0);
+	signal data_input_clock,pwm_out_clear : std_logic;
 
 	attribute KEEP : string;
 	attribute KEEP of counter_output : signal is "TRUE";
@@ -68,6 +135,15 @@ architecture Behavioral of PWM_generator is
 	attribute KEEP of counter_tc : signal is "TRUE";
 
 begin
+
+PULLUP_inst : PULLUP
+	port map (O=>pull_up);
+
+data_input_FDCPE_generate : for i in 0 to N-1 generate
+	FDCPE_inst : FDCPE
+	generic map (INIT => '0')
+	port map (Q=>q_data_input(i),C=>data_input_clock,CE=>'1',CLR=>pull_up,D=>i_data(i),PRE=>pull_up);
+end generate data_input_FDCPE_generate;
 
 CB2CE_first : CB2CE
 port map (
@@ -94,6 +170,41 @@ COUNTER_g : for i in 0 to C_NUM_COUNTERS-1 generate
 		);
 	end generate COUNTER_rest;
 end generate COUNTER_g;
+
+x3_nand_x1_nor_generate : for i in 0 to N-1 generate
+	x3_nand_x1_nor_inst : x3_nand_x1_nor
+	PORT MAP (
+		A => q_data_input(i),
+		B => counter_output(i),
+		Q => or_n_input(i)
+	);
+end generate x3_nand_x1_nor_generate;
+
+OR_N_GATE_entity : OR_N_GATE
+Generic map (
+	N => N
+)
+Port map (
+	input => or_n_input,
+	output => or_n_output
+);
+
+and_n_input <= counter_output;
+AND_N_GATE_entity : AND_N_GATE
+Generic map (
+	N => N
+)
+Port map (
+	input => and_n_input,
+	output => and_n_output
+);
+
+FDCPE_Q_QB_clock : FDCPE_Q_QB
+generic map (INIT => '0')
+port map (Q=>data_input_clock,QB=>pwm_out_clear,C=>i_clock,CE=>'1',CLR=>i_reset,D=>and_n_output,PRE=>pull_up);
+
+FTRSE_pwm : FTRSE
+port map (Q=>o_pwm,C=>or_n_output,CE=>'1',R=>pwm_out_clear,T=>pull_up,S=>pull_up);
 
 end Behavioral;
 
