@@ -30,19 +30,22 @@ USE ieee.std_logic_1164.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---USE ieee.numeric_std.ALL;
+USE ieee.numeric_std.ALL;
 
 ENTITY tb_pwm_generator IS
 END tb_pwm_generator;
 
 ARCHITECTURE behavior OF tb_pwm_generator IS
 
+constant N : integer := 4;
+
 -- Component Declaration for the Unit Under Test (UUT)
 COMPONENT PWM_generator
+GENERIC(N : integer);
 PORT(
 i_clock : IN  std_logic;
 i_reset : IN  std_logic;
-i_data : IN  std_logic_vector(3 downto 0);
+i_data : IN  std_logic_vector(N-1 downto 0);
 o_pwm : OUT  std_logic
 );
 END COMPONENT;
@@ -50,7 +53,7 @@ END COMPONENT;
 --Inputs
 signal i_clock : std_logic := '0';
 signal i_reset : std_logic := '0';
-signal i_data : std_logic_vector(3 downto 0) := (others => '0');
+signal i_data : std_logic_vector(N-1 downto 0) := (others => '0');
 
 --Outputs
 signal o_pwm : std_logic;
@@ -61,7 +64,9 @@ constant i_clock_period : time := 20 ns;
 BEGIN
 
 -- Instantiate the Unit Under Test (UUT)
-uut: PWM_generator PORT MAP (
+uut: PWM_generator 
+GENERIC MAP (N => N)
+PORT MAP (
 i_clock => i_clock,
 i_reset => i_reset,
 i_data => i_data,
@@ -86,7 +91,10 @@ wait for 100 ns;
 i_reset <= '0';
 wait for i_clock_period*10;
 -- insert stimulus here
-i_data <= "1111";
+l0 : for i in 0 to (2**N)-1 loop
+i_data <= std_logic_vector(to_unsigned(i,N));
+wait for i_clock_period*(2**N)*2;
+end loop l0;
 wait;
 end process;
 
