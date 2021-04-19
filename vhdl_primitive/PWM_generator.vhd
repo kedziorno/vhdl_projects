@@ -43,18 +43,6 @@ end PWM_generator;
 
 architecture Behavioral of PWM_generator is
 
---	COMPONENT CB2CE IS
---	PORT (
---		CEO  : out STD_LOGIC;
---		Q0   : out STD_LOGIC;
---		Q1   : out STD_LOGIC;
---		TC   : out STD_LOGIC;
---		C    : in STD_LOGIC;
---		CE   : in STD_LOGIC;
---		CLR  : in STD_LOGIC
---	);
---	END COMPONENT CB2CE;
-
 	COMPONENT counter_n IS
 	Generic (
 		N : integer
@@ -124,13 +112,9 @@ architecture Behavioral of PWM_generator is
 	END COMPONENT FDCPE_Q_QB;
 
 	signal pull_up : std_logic;
---	signal pull_up : std_logic := '1';
 
-	constant C_NUM_COUNTERS : integer := N/2; -- 2 bit
 	signal counter_output : std_logic_vector(N-1 downto 0);
-	signal counter_enable : std_logic := '1';
-	signal counter_ceo : std_logic_vector(C_NUM_COUNTERS-1 downto 0);
-	signal counter_tc : std_logic_vector(C_NUM_COUNTERS-1 downto 0);
+	signal c_enable : std_logic := '1';
 
 	signal or_n_input : std_logic_vector(N-1 downto 0);
 	signal or_n_output : std_logic;
@@ -140,64 +124,32 @@ architecture Behavioral of PWM_generator is
 	signal q_data_input : std_logic_vector(N-1 downto 0);
 	signal data_input_clock,pwm_out_clear : std_logic;
 
---	attribute KEEP : string;
---	attribute KEEP of counter_output : signal is "TRUE";
---	attribute KEEP of counter_enable : signal is "TRUE";
---	attribute KEEP of counter_ceo : signal is "TRUE";
---	attribute KEEP of counter_tc : signal is "TRUE";
-
 begin
 
 PULLUP_inst : PULLUP
 	port map (O=>pull_up);
 
-data_input_FDCPE_generate : for i in 0 to N-1 generate
+data_input_FDCPE_generate : for i in N-1 downto 0 generate
 	FDCPE_inst : FDCPE
 	generic map (INIT => '0')
-	port map (Q=>q_data_input(i),C=>data_input_clock,CE=>'1',CLR=>not pull_up,D=>i_data(i),PRE=>not pull_up);
+	port map (Q=>q_data_input(i),C=>data_input_clock,CE=>c_enable,CLR=>not pull_up,D=>i_data(i),PRE=>not pull_up);
 end generate data_input_FDCPE_generate;
 
---CB2CE_first : CB2CE
---port map (
---	CE => counter_enable,
---	C => i_clock,
---	CLR => i_reset,
---	Q0 => counter_output(0),
---	Q1 => counter_output(1),
---	CEO => counter_ceo(0),
---	TC => counter_tc(0)
---);
---
---COUNTER_g : for i in 0 to C_NUM_COUNTERS-1 generate
---	COUNTER_rest : if (i>0) generate
---		CB2CE_inst : CB2CE
---		port map (
---			CE => counter_ceo(i-1),
---			C => i_clock,
---			CLR => i_reset,
---			Q0 => counter_output(2*i+0),
---			Q1 => counter_output(2*i+1),
---			CEO => counter_ceo(i),
---			TC => counter_tc(i)
---		);
---	end generate COUNTER_rest;
---end generate COUNTER_g;
-
-	counter_entity : counter_n
-	Generic map (
-		N => N
-	)
-	Port map (
-		i_clock => i_clock,
-		i_reset => i_reset,
-		o_count => counter_output
-	);
+counter_entity : counter_n
+Generic map (
+	N => N
+)
+Port map (
+	i_clock => i_clock,
+	i_reset => i_reset,
+	o_count => counter_output
+);
 	
-x3_nand_x1_nor_generate : for i in 0 to N-1 generate
+x3_nand_x1_nor_generate : for i in N-1 downto 0 generate
 	x3_nand_x1_nor_inst : x3_nand_x1_nor
 	PORT MAP (
-		A => counter_output(i),
-		B => q_data_input(i),
+		A => q_data_input(i),
+		B => counter_output(i),
 		Q => or_n_input(i)
 	);
 end generate x3_nand_x1_nor_generate;
@@ -223,14 +175,11 @@ Port map (
 
 FDCPE_Q_QB_clock : FDCPE_Q_QB
 generic map (INIT => '0')
-port map (Q=>data_input_clock,QB=>pwm_out_clear,C=>i_clock,CE=>'1',CLR=>i_reset,D=>and_n_output,PRE=>'0');
-
---FTRSE_pwm : FTRSE
---port map (Q=>o_pwm,C=>or_n_output,CE=>'1',R=>not pwm_out_clear,T=>pull_up,S=>not pull_up);
+port map (Q=>data_input_clock,QB=>pwm_out_clear,C=>i_clock,CE=>c_enable,CLR=>i_reset,D=>and_n_output,PRE=>'0');
 
 FDCPE_pwm : FDCPE
-generic map (INIT => '0')
-port map (Q=>o_pwm,C=>or_n_output,CE=>'1',CLR=>not pwm_out_clear,D=>pull_up,PRE=>not pull_up);
+generic map (INIT => '1')
+port map (Q=>o_pwm,C=>not or_n_output,CE=>c_enable,CLR=>not pwm_out_clear,D=>pull_up,PRE=>not pull_up);
 	
 end Behavioral;
 
