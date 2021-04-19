@@ -40,9 +40,12 @@ end x3_nand_x1_nor;
 architecture Behavioral of x3_nand_x1_nor is
 	signal g_nand1,g_nand2,g_nand3,g_nor1 : std_logic;
 begin
+	process (A,B) is
+	begin
 	g_nand1 <= A nand B;
 	g_nand2 <= g_nand1 nand A;
 	g_nand3 <= g_nand1 nand B;
 	g_nor1 <= g_nand2 nor g_nand3;
+	end process;
 	Q <= g_nor1;
 end Behavioral;
