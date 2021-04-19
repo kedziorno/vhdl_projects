@@ -95,6 +95,8 @@ l0 : for i in 0 to (2**N)-1 loop
 i_data <= std_logic_vector(to_unsigned(i,N));
 wait for i_clock_period*(2**N)*2;
 end loop l0;
+i_data <= std_logic_vector(to_unsigned(0,N));
+wait for i_clock_period*(2**N)*2;
 wait;
 end process;
 
