@@ -8,36 +8,13 @@
             <top_module name="numeric_std" />
             <top_module name="p_constants" />
             <top_module name="std_logic_1164" />
+            <top_module name="std_logic_arith" />
+            <top_module name="std_logic_unsigned" />
             <top_module name="tb_top" />
          </top_modules>
       </db_ref>
    </db_ref_list>
    <WVObjectSize size="3" />
-   <wave_markers>
-      <marker time="73335900000000" label="" />
-      <marker time="110000900000000" label="" />
-      <marker time="146666100000000" label="" />
-      <marker time="183331300000000" label="" />
-      <marker time="219996500000000" label="" />
-      <marker time="256661700000000" label="" />
-      <marker time="439987700000000" label="" />
-      <marker time="403322500000000" label="" />
-      <marker time="366657300000000" label="" />
-      <marker time="329992100000000" label="" />
-      <marker time="293327100000000" label="" />
-      <marker time="40087170000000" label="" />
-      <marker time="40174350000000" label="" />
-      <marker time="40270070000000" label="" />
-      <marker time="40365790000000" label="" />
-      <marker time="40461510000000" label="" />
-      <marker time="40557150000000" label="" />
-      <marker time="40652870000000" label="" />
-      <marker time="40748590000000" label="" />
-      <marker time="40844310000000" label="" />
-      <marker time="40940030000000" label="" />
-      <marker time="41035750000000" label="" />
-      <marker time="41131470000000" label="" />
-   </wave_markers>
    <wvobject fp_name="group57" type="group">
       <obj_property name="label">tb</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -171,14 +148,6 @@
          <obj_property name="ElementShortName">byte_received[7:0]</obj_property>
          <obj_property name="ObjectShortName">byte_received[7:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb_top/uut/c_rs232/parity_tx" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">parity_tx</obj_property>
-         <obj_property name="ObjectShortName">parity_tx</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/c_rs232/parity_rx" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">parity_rx</obj_property>
-         <obj_property name="ObjectShortName">parity_rx</obj_property>
-      </wvobject>
       <wvobject fp_name="/tb_top/uut/c_rs232/busy" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">busy</obj_property>
          <obj_property name="ObjectShortName">busy</obj_property>
@@ -214,22 +183,6 @@
       <wvobject fp_name="/tb_top/uut/c_rs232/temp" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">temp[9:0]</obj_property>
          <obj_property name="ObjectShortName">temp[9:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/c_rs232/p_tx" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">p_tx</obj_property>
-         <obj_property name="ObjectShortName">p_tx</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/c_rs232/p_rx" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">p_rx</obj_property>
-         <obj_property name="ObjectShortName">p_rx</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/c_rs232/tx_state" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">tx_state</obj_property>
-         <obj_property name="ObjectShortName">tx_state</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_top/uut/c_rs232/rx_state" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">rx_state</obj_property>
-         <obj_property name="ObjectShortName">rx_state</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_top/uut/c_rs232/g_board_clock" type="other" db_ref_id="1">
          <obj_property name="ElementShortName">g_board_clock</obj_property>

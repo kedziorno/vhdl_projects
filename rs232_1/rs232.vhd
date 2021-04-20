@@ -42,7 +42,9 @@ Port(
 	byte_to_send : in  STD_LOGIC_VECTOR (8 downto 0);
 	byte_received : out  STD_LOGIC_VECTOR (7 downto 0);
 	parity_tx : out  STD_LOGIC;
+	parity_tx_error : out  STD_LOGIC;
 	parity_rx : out  STD_LOGIC;
+	parity_rx_error : out  STD_LOGIC;
 	busy : out  STD_LOGIC;
 	ready : out  STD_LOGIC;
 	is_byte_received : out STD_LOGIC;
@@ -79,6 +81,7 @@ architecture Behavioral of rs232 is
 		increment,
 		parity,
 		wparity,
+		check_parity,
 		stop
 	);
 	signal rx_state : r_state;
@@ -138,14 +141,21 @@ begin
 					end if;
 				when parity =>
 					rx_state <= wparity;
-					p_rx <= temp(1) xor temp(2) xor temp(3) xor temp(4) xor temp(5) xor temp(6) xor temp(7) xor temp(8);
+					p_rx <= temp(1) xor temp(2) xor temp(3) xor temp(4) xor temp(5) xor temp(6) xor temp(7) xor temp(8); -- XXX 2x/E=0,2x+1/O=1
 				when wparity =>
 					if (to_integer(unsigned(v_w)) = a-1) then
-						rx_state <= stop;
+						rx_state <= check_parity;
 						v_w <= (others => '0');
 					else
 						rx_state <= wparity;
 						v_w <= std_logic_vector(to_unsigned(to_integer(unsigned(v_w)) + 1,32));
+					end if;
+				when check_parity =>
+					rx_state <= stop;
+					if (p_rx = '1') then -- XXX 2x/E=0,2x+1/O=1
+						parity_rx_error <= '1';
+					else
+						parity_rx_error <= '0';
 					end if;
 				when stop =>
 					rx_state <= idle;
@@ -185,7 +195,7 @@ begin
 					end if;
 				when b1 =>
 					tx_state <= wb1;
-					RsTx <= byte_to_send(0);
+					RsTx <= byte_to_send(1);
 				when wb1 =>
 					if (to_integer(unsigned(t_w)) = a-1) then
 						tx_state <= b2;
@@ -196,7 +206,7 @@ begin
 					end if;
 				when b2 =>
 					tx_state <= wb2;
-					RsTx <= byte_to_send(1);
+					RsTx <= byte_to_send(2);
 				when wb2 =>
 					if (to_integer(unsigned(t_w)) = a-1) then
 						tx_state <= b3;
@@ -207,7 +217,7 @@ begin
 					end if;
 				when b3 =>
 					tx_state <= wb3;
-					RsTx <= byte_to_send(2);
+					RsTx <= byte_to_send(3);
 				when wb3 =>
 					if (to_integer(unsigned(t_w)) = a-1) then
 						tx_state <= b4;
@@ -218,7 +228,7 @@ begin
 					end if;
 				when b4 =>
 					tx_state <= wb4;
-					RsTx <= byte_to_send(3);
+					RsTx <= byte_to_send(4);
 				when wb4 =>
 					if (to_integer(unsigned(t_w)) = a-1) then
 						tx_state <= b5;
@@ -229,7 +239,7 @@ begin
 					end if;
 				when b5 =>
 					tx_state <= wb5;
-					RsTx <= byte_to_send(4);
+					RsTx <= byte_to_send(5);
 				when wb5 =>
 					if (to_integer(unsigned(t_w)) = a-1) then
 						tx_state <= b6;
@@ -240,7 +250,7 @@ begin
 					end if;
 				when b6 =>
 					tx_state <= wb6;
-					RsTx <= byte_to_send(5);
+					RsTx <= byte_to_send(6);
 				when wb6 =>
 					if (to_integer(unsigned(t_w)) = a-1) then
 						tx_state <= b7;
@@ -251,7 +261,7 @@ begin
 					end if;
 				when b7 =>
 					tx_state <= wb7;
-					RsTx <= byte_to_send(6);
+					RsTx <= byte_to_send(7);
 				when wb7 =>
 					if (to_integer(unsigned(t_w)) = a-1) then
 						tx_state <= b8;
@@ -262,7 +272,7 @@ begin
 					end if;
 				when b8 =>
 					tx_state <= wb8;
-					RsTx <= byte_to_send(7);
+					RsTx <= byte_to_send(8);
 				when wb8 =>
 					if (to_integer(unsigned(t_w)) = a-1) then
 						tx_state <= parity;
@@ -273,9 +283,12 @@ begin
 					end if;
 				when parity =>
 					tx_state <= wparity;
-					p_tx <= byte_to_send(0) xor byte_to_send(1) xor byte_to_send(2) xor byte_to_send(3) xor byte_to_send(4) xor byte_to_send(5) xor byte_to_send(6) xor byte_to_send(7);
-					RsTx <= p_tx;
+					--p_tx <= byte_to_send(0) xor byte_to_send(1) xor byte_to_send(2) xor byte_to_send(3) xor byte_to_send(4) xor byte_to_send(5) xor byte_to_send(6) xor byte_to_send(7);
+					p_tx <= byte_to_send(1) xor byte_to_send(2) xor byte_to_send(3) xor byte_to_send(4) xor byte_to_send(5) xor byte_to_send(6) xor byte_to_send(7) xor byte_to_send(8);
+					
 				when wparity =>
+					RsTx <= p_tx;
+					--RsTx <= '0';
 					if (to_integer(unsigned(t_w)) = a-1) then
 						tx_state <= stop;
 						t_w <= (others => '0');
@@ -286,6 +299,7 @@ begin
 				when stop =>
 					tx_state <= wstop;
 					RsTx <= '0';
+					--RsTx <= p_tx;
 					busy <= '0';
 					ready <= '1';
 				when wstop =>
