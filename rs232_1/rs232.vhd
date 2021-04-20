@@ -39,7 +39,7 @@ Port(
 	rst : in  STD_LOGIC;
 	enable_tx : in  STD_LOGIC;
 	enable_rx : in  STD_LOGIC;
-	byte_to_send : in  STD_LOGIC_VECTOR (8 downto 0);
+	byte_to_send : in  STD_LOGIC_VECTOR (7 downto 0);
 	byte_received : out  STD_LOGIC_VECTOR (7 downto 0);
 	parity_tx : out  STD_LOGIC;
 	parity_tx_error : out  STD_LOGIC;
@@ -55,7 +55,7 @@ end rs232;
 
 architecture Behavioral of rs232 is
 
-	constant recv_bits : integer := 10;
+	constant recv_bits : integer := 11; -- XXX 0/8bit/P/1
 	constant a : integer := (G_BOARD_CLOCK/G_BAUD_RATE);
 
 	signal v_i : std_logic_vector(31 downto 0);
@@ -160,7 +160,7 @@ begin
 				when stop =>
 					rx_state <= idle;
 					is_byte_received <= '1';
-					byte_received <= temp(recv_bits-2 downto 1);
+					byte_received <= temp(recv_bits-3 downto 1);
 					parity_rx <= p_rx; -- recv_bits-1
 			end case;
 		end if;
@@ -187,15 +187,31 @@ begin
 					RsTx <= '1';
 				when wstart =>
 					if (to_integer(unsigned(t_w)) = a-1) then
-						tx_state <= b1;
+						tx_state <= parity;
 						t_w <= (others => '0');
 					else
 						tx_state <= wstart;
 						t_w <= std_logic_vector(to_unsigned(to_integer(unsigned(t_w)) + 1,32));
 					end if;
+				when parity =>
+					tx_state <= wparity;
+					p_tx <= byte_to_send(0) xor byte_to_send(1) xor byte_to_send(2) xor byte_to_send(3) xor byte_to_send(4) xor byte_to_send(5) xor byte_to_send(6) xor byte_to_send(7);
+					--p_tx <= byte_to_send(1) xor byte_to_send(2) xor byte_to_send(3) xor byte_to_send(4) xor byte_to_send(5) xor byte_to_send(6) xor byte_to_send(7) xor byte_to_send(8);
+					
+				when wparity =>
+					RsTx <= p_tx;
+					--RsTx <= '0';
+					if (to_integer(unsigned(t_w)) = a-1) then
+						tx_state <= b1;
+						t_w <= (others => '0');
+					else
+						tx_state <= wparity;
+						t_w <= std_logic_vector(to_unsigned(to_integer(unsigned(t_w)) + 1,32));
+					end if;
 				when b1 =>
 					tx_state <= wb1;
-					RsTx <= byte_to_send(1);
+--					RsTx <= byte_to_send(1);
+					RsTx <= byte_to_send(0);
 				when wb1 =>
 					if (to_integer(unsigned(t_w)) = a-1) then
 						tx_state <= b2;
@@ -206,7 +222,8 @@ begin
 					end if;
 				when b2 =>
 					tx_state <= wb2;
-					RsTx <= byte_to_send(2);
+--					RsTx <= byte_to_send(2);
+					RsTx <= byte_to_send(1);
 				when wb2 =>
 					if (to_integer(unsigned(t_w)) = a-1) then
 						tx_state <= b3;
@@ -217,7 +234,8 @@ begin
 					end if;
 				when b3 =>
 					tx_state <= wb3;
-					RsTx <= byte_to_send(3);
+--					RsTx <= byte_to_send(3);
+					RsTx <= byte_to_send(2);
 				when wb3 =>
 					if (to_integer(unsigned(t_w)) = a-1) then
 						tx_state <= b4;
@@ -228,7 +246,8 @@ begin
 					end if;
 				when b4 =>
 					tx_state <= wb4;
-					RsTx <= byte_to_send(4);
+--					RsTx <= byte_to_send(4);
+					RsTx <= byte_to_send(3);
 				when wb4 =>
 					if (to_integer(unsigned(t_w)) = a-1) then
 						tx_state <= b5;
@@ -239,7 +258,8 @@ begin
 					end if;
 				when b5 =>
 					tx_state <= wb5;
-					RsTx <= byte_to_send(5);
+--					RsTx <= byte_to_send(5);
+					RsTx <= byte_to_send(4);
 				when wb5 =>
 					if (to_integer(unsigned(t_w)) = a-1) then
 						tx_state <= b6;
@@ -250,7 +270,8 @@ begin
 					end if;
 				when b6 =>
 					tx_state <= wb6;
-					RsTx <= byte_to_send(6);
+--					RsTx <= byte_to_send(6);
+					RsTx <= byte_to_send(5);
 				when wb6 =>
 					if (to_integer(unsigned(t_w)) = a-1) then
 						tx_state <= b7;
@@ -261,7 +282,8 @@ begin
 					end if;
 				when b7 =>
 					tx_state <= wb7;
-					RsTx <= byte_to_send(7);
+--					RsTx <= byte_to_send(7);
+					RsTx <= byte_to_send(6);
 				when wb7 =>
 					if (to_integer(unsigned(t_w)) = a-1) then
 						tx_state <= b8;
@@ -272,28 +294,14 @@ begin
 					end if;
 				when b8 =>
 					tx_state <= wb8;
-					RsTx <= byte_to_send(8);
+--					RsTx <= byte_to_send(8);
+					RsTx <= byte_to_send(7);
 				when wb8 =>
-					if (to_integer(unsigned(t_w)) = a-1) then
-						tx_state <= parity;
-						t_w <= (others => '0');
-					else
-						tx_state <= wb8;
-						t_w <= std_logic_vector(to_unsigned(to_integer(unsigned(t_w)) + 1,32));
-					end if;
-				when parity =>
-					tx_state <= wparity;
-					--p_tx <= byte_to_send(0) xor byte_to_send(1) xor byte_to_send(2) xor byte_to_send(3) xor byte_to_send(4) xor byte_to_send(5) xor byte_to_send(6) xor byte_to_send(7);
-					p_tx <= byte_to_send(1) xor byte_to_send(2) xor byte_to_send(3) xor byte_to_send(4) xor byte_to_send(5) xor byte_to_send(6) xor byte_to_send(7) xor byte_to_send(8);
-					
-				when wparity =>
-					RsTx <= p_tx;
-					--RsTx <= '0';
 					if (to_integer(unsigned(t_w)) = a-1) then
 						tx_state <= stop;
 						t_w <= (others => '0');
 					else
-						tx_state <= wparity;
+						tx_state <= wb8;
 						t_w <= std_logic_vector(to_unsigned(to_integer(unsigned(t_w)) + 1,32));
 					end if;
 				when stop =>

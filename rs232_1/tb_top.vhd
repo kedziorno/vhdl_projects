@@ -38,6 +38,8 @@ END tb_top;
 
 ARCHITECTURE behavior OF tb_top IS 
 
+	constant G_BOARD_CLOCK : integer := 1_000_000;
+
 	-- Clock period definitions
 	constant i_clock_period : time := (1_000_000_000/G_BOARD_CLOCK) * 1 ns;
 	constant one_uart_bit : time := (G_BOARD_CLOCK/G_BAUD_RATE) * i_clock_period;
@@ -59,7 +61,7 @@ ARCHITECTURE behavior OF tb_top IS
 	--Inputs
 	signal i_clock : std_logic := '0';
 	signal i_reset : std_logic := '0';
-	signal i_RsRX : std_logic := '0';
+	signal i_RsRX : std_logic := '1';
 
 	--Outputs
 	signal o_RsTX : std_logic;
@@ -90,8 +92,10 @@ BEGIN
 
 	-- Stimulus process
 	stim_proc: process
-		type test_array is array(0 to 10) of std_logic_vector(7 downto 0);
-		variable test : test_array := (x"AA",x"55",x"FF",x"00",x"41",x"42",x"43",x"44",x"45",x"46",x"47");
+		type test_array is array(0 to 9) of std_logic_vector(7 downto 0);
+--		type test_array is array(0 to 10) of std_logic_vector(7 downto 0);
+		variable test : test_array := (x"31",x"32",x"33",x"34",x"35",x"36",x"37",x"38",x"39",x"30");
+--		variable test : test_array := (x"AA",x"55",x"FF",x"00",x"41",x"42",x"43",x"44",x"45",x"46",x"47");
 		--variable test : test_array := (x"6F",x"70",x"4F",x"50",x"6F",x"70",x"4F",x"50",x"00",x"FF",x"00");
 	begin
 		i_reset <= '1';
@@ -99,17 +103,18 @@ BEGIN
 		i_reset <= '0';
 		wait for 40 ms; -- must wait for user key
 		-- insert stimulus here
-		l0 : for i in 0 to 10 loop -- data for cp1202
-			i_RsRX <= '1';
+		l0 : for i in 0 to 9 loop -- data for cp1202
+			i_RsRX <= '0';
 			wait for one_uart_bit;
 			l1 : for j in 0 to 7 loop
 				i_RsRX <= test(i)(j);
 				wait for one_uart_bit;
 			end loop l1;
-			i_RsRX <= test(i)(0) xor test(i)(1) xor test(i)(2) xor test(i)(3) xor test(i)(4) xor test(i)(5) xor test(i)(6) xor test(i)(7);
+			i_RsRX <= not (test(i)(0) xor test(i)(1) xor test(i)(2) xor test(i)(3) xor test(i)(4) xor test(i)(5) xor test(i)(6) xor test(i)(7));
 			wait for one_uart_bit;
-			i_RsRX <= '0';
+			i_RsRX <= '1';
 			wait for one_uart_bit;
+--			wait for 10 ms;
 		end loop l0;
 		wait;
 	end process;
