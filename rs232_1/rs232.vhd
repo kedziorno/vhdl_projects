@@ -48,6 +48,7 @@ Port(
 	busy : out  STD_LOGIC;
 	ready : out  STD_LOGIC;
 	is_byte_received : out STD_LOGIC;
+	start_rx : out STD_LOGIC;
 	RsTx : out  STD_LOGIC;
 	RsRx : in  STD_LOGIC
 );
@@ -100,7 +101,8 @@ begin
 		elsif (rising_edge(clk)) then
 			case (rx_state) is
 				when idle =>
-					byte_received <= (others => 'X');
+					--byte_received <= (others => 'X');
+					start_rx <= '0';
 					if (enable_rx = '1') then
 						rx_state <= start;
 						v_i <= (others => '0');
@@ -116,12 +118,14 @@ begin
 					elsif (RsRx = '0') then
 						if (to_integer(unsigned(v_w)) = a-1) then
 							rx_state <= get_first_bit;
+							start_rx <= '1';
 						else
 							rx_state <= start;
 							v_w <= std_logic_vector(to_unsigned(to_integer(unsigned(v_w)) + 1,32));
 						end if;
 					end if;
 				when get_first_bit =>
+					start_rx <= '0';
 					rx_state <= get_first_bit_wait;
 					v_i <= x"00000001"; -- we receive first bit
 					temp(0) <= RsRx;
