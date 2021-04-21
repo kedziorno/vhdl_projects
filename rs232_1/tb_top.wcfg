@@ -12,7 +12,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="6" />
+   <WVObjectSize size="10" />
    <wave_markers>
       <marker time="69993000000000" label="" />
    </wave_markers>
@@ -27,6 +27,24 @@
    <wvobject fp_name="/tb_top/uut/c_rs232/rx_state" type="other" db_ref_id="1">
       <obj_property name="ElementShortName">rx_state</obj_property>
       <obj_property name="ObjectShortName">rx_state</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/c_rs232/byte_received" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">byte_received[7:0]</obj_property>
+      <obj_property name="ObjectShortName">byte_received[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/c_rs232/rstx" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">rstx</obj_property>
+      <obj_property name="ObjectShortName">rstx</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/c_rs232/tx_state" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">tx_state</obj_property>
+      <obj_property name="ObjectShortName">tx_state</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/c_rs232/byte_to_send" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">byte_to_send[7:0]</obj_property>
+      <obj_property name="ObjectShortName">byte_to_send[7:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="group57" type="group">
       <obj_property name="label">tb</obj_property>

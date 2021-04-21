@@ -176,7 +176,7 @@ begin
 				when stop =>
 					rx_state <= idle;
 					is_byte_received <= '1';
-					byte_received <= temp(recv_bits-3 downto 1);
+					byte_received <= temp(recv_bits-4 downto 0);
 					parity_rx <= p_rx; -- recv_bits-1
 			end case;
 		end if;
