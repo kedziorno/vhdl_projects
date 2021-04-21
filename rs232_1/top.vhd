@@ -129,7 +129,6 @@ begin
 				when st_rs_rx =>
 					if (start_rx = '1') then
 						state <= st_disable_rx;
-						byte_to_send <= byte_received;
 					else
 						state <= st_rs_rx;
 					end if;
@@ -143,6 +142,7 @@ begin
 				when st_enable_tx =>
 					state <= st_rs232_ready;
 					enable_tx <= '1';
+					byte_to_send <= byte_received;
 				when st_rs232_ready =>
 					if (ready = '1') then
 						state <= st_rs232_send;

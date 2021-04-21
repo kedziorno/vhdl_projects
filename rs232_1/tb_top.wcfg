@@ -13,10 +13,6 @@
       </db_ref>
    </db_ref_list>
    <WVObjectSize size="10" />
-   <wave_markers>
-      <marker time="69993000000000" label="" />
-      <marker time="1179957000000000" label="" />
-   </wave_markers>
    <wvobject fp_name="/tb_top/uut/c_rs232/rsrx" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">rsrx</obj_property>
       <obj_property name="ObjectShortName">rsrx</obj_property>
