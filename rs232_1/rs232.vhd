@@ -109,16 +109,16 @@ begin
 						rx_state <= idle;
 					end if;
 				when start =>
-					if (RsRx = '0') then
+					if (RsRx = '1') then
+						rx_state <= start;
+						v_w <= (others => '0');
+					elsif (RsRx = '0') then
 						if (to_integer(unsigned(v_w)) = a-1) then
 							rx_state <= get_first_bit;
 						else
 							rx_state <= start;
 							v_w <= std_logic_vector(to_unsigned(to_integer(unsigned(v_w)) + 1,32));
 						end if;
-					elsif (RsRx = '1') then
-						rx_state <= start;
-						v_w <= (others => '0');
 					end if;
 				when get_first_bit =>
 					rx_state <= get_first_bit_wait;
@@ -316,7 +316,8 @@ begin
 					end if;
 				when parity =>
 					tx_state <= wparity;
-					p_tx <= byte_to_send(0) xor byte_to_send(1) xor byte_to_send(2) xor byte_to_send(3) xor byte_to_send(4) xor byte_to_send(5) xor byte_to_send(6) xor byte_to_send(7);
+					p_tx <= not (byte_to_send(0) xor byte_to_send(1) xor byte_to_send(2) xor byte_to_send(3) xor byte_to_send(4) xor byte_to_send(5) xor byte_to_send(6) xor byte_to_send(7));
+--					p_tx <= byte_to_send(0) xor byte_to_send(1) xor byte_to_send(2) xor byte_to_send(3) xor byte_to_send(4) xor byte_to_send(5) xor byte_to_send(6) xor byte_to_send(7);
 					--p_tx <= byte_to_send(1) xor byte_to_send(2) xor byte_to_send(3) xor byte_to_send(4) xor byte_to_send(5) xor byte_to_send(6) xor byte_to_send(7) xor byte_to_send(8);
 				when wparity =>
 					RsTx <= p_tx;

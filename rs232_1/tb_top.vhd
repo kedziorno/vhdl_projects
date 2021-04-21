@@ -103,9 +103,9 @@ BEGIN
 
 	-- Stimulus process
 	stim_proc: process
-		type test_array is array(0 to 9) of std_logic_vector(7 downto 0);
+		type test_array is array(0 to 9+2) of std_logic_vector(7 downto 0);
 --		type test_array is array(0 to 10) of std_logic_vector(7 downto 0);
-		variable test : test_array := (x"31",x"32",x"33",x"34",x"35",x"36",x"37",x"38",x"39",x"30");
+		variable test : test_array := (x"31",x"32",x"33",x"34",x"35",x"36",x"37",x"38",x"39",x"30",x"00",x"FF");
 --		variable test : test_array := (x"AA",x"55",x"FF",x"00",x"41",x"42",x"43",x"44",x"45",x"46",x"47");
 		--variable test : test_array := (x"6F",x"70",x"4F",x"50",x"6F",x"70",x"4F",x"50",x"00",x"FF",x"00");
 	begin
@@ -114,6 +114,7 @@ BEGIN
 		i_reset <= '0';
 		wait for 40 ms; -- must wait for user key
 		-- insert stimulus here
+
 		l0 : for i in 0 to 9 loop -- data for cp1202
 			i_RsRX <= '0';
 			wait for one_uart_bit;
@@ -128,6 +129,22 @@ BEGIN
 			wait for one_uart_bit;
 			wait for 50 ms;
 		end loop l0;
+
+		l3 : for i in 9 to 11 loop -- data for cp1202 FF and 00
+			i_RsRX <= '0';
+			wait for one_uart_bit;
+			l4 : for j in 0 to 7 loop
+				i_RsRX <= test(i)(j);
+				wait for one_uart_bit;
+			end loop l4;
+			--i_RsRX <= test(i)(0) xor test(i)(1) xor test(i)(2) xor test(i)(3) xor test(i)(4) xor test(i)(5) xor test(i)(6) xor test(i)(7); -- XXX Even
+			i_RsRX <= not (test(i)(0) xor test(i)(1) xor test(i)(2) xor test(i)(3) xor test(i)(4) xor test(i)(5) xor test(i)(6) xor test(i)(7)); -- XXX Odd
+			wait for one_uart_bit;
+			i_RsRX <= '1';
+			wait for one_uart_bit;
+			wait for 100 ms;
+		end loop l3;
+		
 		wait;
 	end process;
 

@@ -15,6 +15,7 @@
    <WVObjectSize size="10" />
    <wave_markers>
       <marker time="69993000000000" label="" />
+      <marker time="1179957000000000" label="" />
    </wave_markers>
    <wvobject fp_name="/tb_top/rs_clock" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">rs_clock</obj_property>
