@@ -128,15 +128,14 @@ wait for clk_period;
 rst <= '0';
 wait for clk_period;
 
---wait for 40 ms;
---wait until ready = '0';
-
 enable_tx <= '1';
 byte_to_send <= x"DD";
-wait until busy = '1';
+wait for clk_period;
 enable_tx <= '0';
+wait until busy = '0';
 
-wait until ready = '1';
+
+byte_to_send <= (others => 'X');
 
 -- receive raw bits
 enable_rx <= '1';
@@ -155,16 +154,15 @@ wait for one_uart_bit;
 end loop l0;
 enable_rx <= '0';
 
-wait until ready = '0';
-
 -- send bytes
-l10 : for i in 0 to 10 loop
 enable_tx <= '1';
+l10 : for i in 0 to 10 loop
 byte_to_send <= test(i);
-wait until busy = '1';
-enable_tx <= '0';
-wait for clk_period;
+wait until busy = '0';
 end loop l10;
+enable_tx <= '0';
+
+byte_to_send <= (others => 'X');
 
 -- receive FF's
 enable_rx <= '1';
@@ -184,13 +182,15 @@ end loop l00;
 enable_rx <= '0';
 
 -- send ff's
-l1000 : for i in 0 to 20 loop
 enable_tx <= '1';
+l1000 : for i in 0 to 20 loop
 byte_to_send <= x"FF";
-wait until busy = '1';
-enable_tx <= '0';
 wait for clk_period;
+wait until busy = '1';
 end loop l1000;
+enable_tx <= '0';
+
+byte_to_send <= (others => 'X');
 
 wait;
 end process;

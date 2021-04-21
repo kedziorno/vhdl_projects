@@ -100,6 +100,7 @@ begin
 		elsif (rising_edge(clk)) then
 			case (rx_state) is
 				when idle =>
+					byte_received <= (others => 'X');
 					if (enable_rx = '1') then
 						rx_state <= start;
 						v_i <= (others => '0');
@@ -196,6 +197,8 @@ begin
 					RsTx <= '1';
 					if (enable_tx = '1') then
 						tx_state <= start;
+						busy <= '1';
+						ready <= '0';
 					else
 						tx_state <= idle;
 						busy <= '0';
@@ -203,8 +206,6 @@ begin
 					end if;
 				when start =>
 					tx_state <= wstart;
-					busy <= '1';
-					ready <= '0';
 					RsTx <= '0';
 				when wstart =>
 					if (to_integer(unsigned(t_w)) = a-1) then
