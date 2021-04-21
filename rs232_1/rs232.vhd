@@ -76,6 +76,8 @@ architecture Behavioral of rs232 is
 	type r_state is (
 		idle,
 		start,
+		get_first_bit,
+		get_first_bit_wait,
 		recv,
 		wait0,
 		increment,
@@ -107,18 +109,31 @@ begin
 						rx_state <= idle;
 					end if;
 				when start =>
-					if (RsRx = '1') then
-						if (to_integer(unsigned(v_i)) = a-1) then
-							rx_state <= recv;
-							v_i <= x"00000001"; -- we receive first bit
-							temp(0) <= RsRx;
+					if (RsRx = '0') then
+						if (to_integer(unsigned(v_w)) = a-1) then
+							rx_state <= get_first_bit;
 						else
 							rx_state <= start;
-							v_i <= std_logic_vector(to_unsigned(to_integer(unsigned(v_i)) + 1,32));
+							v_w <= std_logic_vector(to_unsigned(to_integer(unsigned(v_w)) + 1,32));
 						end if;
-					elsif (RsRx = '0') then
+					elsif (RsRx = '1') then
 						rx_state <= start;
-						v_i <= (others => '0');
+						v_w <= (others => '0');
+					end if;
+				when get_first_bit =>
+					rx_state <= get_first_bit_wait;
+					v_i <= x"00000001"; -- we receive first bit
+					temp(0) <= RsRx;
+					v_w <= (others => '0');
+					--temp(0) <= '0';
+				when get_first_bit_wait =>
+					rx_state <= recv;
+					if (to_integer(unsigned(v_w)) = a-1) then
+						rx_state <= recv;
+						v_w <= (others => '0');
+					else
+						rx_state <= get_first_bit_wait;
+						v_w <= std_logic_vector(to_unsigned(to_integer(unsigned(v_w)) + 1,32));
 					end if;
 				when recv =>
 					rx_state <= wait0;
@@ -132,7 +147,7 @@ begin
 						v_w <= std_logic_vector(to_unsigned(to_integer(unsigned(v_w)) + 1,32));
 					end if;
 				when increment =>
-					if (to_integer(unsigned(v_i)) = recv_bits-2) then
+					if (to_integer(unsigned(v_i)) = recv_bits-4) then
 						rx_state <= parity;
 						v_i <= (others => '0');
 					else
@@ -141,7 +156,8 @@ begin
 					end if;
 				when parity =>
 					rx_state <= wparity;
-					p_rx <= temp(1) xor temp(2) xor temp(3) xor temp(4) xor temp(5) xor temp(6) xor temp(7) xor temp(8); -- XXX 2x/E=0,2x+1/O=1
+					--p_rx <= temp(1) xor temp(2) xor temp(3) xor temp(4) xor temp(5) xor temp(6) xor temp(7) xor temp(8); -- XXX 2x/E=0,2x+1/O=1
+					p_rx <= temp(0) xor temp(1) xor temp(2) xor temp(3) xor temp(4) xor temp(5) xor temp(6) xor temp(7); -- XXX 2x/E=0,2x+1/O=1
 				when wparity =>
 					if (to_integer(unsigned(v_w)) = a-1) then
 						rx_state <= check_parity;

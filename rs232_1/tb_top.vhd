@@ -66,6 +66,9 @@ ARCHITECTURE behavior OF tb_top IS
 	--Outputs
 	signal o_RsTX : std_logic;
 
+	--Clock
+	signal rs_clock : std_logic := '0';
+
 BEGIN
 
 	-- Instantiate the Unit Under Test (UUT)
@@ -90,6 +93,14 @@ BEGIN
 		wait for i_clock_period/2;
 	end process;
 
+	rs_clock_process :process
+	begin
+		rs_clock <= '0';
+		wait for one_uart_bit/2;
+		rs_clock <= '1';
+		wait for one_uart_bit/2;
+	end process;
+
 	-- Stimulus process
 	stim_proc: process
 		type test_array is array(0 to 9) of std_logic_vector(7 downto 0);
@@ -110,11 +121,12 @@ BEGIN
 				i_RsRX <= test(i)(j);
 				wait for one_uart_bit;
 			end loop l1;
-			i_RsRX <= not (test(i)(0) xor test(i)(1) xor test(i)(2) xor test(i)(3) xor test(i)(4) xor test(i)(5) xor test(i)(6) xor test(i)(7));
+			i_RsRX <= test(i)(0) xor test(i)(1) xor test(i)(2) xor test(i)(3) xor test(i)(4) xor test(i)(5) xor test(i)(6) xor test(i)(7); -- XXX Even
+			--i_RsRX <= not (test(i)(0) xor test(i)(1) xor test(i)(2) xor test(i)(3) xor test(i)(4) xor test(i)(5) xor test(i)(6) xor test(i)(7)); -- XXX Odd
 			wait for one_uart_bit;
 			i_RsRX <= '1';
 			wait for one_uart_bit;
---			wait for 10 ms;
+			wait for 50 ms;
 		end loop l0;
 		wait;
 	end process;
