@@ -185,7 +185,7 @@ begin
 	p1 : process (clk,rst) is -- tx mode
 	begin
 		if (rst = '1') then
-			tx_state <= start;
+			tx_state <= idle;
 			busy <= '0';
 			ready <= '1';
 			RsTx <= '0';
@@ -196,6 +196,10 @@ begin
 					RsTx <= '1';
 					if (enable_tx = '1') then
 						tx_state <= start;
+					else
+						tx_state <= idle;
+						busy <= '0';
+						ready <= '1';
 					end if;
 				when start =>
 					tx_state <= wstart;

@@ -121,20 +121,22 @@ end process;
 stim_proc: process
 type test_array is array(0 to 10) of std_logic_vector(7 downto 0);
 variable test : test_array := (x"AA",x"55",x"FF",x"00",x"41",x"42",x"43",x"44",x"45",x"46",x"47");
+variable test_ff : std_logic_vector(7 downto 0) := X"FF";
 begin
 rst <= '1';
 wait for clk_period;
 rst <= '0';
 wait for clk_period;
 
-wait for 40 ms;
+--wait for 40 ms;
+--wait until ready = '0';
 
---enable_tx <= '1';
---wait for clk_period;
---byte_to_send <= x"AA";
---wait for one_uart_bit*12;
---enable_tx <= '0';
---wait for clk_period;
+enable_tx <= '1';
+byte_to_send <= x"DD";
+wait until busy = '1';
+enable_tx <= '0';
+
+wait until ready = '1';
 
 -- receive raw bits
 enable_rx <= '1';
@@ -153,6 +155,8 @@ wait for one_uart_bit;
 end loop l0;
 enable_rx <= '0';
 
+wait until ready = '0';
+
 -- send bytes
 l10 : for i in 0 to 10 loop
 enable_tx <= '1';
@@ -161,6 +165,32 @@ wait until busy = '1';
 enable_tx <= '0';
 wait for clk_period;
 end loop l10;
+
+-- receive FF's
+enable_rx <= '1';
+l00 : for i in 0 to 20 loop
+RsRx <= '0';
+wait for one_uart_bit;
+l20 : for j in 0 to 7 loop
+RsRx <= test_ff(j);
+wait for one_uart_bit;
+end loop l20;
+--RsRX <= test_ff(0) xor test_ff(1) xor test_ff(2) xor test_ff(3) xor test_ff(4) xor test_ff(5) xor test_ff(6) xor test_ff(7); -- XXX Even
+RsRX <= not (test_ff(0) xor test_ff(1) xor test_ff(2) xor test_ff(3) xor test_ff(4) xor test_ff(5) xor test_ff(6) xor test_ff(7)); -- XXX Odd
+wait for one_uart_bit;
+RsRx <= '1';
+wait for one_uart_bit;
+end loop l00;
+enable_rx <= '0';
+
+-- send ff's
+l1000 : for i in 0 to 20 loop
+enable_tx <= '1';
+byte_to_send <= x"FF";
+wait until busy = '1';
+enable_tx <= '0';
+wait for clk_period;
+end loop l1000;
 
 wait;
 end process;

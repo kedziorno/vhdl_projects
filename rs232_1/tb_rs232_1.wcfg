@@ -27,23 +27,27 @@
          <obj_property name="ElementShortName">enable_tx</obj_property>
          <obj_property name="ObjectShortName">enable_tx</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb_rs232_1/enable_rx" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">enable_rx</obj_property>
-         <obj_property name="ObjectShortName">enable_rx</obj_property>
-      </wvobject>
       <wvobject fp_name="/tb_rs232_1/byte_to_send" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">byte_to_send[7:0]</obj_property>
          <obj_property name="ObjectShortName">byte_to_send[7:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
-      <wvobject fp_name="/tb_rs232_1/rsrx" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">rsrx</obj_property>
-         <obj_property name="ObjectShortName">rsrx</obj_property>
+      <wvobject fp_name="/tb_rs232_1/rstx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rstx</obj_property>
+         <obj_property name="ObjectShortName">rstx</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_rs232_1/enable_rx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">enable_rx</obj_property>
+         <obj_property name="ObjectShortName">enable_rx</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_rs232_1/byte_received" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">byte_received[7:0]</obj_property>
          <obj_property name="ObjectShortName">byte_received[7:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_rs232_1/rsrx" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">rsrx</obj_property>
+         <obj_property name="ObjectShortName">rsrx</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_rs232_1/parity_tx" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">parity_tx</obj_property>
@@ -72,10 +76,6 @@
       <wvobject fp_name="/tb_rs232_1/is_byte_received" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">is_byte_received</obj_property>
          <obj_property name="ObjectShortName">is_byte_received</obj_property>
-      </wvobject>
-      <wvobject fp_name="/tb_rs232_1/rstx" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">rstx</obj_property>
-         <obj_property name="ObjectShortName">rstx</obj_property>
       </wvobject>
       <wvobject fp_name="/tb_rs232_1/g_board_clock" type="other" db_ref_id="1">
          <obj_property name="ElementShortName">g_board_clock</obj_property>
