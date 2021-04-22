@@ -25,284 +25,270 @@ use WORK.p_pkg1.ALL;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 use IEEE.NUMERIC_STD.ALL;
+use ieee.std_logic_unsigned.all;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity i2c is
+entity my_i2c is
 generic(
-GLOBAL_CLOCK : INTEGER;
-BUS_CLOCK : INTEGER
+BOARD_CLOCK : INTEGER := G_BOARD_CLOCK;
+BUS_CLOCK : INTEGER := G_BUS_CLOCK;
+SEQUENCE_LENGTH : INTEGER := 1
 );
 port(
-clk : in std_logic;
-rst : in std_logic;
-slave : std_logic_vector(6 downto 0);
-bytes_to_send : array1;
-enable : in std_logic;
-busy : out std_logic;
-sda : out std_logic;
-sck : out std_logic
+i_clock : in std_logic;
+i_reset : in std_logic;
+i_slave_address : std_logic_vector(G_SLAVE_ADDRESS_SIZE-1 downto 0);
+i_bytes_to_send : array_byte_sequence(0 to SEQUENCE_LENGTH-1);
+i_enable : in std_logic;
+o_busy : out std_logic;
+o_sda : out std_logic;
+o_scl : out std_logic
 );
-end i2c;
+end my_i2c;
 
-architecture Behavioral of i2c is
+architecture Behavioral of my_i2c is
+	constant I2C_COUNTER_MAX : integer := (BOARD_CLOCK / BUS_CLOCK) / 4;
 
-	constant INPUT_CLOCK : integer := GLOBAL_CLOCK;
-	constant I2C_CLOCK : integer := BUS_CLOCK;
-	constant NUMBER_BITS : integer := 8;
+	signal clock : std_logic;
+	signal temp_sda : std_logic;
+	signal temp_sck : std_logic;
+	signal instruction_index : integer range 0 to i_bytes_to_send'length-1 := 0;
 
-	constant COUNTER1_MAX : integer := (INPUT_CLOCK / I2C_CLOCK);
-
-	type state is (sda_start,start,slave_address,slave_rw,slave_ack,data_0,data_1,data_2,data_3,data_4,data_5,data_6,data_7,data_ack,stop,sda_stop);
-	type clock_mode is (c0,c1,c2,c3);
-
-	signal clock : std_logic := '0';
-	signal clock_streth : std_logic := '0';
-	signal temp_sda : std_logic := 'Z';
-	signal temp_sck : std_logic := 'Z';
-	signal instruction_index : std_logic_vector(NUMBER_BITS-1 downto 0) := x"00";
+	type state is (sda_start,start,slave_address,slave_address_lastbit,slave_rw,slave_ack,get_instruction,data,data_lastbit,data_ack,stop,sda_stop);
 	signal c_state,n_state : state;
+
+	type clock_mode is (c0,c1,c2,c3);
 	signal c_cmode,n_cmode : clock_mode;
+
+	constant SLAVE_INDEX_MAX : integer := G_SLAVE_ADDRESS_SIZE;
+	constant SDA_WIDTH_MAX : integer := 2;
+	signal data_index : integer range 0 to G_BYTE_SIZE-1 := 0;
+	signal slave_index : integer range 0 to SLAVE_INDEX_MAX-1 := 0;
+	signal sda_width: integer range 0 to SDA_WIDTH_MAX-1 := 0;
 
 begin
 
-	p0 : process (clk) is
-		variable count1 : integer := 0;
-		variable count2 : integer := 0;
+	i2c_clock_process : process (i_clock,i_reset) is
+		variable count : integer range 0 to (I2C_COUNTER_MAX*4)-1 := 0;
 	begin
-		if (rising_edge(clk)) then
-			count1 := count1 + 1;
-		end if;
-		if (count1 = COUNTER1_MAX-1) then
-			clock <= '1';
-			count1 := 0;
-			if (count2 mod 4 = 0) then
-				clock_streth <= '1';
-				count2 := 0;
-			end if;
-		else
+		if (i_reset = '1') then
 			clock <= '0';
-			clock_streth <= '0';
-			count2 := count2 + 1;
-		end if;
-	end process p0;
-
-	p1 : process (clk,clock,c_cmode) is
-	begin
-		if (rising_edge(clock)) then
-			c_cmode <= n_cmode;
-		end if;
-		case c_cmode is
-			when c0 =>
-				n_cmode <= c1;
-			when c1 =>
-				n_cmode <= c2;
-			when c2 =>
-				n_cmode <= c3;
-			when c3 =>
-				n_cmode <= c0;
-			when others => null;
-		end case;
-	end process p1;
-
-	pa : process (clk,clock_streth,c_state,c_cmode,rst,enable,slave,bytes_to_send,instruction_index) is
-		constant SLAVE_INDEX_MAX : integer := 7;
-		variable slave_index : integer range 0 to SLAVE_INDEX_MAX := 0;
-	begin
-		if (rst = '1') then
-			n_state <= start;
-		elsif (enable = '1') then
-			if (rising_edge(clock_streth)) then
-				c_state <= n_state;
-				if (c_state = sda_start) then
-					instruction_index <= (others => '0');
-				end if;
-				if (c_state = slave_address) then
-					slave_index := slave_index + 1;
-				end if;
-				if (c_state = data_ack) then
-					instruction_index <= std_logic_vector(unsigned(instruction_index) + 1);
-				end if;
+			count := 0;
+		elsif (rising_edge(i_clock)) then
+			if (count = (I2C_COUNTER_MAX*4)-1) then
+				clock <= '1';
+				count := 0;
+			else
+				clock <= '0';
+				count := count + 1;
 			end if;
+		end if;
+	end process i2c_clock_process;
+
+	i2c_send_sequence_fsm : process (clock,i_reset) is
+	begin
+		if (i_reset = '1') then
+			n_state <= sda_start;
+			n_cmode <= c0;
+		elsif (rising_edge(clock)) then
+			c_state <= n_state;
+			c_cmode <= n_cmode;
+			case c_cmode is
+				when c0 =>
+					n_cmode <= c1;
+				when c1 =>
+					n_cmode <= c2;
+				when c2 =>
+					n_cmode <= c3;
+				when c3 =>
+					n_cmode <= c0;
+				when others => n_cmode <= c1;
+			end case;
 			case c_state is
 				when sda_start =>
-					if (c_cmode = c0) then
-						temp_sda <= '1';
-						temp_sck <= '1';
-					end if;
+					instruction_index <= 0;
+					temp_sck <= '1';
+					temp_sda <= '1';
 					n_state <= start;
 				when start =>
-					if ((c_cmode = c0 or c_cmode = c1) and c_cmode /= c2 and c_cmode /= c3) then
-						temp_sda <= '1';
-					else
-						temp_sda <= '0';
-					end if;
-					if (c_cmode = c0 or c_cmode = c1 or c_cmode = c2) then
-						temp_sck <= '1';
-					else
-						temp_sck <= '0';
-					end if;
+					temp_sda <= '1';
 					n_state <= slave_address;
 				when slave_address =>
-					if (c_cmode = c0 or c_cmode = c3) then
+					if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
 						temp_sck <= '0';
 					end if;
-					if (c_cmode = c1 or c_cmode = c2) then
+					if ((c_cmode = c1 or c_cmode = c2) and c_cmode /= c0 and c_cmode /= c3) then
+						temp_sck <= '1';
+					end if;
+					if (c_cmode = c2 and slave_index = 0) then
+						temp_sda <= '0';
+					end if;
+					if (slave_index < SLAVE_INDEX_MAX-1) then
+						if (c_cmode = c0) then
+							temp_sda <= i_slave_address(slave_index);
+							if (sda_width < SDA_WIDTH_MAX-1) then
+								sda_width <= sda_width + 1;
+								n_state <= slave_address;
+							else
+								slave_index <= slave_index + 1;
+								sda_width <= 0;
+								n_state <= slave_address;
+							end if;
+						end if;
+					else
+						n_state <= slave_address_lastbit;
+						sda_width <= 0;
+					end if;
+				when slave_address_lastbit =>
+					if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
+						temp_sck <= '0';
+					end if;
+					if ((c_cmode = c1 or c_cmode = c2) and c_cmode /= c0 and c_cmode /= c3) then
 						temp_sck <= '1';
 					end if;
 					if (c_cmode = c0) then
-						if (slave_index < SLAVE_INDEX_MAX-1) then
-							temp_sda <= slave(SLAVE_INDEX_MAX-1-slave_index);
-							n_state <= slave_address;
+						temp_sda <= i_slave_address(SLAVE_INDEX_MAX-1);
+						if (sda_width < SDA_WIDTH_MAX-1) then
+							sda_width <= sda_width + 1;
+							n_state <= slave_address_lastbit;
 						else
+							sda_width <= 0;
 							n_state <= slave_rw;
 						end if;
 					end if;
 				when slave_rw =>
-					if (c_cmode = c0 or c_cmode = c3) then
+					if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
 						temp_sck <= '0';
 					end if;
-					if (c_cmode = c1 or c_cmode = c2) then
+					if ((c_cmode = c1 or c_cmode = c2) and c_cmode /= c0 and c_cmode /= c3) then
 						temp_sck <= '1';
 					end if;
-					temp_sda <= '0';
-					n_state <= slave_ack;
+					if (c_cmode = c0) then
+						temp_sda <= '0';
+						if (sda_width < SDA_WIDTH_MAX-1) then
+							sda_width <= sda_width + 1;
+							n_state <= slave_rw;
+						else
+							sda_width <= 0;
+							n_state <= slave_ack;
+						end if;
+					end if;
 				when slave_ack =>
-					if (c_cmode = c0 or c_cmode = c3) then
+					if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
 						temp_sck <= '0';
 					end if;
-					if (c_cmode = c1 or c_cmode = c2) then
-						temp_sck <= '1';
-					end if;
-					temp_sda <= '1';
-					n_state <= data_0;
-				when data_0 =>
-					if (c_cmode = c0 or c_cmode = c3) then
-						temp_sck <= '0';
-					end if;
-					if (c_cmode = c1 or c_cmode = c2) then
+					if ((c_cmode = c1 or c_cmode = c2) and c_cmode /= c0 and c_cmode /= c3) then
 						temp_sck <= '1';
 					end if;
 					if (c_cmode = c0) then
-						temp_sda <= bytes_to_send(to_integer(unsigned(instruction_index)))(7);
-						n_state <= data_1;
+						temp_sda <= '1';
+						if (sda_width < SDA_WIDTH_MAX-1) then
+							sda_width <= sda_width + 1;
+							n_state <= slave_ack;
+						else
+							sda_width <= 0;
+							n_state <= data;
+						end if;
 					end if;
-				when data_1 =>
-					if (c_cmode = c0 or c_cmode = c3) then
-						temp_sck <= '0';
-					end if;
-					if (c_cmode = c1 or c_cmode = c2) then
-						temp_sck <= '1';
-					end if;
-					if (c_cmode = c0) then
-						temp_sda <= bytes_to_send(to_integer(unsigned(instruction_index)))(6);
-						n_state <= data_2;
-					end if;
-				when data_2 =>
-					if (c_cmode = c0 or c_cmode = c3) then
-						temp_sck <= '0';
-					end if;
-					if (c_cmode = c1 or c_cmode = c2) then
-						temp_sck <= '1';
-					end if;
-					if (c_cmode = c0) then
-						temp_sda <= bytes_to_send(to_integer(unsigned(instruction_index)))(5);
-						n_state <= data_3;
-					end if;
-				when data_3 =>
-					if (c_cmode = c0 or c_cmode = c3) then
-						temp_sck <= '0';
-					end if;
-					if (c_cmode = c1 or c_cmode = c2) then
-						temp_sck <= '1';
-					end if;
-					if (c_cmode = c0) then
-						temp_sda <= bytes_to_send(to_integer(unsigned(instruction_index)))(4);
-						n_state <= data_4;
-					end if;
-				when data_4 =>
-					if (c_cmode = c0 or c_cmode = c3) then
-						temp_sck <= '0';
-					end if;
-					if (c_cmode = c1 or c_cmode = c2) then
-						temp_sck <= '1';
-					end if;
-					if (c_cmode = c0) then
-						temp_sda <= bytes_to_send(to_integer(unsigned(instruction_index)))(3);
-						n_state <= data_5;
-					end if;
-				when data_5 =>
-					if (c_cmode = c0 or c_cmode = c3) then
-						temp_sck <= '0';
-					end if;
-					if (c_cmode = c1 or c_cmode = c2) then
-						temp_sck <= '1';
-					end if;
-					if (c_cmode = c0) then
-						temp_sda <= bytes_to_send(to_integer(unsigned(instruction_index)))(2);
-						n_state <= data_6;
-					end if;
-				when data_6 =>
-					if (c_cmode = c0 or c_cmode = c3) then
-						temp_sck <= '0';
-					end if;
-					if (c_cmode = c1 or c_cmode = c2) then
-						temp_sck <= '1';
-					end if;
-					if (c_cmode = c0) then
-						temp_sda <= bytes_to_send(to_integer(unsigned(instruction_index)))(1);
-						n_state <= data_7;
-					end if;
-				when data_7 =>
-					if (c_cmode = c0 or c_cmode = c3) then
-						temp_sck <= '0';
-					end if;
-					if (c_cmode = c1 or c_cmode = c2) then
-						temp_sck <= '1';
-					end if;
-					if (c_cmode = c0) then
-						temp_sda <= bytes_to_send(to_integer(unsigned(instruction_index)))(0);
-						n_state <= data_ack;
-					end if;
-				when data_ack =>
-					if (c_cmode = c0 or c_cmode = c3) then
-						temp_sck <= '0';
-					end if;
-					if (c_cmode = c1 or c_cmode = c2) then
-						temp_sck <= '1';
-					end if;
-					temp_sda <= '1';
-					if (to_integer(unsigned(instruction_index)) < bytes_to_send'length-1) then
-						n_state <= data_0;
+				when get_instruction =>
+					if (instruction_index < SEQUENCE_LENGTH-1) then
+						n_state <= data;
 					else
 						n_state <= stop;
 					end if;
-				when stop =>
-					if (c_cmode = c0) then
+				when data =>
+					if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
 						temp_sck <= '0';
 					end if;
-					if (c_cmode = c1 or c_cmode = c2 or c_cmode = c3) then
+					if ((c_cmode = c1 or c_cmode = c2) and c_cmode /= c0 and c_cmode /= c3) then
 						temp_sck <= '1';
 					end if;
-					if (c_cmode = c2 or c_cmode = c3) then
-						temp_sda <= '1';
+					if (data_index < G_BYTE_SIZE-1) then
+						if (c_cmode = c0) then
+							temp_sda <= i_bytes_to_send(instruction_index)(data_index);
+							if (sda_width < SDA_WIDTH_MAX-1) then
+								sda_width <= sda_width + 1;
+								n_state <= data;
+							else
+								data_index <= data_index + 1;
+								sda_width <= 0;
+								n_state <= data;
+							end if;
+						end if;
 					else
-						temp_sda <= '0';
+						sda_width <= 0;
+						n_state <= data_lastbit;
 					end if;
-					n_state <= sda_stop;
+				when data_lastbit =>
+					if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
+						temp_sck <= '0';
+					end if;
+					if ((c_cmode = c1 or c_cmode = c2) and c_cmode /= c0 and c_cmode /= c3) then
+						temp_sck <= '1';
+					end if;
+					if (c_cmode = c0) then
+						temp_sda <= i_bytes_to_send(instruction_index)(G_BYTE_SIZE-1);
+						if (sda_width < SDA_WIDTH_MAX-1) then
+							sda_width <= sda_width + 1;
+							n_state <= data_lastbit;
+						else
+							sda_width <= 0;
+							n_state <= data_ack;
+						end if;
+					end if;
+				when data_ack =>
+					if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
+						temp_sck <= '0';
+					end if;
+					if ((c_cmode = c1 or c_cmode = c2) and c_cmode /= c0 and c_cmode /= c3) then
+						temp_sck <= '1';
+					end if;
+					if (c_cmode = c0) then
+						temp_sda <= '1';
+						if (sda_width < SDA_WIDTH_MAX-1) then
+							sda_width <= sda_width + 1;
+							n_state <= data_ack;
+						else
+							instruction_index <= instruction_index + 1;
+							sda_width <= 0;
+							n_state <= get_instruction;
+							data_index <= 0;
+						end if;
+					end if;
+				when stop =>
+					if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
+						temp_sck <= '0';
+					end if;
+					if ((c_cmode = c1 or c_cmode = c2) and c_cmode /= c0 and c_cmode /= c3) then
+						temp_sck <= '1';
+					end if;
+					if (c_cmode = c0) then
+						temp_sda <= '0';
+						if (sda_width < SDA_WIDTH_MAX-1) then
+							sda_width <= sda_width + 1;
+							n_state <= stop;
+						else
+							sda_width <= 0;
+							n_state <= sda_stop;
+						end if;
+					end if;
 				when sda_stop =>
 					temp_sck <= '1';
 					temp_sda <= '1';
-					busy <= '0';
-				when others => null;
+					data_index <= 0;
+					slave_index <= 0;
+					sda_width <= 0;
+					n_state <= sda_stop;
+				when others => n_state <= sda_stop;
 			end case;
 		end if;
-	end process pa;
+	end process i2c_send_sequence_fsm;
 
-	sda <= '0' when temp_sda = '0' else 'Z';
-	sck <= '0' when temp_sck = '0' else 'Z';
+	o_sda <= '0' when temp_sda = '0' else 'Z';
+	o_scl <= '0' when temp_sck = '0' else 'Z';
 
-end Behavioral;
+end architecture Behavioral;
