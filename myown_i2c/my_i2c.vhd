@@ -55,8 +55,7 @@ architecture Behavioral of my_i2c is
 	signal clock : std_logic;
 	signal temp_sda : std_logic;
 	signal temp_sck : std_logic;
---	signal instruction_index : integer range 0 to ARRAY_BYTE_SEQUENCE'length-1 := 0;
-	signal instruction_index : std_logic_vector(4 downto 0); -- XXX 32
+	signal instruction_index : integer range 0 to ARRAY_BYTE_SEQUENCE'length-1 := 0;
 
 	type state is (sda_start,start,slave_address,slave_address_lastbit,slave_rw,slave_ack,get_instruction,data,data_lastbit,data_ack,stop,sda_stop);
 	signal c_state,n_state : state;
@@ -79,12 +78,12 @@ begin
 			clock <= '0';
 			count := 0;
 		elsif (rising_edge(i_clock)) then
-			if (count < (I2C_COUNTER_MAX*4)-1) then
-				clock <= '0';
-				count := count + 1;
-			else
+			if (count = (I2C_COUNTER_MAX*4)-1) then
 				clock <= '1';
 				count := 0;
+			else
+				clock <= '0';
+				count := count + 1;
 			end if;
 		end if;
 	end process i2c_clock_process;
@@ -106,11 +105,11 @@ begin
 					n_cmode <= c3;
 				when c3 =>
 					n_cmode <= c0;
-				when others => n_cmode <= c1;
+				when others => null;
 			end case;
 			case c_state is
 				when sda_start =>
-					instruction_index <= (others => '0');
+					instruction_index <= 0;
 					temp_sck <= '1';
 					temp_sda <= '1';
 					n_state <= start;
@@ -127,21 +126,21 @@ begin
 					if (c_cmode = c2 and slave_index = 0) then
 						temp_sda <= '0';
 					end if;
-					if (slave_index < SLAVE_INDEX_MAX-1) then
+					if (slave_index = SLAVE_INDEX_MAX-1) then
+						n_state <= slave_address_lastbit;
+						sda_width <= 0;
+					else
 						if (c_cmode = c0) then
 							temp_sda <= i_slave_address(slave_index);
-							if (sda_width < SDA_WIDTH_MAX-1) then
-								sda_width <= sda_width + 1;
-								n_state <= slave_address;
-							else
+							if (sda_width = SDA_WIDTH_MAX-1) then
 								slave_index <= slave_index + 1;
 								sda_width <= 0;
 								n_state <= slave_address;
+							else
+								sda_width <= sda_width + 1;
+								n_state <= slave_address;
 							end if;
 						end if;
-					else
-						n_state <= slave_address_lastbit;
-						sda_width <= 0;
 					end if;
 				when slave_address_lastbit =>
 					if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
@@ -152,12 +151,12 @@ begin
 					end if;
 					if (c_cmode = c0) then
 						temp_sda <= i_slave_address(SLAVE_INDEX_MAX-1);
-						if (sda_width < SDA_WIDTH_MAX-1) then
-							sda_width <= sda_width + 1;
-							n_state <= slave_address_lastbit;
-						else
+						if (sda_width = SDA_WIDTH_MAX-1) then
 							sda_width <= 0;
 							n_state <= slave_rw;
+						else
+							sda_width <= sda_width + 1;
+							n_state <= slave_address_lastbit;
 						end if;
 					end if;
 				when slave_rw =>
@@ -169,12 +168,12 @@ begin
 					end if;
 					if (c_cmode = c0) then
 						temp_sda <= '0';
-						if (sda_width < SDA_WIDTH_MAX-1) then
-							sda_width <= sda_width + 1;
-							n_state <= slave_rw;
-						else
+						if (sda_width = SDA_WIDTH_MAX-1) then
 							sda_width <= 0;
 							n_state <= slave_ack;
+						else
+							sda_width <= sda_width + 1;
+							n_state <= slave_rw;
 						end if;
 					end if;
 				when slave_ack =>
@@ -186,19 +185,19 @@ begin
 					end if;
 					if (c_cmode = c0) then
 						temp_sda <= '1';
-						if (sda_width < SDA_WIDTH_MAX-1) then
-							sda_width <= sda_width + 1;
-							n_state <= slave_ack;
-						else
+						if (sda_width = SDA_WIDTH_MAX-1) then
 							sda_width <= 0;
 							n_state <= data;
+						else
+							sda_width <= sda_width + 1;
+							n_state <= slave_ack;
 						end if;
 					end if;
 				when get_instruction =>
-					if (to_integer(unsigned(instruction_index)) < ARRAY_BYTE_SEQUENCE'length-1) then
-						n_state <= data;
-					else
+					if (instruction_index = ARRAY_BYTE_SEQUENCE'length-1) then
 						n_state <= stop;
+					else
+						n_state <= data;
 					end if;
 				when data =>
 					if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
@@ -207,21 +206,21 @@ begin
 					if ((c_cmode = c1 or c_cmode = c2) and c_cmode /= c0 and c_cmode /= c3) then
 						temp_sck <= '1';
 					end if;
-					if (data_index < G_BYTE_SIZE-1) then
+					if (data_index = G_BYTE_SIZE-1) then
+						sda_width <= 0;
+						n_state <= data_lastbit;
+					else
 						if (c_cmode = c0) then
-							temp_sda <= i_bytes_to_send(to_integer(unsigned(instruction_index)))(data_index);
-							if (sda_width < SDA_WIDTH_MAX-1) then
-								sda_width <= sda_width + 1;
-								n_state <= data;
-							else
+							temp_sda <= i_bytes_to_send(instruction_index)(data_index);
+							if (sda_width = SDA_WIDTH_MAX-1) then
 								data_index <= data_index + 1;
 								sda_width <= 0;
 								n_state <= data;
+							else
+								sda_width <= sda_width + 1;
+								n_state <= data;
 							end if;
 						end if;
-					else
-						sda_width <= 0;
-						n_state <= data_lastbit;
 					end if;
 				when data_lastbit =>
 					if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
@@ -231,8 +230,8 @@ begin
 						temp_sck <= '1';
 					end if;
 					if (c_cmode = c0) then
-						temp_sda <= i_bytes_to_send(to_integer(unsigned(instruction_index)))(G_BYTE_SIZE-1);
-						if (sda_width < SDA_WIDTH_MAX-1) then
+						temp_sda <= i_bytes_to_send(instruction_index)(G_BYTE_SIZE-1);
+						if (sda_width = SDA_WIDTH_MAX-1) then
 							sda_width <= sda_width + 1;
 							n_state <= data_lastbit;
 						else
@@ -249,14 +248,14 @@ begin
 					end if;
 					if (c_cmode = c0) then
 						temp_sda <= '1';
-						if (sda_width < SDA_WIDTH_MAX-1) then
-							sda_width <= sda_width + 1;
-							n_state <= data_ack;
-						else
-							instruction_index <= std_logic_vector(to_unsigned(to_integer(unsigned(instruction_index) + 1),5));
+						if (sda_width = SDA_WIDTH_MAX-1) then
+							instruction_index <= instruction_index + 1;
 							sda_width <= 0;
 							n_state <= get_instruction;
 							data_index <= 0;
+						else
+							sda_width <= sda_width + 1;
+							n_state <= data_ack;
 						end if;
 					end if;
 				when stop =>
@@ -268,12 +267,12 @@ begin
 					end if;
 					if (c_cmode = c0) then
 						temp_sda <= '0';
-						if (sda_width < SDA_WIDTH_MAX-1) then
-							sda_width <= sda_width + 1;
-							n_state <= stop;
-						else
+						if (sda_width = SDA_WIDTH_MAX-1) then
 							sda_width <= 0;
 							n_state <= sda_stop;
+						else
+							sda_width <= sda_width + 1;
+							n_state <= stop;
 						end if;
 					end if;
 				when sda_stop =>
@@ -283,7 +282,7 @@ begin
 					slave_index <= 0;
 					sda_width <= 0;
 					n_state <= sda_stop;
-				when others => n_state <= sda_stop;
+				when others => null;
 			end case;
 		end if;
 	end process i2c_send_sequence_fsm;
