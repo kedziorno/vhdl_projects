@@ -7,12 +7,13 @@
 ## Both versions are provided in this file.
 ## Keep only the appropriate one, and remove or comment the other one.
 
-NET "I_CLK" LOC = "B8";
+NET "I_CLOCK" LOC = "B8";
 NET "O_SDA" LOC = "L15";
 #NET "SDA" PULLUP;
 NET "O_SCL" LOC = "K12";
 #NET "SCL" PULLUP;
 NET "I_RESET" LOC = "B18";
+NET "I_BUTTON" LOC = "D18";
 #NET "BTN_1" PULLUP;
 #NET "BTN_2" LOC = "D18";
 #NET "BTN_2" PULLUP;
