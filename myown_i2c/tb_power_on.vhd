@@ -41,7 +41,7 @@ ARCHITECTURE behavior OF tb_power_on IS
  
     COMPONENT power_on
     PORT(
-         i_clk : IN  std_logic;
+         i_clock : IN  std_logic;
          i_reset : IN std_logic;
          o_sda : OUT  std_logic;
          o_scl : OUT  std_logic
@@ -49,33 +49,33 @@ ARCHITECTURE behavior OF tb_power_on IS
     END COMPONENT;
 
    --Inputs
-   signal clk : std_logic := '0';
+   signal clock : std_logic := '0';
    signal reset : std_logic := '0';
 
  	--Outputs
    signal sda : std_logic;
-   signal sck : std_logic;
+   signal scl : std_logic;
 
    -- Clock period definitions
-   constant clk_period : time := 20 ns;
+   constant clock_period : time := 20 ns;
 
 BEGIN
 
 	-- Instantiate the Unit Under Test (UUT)
 	uut: power_on PORT MAP (
-		i_clk => clk,
+		i_clock => clock,
 		i_reset => reset,
 		o_sda => sda,
-		o_scl => sck
+		o_scl => scl
 	);
 
 	-- Clock process definitions
-	clk_process :process
+	clock_process :process
 	begin
-		clk <= '0';
-		wait for clk_period/2;
-		clk <= '1';
-		wait for clk_period/2;
+		clock <= '0';
+		wait for clock_period/2;
+		clock <= '1';
+		wait for clock_period/2;
 	end process;
 
 	-- Stimulus process

@@ -6,13 +6,12 @@ package p_constants1 is
 	constant G_BUS_CLOCK : INTEGER := 100_000;
 	constant G_BYTE_SIZE : integer := 8;
 	constant G_SLAVE_ADDRESS_SIZE : integer := 7;
-	type array_byte_sequence is array(natural range <>) of std_logic_vector(7 downto 0);
+	type array_byte_sequence is array(natural range <>) of std_logic_vector(G_BYTE_SIZE-1 downto 0);
 
 -- i2c oled 128x32 initialization sequence	
---	constant BYTES_SEQUENCE_LENGTH : natural := 29;
---	type ARRAY_BYTES_SEQUENCE is array (0 to BYTES_SEQUENCE_LENGTH-1) of std_logic_vector(0 to BYTE_SIZE-1);
---	signal sequence : ARRAY_BYTES_SEQUENCE :=
---	(x"00",x"AE",x"D5",x"80",x"A8",x"1F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"8F",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E",x"AF",x"40",x"00");
+	constant BYTES_SEQUENCE_LENGTH : natural := 29;
+	signal sequence : array_byte_sequence(0 to BYTES_SEQUENCE_LENGTH-1) :=
+	(x"00",x"AE",x"D5",x"80",x"A8",x"1F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"8F",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E",x"AF",x"40",x"00");
 
 end p_constants1;
 
