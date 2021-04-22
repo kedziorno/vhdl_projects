@@ -7,7 +7,7 @@
 ## Both versions are provided in this file.
 ## Keep only the appropriate one, and remove or comment the other one.
 
-NET "I_CLK" LOC = "B8";
+NET "I_CLOCK" LOC = "B8";
 NET "O_SDA" LOC = "L15";
 #NET "SDA" PULLUP;
 NET "O_SCL" LOC = "K12";

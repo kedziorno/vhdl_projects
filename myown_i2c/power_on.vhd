@@ -46,14 +46,13 @@ architecture Behavioral of power_on is
 	COMPONENT my_i2c IS
 	GENERIC (
 		BOARD_CLOCK : INTEGER := G_BOARD_CLOCK;
-		BUS_CLOCK : INTEGER := G_BUS_CLOCK;
-		SEQUENCE_LENGTH : INTEGER := 1
+		BUS_CLOCK : INTEGER := G_BUS_CLOCK
 	);
 	PORT (
 		i_clock : in std_logic;
 		i_reset : in std_logic;
-		i_slave_address : std_logic_vector(G_SLAVE_ADDRESS_SIZE-1 downto 0);
-		i_bytes_to_send : array_byte_sequence(0 to SEQUENCE_LENGTH-1);
+		i_slave_address : std_logic_vector(0 to G_SLAVE_ADDRESS_SIZE-1);
+		i_bytes_to_send : in ARRAY_BYTE_SEQUENCE;
 		i_enable : in std_logic;
 		o_busy : out std_logic;
 		o_sda : out std_logic;
@@ -66,8 +65,7 @@ begin
 	my_i2c_entity : my_i2c
 	GENERIC MAP (
 		BOARD_CLOCK => G_BOARD_CLOCK,
-		BUS_CLOCK => G_BUS_CLOCK,
-		SEQUENCE_LENGTH => BYTES_SEQUENCE_LENGTH
+		BUS_CLOCK => G_BUS_CLOCK
 	)
 	PORT MAP (
 		i_clock => i_clock,
