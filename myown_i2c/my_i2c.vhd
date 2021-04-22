@@ -127,21 +127,21 @@ begin
 					if (c_cmode = c2 and slave_index = 0) then
 						temp_sda <= '0';
 					end if;
-					if (slave_index < SLAVE_INDEX_MAX-1) then
+					if (slave_index = SLAVE_INDEX_MAX-1) then
+						n_state <= slave_address_lastbit;
+						sda_width <= 0;
+					else
 						if (c_cmode = c0) then
 							temp_sda <= i_slave_address(slave_index);
-							if (sda_width < SDA_WIDTH_MAX-1) then
-								sda_width <= sda_width + 1;
-								n_state <= slave_address;
-							else
+							if (sda_width = SDA_WIDTH_MAX-1) then
 								slave_index <= slave_index + 1;
 								sda_width <= 0;
 								n_state <= slave_address;
+							else
+								sda_width <= sda_width + 1;
+								n_state <= slave_address;
 							end if;
 						end if;
-					else
-						n_state <= slave_address_lastbit;
-						sda_width <= 0;
 					end if;
 				when slave_address_lastbit =>
 					if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
@@ -152,12 +152,12 @@ begin
 					end if;
 					if (c_cmode = c0) then
 						temp_sda <= i_slave_address(SLAVE_INDEX_MAX-1);
-						if (sda_width < SDA_WIDTH_MAX-1) then
-							sda_width <= sda_width + 1;
-							n_state <= slave_address_lastbit;
-						else
+						if (sda_width = SDA_WIDTH_MAX-1) then
 							sda_width <= 0;
 							n_state <= slave_rw;
+						else
+							sda_width <= sda_width + 1;
+							n_state <= slave_address_lastbit;
 						end if;
 					end if;
 				when slave_rw =>
@@ -169,12 +169,12 @@ begin
 					end if;
 					if (c_cmode = c0) then
 						temp_sda <= '0';
-						if (sda_width < SDA_WIDTH_MAX-1) then
-							sda_width <= sda_width + 1;
-							n_state <= slave_rw;
-						else
+						if (sda_width = SDA_WIDTH_MAX-1) then
 							sda_width <= 0;
 							n_state <= slave_ack;
+						else
+							sda_width <= sda_width + 1;
+							n_state <= slave_rw;
 						end if;
 					end if;
 				when slave_ack =>
@@ -186,19 +186,19 @@ begin
 					end if;
 					if (c_cmode = c0) then
 						temp_sda <= '1';
-						if (sda_width < SDA_WIDTH_MAX-1) then
-							sda_width <= sda_width + 1;
-							n_state <= slave_ack;
-						else
+						if (sda_width = SDA_WIDTH_MAX-1) then
 							sda_width <= 0;
 							n_state <= data;
+						else
+							sda_width <= sda_width + 1;
+							n_state <= slave_ack;
 						end if;
 					end if;
 				when get_instruction =>
-					if (instruction_index < SEQUENCE_LENGTH-1) then
-						n_state <= data;
-					else
+					if (instruction_index = SEQUENCE_LENGTH-1) then
 						n_state <= stop;
+					else
+						n_state <= data;
 					end if;
 				when data =>
 					if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
@@ -207,21 +207,21 @@ begin
 					if ((c_cmode = c1 or c_cmode = c2) and c_cmode /= c0 and c_cmode /= c3) then
 						temp_sck <= '1';
 					end if;
-					if (data_index < G_BYTE_SIZE-1) then
+					if (data_index = G_BYTE_SIZE-1) then
+						sda_width <= 0;
+						n_state <= data_lastbit;
+					else
 						if (c_cmode = c0) then
 							temp_sda <= i_bytes_to_send(instruction_index)(data_index);
-							if (sda_width < SDA_WIDTH_MAX-1) then
-								sda_width <= sda_width + 1;
-								n_state <= data;
-							else
+							if (sda_width = SDA_WIDTH_MAX-1) then
 								data_index <= data_index + 1;
 								sda_width <= 0;
 								n_state <= data;
+							else
+								sda_width <= sda_width + 1;
+								n_state <= data;
 							end if;
 						end if;
-					else
-						sda_width <= 0;
-						n_state <= data_lastbit;
 					end if;
 				when data_lastbit =>
 					if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
@@ -232,12 +232,12 @@ begin
 					end if;
 					if (c_cmode = c0) then
 						temp_sda <= i_bytes_to_send(instruction_index)(G_BYTE_SIZE-1);
-						if (sda_width < SDA_WIDTH_MAX-1) then
-							sda_width <= sda_width + 1;
-							n_state <= data_lastbit;
-						else
+						if (sda_width = SDA_WIDTH_MAX-1) then
 							sda_width <= 0;
 							n_state <= data_ack;
+						else
+							sda_width <= sda_width + 1;
+							n_state <= data_lastbit;
 						end if;
 					end if;
 				when data_ack =>
@@ -249,14 +249,14 @@ begin
 					end if;
 					if (c_cmode = c0) then
 						temp_sda <= '1';
-						if (sda_width < SDA_WIDTH_MAX-1) then
-							sda_width <= sda_width + 1;
-							n_state <= data_ack;
-						else
+						if (sda_width = SDA_WIDTH_MAX-1) then
 							instruction_index <= instruction_index + 1;
 							sda_width <= 0;
 							n_state <= get_instruction;
 							data_index <= 0;
+						else
+							sda_width <= sda_width + 1;
+							n_state <= data_ack;
 						end if;
 					end if;
 				when stop =>
@@ -268,12 +268,12 @@ begin
 					end if;
 					if (c_cmode = c0) then
 						temp_sda <= '0';
-						if (sda_width < SDA_WIDTH_MAX-1) then
-							sda_width <= sda_width + 1;
-							n_state <= stop;
-						else
+						if (sda_width = SDA_WIDTH_MAX-1) then
 							sda_width <= 0;
 							n_state <= sda_stop;
+						else
+							sda_width <= sda_width + 1;
+							n_state <= stop;
 						end if;
 					end if;
 				when sda_stop =>
