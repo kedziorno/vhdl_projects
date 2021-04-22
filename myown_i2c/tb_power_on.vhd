@@ -43,6 +43,7 @@ ARCHITECTURE behavior OF tb_power_on IS
     PORT(
          i_clock : IN  std_logic;
          i_reset : IN std_logic;
+         i_button : in std_logic;
          o_sda : OUT  std_logic;
          o_scl : OUT  std_logic
         );
@@ -51,6 +52,7 @@ ARCHITECTURE behavior OF tb_power_on IS
    --Inputs
    signal clock : std_logic := '0';
    signal reset : std_logic := '0';
+   signal button : std_logic := '0';
 
  	--Outputs
    signal sda : std_logic;
@@ -65,6 +67,7 @@ BEGIN
 	uut: power_on PORT MAP (
 		i_clock => clock,
 		i_reset => reset,
+		i_button => button,
 		o_sda => sda,
 		o_scl => scl
 	);
@@ -80,10 +83,19 @@ BEGIN
 
 	-- Stimulus process
 	stim_proc: process
+		variable ping : integer := 5;
 	begin
-		reset <= '1';
-		wait for 100us;
-		reset <= '0';
+		loop0 : for i in 0 to ping-1 loop
+			reset <= '1';
+			wait for clock_period;
+			reset <= '0';
+			wait for clock_period;
+			button <= '1';
+			wait for clock_period;
+			button <= '0';
+			wait for clock_period;
+			wait until reset = '0' for 50 ms;
+		end loop loop0;
 		wait;
 	end process;
 

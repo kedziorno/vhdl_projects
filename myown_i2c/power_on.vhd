@@ -36,6 +36,7 @@ entity power_on is
 port (
 	i_clock : in std_logic;
 	i_reset : in std_logic;
+	i_button : in std_logic;
 	o_sda : out std_logic;
 	o_scl : out std_logic
 );
@@ -60,6 +61,8 @@ architecture Behavioral of power_on is
 	);
 	END COMPONENT my_i2c;
 
+	signal enable,busy : std_logic;
+
 begin
 
 	my_i2c_entity : my_i2c
@@ -72,10 +75,25 @@ begin
 		i_reset => i_reset,
 		i_slave_address => "0111100",
 		i_bytes_to_send => sequence,
-		i_enable => '1',
-		o_busy => open,
+		i_enable => enable,
+		o_busy => busy,
 		o_sda => o_sda,
 		o_scl => o_scl
 	);
+
+	p0 : process (i_clock,i_reset) is
+	begin
+		if (i_reset = '1') then
+			enable <= '0';
+		elsif (rising_edge(i_clock)) then
+			if (i_button = '1') then
+				enable <= '1';
+			else
+				if (busy = '1') then
+					enable <= '0';
+				end if;
+			end if;
+		end if;
+	end process;
 
 end Behavioral;

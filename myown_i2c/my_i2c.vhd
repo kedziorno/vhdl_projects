@@ -57,11 +57,11 @@ architecture Behavioral of my_i2c is
 	signal temp_sck : std_logic;
 	signal instruction_index : integer range 0 to ARRAY_BYTE_SEQUENCE'length-1 := 0;
 
-	type state is (sda_start,start,slave_address,slave_address_lastbit,slave_rw,slave_ack,get_instruction,data,data_lastbit,data_ack,stop,sda_stop);
-	signal c_state,n_state : state;
+	type state is (idle,sda_start,start,slave_address,slave_address_lastbit,slave_rw,slave_ack,get_instruction,data,data_lastbit,data_ack,stop,sda_stop);
+	signal c_state,n_state : state := idle;
 
 	type clock_mode is (c0,c1,c2,c3);
-	signal c_cmode,n_cmode : clock_mode;
+	signal c_cmode,n_cmode : clock_mode := c0;
 
 	constant SLAVE_INDEX_MAX : integer := G_SLAVE_ADDRESS_SIZE;
 	constant SDA_WIDTH_MAX : integer := 2;
@@ -88,11 +88,12 @@ begin
 		end if;
 	end process i2c_clock_process;
 
-	i2c_send_sequence_fsm : process (clock,i_reset) is
+	i2c_send_sequence_fsm : process (clock,i_reset,i_enable) is
 	begin
 		if (i_reset = '1') then
-			n_state <= sda_start;
+			n_state <= idle;
 			n_cmode <= c0;
+			o_busy <= '0';
 		elsif (rising_edge(clock)) then
 			c_state <= n_state;
 			c_cmode <= n_cmode;
@@ -108,11 +109,18 @@ begin
 				when others => null;
 			end case;
 			case c_state is
+				when idle =>
+					if (i_enable = '1') then
+						n_state <= sda_start;
+					else
+						n_state <= idle;
+					end if;
 				when sda_start =>
 					instruction_index <= 0;
 					temp_sck <= '1';
 					temp_sda <= '1';
 					n_state <= start;
+					o_busy <= '1';
 				when start =>
 					temp_sda <= '1';
 					n_state <= slave_address;
@@ -281,7 +289,8 @@ begin
 					data_index <= 0;
 					slave_index <= 0;
 					sda_width <= 0;
-					n_state <= sda_stop;
+					o_busy <= '0';
+					n_state <= idle;
 				when others => null;
 			end case;
 		end if;
