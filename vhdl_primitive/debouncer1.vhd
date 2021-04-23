@@ -37,7 +37,7 @@ generic (
 port (
 	x : in std_logic;
 	clk : in std_logic;
-	y : out std_logic
+	y : inout std_logic
 );
 end debouncer1;
 
@@ -45,12 +45,12 @@ end debouncer1;
 --	constant max : integer := fclk*twindow;
 --begin
 --	p0 : process (clk) is
---		variable count : integer range 0 to max;
+--		variable count : integer range 0 to max-1;
 --	begin
 --		if (rising_edge(clk)) then
 --			if (y /= x) then
 --				count := count + 1;
---				if (count=max) then
+--				if (count=max-1) then
 --					count := 0;
 --					y <= x;
 --				end if;
@@ -62,19 +62,6 @@ end debouncer1;
 --end Behavioral;
 
 architecture struct of debouncer1 is
-	component FF_D_GATED is
-	generic (
-		delay_and : TIME := 0 ns;
-		delay_or : TIME := 0 ns;
-		delay_not : TIME := 0 ns
-	);
-	port (
-		D,E : in STD_LOGIC;
-		Q1,Q2 : inout STD_LOGIC
-	);
-	end component FF_D_GATED;
-	for all : FF_D_GATED use entity WORK.FF_D_GATED(Behavioral_GATED_D_NAND);
---	for all : FF_D_GATED use entity WORK.FF_D_GATED(Behavioral_GATED_D_NOR);
 	component counter_ping is
 	generic (
 		max : integer := 1
@@ -87,16 +74,20 @@ architecture struct of debouncer1 is
 	end component counter_ping;
 	signal ping : std_logic;
 	signal clearb : std_logic;
-	signal d,q : std_logic;
+	signal d,q : std_logic := '0';
 	constant max : integer := fclk*twindow;
 begin
-	cp_entity : counter_ping generic map (max => max) port map (i_clock=>clk,i_reset=>not clearb,o_ping=>ping);
-	FF_D_GATED_entity : FF_D_GATED port map (D=>d,E=>clk,Q1=>q,Q2=>open);
+	cp_entity : counter_ping generic map (max=>max) port map (i_clock=>clk,i_reset=>not clearb,o_ping=>ping);
 	p1 : process (x,q,ping) is
 	begin
 		clearb <= x xor q;
 		d <= ping xor q;
 		y <= q;	
 	end process p1;
+	p2 : process (clk) is
+	begin
+		if (rising_edge(clk)) then
+			q <= d;
+		end if;
+	end process p2;
 end architecture struct;
-
