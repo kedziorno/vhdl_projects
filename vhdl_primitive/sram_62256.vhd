@@ -53,27 +53,27 @@ architecture Behavioral of sram_62256 is
 
 	constant memory_bits_rows : integer := 9;
 	constant memory_bits_cols : integer := 6;
-    constant memory_rows : integer := 2**memory_bits_rows;
-    constant memory_cols : integer := 2**memory_bits_cols;
-    constant memory_cols_bits : integer := memory_cols*data_size;
-    
+	constant memory_rows : integer := 2**memory_bits_rows;
+	constant memory_cols : integer := 2**memory_bits_cols;
+	constant memory_cols_bits : integer := memory_cols*data_size;
+
 	signal ceb,web,oeb,tristate_input,tristate_output : std_logic;
-	signal data_in,data_out : std_logic_vector(data_size-1 downto 0);
+	signal data_in,data_out : std_logic_vector(data_size-1 downto 0) := (others => '0');
 
-	signal decoder_row_input : std_logic_vector(memory_bits_rows-1 downto 0);
-	signal decoder_col_input : std_logic_vector(memory_bits_cols-1 downto 0);
+	signal decoder_row_input : std_logic_vector(memory_bits_rows-1 downto 0) := (others => '0');
+	signal decoder_col_input : std_logic_vector(memory_bits_cols-1 downto 0) := (others => '0');
 
-	signal decoder_row_output : std_logic_vector(memory_rows-1 downto 0);
-	signal decoder_col_output : std_logic_vector(memory_cols-1 downto 0);
+	signal decoder_row_output : std_logic_vector(memory_rows-1 downto 0) := (others => '0');
+	signal decoder_col_output : std_logic_vector(memory_cols-1 downto 0) := (others => '0');
 
 	signal decoder_row_int,decoder_col_int : integer;
 
 	constant C_DECODER_2x4_OUT : integer := 4;
-	signal enable_a_col : std_logic_vector(C_DECODER_2x4_OUT-1 downto 0);
-	signal enable_b_col : std_logic_vector((C_DECODER_2x4_OUT**2)-1 downto 0);
+	signal enable_a_col : std_logic_vector(C_DECODER_2x4_OUT-1 downto 0) := (others => '0');
+	signal enable_b_col : std_logic_vector((C_DECODER_2x4_OUT**2)-1 downto 0) := (others => '0');
 	constant C_DECODER_3x8_OUT : integer := 8;
-	signal enable_a_row : std_logic_vector(C_DECODER_3x8_OUT-1 downto 0);
-	signal enable_b_row : std_logic_vector((C_DECODER_3x8_OUT**2)-1 downto 0);
+	signal enable_a_row : std_logic_vector(C_DECODER_3x8_OUT-1 downto 0) := (others => '0');
+	signal enable_b_row : std_logic_vector((C_DECODER_3x8_OUT**2)-1 downto 0) := (others => '0');
 
 	subtype colt is unsigned(memory_cols_bits-1 downto 0); -- XXX 64 x 8bit = 512
 	subtype ram is unsigned((memory_rows*memory_cols_bits)-1 downto 0); -- XXX (64 x 8bit) x 512 = 256kb
