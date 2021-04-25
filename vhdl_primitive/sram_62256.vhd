@@ -53,15 +53,18 @@ architecture Behavioral of sram_62256 is
 
 	constant memory_bits_rows : integer := 9;
 	constant memory_bits_cols : integer := 6;
-
+    constant memory_rows : integer := 2**memory_bits_rows;
+    constant memory_cols : integer := 2**memory_bits_cols;
+    constant memory_cols_bits : integer := memory_cols*data_size;
+    
 	signal ceb,web,oeb,tristate_input,tristate_output : std_logic;
 	signal data_in,data_out : std_logic_vector(data_size-1 downto 0);
 
 	signal decoder_row_input : std_logic_vector(memory_bits_rows-1 downto 0);
 	signal decoder_col_input : std_logic_vector(memory_bits_cols-1 downto 0);
 
-	signal decoder_row_output : std_logic_vector(2**memory_bits_rows-1 downto 0);
-	signal decoder_col_output : std_logic_vector(2**memory_bits_cols-1 downto 0);
+	signal decoder_row_output : std_logic_vector(memory_rows-1 downto 0);
+	signal decoder_col_output : std_logic_vector(memory_cols-1 downto 0);
 
 	signal decoder_row_int,decoder_col_int : integer;
 
@@ -72,8 +75,8 @@ architecture Behavioral of sram_62256 is
 	signal enable_a_row : std_logic_vector(C_DECODER_3x8_OUT-1 downto 0);
 	signal enable_b_row : std_logic_vector((C_DECODER_3x8_OUT**2)-1 downto 0);
 
-	subtype colt is unsigned((2**memory_bits_cols)-1 downto 0);
-	subtype ram is unsigned((2**memory_bits_rows*2**memory_bits_cols*data_size)-1 downto 0);
+	subtype colt is unsigned(memory_cols_bits-1 downto 0); -- XXX 64 x 8bit = 512
+	subtype ram is unsigned((memory_rows*memory_cols_bits)-1 downto 0); -- XXX (64 x 8bit) x 512 = 256kb
 	signal mem : ram;
 	signal col : colt;
 
@@ -87,11 +90,9 @@ begin
 	decoder_row_input <= i_address(10 downto 2); -- XXX
 	decoder_col_input <= i_address(14 downto 11) & i_address(1 downto 0); -- XXX
 
-	ggg : for i in 0 to (2**memory_bits_rows)-1 generate col <= mem(i*(2**memory_bits_rows)+(2**memory_bits_rows-1) downto i*(2**memory_bits_rows)+0) when decoder_row_output=std_logic_vector(to_unsigned(i,2**memory_bits_rows)) else (others => '0'); end generate ggg;
-
-	hhh : for i in 0 to (2**memory_bits_rows)-1 generate mem(i*(2**memory_bits_rows)+(2**memory_bits_rows-1) downto i*(2**memory_bits_rows)+0) <= col when (decoder_row_output=std_logic_vector(to_unsigned(i,2**memory_bits_rows)) and tristate_input = '1'); end generate hhh;
-
-	iii : for i in 0 to (2**memory_bits_cols)-1 generate data_out <= std_logic_vector(col(i*(2**memory_bits_cols)+(2**memory_bits_cols-1) downto i*(2**memory_bits_cols)+0)) when (decoder_col_output=std_logic_vector(to_unsigned(i,2**memory_bits_cols)) and tristate_output = '1'); end generate iii;
+	ggg : for i in 0 to memory_rows-1 generate col <= mem(i*(memory_cols_bits-1)+(memory_cols_bits-1) downto i*(memory_cols_bits-1)+0) when decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)) else (others => '0'); end generate ggg;
+	hhh : for i in 0 to memory_rows-1 generate mem(i*(memory_cols_bits-1)+(memory_cols_bits-1) downto i*(memory_cols_bits-1)+0) <= col when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)) and tristate_input = '1'); end generate hhh;
+	iii : for i in 0 to memory_cols-1 generate data_out <= std_logic_vector(col(i*(memory_cols/data_size)+(data_size-1) downto i*(memory_cols/data_size)+0)) when (std_logic_vector(shift_right(unsigned(decoder_col_output),3))=std_logic_vector(to_unsigned(i,memory_cols)) and tristate_output = '1'); end generate iii;
 
 --	m1_generate : for i in 0 to data_size-1 generate
 --	memory(decoder_row_int,decoder_col_int/data_size+i) <= data_in(i) when tristate_input = '1';
