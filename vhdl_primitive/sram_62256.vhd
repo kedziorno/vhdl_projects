@@ -108,8 +108,8 @@ begin
 --	ggg : for i in 0 to memory_rows-1 generate col <= mem(i*memory_cols_bits+(memory_cols_bits-1) downto i*memory_cols_bits+0) when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows))) else (others => '-'); end generate ggg;
 --	hhh : for i in 0 to memory_rows-1 generate mem(i*memory_cols_bits+(memory_cols_bits-1) downto i*memory_cols_bits+0) <= col when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows))) else (others => '-'); end generate hhh;
 
-	col(temp_col_wi_shift_r'left*data_size+(data_size-1) downto temp_col_wi_shift_r'right*data_size+0) <= unsigned(data_in) when tristate_input = '1'; -- XXX work must div/srl
-	data_out <= std_logic_vector(col(temp_col_wi_shift_r'left*data_size+(data_size-1) downto temp_col_wi_shift_r'right*data_size+0)) when tristate_output = '1';
+	col(temp_col_wi_shift_r'left+(data_size-1) downto temp_col_wi_shift_r'left+0) <= unsigned(data_in) when tristate_input = '1'; -- XXX work must div/srl
+	data_out <= std_logic_vector(col(temp_col_wi_shift_r'left+(data_size-1) downto temp_col_wi_shift_r'left+0)) when tristate_output = '1';
 
 --	col(data_size-1 downto 0) <= unsigned(data_in) when tristate_input = '1'; -- XXX work
 --	data_out <= std_logic_vector(col(data_size-1 downto 0)) when tristate_output = '1'; -- XXX work
