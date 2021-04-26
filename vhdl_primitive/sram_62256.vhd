@@ -96,10 +96,10 @@ begin
 	decoder_row_input <= i_address(10 downto 2); -- XXX
 	decoder_col_input <= i_address(14 downto 11) & i_address(1 downto 0); -- XXX
 
-	col_wo_shift_r <= std_logic_vector(to_unsigned(to_integer(unsigned(decoder_col_output))*data_size+(data_size-1),memory_cols));
-	col_wo_shift_l <= std_logic_vector(to_unsigned(to_integer(unsigned(decoder_col_output))*data_size+0,memory_cols));
-	col_wi_shift_r <= std_logic_vector(to_unsigned(to_integer(shift_right(unsigned(decoder_col_output),3)*data_size+(data_size-1)),memory_cols));
-	col_wi_shift_l <= std_logic_vector(to_unsigned(to_integer(shift_right(unsigned(decoder_col_output),3)*data_size+0),memory_cols));
+	col_wo_shift_r <= std_logic_vector(to_unsigned(to_integer(resize(unsigned(decoder_col_output),memory_cols_bits)*data_size+(data_size-1)),memory_cols_bits)) when tristate_input = '0';
+	col_wo_shift_l <= std_logic_vector(to_unsigned(to_integer(resize(unsigned(decoder_col_output),memory_cols_bits)*data_size+0),memory_cols_bits)) when tristate_input = '0';
+	col_wi_shift_r <= std_logic_vector(to_unsigned(to_integer(shift_right(unsigned(decoder_col_output),3)*data_size+(data_size-1)),memory_cols_bits)) when tristate_input = '0';
+	col_wi_shift_l <= std_logic_vector(to_unsigned(to_integer(shift_right(unsigned(decoder_col_output),3)*data_size+0),memory_cols_bits)) when tristate_input = '0';
 
 --	ggg : for i in 0 to memory_rows-1 generate col <= mem(i*memory_cols_bits+(memory_cols_bits-1) downto i*memory_cols_bits+0) when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows))) else (others => '-'); end generate ggg;
 --	hhh : for i in 0 to memory_rows-1 generate mem(i*memory_cols_bits+(memory_cols_bits-1) downto i*memory_cols_bits+0) <= col when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows))) else (others => '-'); end generate hhh;
@@ -125,14 +125,14 @@ begin
 	output_OBUFTDS_generate : for i in 0 to data_size-1 generate begin output_OBUFTDS_inst : IOBUF port map (O=>o_data(i),  I=>data_out(i), T=>not tristate_output); end generate output_OBUFTDS_generate;
 
 	bbb : for i in 0 to 2 generate
-		qqq : if (i = 0) generate a : D2_4E port map (D0=>enable_a_col(0),D1=>enable_a_col(1),D2=>enable_a_col(2),D3=>enable_a_col(3),A0=>decoder_col_input(0),A1=>decoder_col_input(1),E=>'1'); end generate qqq;
+		qqq : if (i = 0) generate a : D2_4E port map (D0=>enable_a_col(0),D1=>enable_a_col(1),D2=>enable_a_col(2),D3=>enable_a_col(3),A0=>decoder_col_input(0),A1=>decoder_col_input(1),E=>not tristate_input); end generate qqq;
 		www : if (i = 1) generate b : for j in 0 to C_DECODER_2x4_OUT-1 generate begin c : D2_4E port map (D0=>enable_b_col(C_DECODER_2x4_OUT*j+0),D1=>enable_b_col(C_DECODER_2x4_OUT*j+1),D2=>enable_b_col(C_DECODER_2x4_OUT*j+2),D3=>enable_b_col(C_DECODER_2x4_OUT*j+3),A0=>decoder_col_input(2),A1=>decoder_col_input(3),E=>enable_a_col(j)); end generate b; end generate www;
 		eee : if (i = 2) generate d : for j in 0 to (C_DECODER_2x4_OUT**2)-1 generate begin e : D2_4E port map (D0=>decoder_col_output(C_DECODER_2x4_OUT*j+0),D1=>decoder_col_output(C_DECODER_2x4_OUT*j+1),D2=>decoder_col_output(C_DECODER_2x4_OUT*j+2),D3=>decoder_col_output(C_DECODER_2x4_OUT*j+3),A0=>decoder_col_input(4),A1=>decoder_col_input(5),E=>enable_b_col(j)); end generate d; end generate eee;
 	end generate bbb;
 
 	aaa : for i in 0 to 2 generate
 	begin
-		qwe : if (i = 0) generate a : D3_8E port map (D0 => enable_a_row(0),D1 => enable_a_row(1),D2 => enable_a_row(2),D3 => enable_a_row(3),D4 => enable_a_row(4),D5 => enable_a_row(5),D6 => enable_a_row(6),D7 => enable_a_row(7),A0 => decoder_row_input(0),A1 => decoder_row_input(1),A2 => decoder_row_input(2),E => '1'); end generate qwe;
+		qwe : if (i = 0) generate a : D3_8E port map (D0 => enable_a_row(0),D1 => enable_a_row(1),D2 => enable_a_row(2),D3 => enable_a_row(3),D4 => enable_a_row(4),D5 => enable_a_row(5),D6 => enable_a_row(6),D7 => enable_a_row(7),A0 => decoder_row_input(0),A1 => decoder_row_input(1),A2 => decoder_row_input(2),E => not tristate_input); end generate qwe;
 		asd : if (i = 1) generate b : for j in 0 to C_DECODER_3x8_OUT-1 generate begin c : D3_8E port map (D0=>enable_b_row(C_DECODER_3x8_OUT*j+0),D1=>enable_b_row(C_DECODER_3x8_OUT*j+1),D2=>enable_b_row(C_DECODER_3x8_OUT*j+2),D3=>enable_b_row(C_DECODER_3x8_OUT*j+3),D4=>enable_b_row(C_DECODER_3x8_OUT*j+4),D5=>enable_b_row(C_DECODER_3x8_OUT*j+5),D6=>enable_b_row(C_DECODER_3x8_OUT*j+6),D7=>enable_b_row(C_DECODER_3x8_OUT*j+7),A0=>decoder_row_input(3),A1=>decoder_row_input(4),A2=>decoder_row_input(5),E=>enable_a_row(j)); end generate b; end generate asd;
 		zxc : if (i = 2) generate d : for j in 0 to (C_DECODER_3x8_OUT**2)-1 generate begin e : D3_8E port map (D0=>decoder_row_output(C_DECODER_3x8_OUT*j+0),D1=>decoder_row_output(C_DECODER_3x8_OUT*j+1),D2=>decoder_row_output(C_DECODER_3x8_OUT*j+2),D3=>decoder_row_output(C_DECODER_3x8_OUT*j+3),D4=>decoder_row_output(C_DECODER_3x8_OUT*j+4),D5=>decoder_row_output(C_DECODER_3x8_OUT*j+5),D6=>decoder_row_output(C_DECODER_3x8_OUT*j+6),D7=>decoder_row_output(C_DECODER_3x8_OUT*j+7),A0=>decoder_row_input(6),A1=>decoder_row_input(7),A2=>decoder_row_input(8),E=>enable_b_row(j)); end generate d; end generate zxc;
 	end generate aaa;
