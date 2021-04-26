@@ -88,25 +88,25 @@ architecture Behavioral of sram_62256 is
 	signal temp_col_wi_shift_r : unsigned(memory_cols-1 downto 0);
 	signal temp_col_wi_shift_l : unsigned(memory_cols-1 downto 0);
 
-    function one_position(signal v : std_logic_vector(memory_cols-1 downto 0)) return natural is
-        variable r : natural := 0;
-    begin
-        l0 : for i in v'range loop
-            if (v(i) = '1') then
-                exit;
-            else
-                r := r + 1;
-            end if;
-        end loop l0;
-        return r;
-    end function one_position;
+	function one_position(v : unsigned) return integer is
+		variable r : integer := 0;
+	begin
+		l0 : for i in v'range loop
+			if (v(i) = '1') then
+				exit;
+			else
+				r := r + 1;
+			end if;
+		end loop l0;
+		return r;
+	end function one_position;
 
 begin
 
 	infos : process (i_ceb) is
 	begin
 		if (i_ceb = '0') then
---			REPORT integer'image(one_position(unsigned(decoder_col_output))) SEVERITY NOTE;
+			REPORT integer'image(one_position(unsigned(decoder_col_output))) SEVERITY NOTE;
 		end if;
 	end process infos;
 
@@ -128,8 +128,8 @@ begin
 --	ggg : for i in 0 to memory_rows-1 generate col <= mem(i*memory_cols_bits+(memory_cols_bits-1) downto i*memory_cols_bits+0) when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows))) else (others => '-'); end generate ggg;
 --	hhh : for i in 0 to memory_rows-1 generate mem(i*memory_cols_bits+(memory_cols_bits-1) downto i*memory_cols_bits+0) <= col when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows))) else (others => '-'); end generate hhh;
 
-	col(one_position(std_logic_vector(unsigned(temp_col_wi_shift_r)))) <= unsigned(data_in) when tristate_input = '1'; -- XXX work must div/srl
---	data_out <= std_logic_vector(col(temp_col_wi_shift_r'left+(data_size-1) downto temp_col_wi_shift_r'left+0)) when tristate_output = '1';
+	col(one_position(unsigned(decoder_col_output))+(data_size-1) downto (one_position(unsigned(decoder_col_output)))+0) <= unsigned(data_in) when tristate_input = '1'; -- XXX work must div/srl
+	data_out <= std_logic_vector(col(one_position(unsigned(decoder_col_output))+(data_size-1) downto (one_position(unsigned(decoder_col_output)))+0)) when tristate_output = '1';
 
 --	col(data_size-1 downto 0) <= unsigned(data_in) when tristate_input = '1'; -- XXX work
 --	data_out <= std_logic_vector(col(data_size-1 downto 0)) when tristate_output = '1'; -- XXX work
