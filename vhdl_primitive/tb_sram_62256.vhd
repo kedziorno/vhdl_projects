@@ -97,6 +97,7 @@ end process;
 stim_proc: process
 begin
 -- insert stimulus here
+
 wait for 10*clock_period;
 i_ceb <= '0';
 wait for 01*clock_period;
@@ -104,13 +105,11 @@ i_web <= '0';
 i_oeb <= '1';
 i_address <= "0000000" & x"00";
 i_data <= x"55";
---i_address <= '0'&'0';
---io_data <= '1'&'0';
 wait for 01*clock_period;
 i_ceb <= '1';
 i_web <= '1';
 i_oeb <= '1';
---i_data <= (others => 'Z');
+
 wait for 10*clock_period;
 i_ceb <= '0';
 wait for 01*clock_period;
@@ -118,37 +117,33 @@ i_web <= '0';
 i_oeb <= '1';
 i_address <= "1111111" & x"FF";
 i_data <= x"AA";
---i_address <= '0'&'1';
---io_data <= '0'&'1';
 wait for 01*clock_period;
 i_ceb <= '1';
 i_web <= '1';
 i_oeb <= '1';
---i_data <= (others => 'Z');
+
 wait for 10*clock_period;
 i_ceb <= '0';
 wait for 01*clock_period;
 i_web <= '1';
 i_oeb <= '0';
---i_address <= '0'&'0';
 i_address <= "0000000" & x"00";
 wait for 01*clock_period;
 i_ceb <= '1';
 i_web <= '1';
 i_oeb <= '1';
---i_data <= (others => 'Z');
+
 wait for 10*clock_period;
 i_ceb <= '0';
 wait for 01*clock_period;
 i_web <= '1';
 i_oeb <= '0';
---i_address <= '0'&'0';
 i_address <= "1111111" & x"FF";
 wait for 01*clock_period;
 i_ceb <= '1';
 i_web <= '1';
 i_oeb <= '1';
---i_data <= (others => 'Z');
+
 wait;
 end process;
 
