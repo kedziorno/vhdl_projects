@@ -103,10 +103,13 @@ architecture Behavioral of sram_62256 is
 
 begin
 
-	infos : process (i_ceb) is
+	infos : process (i_web,i_oeb) is
 	begin
-		if (i_ceb = '0') then
-			REPORT integer'image(one_position(unsigned(decoder_col_output))) SEVERITY NOTE;
+		if (i_web = '0') then
+			REPORT "Write : " & integer'image(one_position(unsigned(decoder_col_output))) SEVERITY NOTE;
+		end if;
+		if (i_oeb = '0') then
+			REPORT "Read : " & integer'image(one_position(unsigned(decoder_col_output))) SEVERITY NOTE;
 		end if;
 	end process infos;
 

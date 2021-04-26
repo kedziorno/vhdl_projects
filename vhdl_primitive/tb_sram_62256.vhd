@@ -143,9 +143,20 @@ begin
 
 -- XXX address reverse order
 wr_data("000000000000000",x"55", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("000000000000001",x"AA", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("000000000000001",x"55", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("000000000000010",x"55", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("000100000000000",x"55", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("001000000000000",x"55", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("010000000000000",x"55", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("100000000000000",x"AA", i_address,i_data, i_ceb,i_web,i_oeb);
+
 rd_data("000000000000000",       i_address,        i_ceb,i_web,i_oeb);
 rd_data("000000000000001",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("000000000000010",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("000100000000000",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("001000000000000",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("010000000000000",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("100000000000000",       i_address,        i_ceb,i_web,i_oeb);
 
 wait;
 end process;
