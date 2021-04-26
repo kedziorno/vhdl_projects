@@ -72,6 +72,49 @@ signal o_data : std_logic_vector(data_size-1 downto 0);
 constant clock_period : time := 100 ns;
 signal clock : std_logic := '0';
 
+procedure read_data(
+address : in std_logic_vector(address_size-1 downto 0);
+signal i_address : out std_logic_vector(address_size-1 downto 0);
+signal i_ceb : out std_logic;
+signal i_web : out std_logic;
+signal i_oeb : out std_logic
+) is
+begin
+	wait for 10*clock_period;
+	i_ceb <= '0';
+	wait for 01*clock_period;
+	i_web <= '1';
+	i_oeb <= '0';
+	i_address <= address;
+	wait for 01*clock_period;
+	i_ceb <= '1';
+	i_web <= '1';
+	i_oeb <= '1';
+end procedure;
+
+procedure write_data(
+address : in std_logic_vector(address_size-1 downto 0);
+data : in std_logic_vector(data_size-1 downto 0);
+signal i_address : out std_logic_vector(address_size-1 downto 0);
+signal i_data : out std_logic_vector(data_size-1 downto 0);
+signal i_ceb : out std_logic;
+signal i_web : out std_logic;
+signal i_oeb : out std_logic
+) is
+begin
+	wait for 10*clock_period;
+	i_ceb <= '0';
+	wait for 01*clock_period;
+	i_web <= '0';
+	i_oeb <= '1';
+	i_address <= address;
+	i_data <= data;
+	wait for 01*clock_period;
+	i_ceb <= '1';
+	i_web <= '1';
+	i_oeb <= '1';
+end procedure;
+
 BEGIN
 
 -- Instantiate the Unit Under Test (UUT)
@@ -98,51 +141,10 @@ stim_proc: process
 begin
 -- insert stimulus here
 
-wait for 10*clock_period;
-i_ceb <= '0';
-wait for 01*clock_period;
-i_web <= '0';
-i_oeb <= '1';
-i_address <= "0000000" & x"00";
-i_data <= x"55";
-wait for 01*clock_period;
-i_ceb <= '1';
-i_web <= '1';
-i_oeb <= '1';
-
-wait for 10*clock_period;
-i_ceb <= '0';
-wait for 01*clock_period;
-i_web <= '0';
-i_oeb <= '1';
-i_address <= "0000000" & x"0F";
-i_data <= x"AA";
-wait for 01*clock_period;
-i_ceb <= '1';
-i_web <= '1';
-i_oeb <= '1';
-
-wait for 10*clock_period;
-i_ceb <= '0';
-wait for 01*clock_period;
-i_web <= '1';
-i_oeb <= '0';
-i_address <= "0000000" & x"00";
-wait for 01*clock_period;
-i_ceb <= '1';
-i_web <= '1';
-i_oeb <= '1';
-
-wait for 10*clock_period;
-i_ceb <= '0';
-wait for 01*clock_period;
-i_web <= '1';
-i_oeb <= '0';
-i_address <= "0000000" & x"01";
-wait for 01*clock_period;
-i_ceb <= '1';
-i_web <= '1';
-i_oeb <= '1';
+write_data("000000000000000",x"55",i_address,i_data,i_ceb,i_web,i_oeb);
+write_data("000000000000001",x"AA",i_address,i_data,i_ceb,i_web,i_oeb);
+read_data("000000000000000",i_address,i_ceb,i_web,i_oeb);
+read_data("000000000000001",i_address,i_ceb,i_web,i_oeb);
 
 wait;
 end process;

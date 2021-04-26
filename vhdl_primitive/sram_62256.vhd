@@ -92,7 +92,7 @@ architecture Behavioral of sram_62256 is
 		variable r : integer := 0;
 	begin
 		l0 : for i in v'range loop
-			if (v(i) = '1') then
+			if (v(v'high-i) = '1') then
 				exit;
 			else
 				r := r + 1;
