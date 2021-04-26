@@ -93,8 +93,7 @@ begin
 	infos : process (i_ceb) is
 	begin
 		if (i_ceb = '0') then
---			REPORT integer'image(decoder_col_output'pos("Z")) SEVERITY NOTE;
-			REPORT integer'image(decoder_col_output'low) SEVERITY NOTE;
+			REPORT integer'image(decoder_col_output'pos("1")) SEVERITY NOTE;
 		end if;
 	end process infos;
 
