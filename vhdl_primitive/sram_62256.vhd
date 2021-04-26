@@ -93,7 +93,7 @@ begin
 
 --	ggg : for i in 0 to memory_rows-1 generate col <= mem(i*memory_cols_bits+(memory_cols_bits-1) downto i*memory_cols_bits+0) when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows))) else (others => '-'); end generate ggg;
 --	hhh : for i in 0 to memory_rows-1 generate mem(i*memory_cols_bits+(memory_cols_bits-1) downto i*memory_cols_bits+0) <= col when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows))) else (others => '-'); end generate hhh;
-	col(to_unsigned(shift_right(unsigned(decoder_col_output),3),memory_cols)*data_size+(data_size-1) downto to_unsigned(shift_right(unsigned(decoder_col_output),3),memory_cols)*data_size+0) <= unsigned(data_in) when tristate_input = '1' else (others => '-');
+	col(decoder_col_output*data_size+(data_size-1) downto decoder_col_output*data_size+0) <= unsigned(data_in) when tristate_input = '1' else (others => '-');
 	data_out <= std_logic_vector(col(shift_right(unsigned(decoder_col_output),3)*data_size+(data_size-1) downto shift_right(unsigned(decoder_col_output),3)*data_size+0)) when tristate_output = '1' else (others => '-');
 
 --	col(data_size-1 downto 0) <= unsigned(data_in) when tristate_input = '1'; -- XXX work
