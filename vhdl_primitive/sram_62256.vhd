@@ -116,7 +116,9 @@ begin
 	tristate_input <= ceb and web;
 	tristate_output <= ceb and i_web and oeb;
 	decoder_row_input <= i_address(10 downto 2); -- XXX
-	decoder_col_input <= i_address(14 downto 11) & i_address(1 downto 0); -- XXX
+--	decoder_col_input <= i_address(14 downto 11) & i_address(1 downto 0); -- XXX
+--	decoder_col_input <= i_address(0)&i_address(1)&i_address(11)&i_address(12)&i_address(13)&i_address(14); -- XXX
+	decoder_col_input <= i_address(14)&i_address(13)&i_address(12)&i_address(11)&i_address(1)&i_address(0); -- XXX
 
 	col_wo_shift_r <= std_logic_vector(to_unsigned(to_integer(unsigned(decoder_col_output)-1)+(data_size-1),32)) when tristate_input = '0';
 	col_wo_shift_l <= std_logic_vector(to_unsigned(to_integer(unsigned(decoder_col_output)-1)+0,32)) when tristate_input = '0';

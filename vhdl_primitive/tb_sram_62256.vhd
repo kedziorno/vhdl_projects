@@ -72,7 +72,7 @@ signal o_data : std_logic_vector(data_size-1 downto 0);
 constant clock_period : time := 100 ns;
 signal clock : std_logic := '0';
 
-procedure read_data(
+procedure rd_data(
 address : in std_logic_vector(address_size-1 downto 0);
 signal i_address : out std_logic_vector(address_size-1 downto 0);
 signal i_ceb : out std_logic;
@@ -92,7 +92,7 @@ begin
 	i_oeb <= '1';
 end procedure;
 
-procedure write_data(
+procedure wr_data(
 address : in std_logic_vector(address_size-1 downto 0);
 data : in std_logic_vector(data_size-1 downto 0);
 signal i_address : out std_logic_vector(address_size-1 downto 0);
@@ -141,10 +141,11 @@ stim_proc: process
 begin
 -- insert stimulus here
 
-write_data("000000000000000",x"55",i_address,i_data,i_ceb,i_web,i_oeb);
-write_data("000000000000001",x"AA",i_address,i_data,i_ceb,i_web,i_oeb);
-read_data("000000000000000",i_address,i_ceb,i_web,i_oeb);
-read_data("000000000000001",i_address,i_ceb,i_web,i_oeb);
+-- XXX address reverse order
+wr_data("000000000000000",x"55", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("000000000000001",x"AA", i_address,i_data, i_ceb,i_web,i_oeb);
+rd_data("000000000000000",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("000000000000001",       i_address,        i_ceb,i_web,i_oeb);
 
 wait;
 end process;
