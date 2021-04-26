@@ -85,6 +85,8 @@ architecture Behavioral of sram_62256 is
 	signal col_wo_shift_l : std_logic_vector(31 downto 0);
 	signal col_wi_shift_r : std_logic_vector(31 downto 0);
 	signal col_wi_shift_l : std_logic_vector(31 downto 0);
+	signal temp_col_wi_shift_r : unsigned(memory_cols-1 downto 0);
+	signal temp_col_wi_shift_l : unsigned(memory_cols-1 downto 0);
 
 begin
 
@@ -98,14 +100,16 @@ begin
 
 --	col_wo_shift_r <= std_logic_vector(to_unsigned(to_integer(unsigned(decoder_col_output)-1)+(data_size-1),32)) when tristate_input = '0';
 --	col_wo_shift_l <= std_logic_vector(to_unsigned(to_integer(unsigned(decoder_col_output)-1)+0,32)) when tristate_input = '0';
-	col_wi_shift_r <= std_logic_vector(to_unsigned(to_integer(shift_right(unsigned(decoder_col_output),3)+(data_size-1)),32)) when tristate_input = '0';
-	col_wi_shift_l <= std_logic_vector(to_unsigned(to_integer(shift_right(unsigned(decoder_col_output),3)+0),32)) when tristate_input = '0';
+	temp_col_wi_shift_r <= unsigned(shift_right(unsigned(decoder_col_output),3));
+	temp_col_wi_shift_l <= unsigned(shift_right(unsigned(decoder_col_output),3));
+	col_wi_shift_r <= std_logic_vector(to_unsigned(to_integer(unsigned(shift_right(unsigned(decoder_col_output),3)))+(data_size-1),32)) when tristate_input = '0';
+	col_wi_shift_l <= std_logic_vector(to_unsigned(to_integer(unsigned(shift_right(unsigned(decoder_col_output),3)))+0,32)) when tristate_input = '0';
 
 --	ggg : for i in 0 to memory_rows-1 generate col <= mem(i*memory_cols_bits+(memory_cols_bits-1) downto i*memory_cols_bits+0) when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows))) else (others => '-'); end generate ggg;
 --	hhh : for i in 0 to memory_rows-1 generate mem(i*memory_cols_bits+(memory_cols_bits-1) downto i*memory_cols_bits+0) <= col when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows))) else (others => '-'); end generate hhh;
 
-	col(to_integer(unsigned(col_wi_shift_r)) downto to_integer(unsigned(col_wi_shift_l))) <= unsigned(data_in) when tristate_input = '1'; -- XXX work must div/srl
-	data_out <= std_logic_vector(col(to_integer(unsigned(col_wi_shift_r)) downto to_integer(unsigned(col_wi_shift_l)))) when tristate_output = '1';
+	col(temp_col_wi_shift_r'right*data_size+(data_size-1) downto temp_col_wi_shift_r'right*data_size+0) <= unsigned(data_in) when tristate_input = '1'; -- XXX work must div/srl
+	data_out <= std_logic_vector(col(temp_col_wi_shift_r'right*data_size+(data_size-1) downto temp_col_wi_shift_r'right*data_size+0)) when tristate_output = '1';
 
 --	col(data_size-1 downto 0) <= unsigned(data_in) when tristate_input = '1'; -- XXX work
 --	data_out <= std_logic_vector(col(data_size-1 downto 0)) when tristate_output = '1'; -- XXX work
