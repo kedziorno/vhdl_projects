@@ -91,10 +91,10 @@ begin
 	decoder_row_input <= i_address(10 downto 2); -- XXX
 	decoder_col_input <= i_address(14 downto 11) & i_address(1 downto 0); -- XXX
 
-	ggg : for i in 0 to memory_rows-1 generate col <= mem(i*(memory_cols_bits-1)+(memory_cols_bits-1) downto i*(memory_cols_bits-1)+0) when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)) and tristate_output = '1') else (others => '0'); end generate ggg;
-	hhh : for i in 0 to memory_rows-1 generate mem(i*(memory_cols_bits-1)+(memory_cols_bits-1) downto i*(memory_cols_bits-1)+0) <= col when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)) and tristate_input = '1'); end generate hhh;
-	iii : for i in 0 to memory_cols-1 generate col(i*data_size+(data_size-1) downto i*data_size+0) <= unsigned(data_in) when (std_logic_vector(shift_right(unsigned(decoder_col_output),3))=std_logic_vector(to_unsigned(i,memory_cols)) and tristate_input = '1') else (others => '0'); end generate iii;
-	jjj : for i in 0 to memory_cols-1 generate data_out <= std_logic_vector(col(i*data_size+(data_size-1) downto i*data_size+0)) when (std_logic_vector(shift_right(unsigned(decoder_col_output),3))=std_logic_vector(to_unsigned(i,memory_cols)) and tristate_output = '1'); end generate jjj;
+	ggg : for i in 0 to memory_rows-1 generate col <= mem(i*(memory_cols_bits-1)+(memory_cols_bits-1) downto i*(memory_cols_bits-1)+0) when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows))) else (others => '-'); end generate ggg;
+	hhh : for i in 0 to memory_rows-1 generate mem(i*(memory_cols_bits-1)+(memory_cols_bits-1) downto i*(memory_cols_bits-1)+0) <= col when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows))) else (others => '-'); end generate hhh;
+	iii : for i in 0 to memory_cols-1 generate col(i*data_size+(data_size-1) downto i*data_size+0) <= unsigned(data_in) when (std_logic_vector(shift_right(unsigned(decoder_col_output),3))=std_logic_vector(to_unsigned(i,memory_cols)) and tristate_input = '1') else (others => '-'); end generate iii;
+	jjj : for i in 0 to memory_cols-1 generate data_out <= std_logic_vector(col(i*data_size+(data_size-1) downto i*data_size+0)) when (std_logic_vector(shift_right(unsigned(decoder_col_output),3))=std_logic_vector(to_unsigned(i,memory_cols)) and tristate_output = '1') else (others => '-'); end generate jjj;
 
 	input_IOBUFDS_generate : for i in 0 to data_size-1 generate begin input_IOBUFDS_inst : IOBUFDS port map (O=>data_in(i),I=>i_data(i),T=>not tristate_input); end generate input_IOBUFDS_generate;
 	output_OBUFTDS_generate : for i in 0 to data_size-1 generate begin output_OBUFTDS_inst : OBUFTDS port map (O=>o_data(i),I=>data_out(i),T=>not tristate_output); end generate output_OBUFTDS_generate;
