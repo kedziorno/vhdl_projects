@@ -91,8 +91,8 @@ begin
 	decoder_row_input <= i_address(10 downto 2); -- XXX
 	decoder_col_input <= i_address(14 downto 11) & i_address(1 downto 0); -- XXX
 
-	ggg : for i in 0 to memory_rows-1 generate col <= mem(i*(memory_cols_bits-1)+(memory_cols_bits-1) downto i*(memory_cols_bits-1)+0) when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows))) else (others => '-'); end generate ggg;
-	hhh : for i in 0 to memory_rows-1 generate mem(i*(memory_cols_bits-1)+(memory_cols_bits-1) downto i*(memory_cols_bits-1)+0) <= col when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows))) else (others => '-'); end generate hhh;
+	ggg : for i in 0 to memory_rows-1 generate col <= mem(i*memory_cols_bits+(memory_cols_bits-1) downto i*memory_cols_bits+0) when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows))) else (others => '-'); end generate ggg;
+	hhh : for i in 0 to memory_rows-1 generate mem(i*memory_cols_bits+(memory_cols_bits-1) downto i*memory_cols_bits+0) <= col when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows))) else (others => '-'); end generate hhh;
 	iii : for i in 0 to memory_cols-1 generate col(i*data_size+(data_size-1) downto i*data_size+0) <= unsigned(data_in) when (std_logic_vector(shift_right(unsigned(decoder_col_output),3))=std_logic_vector(to_unsigned(i,memory_cols)) and tristate_input = '1') else (others => '-'); end generate iii;
 	jjj : for i in 0 to memory_cols-1 generate data_out <= std_logic_vector(col(i*data_size+(data_size-1) downto i*data_size+0)) when (std_logic_vector(shift_right(unsigned(decoder_col_output),3))=std_logic_vector(to_unsigned(i,memory_cols)) and tristate_output = '1') else (others => '-'); end generate jjj;
 
