@@ -41,12 +41,14 @@ ARCHITECTURE behavior OF tb_mem_decoder_col IS
 COMPONENT mem_decoder_col
 PORT(
 decoder_col_input : IN  std_logic_vector(5 downto 0);
-decoder_col_output : OUT  std_logic_vector(63 downto 0)
+decoder_col_output : OUT  std_logic_vector(63 downto 0);
+e : IN  STD_LOGIC
 );
 END COMPONENT;
 
 --Inputs
 signal decoder_col_input : std_logic_vector(5 downto 0) := (others => '0');
+signal e : std_logic := '0';
 
 --Outputs
 signal decoder_col_output : std_logic_vector(63 downto 0);
@@ -58,27 +60,56 @@ BEGIN
 -- Instantiate the Unit Under Test (UUT)
 uut: mem_decoder_col PORT MAP (
 decoder_col_input => decoder_col_input,
-decoder_col_output => decoder_col_output
+decoder_col_output => decoder_col_output,
+e => e
 );
 
 -- Stimulus process
 stim_proc: process
 begin
+wait for 1 us;
 -- insert stimulus here
+e <= '1';
 decoder_col_input <= "000000";
 wait for clock_period;
+e <= '0';
+
+wait for clock_period;
+e <= '1';
 decoder_col_input <= "000001";
 wait for clock_period;
+e <= '0';
+
+wait for clock_period;
+e <= '1';
 decoder_col_input <= "000010";
 wait for clock_period;
+e <= '0';
+
+wait for clock_period;
+e <= '1';
 decoder_col_input <= "000100";
 wait for clock_period;
+e <= '0';
+
+wait for clock_period;
+e <= '1';
 decoder_col_input <= "001000";
 wait for clock_period;
+e <= '0';
+
+wait for clock_period;
+e <= '1';
 decoder_col_input <= "010000";
 wait for clock_period;
+e <= '0';
+
+wait for clock_period;
+e <= '1';
 decoder_col_input <= "100000";
 wait for clock_period;
+e <= '0';
+
 wait;
 end process;
 
