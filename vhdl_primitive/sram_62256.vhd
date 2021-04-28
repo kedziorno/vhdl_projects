@@ -49,7 +49,13 @@ architecture Behavioral of sram_62256 is
 	-- XXX probe from Cypress_SRAM_CY62256.pdf LOGIC BLOCK DIAGRAM
 	-- 512x512 = 256k = 2**9x2**6*8bit
 
-	component D2_4E is port(D0:out std_logic;D1:out std_logic;D2:out std_logic;D3:out std_logic;A0:in std_logic;A1:in std_logic;E:in std_logic); end component D2_4E;
+	component mem_decoder_col is
+	Port (
+		signal decoder_col_input : in std_logic_vector(6-1 downto 0);
+		signal decoder_col_output : out std_logic_vector(2**6-1 downto 0);
+		signal e : std_logic
+	);
+	end component mem_decoder_col;
 	component D3_8E is port(D0:out std_logic;D1:out std_logic;D2:out std_logic;D3:out std_logic;D4:out std_logic;D5:out std_logic;D6:out std_logic;D7:out std_logic;A0:in std_logic;A1:in std_logic;A2:in std_logic;E:in std_logic); end component D3_8E;
 
 	constant memory_bits_rows : integer := 9;
@@ -142,11 +148,8 @@ begin
 	input_IOBUFDS_generate : for i in 0 to data_size-1 generate begin input_IOBUFDS_inst   : OBUFT port map (O=>data_in(i), I=>i_data(i),   T=>not tristate_input); end generate input_IOBUFDS_generate;
 	output_OBUFTDS_generate : for i in 0 to data_size-1 generate begin output_OBUFTDS_inst : OBUFT port map (O=>o_data(i),  I=>data_out(i), T=>not tristate_output); end generate output_OBUFTDS_generate;
 
-	bbb : for i in 0 to 2 generate
-		qqq : if (i = 0) generate a : D2_4E port map (D0=>enable_a_col(0),D1=>enable_a_col(1),D2=>enable_a_col(2),D3=>enable_a_col(3),A0=>decoder_col_input(0),A1=>decoder_col_input(1),E=>'1'); end generate qqq;
-		www : if (i = 1) generate b : for j in 0 to C_DECODER_2x4_OUT-1 generate begin c : D2_4E port map (D0=>enable_b_col(C_DECODER_2x4_OUT*j+0),D1=>enable_b_col(C_DECODER_2x4_OUT*j+1),D2=>enable_b_col(C_DECODER_2x4_OUT*j+2),D3=>enable_b_col(C_DECODER_2x4_OUT*j+3),A0=>decoder_col_input(2),A1=>decoder_col_input(3),E=>enable_a_col(j)); end generate b; end generate www;
-		eee : if (i = 2) generate d : for j in 0 to (C_DECODER_2x4_OUT**2)-1 generate begin e : D2_4E port map (D0=>decoder_col_output(C_DECODER_2x4_OUT*j+0),D1=>decoder_col_output(C_DECODER_2x4_OUT*j+1),D2=>decoder_col_output(C_DECODER_2x4_OUT*j+2),D3=>decoder_col_output(C_DECODER_2x4_OUT*j+3),A0=>decoder_col_input(4),A1=>decoder_col_input(5),E=>enable_b_col(j)); end generate d; end generate eee;
-	end generate bbb;
+	mdc_entity : mem_decoder_col
+	Port map (decoder_col_input=>decoder_col_input,decoder_col_output=>decoder_col_output,e=>not tristate_input);
 
 	aaa : for i in 0 to 2 generate
 	begin
