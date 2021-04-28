@@ -82,10 +82,10 @@ signal i_oeb : out std_logic
 begin
 	wait for 10*clock_period;
 	i_ceb <= '0';
+	i_address <= address;
 	wait for 01*clock_period;
 	i_web <= '1';
 	i_oeb <= '0';
-	i_address <= address;
 	wait for 01*clock_period;
 	i_ceb <= '1';
 	i_web <= '1';
@@ -104,11 +104,11 @@ signal i_oeb : out std_logic
 begin
 	wait for 10*clock_period;
 	i_ceb <= '0';
+	i_address <= address;
+	i_data <= data;
 	wait for 01*clock_period;
 	i_web <= '0';
 	i_oeb <= '1';
-	i_address <= address;
-	i_data <= data;
 	wait for 01*clock_period;
 	i_ceb <= '1';
 	i_web <= '1';
@@ -140,7 +140,7 @@ end process;
 stim_proc: process
 begin
 -- insert stimulus here
-
+wait for clock_period;
 -- XXX address reverse order
 wr_data("000000000000000",x"AA", i_address,i_data, i_ceb,i_web,i_oeb);
 wr_data("000000000000001",x"BB", i_address,i_data, i_ceb,i_web,i_oeb);
@@ -149,6 +149,10 @@ wr_data("000100000000000",x"DD", i_address,i_data, i_ceb,i_web,i_oeb);
 wr_data("001000000000000",x"EE", i_address,i_data, i_ceb,i_web,i_oeb);
 wr_data("010000000000000",x"FF", i_address,i_data, i_ceb,i_web,i_oeb);
 wr_data("100000000000000",x"99", i_address,i_data, i_ceb,i_web,i_oeb);
+
+wait for clock_period;
+i_data <= (others => 'Z');
+wait for clock_period;
 
 rd_data("000000000000000",       i_address,        i_ceb,i_web,i_oeb);
 rd_data("000000000000001",       i_address,        i_ceb,i_web,i_oeb);
