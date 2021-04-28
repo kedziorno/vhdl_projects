@@ -83,61 +83,61 @@ end generate g0;
 g1 : for i in 1 to (N/2/2)-1 generate
 	g10 : if (i=1) generate
 		fa : FULL_ADDER port map (
-		A=>c0(i),
-		B=>c0(i+1),
-		Cin=>s0(i-1),
+		A=>c0(2*i),
+		B=>c0(2*i+1),
+		Cin=>c0(2*i-1),
 		
-		S=>s1(i), --XXX
-		Cout=>c1(i)); --XXX
+		S=>s1(1), --XXX
+		Cout=>c1(1)); --XXX
 	end generate g10;
 	g11 : if (i>1 and i<(N/2/2)-1) generate
 		fa : FULL_ADDER port map (
-		A=>c0(i),
-		B=>c0(i+1),
-		Cin=>s0(i-1),
+		A=>c0(2*i),
+		B=>c0(2*i+1),
+		Cin=>s1(i-1),
 		
 		S=>s1(i), --XXX
 		Cout=>c1(i)); --XXX
 	end generate g11;
 	g12 : if (i=(N/2/2)-1) generate
 		fa : FULL_ADDER port map (
-		A=>c0(i),
-		B=>c0(i+1),
-		Cin=>s0(i-1),
+		A=>c0(2*i),
+		B=>c0(2*i+1),
+		Cin=>s1(i-1),
 		
 		S=>y(1), --XXX
 		Cout=>c1(i)); --XXX
 	end generate g12;
 end generate g1;
 
-g2 : for i in 1 to (N/2/2/2)-1 generate
-	g20 : if (i=1) generate
-		fa : FULL_ADDER port map (
-		A=>c1(i),
-		B=>c1(i+1),
-		Cin=>s1(i-1),
-		
-		S=>s2(i), --XXX
-		Cout=>c2(i)); --XXX
-	end generate g20;
-	g21 : if (i>1 and i<(N/2/2/2)-1) generate
-		fa : FULL_ADDER port map (
-		A=>c1(i),
-		B=>c1(i+1),
-		Cin=>s1(i-1),
-		
-		S=>s2(i), --XXX
-		Cout=>c2(i)); --XXX
-	end generate g21;
-	g22 : if (i=(N/2/2/2)-1) generate
-		fa : FULL_ADDER port map (
-		A=>c1(i),
-		B=>c1(i+1),
-		Cin=>s1(i-1),
-		
-		S=>y(2), --XXX
-		Cout=>y(3)); --XXX
-	end generate g22;
-end generate g2;
+--g2 : for i in 1 to (N/2/2/2)-1 generate
+--	g20 : if (i=1) generate
+--		fa : FULL_ADDER port map (
+--		A=>c1(2*i),
+--		B=>c1(2*i+1),
+--		Cin=>c1(2*i-1),
+--		
+--		S=>s2(1), --XXX
+--		Cout=>c2(1)); --XXX
+--	end generate g20;
+--	g21 : if (i>1 and i<(N/2/2/2)-1) generate
+--		fa : FULL_ADDER port map (
+--		A=>c1(2*i),
+--		B=>c1(2*i+1),
+--		Cin=>s1(2*i-1),
+--		
+--		S=>s2(i), --XXX
+--		Cout=>c2(i)); --XXX
+--	end generate g21;
+--	g22 : if (i=(N/2/2/2)-1) generate
+--		fa : FULL_ADDER port map (
+--		A=>c1(2*i),
+--		B=>c1(2*i+1),
+--		Cin=>s1(2*i-1),
+--		
+--		S=>y(2), --XXX
+--		Cout=>y(3)); --XXX
+--	end generate g22;
+--end generate g2;
 
 end Behavioral;
