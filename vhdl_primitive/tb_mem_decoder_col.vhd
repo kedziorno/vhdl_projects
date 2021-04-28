@@ -66,7 +66,7 @@ e => e
 
 -- Stimulus process
 stim_proc: process
-variable data_in : std_logic_vector(5 downto 0) := (others => '0');
+constant N : integer := 2**(decoder_col_input'left+1);
 function one_position(v : std_logic_vector) return integer is
 	variable r : integer := 0;
 begin
@@ -95,13 +95,14 @@ return result;
 end; 
 begin
 -- insert stimulus here
-loop0 : for i in 0 to 2**6-1 loop
+loop0 : for i in 0 to N loop
 e <= '1';
 decoder_col_input <= std_logic_vector(to_unsigned(i,6));
 wait for clock_period;
 assert (one_position(decoder_col_output)=i) report time'image(NOW) & " error at " & integer'image(i) & " : decoder_col_output is " & vec2str(decoder_col_output) & " 1 on position " & integer'image(one_position(decoder_col_output)) & " , expect " & integer'image(i) severity note;
 e <= '0';
 wait for clock_period;
+assert (i/=N) report "end" severity failure;
 end loop loop0;
 wait;
 end process;
