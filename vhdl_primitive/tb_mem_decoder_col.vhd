@@ -80,31 +80,44 @@ begin
 	return r;
 end function one_position;
 function vec2str(vec: std_logic_vector) return string is
-	variable result: string(vec'left + 1 downto 1);
+	variable result: string(vec'left downto 0);
 begin
 	for i in vec'reverse_range loop
 		if (vec(i) = '1') then
-			result(i + 1) := '1';
+			result(i) := '1';
 		elsif (vec(i) = '0') then
-			result(i + 1) := '0';
+			result(i) := '0';
 		else
-			result(i + 1) := 'X';
+			result(i) := 'X';
 		end if;
 	end loop;
 return result;
-end; 
+end;
+variable v : std_logic_vector(5 downto 0);
 begin
--- insert stimulus here
-loop0 : for i in 0 to N loop
+
+loop0 : for i in 0 to N-1 loop
 e <= '1';
-decoder_col_input <= std_logic_vector(to_unsigned(i,6));
+v := std_logic_vector(to_unsigned(i,6));
+case (i) is
+when 0 to 15 =>
+	decoder_col_input <= v(3 downto 0) & "00";
+when 16 to 31 =>
+	decoder_col_input <= v(3 downto 0) & "01";
+when 32 to 47 =>
+	decoder_col_input <= v(3 downto 0) & "10";
+when 48 to 63 =>
+	decoder_col_input <= v(3 downto 0) & "11";
+end case;
 wait for clock_period;
-assert (one_position(decoder_col_output)=i) report time'image(NOW) & " error at " & integer'image(i) & " : decoder_col_output is " & vec2str(decoder_col_output) & " 1 on position " & integer'image(one_position(decoder_col_output)) & " , expect " & integer'image(i) severity note;
+assert (one_position(decoder_col_output) =i) report " ERROR : " & vec2str(decoder_col_output) & " - position " & integer'image(one_position(decoder_col_output)) & " , expect " & integer'image(i) severity note;
+assert (one_position(decoder_col_output)/=i) report " OK    : " & vec2str(decoder_col_output) & " - position " & integer'image(one_position(decoder_col_output)) & " , expect " & integer'image(i) severity note;
 e <= '0';
 wait for clock_period;
-assert (i/=N) report "end" severity failure;
+assert (i/=N-1) report "end" severity failure;
 end loop loop0;
 wait;
+
 end process;
 
 END;

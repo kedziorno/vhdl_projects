@@ -43,10 +43,15 @@ end mem_decoder_col;
 
 architecture Behavioral of mem_decoder_col is
 	signal enable_a_col : std_logic_vector(C_DECODER_2x4_OUT-1 downto 0);
-	signal enable_b_col : std_logic_vector((C_DECODER_2x4_OUT**2)-1 downto 0);
 	component D2_4E is port(D0:out std_logic;D1:out std_logic;D2:out std_logic;D3:out std_logic;A0:in std_logic;A1:in std_logic;E:in std_logic); end component D2_4E;
 	component D4_16E is port(D0:out std_logic;D1:out std_logic;D2:out std_logic;D3:out std_logic;D4:out std_logic;D5:out std_logic;D6:out std_logic;D7:out std_logic;D8:out std_logic;D9:out std_logic;D10:out std_logic;D11:out std_logic;D12:out std_logic;D13:out std_logic;D14:out std_logic;D15:out std_logic;A0:in std_logic;A1:in std_logic;A2:in std_logic;A3:in std_logic;E:in std_logic); end component D4_16E;
 begin
+
+--Work
+--a : for i in (2**(decoder_col_input'left+1))-1 downto 0 generate
+--	decoder_col_output(i) <= '1' when (i=to_integer(unsigned(decoder_col_input))) else '0';
+--end generate a;
+
 	bbb : for i in 0 to 1 generate
 	begin
 		qqq : if (i = 0) generate
