@@ -30,7 +30,7 @@ USE ieee.std_logic_1164.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---USE ieee.numeric_std.ALL;
+USE ieee.numeric_std.ALL;
 
 ENTITY tb_mem_decoder_col IS
 END tb_mem_decoder_col;
@@ -66,50 +66,43 @@ e => e
 
 -- Stimulus process
 stim_proc: process
+variable data_in : std_logic_vector(5 downto 0) := (others => '0');
+function one_position(v : std_logic_vector) return integer is
+	variable r : integer := 0;
 begin
-wait for 1 us;
+	l0 : for i in v'range loop
+		if (v(v'high-i) = '1') then
+			exit;
+		else
+			r := r + 1;
+		end if;
+	end loop l0;
+	return r;
+end function one_position;
+function vec2str(vec: std_logic_vector) return string is
+	variable result: string(vec'left + 1 downto 1);
+begin
+	for i in vec'reverse_range loop
+		if (vec(i) = '1') then
+			result(i + 1) := '1';
+		elsif (vec(i) = '0') then
+			result(i + 1) := '0';
+		else
+			result(i + 1) := 'X';
+		end if;
+	end loop;
+return result;
+end; 
+begin
 -- insert stimulus here
+loop0 : for i in 0 to 2**6-1 loop
 e <= '1';
-decoder_col_input <= "000000";
+decoder_col_input <= std_logic_vector(to_unsigned(i,6));
 wait for clock_period;
+assert (one_position(decoder_col_output)=i) report time'image(NOW) & " error at " & integer'image(i) & " : decoder_col_output is " & vec2str(decoder_col_output) & " 1 on position " & integer'image(one_position(decoder_col_output)) & " , expect " & integer'image(i) severity note;
 e <= '0';
-
 wait for clock_period;
-e <= '1';
-decoder_col_input <= "000001";
-wait for clock_period;
-e <= '0';
-
-wait for clock_period;
-e <= '1';
-decoder_col_input <= "000010";
-wait for clock_period;
-e <= '0';
-
-wait for clock_period;
-e <= '1';
-decoder_col_input <= "000100";
-wait for clock_period;
-e <= '0';
-
-wait for clock_period;
-e <= '1';
-decoder_col_input <= "001000";
-wait for clock_period;
-e <= '0';
-
-wait for clock_period;
-e <= '1';
-decoder_col_input <= "010000";
-wait for clock_period;
-e <= '0';
-
-wait for clock_period;
-e <= '1';
-decoder_col_input <= "100000";
-wait for clock_period;
-e <= '0';
-
+end loop loop0;
 wait;
 end process;
 
