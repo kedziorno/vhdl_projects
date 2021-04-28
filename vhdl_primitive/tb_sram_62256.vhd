@@ -72,6 +72,49 @@ signal o_data : std_logic_vector(data_size-1 downto 0);
 constant clock_period : time := 100 ns;
 signal clock : std_logic := '0';
 
+procedure rd_data(
+address : in std_logic_vector(address_size-1 downto 0);
+signal i_address : out std_logic_vector(address_size-1 downto 0);
+signal i_ceb : out std_logic;
+signal i_web : out std_logic;
+signal i_oeb : out std_logic
+) is
+begin
+	wait for 10*clock_period;
+	i_ceb <= '0';
+	wait for 01*clock_period;
+	i_web <= '1';
+	i_oeb <= '0';
+	i_address <= address;
+	wait for 01*clock_period;
+	i_ceb <= '1';
+	i_web <= '1';
+	i_oeb <= '1';
+end procedure;
+
+procedure wr_data(
+address : in std_logic_vector(address_size-1 downto 0);
+data : in std_logic_vector(data_size-1 downto 0);
+signal i_address : out std_logic_vector(address_size-1 downto 0);
+signal i_data : out std_logic_vector(data_size-1 downto 0);
+signal i_ceb : out std_logic;
+signal i_web : out std_logic;
+signal i_oeb : out std_logic
+) is
+begin
+	wait for 10*clock_period;
+	i_ceb <= '0';
+	wait for 01*clock_period;
+	i_web <= '0';
+	i_oeb <= '1';
+	i_address <= address;
+	i_data <= data;
+	wait for 01*clock_period;
+	i_ceb <= '1';
+	i_web <= '1';
+	i_oeb <= '1';
+end procedure;
+
 BEGIN
 
 -- Instantiate the Unit Under Test (UUT)
@@ -97,58 +140,24 @@ end process;
 stim_proc: process
 begin
 -- insert stimulus here
-wait for 10*clock_period;
-i_ceb <= '0';
-wait for 01*clock_period;
-i_web <= '0';
-i_oeb <= '1';
-i_address <= "0000000" & x"00";
-i_data <= x"55";
---i_address <= '0'&'0';
---io_data <= '1'&'0';
-wait for 01*clock_period;
-i_ceb <= '1';
-i_web <= '1';
-i_oeb <= '1';
---i_data <= (others => 'Z');
-wait for 10*clock_period;
-i_ceb <= '0';
-wait for 01*clock_period;
-i_web <= '0';
-i_oeb <= '1';
-i_address <= "0000000" & x"01";
-i_data <= x"AA";
---i_address <= '0'&'1';
---io_data <= '0'&'1';
-wait for 01*clock_period;
-i_ceb <= '1';
-i_web <= '1';
-i_oeb <= '1';
---i_data <= (others => 'Z');
-wait for 10*clock_period;
-i_ceb <= '0';
-wait for 01*clock_period;
-i_web <= '1';
-i_oeb <= '0';
---i_address <= '0'&'0';
-i_address <= "0000000" & x"00";
-wait for 01*clock_period;
-i_ceb <= '1';
-i_web <= '1';
-i_oeb <= '1';
---i_data <= (others => 'Z');
-wait for 10*clock_period;
-i_ceb <= '0';
-wait for 01*clock_period;
-i_web <= '1';
-i_oeb <= '0';
---i_address <= '0'&'0';
-i_address <= "0000000" & x"01";
-wait for 01*clock_period;
-i_ceb <= '1';
-i_web <= '1';
-i_oeb <= '1';
---i_data <= (others => 'Z');
+
+-- XXX address reverse order
+wr_data("000000000000000",x"AA", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("000000000000001",x"BB", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("000000000000010",x"CC", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("000100000000000",x"DD", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("001000000000000",x"EE", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("010000000000000",x"FF", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("100000000000000",x"99", i_address,i_data, i_ceb,i_web,i_oeb);
+
+rd_data("000000000000000",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("000000000000001",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("000000000000010",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("000100000000000",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("001000000000000",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("010000000000000",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("100000000000000",       i_address,        i_ceb,i_web,i_oeb);
+
 wait;
 end process;
 
