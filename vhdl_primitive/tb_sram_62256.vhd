@@ -56,7 +56,6 @@ o_data : out  STD_LOGIC_VECTOR (data_size-1 downto 0)
 );
 END COMPONENT;
 
-
 --Inputs
 signal i_ceb : std_logic := '1';
 signal i_web : std_logic := '1';
@@ -142,25 +141,25 @@ begin
 -- insert stimulus here
 wait for clock_period;
 -- XXX address reverse order
-wr_data("000000000000000",x"AA", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("000000000000001",x"BB", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("000000000000010",x"CC", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("000100000000000",x"DD", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("001000000000000",x"EE", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("010000000000000",x"FF", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("100000000000000",x"99", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("000000011100000",x"AA", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("000000011100001",x"BB", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("000000011100010",x"CC", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("000100011100000",x"DD", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("001000011100000",x"EE", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("010000011100000",x"FF", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("100000011100000",x"99", i_address,i_data, i_ceb,i_web,i_oeb);
 
 wait for clock_period;
 i_data <= (others => 'Z');
 wait for clock_period;
 
-rd_data("000000000000000",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("000000000000001",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("000000000000010",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("000100000000000",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("001000000000000",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("010000000000000",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("100000000000000",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("000000011100000",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("000000011100001",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("000000011100010",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("000100011100000",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("001000011100000",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("010000011100000",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("100000011100000",       i_address,        i_ceb,i_web,i_oeb);
 
 wait;
 end process;
