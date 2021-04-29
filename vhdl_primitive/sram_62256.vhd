@@ -142,10 +142,19 @@ begin
 --		when one_position(unsigned(decoder_col_output))=i and tristate_input='0';
 --	end generate ggg;
 
-	col <= mem(one_position(unsigned(decoder_row_output))) when tristate_output='1';
-	data_out <= col(one_position(unsigned(decoder_col_output))) when tristate_output='0';
-	mem(one_position(unsigned(decoder_row_output))) <= col when tristate_input='1';
-	col(one_position(unsigned(decoder_col_output))) <= data_in when tristate_input='0';
+	process (tristate_input,tristate_output) is
+	begin
+		if (tristate_input = '0') then
+			data_out <= col(one_position(unsigned(decoder_col_output)));
+		elsif (tristate_input = '1') then
+			mem(one_position(unsigned(decoder_row_output))) <= col;
+		end if;
+		if (tristate_output = '0') then
+			col(one_position(unsigned(decoder_col_output))) <= data_in;
+		elsif (tristate_output = '1') then
+			col <= mem(one_position(unsigned(decoder_row_output)));
+		end if;
+	end process;
 
 	input_IOBUFDS_generate : for i in 0 to data_size-1 generate
 		input_IOBUFDS_inst  : OBUFT port map (O=>data_in(i), I=>i_data(i),   T=>not tristate_input);
