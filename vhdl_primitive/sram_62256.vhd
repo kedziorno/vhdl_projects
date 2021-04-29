@@ -125,25 +125,27 @@ begin
 --		mem(i) <= col when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)) and tristate_input='1');
 --	end generate hhh;
 
-	aaa : for i in 0 to memory_rows-1 generate
-		col <= mem(i)
-		when one_position(unsigned(decoder_row_output))=i and tristate_output='0';
-	end generate aaa;
+--	aaa : for i in 0 to memory_rows-1 generate
+--		col <= mem(i)
+--		when one_position(unsigned(decoder_row_output))=i and tristate_output='0';
+--	end generate aaa;
+--	bbb : for i in 0 to memory_cols-1 generate
+--		data_out <= col(i)
+--		when one_position(unsigned(decoder_col_output))=i and tristate_output='0';
+--	end generate bbb;
+--	hhh : for i in 0 to memory_rows-1 generate
+--		mem(i) <= col
+--		when one_position(unsigned(decoder_row_output))=i and tristate_input='0';
+--	end generate hhh;
+--	ggg : for i in 0 to memory_cols-1 generate
+--		col(i) <= data_in
+--		when one_position(unsigned(decoder_col_output))=i and tristate_input='0';
+--	end generate ggg;
 
-	bbb : for i in 0 to memory_cols-1 generate
-		data_out <= col(i)
-		when one_position(unsigned(decoder_col_output))=i and tristate_output='0';
-	end generate bbb;
-
-	hhh : for i in 0 to memory_rows-1 generate
-		mem(i) <= col
-		when one_position(unsigned(decoder_row_output))=i and tristate_input='0';
-	end generate hhh;
-
-	ggg : for i in 0 to memory_cols-1 generate
-		col(i) <= data_in
-		when one_position(unsigned(decoder_col_output))=i and tristate_input='0';
-	end generate ggg;
+	col <= mem(one_position(unsigned(decoder_row_output))) when tristate_output='1';
+	data_out <= col(one_position(unsigned(decoder_col_output))) when tristate_output='0';
+	mem(one_position(unsigned(decoder_row_output))) <= col when tristate_input='1';
+	col(one_position(unsigned(decoder_col_output))) <= data_in when tristate_input='0';
 
 	input_IOBUFDS_generate : for i in 0 to data_size-1 generate
 		input_IOBUFDS_inst  : OBUFT port map (O=>data_in(i), I=>i_data(i),   T=>not tristate_input);
