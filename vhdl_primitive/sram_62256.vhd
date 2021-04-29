@@ -107,14 +107,17 @@ begin
 	decoder_row_input <= i_address(10 downto 2); -- XXX
 	decoder_col_input <= i_address(14 downto 11) & i_address(1 downto 0); -- XXX
 
---	col <= mem(one_position(unsigned(decoder_row_output))) when tristate_output = '1';
---	mem(one_position(unsigned(decoder_row_output))-1) <= col when tristate_input = '0';
+	ggg : for i in 0 to memory_rows-1 generate
+		a : if (tristate_output='1') generate
+			col <= mem(one_position(unsigned(decoder_row_output))) when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)));
+		end generate a;
+		b : if (tristate_input='1') generate
+			mem(one_position(unsigned(decoder_row_output))) <= col when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)));
+		end generate b;
+	end generate ggg;
 
 	col(one_position(unsigned(decoder_col_output))) <= data_in when tristate_input = '1'; -- XXX work must div/srl
 	data_out <= std_logic_vector(col(one_position(unsigned(decoder_col_output)))) when tristate_output = '1';
-
---	col(data_size-1 downto 0) <= unsigned(data_in) when tristate_input = '1'; -- XXX work
---	data_out <= std_logic_vector(col(data_size-1 downto 0)) when tristate_output = '1'; -- XXX work
 
 	input_IOBUFDS_generate : for i in 0 to data_size-1 generate begin input_IOBUFDS_inst   : OBUFT port map (O=>data_in(i), I=>i_data(i),   T=>not tristate_input); end generate input_IOBUFDS_generate;
 	output_OBUFTDS_generate : for i in 0 to data_size-1 generate begin output_OBUFTDS_inst : OBUFT port map (O=>o_data(i),  I=>data_out(i), T=>not tristate_output); end generate output_OBUFTDS_generate;
