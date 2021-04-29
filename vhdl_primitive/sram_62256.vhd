@@ -49,7 +49,13 @@ architecture Behavioral of sram_62256 is
 	-- XXX probe from Cypress_SRAM_CY62256.pdf LOGIC BLOCK DIAGRAM
 	-- 512x512 = 256k = 2**9x2**6*8bit
 
-	component D2_4E is port(D0:out std_logic;D1:out std_logic;D2:out std_logic;D3:out std_logic;A0:in std_logic;A1:in std_logic;E:in std_logic); end component D2_4E;
+	component mem_decoder_col is
+	Port (
+		signal decoder_col_input : in std_logic_vector(6-1 downto 0);
+		signal decoder_col_output : out std_logic_vector(2**6-1 downto 0);
+		signal e : std_logic
+	);
+	end component mem_decoder_col;
 	component D3_8E is port(D0:out std_logic;D1:out std_logic;D2:out std_logic;D3:out std_logic;D4:out std_logic;D5:out std_logic;D6:out std_logic;D7:out std_logic;A0:in std_logic;A1:in std_logic;A2:in std_logic;E:in std_logic); end component D3_8E;
 
 	constant memory_bits_rows : integer := 9;
@@ -119,16 +125,16 @@ begin
 	tristate_input <= ceb and web;
 	tristate_output <= ceb and i_web and oeb;
 	decoder_row_input <= i_address(10 downto 2); -- XXX
---	decoder_col_input <= i_address(14 downto 11) & i_address(1 downto 0); -- XXX
+	decoder_col_input <= i_address(14 downto 11) & i_address(1 downto 0); -- XXX
 --	decoder_col_input <= i_address(0)&i_address(1)&i_address(11)&i_address(12)&i_address(13)&i_address(14); -- XXX
-	decoder_col_input <= i_address(14)&i_address(13)&i_address(12)&i_address(11)&i_address(1)&i_address(0); -- XXX
+--	decoder_col_input <= i_address(14)&i_address(13)&i_address(12)&i_address(11)&i_address(1)&i_address(0); -- XXX
 
-	col_wo_shift_r <= std_logic_vector(to_unsigned(to_integer(unsigned(decoder_col_output)-1)+(data_size-1),32)) when tristate_input = '0';
-	col_wo_shift_l <= std_logic_vector(to_unsigned(to_integer(unsigned(decoder_col_output)-1)+0,32)) when tristate_input = '0';
-	temp_col_wi_shift_r <= unsigned(shift_right(unsigned(decoder_col_output),3));
+--	col_wo_shift_r <= std_logic_vector(to_unsigned(to_integer(unsigned(decoder_col_output)-1)+(data_size-1),32)) when tristate_input = '0';
+--	col_wo_shift_l <= std_logic_vector(to_unsigned(to_integer(unsigned(decoder_col_output)-1)+0,32)) when tristate_input = '0';
+--	temp_col_wi_shift_r <= unsigned(shift_right(unsigned(decoder_col_output),3));
 --	temp_col_wi_shift_l <= unsigned(shift_right(unsigned(decoder_col_output),3));
-	col_wi_shift_r <= std_logic_vector(to_unsigned(to_integer(unsigned(shift_right(unsigned(decoder_col_output),3)))+(data_size-1),32)) when tristate_input = '0';
-	col_wi_shift_l <= std_logic_vector(to_unsigned(to_integer(unsigned(shift_right(unsigned(decoder_col_output),3)))+0,32)) when tristate_input = '0';
+--	col_wi_shift_r <= std_logic_vector(to_unsigned(to_integer(unsigned(shift_right(unsigned(decoder_col_output),3)))+(data_size-1),32)) when tristate_input = '0';
+--	col_wi_shift_l <= std_logic_vector(to_unsigned(to_integer(unsigned(shift_right(unsigned(decoder_col_output),3)))+0,32)) when tristate_input = '0';
 
 --	ggg : for i in 0 to memory_rows-1 generate col <= mem(i*memory_cols_bits+(memory_cols_bits-1) downto i*memory_cols_bits+0) when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows))) else (others => '-'); end generate ggg;
 --	hhh : for i in 0 to memory_rows-1 generate mem(i*memory_cols_bits+(memory_cols_bits-1) downto i*memory_cols_bits+0) <= col when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows))) else (others => '-'); end generate hhh;
@@ -139,14 +145,11 @@ begin
 --	col(data_size-1 downto 0) <= unsigned(data_in) when tristate_input = '1'; -- XXX work
 --	data_out <= std_logic_vector(col(data_size-1 downto 0)) when tristate_output = '1'; -- XXX work
 
-	input_IOBUFDS_generate : for i in 0 to data_size-1 generate begin input_IOBUFDS_inst   : OBUFT port map (O=>data_in(i), I=>i_data(i),   T=>not tristate_input); end generate input_IOBUFDS_generate;
-	output_OBUFTDS_generate : for i in 0 to data_size-1 generate begin output_OBUFTDS_inst : OBUFT port map (O=>o_data(i),  I=>data_out(i), T=>not tristate_output); end generate output_OBUFTDS_generate;
+	input_IOBUFDS_generate : for i in 0 to data_size-1 generate begin input_IOBUFDS_inst   : OBUFTDS port map (O=>data_in(i), I=>i_data(i),   T=>not tristate_input); end generate input_IOBUFDS_generate;
+	output_OBUFTDS_generate : for i in 0 to data_size-1 generate begin output_OBUFTDS_inst : IOBUFDS port map (O=>o_data(i),  I=>data_out(i), T=>not tristate_output); end generate output_OBUFTDS_generate;
 
-	bbb : for i in 0 to 2 generate
-		qqq : if (i = 0) generate a : D2_4E port map (D0=>enable_a_col(0),D1=>enable_a_col(1),D2=>enable_a_col(2),D3=>enable_a_col(3),A0=>decoder_col_input(0),A1=>decoder_col_input(1),E=>'1'); end generate qqq;
-		www : if (i = 1) generate b : for j in 0 to C_DECODER_2x4_OUT-1 generate begin c : D2_4E port map (D0=>enable_b_col(C_DECODER_2x4_OUT*j+0),D1=>enable_b_col(C_DECODER_2x4_OUT*j+1),D2=>enable_b_col(C_DECODER_2x4_OUT*j+2),D3=>enable_b_col(C_DECODER_2x4_OUT*j+3),A0=>decoder_col_input(2),A1=>decoder_col_input(3),E=>enable_a_col(j)); end generate b; end generate www;
-		eee : if (i = 2) generate d : for j in 0 to (C_DECODER_2x4_OUT**2)-1 generate begin e : D2_4E port map (D0=>decoder_col_output(C_DECODER_2x4_OUT*j+0),D1=>decoder_col_output(C_DECODER_2x4_OUT*j+1),D2=>decoder_col_output(C_DECODER_2x4_OUT*j+2),D3=>decoder_col_output(C_DECODER_2x4_OUT*j+3),A0=>decoder_col_input(4),A1=>decoder_col_input(5),E=>enable_b_col(j)); end generate d; end generate eee;
-	end generate bbb;
+	mdc_entity : mem_decoder_col
+	Port map (decoder_col_input=>decoder_col_input,decoder_col_output=>decoder_col_output,e=>not tristate_input);
 
 	aaa : for i in 0 to 2 generate
 	begin
