@@ -125,19 +125,24 @@ begin
 --		mem(i) <= col when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)) and tristate_input='1');
 --	end generate hhh;
 
-	col <= mem(one_position(unsigned(decoder_row_output)))
-	when tristate_output = '1';
-	data_out <= std_logic_vector(col(one_position(unsigned(decoder_col_output))))
-	when tristate_input = '1';
+	aaa : for i in 0 to memory_rows-1 generate
+		col <= mem(i)
+		when one_position(unsigned(decoder_row_output))=i and tristate_output='0';
+	end generate aaa;
+
+	bbb : for i in 0 to memory_cols-1 generate
+		data_out <= col(i)
+		when one_position(unsigned(decoder_col_output))=i and tristate_output='0';
+	end generate bbb;
 
 	hhh : for i in 0 to memory_rows-1 generate
 		mem(i) <= col
-		when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)));
+		when one_position(unsigned(decoder_row_output))=i and tristate_input='0';
 	end generate hhh;
 
 	ggg : for i in 0 to memory_cols-1 generate
 		col(i) <= data_in
-		when (decoder_col_output=std_logic_vector(to_unsigned(i,memory_cols)));
+		when one_position(unsigned(decoder_col_output))=i and tristate_input='0';
 	end generate ggg;
 
 	input_IOBUFDS_generate : for i in 0 to data_size-1 generate
