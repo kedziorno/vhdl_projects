@@ -32,7 +32,7 @@ use UNISIM.VComponents.all;
 
 entity sram_62256 is
 Generic (
-address_size : integer := 15; -- 2
+address_size : integer := 11; -- 2
 data_size : integer := 8 -- 2
 );
 Port (
@@ -58,13 +58,13 @@ architecture Behavioral of sram_62256 is
 	end component mem_decoder_col;
 	component mem_decoder_row
 	Port (
-		signal decoder_row_input : IN  std_logic_vector(9-1 downto 0);
-		signal decoder_row_output : OUT  std_logic_vector(2**9-1 downto 0);
+		signal decoder_row_input : IN  std_logic_vector(5-1 downto 0);
+		signal decoder_row_output : OUT  std_logic_vector(2**5-1 downto 0);
 		signal e : IN  std_logic
 	);
 	end component mem_decoder_row;
 
-	constant memory_bits_rows : integer := 9;
+	constant memory_bits_rows : integer := 5;
 	constant memory_bits_cols : integer := 6;
 	constant memory_rows : integer := 2**memory_bits_rows;
 	constant memory_cols : integer := 2**memory_bits_cols;
@@ -104,8 +104,8 @@ begin
 	oeb <= not i_oeb;
 	tristate_input <= ceb and web;
 	tristate_output <= ceb and i_web and oeb;
-	decoder_row_input <= i_address(10 downto 2); -- XXX
-	decoder_col_input <= i_address(14 downto 11) & i_address(1 downto 0); -- XXX
+	decoder_row_input <= i_address(6 downto 2); -- XXX
+	decoder_col_input <= i_address(10 downto 7) & i_address(1 downto 0); -- XXX
 
 --	ggg : for i in 0 to memory_rows-1 generate
 --		a : if (tristate_output='1') generate
