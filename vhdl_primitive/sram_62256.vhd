@@ -142,18 +142,39 @@ begin
 --		when one_position(unsigned(decoder_col_output))=i and tristate_input='0';
 --	end generate ggg;
 
-	process (tristate_input,tristate_output) is
+--	process (tristate_input,tristate_output,decoder_row_input,decoder_row_output) is
+--	begin
+--		if (tristate_input = '0') then
+--			data_out <= col(one_position(unsigned(decoder_col_output)));
+--		elsif (tristate_input = '1') then
+--			mem(one_position(unsigned(decoder_row_output))) <= col;
+--		end if;
+--		if (tristate_output = '0') then
+--			col(one_position(unsigned(decoder_col_output))) <= data_in;
+--		elsif (tristate_output = '1') then
+--			col <= mem(one_position(unsigned(decoder_row_output)));
+--		end if;
+--	end process;
+
+    process (tristate_input,tristate_output,decoder_row_input,decoder_row_output) is
+        variable a : std_logic_vector(1 downto 0);
 	begin
-		if (tristate_input = '0') then
-			data_out <= col(one_position(unsigned(decoder_col_output)));
-		elsif (tristate_input = '1') then
-			mem(one_position(unsigned(decoder_row_output))) <= col;
-		end if;
-		if (tristate_output = '0') then
-			col(one_position(unsigned(decoder_col_output))) <= data_in;
-		elsif (tristate_output = '1') then
-			col <= mem(one_position(unsigned(decoder_row_output)));
-		end if;
+	   a := tristate_input & tristate_output;
+	   case (a) is
+	       when "00" =>
+	           data_out <= col(one_position(unsigned(decoder_col_output)));
+	           col(one_position(unsigned(decoder_col_output))) <= data_in;
+	       when "01" =>
+	           data_out <= col(one_position(unsigned(decoder_col_output)));
+	           mem(one_position(unsigned(decoder_row_output))) <= col;
+	       when "10" =>
+	           mem(one_position(unsigned(decoder_row_output))) <= col;
+	           col(one_position(unsigned(decoder_col_output))) <= data_in;
+	       when "11" =>
+	           mem(one_position(unsigned(decoder_row_output))) <= col;
+	           col <= mem(one_position(unsigned(decoder_row_output)));
+	       when others => null;
+	   end case;
 	end process;
 
 	input_IOBUFDS_generate : for i in 0 to data_size-1 generate
