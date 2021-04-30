@@ -37,7 +37,7 @@ END tb_sram_62256;
 
 ARCHITECTURE behavior OF tb_sram_62256 IS
 
-constant address_size : integer := 11; -- 2;
+constant address_size : integer := 8; -- 2;
 constant data_size : integer := 8; -- 2;
 
 -- Component Declaration for the Unit Under Test (UUT)
@@ -141,25 +141,25 @@ begin
 -- insert stimulus here
 wait for clock_period;
 -- XXX address reverse order
-wr_data("00000111000",x"AA", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("00000111001",x"BB", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("00000111010",x"CC", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("00010111000",x"DD", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("00100111000",x"EE", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("01000111000",x"FF", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("10000111000",x"99", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("00011100",x"AA", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("00011101",x"BB", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("00011110",x"CC", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("00011111",x"DD", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("00111100",x"EE", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("01011100",x"FF", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("10011100",x"99", i_address,i_data, i_ceb,i_web,i_oeb);
 
 wait for clock_period;
 i_data <= (others => 'Z');
 wait for clock_period;
 
-rd_data("00000111000",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("00000111001",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("00000111010",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("00010111000",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("00100111000",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("01000111000",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("10000111000",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("00011100",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("00011101",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("00011110",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("00011111",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("00111100",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("01011100",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("10011100",       i_address,        i_ceb,i_web,i_oeb);
 
 wait;
 end process;

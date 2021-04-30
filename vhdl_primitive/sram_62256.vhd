@@ -32,7 +32,7 @@ use UNISIM.VComponents.all;
 
 entity sram_62256 is
 Generic (
-address_size : integer := 11; -- 2
+address_size : integer := 8; -- 2
 data_size : integer := 8 -- 2
 );
 Port (
@@ -46,38 +46,36 @@ o_data : out  STD_LOGIC_VECTOR (data_size-1 downto 0)
 end sram_62256;
 
 architecture Behavioral of sram_62256 is
-	-- XXX probe from Cypress_SRAM_CY62256.pdf LOGIC BLOCK DIAGRAM
-	-- 512x512 = 256k = 2**9x2**6*8bit
 
 	component mem_decoder_col is
 	Port (
-		signal decoder_col_input : in std_logic_vector(6-1 downto 0);
-		signal decoder_col_output : out std_logic_vector(2**6-1 downto 0);
+		signal decoder_col_input : in std_logic_vector(4-1 downto 0);
+		signal decoder_col_output : out std_logic_vector(2**4-1 downto 0);
 		signal e : std_logic
 	);
 	end component mem_decoder_col;
 	component mem_decoder_row
 	Port (
-		signal decoder_row_input : IN  std_logic_vector(5-1 downto 0);
-		signal decoder_row_output : OUT  std_logic_vector(2**5-1 downto 0);
+		signal decoder_row_input : IN  std_logic_vector(4-1 downto 0);
+		signal decoder_row_output : OUT  std_logic_vector(2**4-1 downto 0);
 		signal e : IN  std_logic
 	);
 	end component mem_decoder_row;
 
-	constant memory_bits_rows : integer := 5;
-	constant memory_bits_cols : integer := 6;
+	constant memory_bits_rows : integer := 4;
+	constant memory_bits_cols : integer := 4;
 	constant memory_rows : integer := 2**memory_bits_rows;
 	constant memory_cols : integer := 2**memory_bits_cols;
 	constant memory_cols_bits : integer := memory_cols*data_size;
 
 	signal ceb,web,oeb,tristate_input,tristate_output : std_logic;
-	signal data_in,data_out : std_logic_vector(data_size-1 downto 0) := (others => '0');
+	signal data_in,data_out : std_logic_vector(data_size-1 downto 0);
 
-	signal decoder_row_input : std_logic_vector(memory_bits_rows-1 downto 0) := (others => '0');
-	signal decoder_col_input : std_logic_vector(memory_bits_cols-1 downto 0) := (others => '0');
+	signal decoder_row_input : std_logic_vector(memory_bits_rows-1 downto 0);
+	signal decoder_col_input : std_logic_vector(memory_bits_cols-1 downto 0);
 
-	signal decoder_row_output : std_logic_vector(memory_rows-1 downto 0) := (others => '0');
-	signal decoder_col_output : std_logic_vector(memory_cols-1 downto 0) := (others => '0');
+	signal decoder_row_output : std_logic_vector(memory_rows-1 downto 0);
+	signal decoder_col_output : std_logic_vector(memory_cols-1 downto 0);
 
 	type colt is array(memory_cols-1 downto 0) of std_logic_vector(data_size-1 downto 0); -- XXX 64 x 8bit = 512
 	type ram is array(memory_rows-1 downto 0) of colt; -- XXX (64 x 8bit) x 512 = 256kb
@@ -87,14 +85,28 @@ architecture Behavioral of sram_62256 is
 	function one_position(v : unsigned) return integer is
 		variable r : integer := 0;
 	begin
-		l0 : for i in v'range loop
-			if (v(v'high-i) = '1') then
-				exit;
-			else
-				r := r + 1;
-			end if;
-		end loop l0;
-		return r;
+	       --report "range : left = " & integer'image(v'left) & " , right = " & integer'image(v'right) severity note;
+		if (v'ascending = true) then
+            l0 : for i in 0 to v'left-1 loop
+            --report "index : i = " & integer'image(i) severity note;
+                if (v(v'left-1-i) = '1') then
+                    exit;
+                else
+                    r := r + 1;
+                end if;
+            end loop l0;
+            return r;
+		else
+            l1 : for i in v'left-1 downto 0 loop
+            --report "index : i = " & integer'image(i) severity note;
+                if (v(v'left-1-i) = '1') then
+                    exit;
+                else
+                    r := r + 1;
+                end if;
+            end loop l1;
+            return r;
+		end if;
 	end function one_position;
 
 begin
@@ -104,8 +116,8 @@ begin
 	oeb <= not i_oeb;
 	tristate_input <= ceb and web;
 	tristate_output <= ceb and i_web and oeb;
-	decoder_row_input <= i_address(6 downto 2); -- XXX
-	decoder_col_input <= i_address(10 downto 7) & i_address(1 downto 0); -- XXX
+	decoder_row_input <= i_address(5 downto 2); -- XXX
+	decoder_col_input <= i_address(7 downto 6) & i_address(1 downto 0); -- XXX
 
 --	ggg : for i in 0 to memory_rows-1 generate
 --		a : if (tristate_output='1') generate
