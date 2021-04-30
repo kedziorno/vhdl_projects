@@ -82,7 +82,10 @@ architecture Behavioral of sram_62256 is
 --	signal mem : ram;
 --	signal col : colt;
 
-	subtype ram is unsigned((memory_rows*memory_cols*data_size)-1 downto 0);
+--	subtype ram is unsigned((memory_rows*memory_cols*data_size)-1 downto 0);
+--	signal mem : ram;
+
+	type ram is array(memory_rows-1 downto 0,memory_cols-1 downto 0) of std_logic_vector(data_size-1 downto 0);
 	signal mem : ram;
 
 	function one_position(v : unsigned) return integer is
@@ -131,8 +134,8 @@ begin
 --	end generate hhh;
 
 -- XXX col v2
-	mem(one_position(unsigned(decoder_row_output))*one_position(unsigned(decoder_col_output))*data_size+(data_size-1) downto one_position(unsigned(decoder_row_output))*one_position(unsigned(decoder_col_output))*data_size+0) <= unsigned(data_in) when tristate_output='0' and tristate_input='1';
-	data_out <= std_logic_vector(mem(one_position(unsigned(decoder_row_output))*one_position(unsigned(decoder_col_output))*data_size+(data_size-1) downto one_position(unsigned(decoder_row_output))*one_position(unsigned(decoder_col_output))*data_size+0)) when tristate_output='1' and tristate_input='0';
+	mem(one_position(unsigned(decoder_row_output)),one_position(unsigned(decoder_col_output))) <= data_in when tristate_output='0' and tristate_input='1';
+	data_out <= mem(one_position(unsigned(decoder_row_output)),one_position(unsigned(decoder_col_output))) when tristate_output='1' and tristate_input='0';
 
 -- XXX row v1
 --	ggg : for i in 0 to memory_cols-1 generate
