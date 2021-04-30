@@ -113,7 +113,7 @@ architecture Behavioral of sram_62256 is
 				end if;
 			end loop l1;
 		end if;
-		report "return : r = " & integer'image(r) severity note;
+		--report "return : r = " & integer'image(r) severity note;
 		return r;
 	end function one_position;
 

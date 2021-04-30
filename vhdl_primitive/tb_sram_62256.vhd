@@ -30,7 +30,7 @@ USE ieee.std_logic_1164.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---USE ieee.numeric_std.ALL;
+USE ieee.numeric_std.ALL;
 
 ENTITY tb_sram_62256 IS
 END tb_sram_62256;
@@ -141,25 +141,30 @@ begin
 -- insert stimulus here
 wait for clock_period;
 -- XXX address reverse order
-wr_data("00011100",x"AA", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("00011001",x"BB", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("00010110",x"CC", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("00010011",x"DD", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("00101100",x"EE", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("01001000",x"FF", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("10000100",x"99", i_address,i_data, i_ceb,i_web,i_oeb);
+l0 : for i in 0 to 2**address_size-1 loop
+wr_data(std_logic_vector(to_unsigned(i,address_size)),std_logic_vector(to_unsigned(i,data_size)),i_address,i_data,i_ceb,i_web,i_oeb);
+end loop l0;
 
 wait for clock_period;
 i_data <= (others => 'Z');
 wait for clock_period;
 
-rd_data("00011100",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("00011001",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("00010110",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("00010011",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("00101100",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("01001000",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("10000100",       i_address,        i_ceb,i_web,i_oeb);
+l1 : for i in 0 to 2**address_size-1 loop
+rd_data(std_logic_vector(to_unsigned(i,address_size)),i_address,i_ceb,i_web,i_oeb);
+assert (o_data=std_logic_vector(to_unsigned(i,data_size))) report "Error on " & integer'image(i);
+end loop l1;
+
+wait for clock_period;
+i_data <= (others => 'Z');
+wait for clock_period;
+
+l3 : for i in 0 to 2**address_size-1 loop
+wr_data(std_logic_vector(to_unsigned(i,address_size)),std_logic_vector(to_unsigned(i,data_size)),i_address,i_data,i_ceb,i_web,i_oeb);
+wait for clock_period;
+i_data <= (others => 'Z');
+rd_data(std_logic_vector(to_unsigned(i,address_size)),i_address,i_ceb,i_web,i_oeb);
+assert (o_data=std_logic_vector(to_unsigned(i,data_size))) report "Error on " & integer'image(i);
+end loop l3;
 
 wait;
 end process;
