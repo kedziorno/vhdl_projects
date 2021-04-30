@@ -149,7 +149,7 @@ begin
 		if (falling_edge(tristate_input) and tristate_output = '0') then
 			mem(r,c) <= data_in;
 		end if;
-		if (tristate_input = '0' and falling_edge(tristate_output)) then
+		if (tristate_input = '0' and rising_edge(tristate_output)) then
 			data_out <= mem(r,c);
 		end if;
 	end process;
