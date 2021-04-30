@@ -31,12 +31,11 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity mem_decoder_col is
 Generic (
-	constant C_DECODER_2x4_OUT : integer := 4;
-	constant C_DECODER_4x16_OUT : integer := 16
+	constant C_DECODER_2x4_OUT : integer := 4
 );
 Port (
-	signal decoder_col_input : in std_logic_vector(6-1 downto 0);
-	signal decoder_col_output : out std_logic_vector(2**6-1 downto 0);
+	signal decoder_col_input : in std_logic_vector(4-1 downto 0);
+	signal decoder_col_output : out std_logic_vector(2**4-1 downto 0);
 	signal e : std_logic
 );
 end mem_decoder_col;
@@ -44,7 +43,6 @@ end mem_decoder_col;
 architecture Behavioral of mem_decoder_col is
 	signal enable_a_col : std_logic_vector(C_DECODER_2x4_OUT-1 downto 0);
 	component D2_4E is port(D0:out std_logic;D1:out std_logic;D2:out std_logic;D3:out std_logic;A0:in std_logic;A1:in std_logic;E:in std_logic); end component D2_4E;
-	component D4_16E is port(D0:out std_logic;D1:out std_logic;D2:out std_logic;D3:out std_logic;D4:out std_logic;D5:out std_logic;D6:out std_logic;D7:out std_logic;D8:out std_logic;D9:out std_logic;D10:out std_logic;D11:out std_logic;D12:out std_logic;D13:out std_logic;D14:out std_logic;D15:out std_logic;A0:in std_logic;A1:in std_logic;A2:in std_logic;A3:in std_logic;E:in std_logic); end component D4_16E;
 begin
 
 --Work
@@ -67,28 +65,14 @@ begin
 		www : if (i = 1) generate
 		b : for j in 0 to C_DECODER_2x4_OUT-1 generate
 		begin
-			c : D4_16E
+			c : D2_4E
 			port map (
-			D0=>decoder_col_output(C_DECODER_4x16_OUT*j+0),
-			D1=>decoder_col_output(C_DECODER_4x16_OUT*j+1),
-			D2=>decoder_col_output(C_DECODER_4x16_OUT*j+2),
-			D3=>decoder_col_output(C_DECODER_4x16_OUT*j+3),
-			D4=>decoder_col_output(C_DECODER_4x16_OUT*j+4),
-			D5=>decoder_col_output(C_DECODER_4x16_OUT*j+5),
-			D6=>decoder_col_output(C_DECODER_4x16_OUT*j+6),
-			D7=>decoder_col_output(C_DECODER_4x16_OUT*j+7),
-			D8=>decoder_col_output(C_DECODER_4x16_OUT*j+8),
-			D9=>decoder_col_output(C_DECODER_4x16_OUT*j+9),
-			D10=>decoder_col_output(C_DECODER_4x16_OUT*j+10),
-			D11=>decoder_col_output(C_DECODER_4x16_OUT*j+11),
-			D12=>decoder_col_output(C_DECODER_4x16_OUT*j+12),
-			D13=>decoder_col_output(C_DECODER_4x16_OUT*j+13),
-			D14=>decoder_col_output(C_DECODER_4x16_OUT*j+14),
-			D15=>decoder_col_output(C_DECODER_4x16_OUT*j+15),
+			D0=>decoder_col_output(C_DECODER_2x4_OUT*j+0),
+			D1=>decoder_col_output(C_DECODER_2x4_OUT*j+1),
+			D2=>decoder_col_output(C_DECODER_2x4_OUT*j+2),
+			D3=>decoder_col_output(C_DECODER_2x4_OUT*j+3),
 			A0=>decoder_col_input(2),
 			A1=>decoder_col_input(3),
-			A2=>decoder_col_input(4),
-			A3=>decoder_col_input(5),
 			E=>enable_a_col(j));
 		end generate b;
 		end generate www;
