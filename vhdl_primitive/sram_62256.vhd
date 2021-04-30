@@ -133,8 +133,8 @@ begin
 --	end generate hhh;
 
 -- XXX col v2
-	col(one_position(unsigned(decoder_col_output))*data_size+(data_size-1) downto one_position(unsigned(decoder_col_output))*data_size+0) <= unsigned(data_in) when tristate_input='1';
-	data_out <= std_logic_vector(col(one_position(unsigned(decoder_col_output))*data_size+(data_size-1) downto one_position(unsigned(decoder_col_output))*data_size+0)) when tristate_output='1';
+	col(one_position(unsigned(decoder_col_output))*data_size+(data_size-1) downto one_position(unsigned(decoder_col_output))*data_size+0) <= unsigned(data_in) when tristate_output='0' and tristate_input='1';
+	data_out <= std_logic_vector(col(one_position(unsigned(decoder_col_output))*data_size+(data_size-1) downto one_position(unsigned(decoder_col_output))*data_size+0)) when tristate_output='0' and tristate_output='1';
 
 -- XXX row v1
 --	ggg : for i in 0 to memory_cols-1 generate
@@ -145,10 +145,10 @@ begin
 --	end generate hhh;
 
 -- XXX row v2
-	col <= mem(one_position(unsigned(decoder_row_output))*memory_cols_bits+(memory_cols_bits-1) downto one_position(unsigned(decoder_row_output))*memory_cols_bits+(0))
-	when (tristate_output='0' and tristate_input='1');
-	mem(one_position(unsigned(decoder_row_output))*memory_cols_bits+(memory_cols_bits-1) downto one_position(unsigned(decoder_row_output))*memory_cols_bits+(0)) <= col
-	when (tristate_output='0' and tristate_input='0');
+--	col <= mem(one_position(unsigned(decoder_row_output))*memory_cols_bits+(memory_cols_bits-1) downto one_position(unsigned(decoder_row_output))*memory_cols_bits+(0))
+--	when (tristate_output='0' and tristate_input='1');
+--	mem(one_position(unsigned(decoder_row_output))*memory_cols_bits+(memory_cols_bits-1) downto one_position(unsigned(decoder_row_output))*memory_cols_bits+(0)) <= col
+--	when (tristate_output='0' and tristate_input='0');
 
 --	ggg : for i in 0 to memory_cols-1 generate
 --		col <= mem(i) when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)) and tristate_output='1');
