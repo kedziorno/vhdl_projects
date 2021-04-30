@@ -142,24 +142,24 @@ begin
 wait for clock_period;
 -- XXX address reverse order
 wr_data("00011100",x"AA", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("00011101",x"BB", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("00011110",x"CC", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("00011111",x"DD", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("00111100",x"EE", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("01011100",x"FF", i_address,i_data, i_ceb,i_web,i_oeb);
-wr_data("10011100",x"99", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("00011001",x"BB", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("00010110",x"CC", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("00010011",x"DD", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("00101100",x"EE", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("01001000",x"FF", i_address,i_data, i_ceb,i_web,i_oeb);
+wr_data("10000100",x"99", i_address,i_data, i_ceb,i_web,i_oeb);
 
 wait for clock_period;
 i_data <= (others => 'Z');
 wait for clock_period;
 
 rd_data("00011100",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("00011101",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("00011110",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("00011111",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("00111100",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("01011100",       i_address,        i_ceb,i_web,i_oeb);
-rd_data("10011100",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("00011001",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("00010110",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("00010011",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("00101100",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("01001000",       i_address,        i_ceb,i_web,i_oeb);
+rd_data("10000100",       i_address,        i_ceb,i_web,i_oeb);
 
 wait;
 end process;

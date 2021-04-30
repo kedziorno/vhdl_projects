@@ -63,6 +63,6 @@ A0=>decoder_row_input(3),
 A1=>decoder_row_input(2),
 A2=>decoder_row_input(1),
 A3=>decoder_row_input(0),
-E=>'1');
+E=>e);
 
 end Behavioral;
