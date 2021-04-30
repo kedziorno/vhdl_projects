@@ -82,12 +82,10 @@ architecture Behavioral of sram_62256 is
 --	signal mem : ram;
 --	signal col : colt;
 
-	subtype colt is unsigned(memory_cols_bits-1 downto 0);
-	subtype ram is unsigned((memory_rows*memory_cols_bits)-1 downto 0);
+	subtype ram is unsigned((memory_rows*memory_cols*data_size)-1 downto 0);
 	signal mem : ram;
-	signal col : colt;
 
-	impure function one_position(v : unsigned) return integer is
+	function one_position(v : unsigned) return integer is
 		variable r : integer := 0;
 	begin
 		--report "range : left = " & integer'image(v'left) & " , right = " & integer'image(v'right) severity note;
@@ -133,8 +131,8 @@ begin
 --	end generate hhh;
 
 -- XXX col v2
-	col(one_position(unsigned(decoder_col_output))*data_size+(data_size-1) downto one_position(unsigned(decoder_col_output))*data_size+0) <= unsigned(data_in) when tristate_output='0' and tristate_input='1';
-	data_out <= std_logic_vector(col(one_position(unsigned(decoder_col_output))*data_size+(data_size-1) downto one_position(unsigned(decoder_col_output))*data_size+0)) when tristate_output='0' and tristate_output='1';
+	mem(one_position(unsigned(decoder_row_output))*one_position(unsigned(decoder_col_output))*data_size+(data_size-1) downto one_position(unsigned(decoder_row_output))*one_position(unsigned(decoder_col_output))*data_size+0) <= unsigned(data_in) when tristate_output='0' and tristate_input='1';
+	data_out <= std_logic_vector(mem(one_position(unsigned(decoder_row_output))*one_position(unsigned(decoder_col_output))*data_size+(data_size-1) downto one_position(unsigned(decoder_row_output))*one_position(unsigned(decoder_col_output))*data_size+0)) when tristate_output='1' and tristate_input='0';
 
 -- XXX row v1
 --	ggg : for i in 0 to memory_cols-1 generate
