@@ -77,25 +77,15 @@ architecture Behavioral of sram_62256 is
 	signal decoder_row_output : std_logic_vector(memory_rows-1 downto 0);
 	signal decoder_col_output : std_logic_vector(memory_cols-1 downto 0);
 
---	type colt is array(memory_cols-1 downto 0) of std_logic_vector(data_size-1 downto 0);
---	type ram is array(memory_rows-1 downto 0) of colt;
---	signal mem : ram;
---	signal col : colt;
-
---	subtype ram is unsigned((memory_rows*memory_cols*data_size)-1 downto 0);
---	signal mem : ram;
-
 	type ram is array(memory_rows-1 downto 0,memory_cols-1 downto 0) of std_logic_vector(data_size-1 downto 0);
 	signal mem : ram;
 
 	function one_position(v : unsigned) return integer is
 		variable r : integer;
 	begin
-		--report "range : left = " & integer'image(v'left) & " , right = " & integer'image(v'right) severity note;
 		if (v'ascending = true) then
 			r := 0;
 			l0 : for i in 0 to v'left loop
-				--report "index : i = " & integer'image(i) severity note;
 				if (v(i) = '1') then
 					exit;
 				else
@@ -105,7 +95,6 @@ architecture Behavioral of sram_62256 is
 		elsif (v'ascending = false) then
 			r := v'left;
 			l1 : for i in v'left downto 0 loop
-				--report "index : i = " & integer'image(i) severity note;
 				if (v(i) = '1') then
 					exit;
 				else
@@ -113,7 +102,6 @@ architecture Behavioral of sram_62256 is
 				end if;
 			end loop l1;
 		end if;
-		--report "return : r = " & integer'image(r) severity note;
 		return r;
 	end function one_position;
 
@@ -127,19 +115,6 @@ begin
 	decoder_row_input <= i_address(5 downto 2); -- XXX
 	decoder_col_input <= i_address(7 downto 6) & i_address(1 downto 0); -- XXX
 
--- XXX col v1
---	ggg : for i in 0 to memory_cols-1 generate
---		col(i*data_size+(data_size-1) downto i*data_size+0) <= unsigned(data_in) when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)) and tristate_input='1');
---	end generate ggg;
---	hhh : for i in 0 to memory_rows-1 generate
---		data_out <= std_logic_vector(col(i*data_size+(data_size-1) downto i*data_size+0)) when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)) and tristate_output='1');
---	end generate hhh;
-
--- XXX v1
---	mem(one_position(unsigned(decoder_row_output)),one_position(unsigned(decoder_col_output))) <= data_in when tristate_output='0' and tristate_input='1';
---	data_out <= mem(one_position(unsigned(decoder_row_output)),one_position(unsigned(decoder_col_output))) when tristate_output='1' and tristate_input='0';
-
--- XXX v2
 	process (tristate_input,tristate_output,decoder_row_output,decoder_col_output,data_in) is
 		variable r : integer range 0 to 2**memory_rows-1;
 		variable c : integer range 0 to 2**memory_cols-1;
@@ -153,104 +128,6 @@ begin
 			data_out <= mem(r,c);
 		end if;
 	end process;
-	
--- XXX row v1
---	ggg : for i in 0 to memory_cols-1 generate
---		col <= mem(i*memory_cols_bits+(memory_cols_bits-1) downto i*memory_cols_bits+(0)) when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)) and tristate_output='0');
---	end generate ggg;
---	hhh : for i in 0 to memory_rows-1 generate
---		mem(i*memory_cols_bits+(memory_cols_bits-1) downto i*memory_cols_bits+(0)) <= col when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)) and tristate_input='0');
---	end generate hhh;
-
--- XXX row v2
---	col <= mem(one_position(unsigned(decoder_row_output))*memory_cols_bits+(memory_cols_bits-1) downto one_position(unsigned(decoder_row_output))*memory_cols_bits+(0))
---	when (tristate_output='0' and tristate_input='1');
---	mem(one_position(unsigned(decoder_row_output))*memory_cols_bits+(memory_cols_bits-1) downto one_position(unsigned(decoder_row_output))*memory_cols_bits+(0)) <= col
---	when (tristate_output='0' and tristate_input='0');
-
---	ggg : for i in 0 to memory_cols-1 generate
---		col <= mem(i) when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)) and tristate_output='1');
---	end generate ggg;
---	hhh : for i in 0 to memory_rows-1 generate
---		mem(i) <= col when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)) and tristate_input='1');
---	end generate hhh;
-
---	ggg : for i in 0 to memory_rows-1 generate
---		a : if (tristate_output='1') generate
---			col <= mem(one_position(unsigned(decoder_row_output))) when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)));
---		end generate a;
---		b : if (tristate_input='1') generate
---			mem(one_position(unsigned(decoder_row_output))) <= col when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)));
---		end generate b;
---			col <= mem(one_position(unsigned(decoder_row_output))) when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)) and tristate_output='1') else
---			mem(one_position(unsigned(decoder_row_output))) <= col when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)));
---	end generate ggg;
-
---	ggg : for i in 0 to memory_rows-1 generate
---		col <= mem(i) when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)) and tristate_output='1');
---	end generate ggg;
---	hhh : for i in 0 to memory_rows-1 generate
---		mem(i) <= col when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)) and tristate_input='1');
---	end generate hhh;
-
---	ggg : for i in 0 to memory_rows-1 generate
---		col <= mem(i) when (one_position(unsigned(decoder_row_output))=i);
---	end generate ggg;
---	hhh : for i in 0 to memory_rows-1 generate
---		mem(i) <= col when (one_position(unsigned(decoder_row_output))=i);
---	end generate hhh;
-
---	aaa : for i in 0 to memory_rows-1 generate
---		col <= mem(i)
---		when one_position(unsigned(decoder_row_output))=i and tristate_output='0';
---	end generate aaa;
---	bbb : for i in 0 to memory_cols-1 generate
---		data_out <= col(i)
---		when one_position(unsigned(decoder_col_output))=i and tristate_output='0';
---	end generate bbb;
---	hhh : for i in 0 to memory_rows-1 generate
---		mem(i) <= col
---		when one_position(unsigned(decoder_row_output))=i and tristate_input='0';
---	end generate hhh;
---	ggg : for i in 0 to memory_cols-1 generate
---		col(i) <= data_in
---		when one_position(unsigned(decoder_col_output))=i and tristate_input='0';
---	end generate ggg;
-
---	process (tristate_input,tristate_output,decoder_row_input,decoder_row_output) is
---	begin
---		if (tristate_input = '0') then
---			data_out <= col(one_position(unsigned(decoder_col_output)));
---		elsif (tristate_input = '1') then
---			mem(one_position(unsigned(decoder_row_output))) <= col;
---		end if;
---		if (tristate_output = '0') then
---			col(one_position(unsigned(decoder_col_output))) <= data_in;
---		elsif (tristate_output = '1') then
---			col <= mem(one_position(unsigned(decoder_row_output)));
---		end if;
---	end process;
-
---	process (tristate_input,tristate_output,decoder_row_input,decoder_row_output) is
---		variable a : std_logic_vector(1 downto 0);
---	begin
---		a := tristate_input & tristate_output;
---		case (a) is
---			when "00" =>
---				data_out <= col(one_position(unsigned(decoder_col_output)));
---				col(one_position(unsigned(decoder_col_output))) <= data_in;
---			when "01" =>
---				data_out <= col(one_position(unsigned(decoder_col_output)));
---				mem(one_position(unsigned(decoder_row_output))) <= col;
---			when "10" =>
---				mem(one_position(unsigned(decoder_row_output))) <= col;
---				col(one_position(unsigned(decoder_col_output))) <= data_in;
---			when "11" =>
---				mem(one_position(unsigned(decoder_row_output))) <= col;
---				col <= mem(one_position(unsigned(decoder_row_output)));
---			when others => null;
---		end case;
---	end process;
 
 	input_IOBUFDS_generate : for i in 0 to data_size-1 generate
 		input_IOBUFDS_inst  : OBUFT port map (O=>data_in(i), I=>i_data(i),   T=>not tristate_input);
@@ -264,15 +141,5 @@ begin
 
 	mdr_entity : mem_decoder_row
 	Port map (decoder_row_input=>decoder_row_input,decoder_row_output=>decoder_row_output,e=>'1');
-
---	infos : process (i_web,i_oeb,decoder_col_output) is
---	begin
---		if (i_web = '0') then
---			REPORT "Write : " & integer'image(one_position(unsigned(decoder_col_output))) SEVERITY NOTE;
---		end if;
---		if (i_oeb = '0') then
---			REPORT "Read : " & integer'image(one_position(unsigned(decoder_col_output))) SEVERITY NOTE;
---		end if;
---	end process infos;
 
 end Behavioral;
