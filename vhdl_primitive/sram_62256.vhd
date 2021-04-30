@@ -89,30 +89,32 @@ architecture Behavioral of sram_62256 is
 	signal mem : ram;
 
 	function one_position(v : unsigned) return integer is
-		variable r : integer := 0;
+		variable r : integer;
 	begin
 		--report "range : left = " & integer'image(v'left) & " , right = " & integer'image(v'right) severity note;
 		if (v'ascending = true) then
-			l0 : for i in 0 to v'left-1 loop
+			r := 0;
+			l0 : for i in 0 to v'left loop
 				--report "index : i = " & integer'image(i) severity note;
-				if (v(v'left-1-i) = '1') then
+				if (v(i) = '1') then
 					exit;
 				else
 					r := r + 1;
 				end if;
 			end loop l0;
-			return r;
-		else
-			l1 : for i in v'left-1 downto 0 loop
+		elsif (v'ascending = false) then
+			r := v'left;
+			l1 : for i in v'left downto 0 loop
 				--report "index : i = " & integer'image(i) severity note;
-				if (v(v'left-1-i) = '1') then
+				if (v(i) = '1') then
 					exit;
 				else
-					r := r + 1;
+					r := r - 1;
 				end if;
 			end loop l1;
-			return r;
 		end if;
+		report "return : r = " & integer'image(r) severity note;
+		return r;
 	end function one_position;
 
 begin
@@ -133,10 +135,25 @@ begin
 --		data_out <= std_logic_vector(col(i*data_size+(data_size-1) downto i*data_size+0)) when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)) and tristate_output='1');
 --	end generate hhh;
 
--- XXX col v2
-	mem(one_position(unsigned(decoder_row_output)),one_position(unsigned(decoder_col_output))) <= data_in when tristate_output='0' and tristate_input='1';
-	data_out <= mem(one_position(unsigned(decoder_row_output)),one_position(unsigned(decoder_col_output))) when tristate_output='1' and tristate_input='0';
+-- XXX v1
+--	mem(one_position(unsigned(decoder_row_output)),one_position(unsigned(decoder_col_output))) <= data_in when tristate_output='0' and tristate_input='1';
+--	data_out <= mem(one_position(unsigned(decoder_row_output)),one_position(unsigned(decoder_col_output))) when tristate_output='1' and tristate_input='0';
 
+-- XXX v2
+	process (tristate_input,tristate_output,decoder_row_output,decoder_col_output,data_in) is
+		variable r : integer range 0 to 2**memory_rows-1;
+		variable c : integer range 0 to 2**memory_cols-1;
+	begin
+		r := one_position(unsigned(decoder_row_output));
+		c := one_position(unsigned(decoder_col_output));
+		if (falling_edge(tristate_input) and tristate_output = '0') then
+			mem(r,c) <= data_in;
+		end if;
+		if (tristate_input = '0' and falling_edge(tristate_output)) then
+			data_out <= mem(r,c);
+		end if;
+	end process;
+	
 -- XXX row v1
 --	ggg : for i in 0 to memory_cols-1 generate
 --		col <= mem(i*memory_cols_bits+(memory_cols_bits-1) downto i*memory_cols_bits+(0)) when (decoder_row_output=std_logic_vector(to_unsigned(i,memory_rows)) and tristate_output='0');
@@ -248,14 +265,14 @@ begin
 	mdr_entity : mem_decoder_row
 	Port map (decoder_row_input=>decoder_row_input,decoder_row_output=>decoder_row_output,e=>'1');
 
-	infos : process (i_web,i_oeb) is
-	begin
-		if (i_web = '0') then
-			REPORT "Write : " & integer'image(one_position(unsigned(decoder_col_output))) SEVERITY NOTE;
-		end if;
-		if (i_oeb = '0') then
-			REPORT "Read : " & integer'image(one_position(unsigned(decoder_col_output))) SEVERITY NOTE;
-		end if;
-	end process infos;
+--	infos : process (i_web,i_oeb,decoder_col_output) is
+--	begin
+--		if (i_web = '0') then
+--			REPORT "Write : " & integer'image(one_position(unsigned(decoder_col_output))) SEVERITY NOTE;
+--		end if;
+--		if (i_oeb = '0') then
+--			REPORT "Read : " & integer'image(one_position(unsigned(decoder_col_output))) SEVERITY NOTE;
+--		end if;
+--	end process infos;
 
 end Behavioral;

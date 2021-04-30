@@ -59,10 +59,10 @@ D12=>decoder_row_output(12),
 D13=>decoder_row_output(13),
 D14=>decoder_row_output(14),
 D15=>decoder_row_output(15),
-A0=>decoder_row_input(3),
-A1=>decoder_row_input(2),
-A2=>decoder_row_input(1),
-A3=>decoder_row_input(0),
+A0=>decoder_row_input(0),
+A1=>decoder_row_input(1),
+A2=>decoder_row_input(2),
+A3=>decoder_row_input(3),
 E=>e);
 
 end Behavioral;
