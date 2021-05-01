@@ -43,14 +43,11 @@ Port (
 end sram_row;
 
 architecture Behavioral of sram_row is
---	signal sram_cell is std_logic_vector(N-1 downto 0);
 	type t_row is array(2**N-1 downto 0) of std_logic;
 	signal sram_cell : t_row;
-	signal a : std_logic;
 begin
 	g0 : for i in sram_cell'range generate
-		sram_cell(i) <= i_bit
-		when (i=to_integer(unsigned(i_address_col)) and i_tristate_input = '1');
+		sram_cell(i) <= i_bit when (i=to_integer(unsigned(i_address_col)) and rising_edge(i_tristate_input));
 	end generate g0;
-	o_bit <= sram_cell(to_integer(unsigned(i_address_col))) when i_tristate_output = '1';
+	o_bit <= sram_cell(to_integer(unsigned(i_address_col))) when rising_edge(i_tristate_output);
 end Behavioral;
