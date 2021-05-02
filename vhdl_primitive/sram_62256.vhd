@@ -67,8 +67,9 @@ architecture Behavioral of sram_62256 is
 		N : integer := 4
 	);
 	Port (
-		i_tristate_input : in std_logic;
-		i_tristate_output : in std_logic;
+		i_ce : in std_logic;
+		i_we : in std_logic;
+		i_oe : in std_logic;
 		i_address_row : in std_logic_vector(N-1 downto 0);
 		i_address_col : in std_logic_vector(N-1 downto 0);
 		i_bit : in std_logic;
@@ -121,6 +122,7 @@ architecture Behavioral of sram_62256 is
 
 	signal bufi1,bufi2 : std_logic;
 	signal bufo1,bufo2 : std_logic;
+	signal a3,b3 : std_logic;
 
 begin
 
@@ -129,35 +131,12 @@ begin
 --	bufo <= '1' when (falling_edge(tristate_output))
 --	else '0';
 
-	LDCPE_bufi1 : LDCPE port map (
-	Q => bufi1,
-	D => tristate_input,
-	GE => not i_ceb,
-	G => '1',
-	CLR => '0',
-	PRE => '0');
-	LDCPE_bufi2 : LDCPE port map (
-	Q => bufi2,
-	D => bufi1,
-	GE => i_ceb,
-	G => '1',
-	CLR => not i_ceb,
-	PRE => '0');
+	LDCPE_bufi1 : LDCPE port map (Q=>bufi2,D=>bufi1,GE=>'1',G=>'1',CLR=>not ceb,PRE=>web);
+	LDCPE_bufi2 : LDCPE port map (Q=>bufi1,D=>bufi2,GE=>'1',G=>'1',CLR=>'0',PRE=>'0');
+	bufo1 <= bufi1 xor bufi2;
 
-	LDCPE_bufo1 : LDCPE port map (
-	Q => bufo1,
-	D => tristate_output,
-	GE => not i_ceb,
-	G => '1',
-	CLR => '0',
-	PRE => '0');
-	LDCPE_bufo2 : LDCPE port map (
-	Q => bufo2,
-	D => bufo1,
-	GE => i_ceb,
-	G => '1',
-	CLR => not i_ceb,
-	PRE => '0');
+	LDCPE_bufo1 : LDCPE port map (Q=>b3,D=>a3,GE=>'1',G=>'1',CLR=>'0',PRE=>'0');
+	LDCPE_bufo2 : LDCPE port map (Q=>a3,D=>b3,GE=>'1',G=>'1',CLR=>'0',PRE=>bufo1);
 
 --	BUFG_inst2 : LDCPE port map (
 --	Q => bufo,D => tristate_output, GE => not i_ceb, G => tristate_output, CLR => '0', PRE => '0');
@@ -188,8 +167,9 @@ begin
 	sram_data_generate : for i in 0 to data_size-1 generate
 		sram_cell_entity : sram_cell
 		Generic map (N=>4) Port map (
-		i_tristate_input=>bufi2,
-		i_tristate_output=>bufo2,
+		i_ce=>ceb,
+		i_we=>web,
+		i_oe=>oeb,
 		i_address_row=>decoder_row_input,
 		i_address_col=>decoder_col_input,
 		i_bit=>data_in(i),

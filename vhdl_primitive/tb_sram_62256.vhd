@@ -86,9 +86,10 @@ begin
 	i_web <= '1';
 	i_oeb <= '0';
 	wait for 01*clock_period;
-	i_ceb <= '1';
 	i_web <= '1';
 	i_oeb <= '1';
+	wait for 02*clock_period;
+	i_ceb <= '1';
 end procedure;
 
 procedure wr_data(
@@ -109,9 +110,10 @@ begin
 	i_web <= '0';
 	i_oeb <= '1';
 	wait for 01*clock_period;
-	i_ceb <= '1';
 	i_web <= '1';
 	i_oeb <= '1';
+	wait for 02*clock_period;
+	i_ceb <= '1';
 end procedure;
 
 BEGIN

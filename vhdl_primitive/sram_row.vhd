@@ -34,8 +34,9 @@ Generic (
 	N : integer := 4
 );
 Port (
-	i_tristate_input : in std_logic;
-	i_tristate_output : in std_logic;
+	i_ce : in std_logic;
+	i_we : in std_logic;
+	i_oe : in std_logic;
 	i_address_col : in std_logic_vector(N-1 downto 0);
 	i_bit : in std_logic;
 	o_bit : out std_logic
@@ -45,7 +46,10 @@ end sram_row;
 architecture Behavioral of sram_row is
 	signal sram_column : std_logic_vector(2**N-1 downto 0);
 --	signal bufi,bufo : std_logic;
+	signal we,oe : std_logic;
 begin
+	we <= i_ce and i_we;
+	oe <= i_ce and i_oe;
 --BUFG_inst1 : BUFG port map (O => bufi,I => i_tristate_input);
 --BUFG_inst2 : BUFG port map (O => bufo,I => i_tristate_output);
 --	bufi <= not (not i_tristate_input);
@@ -55,6 +59,6 @@ begin
 --	end generate sram_column_generate;
 --	sram_column(to_integer(unsigned(i_address_col))) <= i_bit when falling_edge(bufi);
 --	o_bit <= sram_column(to_integer(unsigned(i_address_col))) when falling_edge(bufo);
-	sram_column(to_integer(unsigned(i_address_col))) <= i_bit when falling_edge(i_tristate_input);
-	o_bit <= sram_column(to_integer(unsigned(i_address_col))) when falling_edge(i_tristate_output);
+	sram_column(to_integer(unsigned(i_address_col))) <= i_bit when falling_edge(we);
+	o_bit <= sram_column(to_integer(unsigned(i_address_col))) when falling_edge(oe);
 end Behavioral;
