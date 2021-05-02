@@ -44,7 +44,7 @@ end sram_row;
 
 architecture Behavioral of sram_row is
 	signal sram_column : std_logic_vector(2**N-1 downto 0);
-	signal bufi,bufo : std_logic;
+--	signal bufi,bufo : std_logic;
 begin
 --BUFG_inst1 : BUFG port map (O => bufi,I => i_tristate_input);
 --BUFG_inst2 : BUFG port map (O => bufo,I => i_tristate_output);
