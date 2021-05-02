@@ -83,6 +83,7 @@ begin
 --	tristate_output(to_integer(unsigned(i_address_row))) <= '1' when i_tristate_output='1' else '0';
 
 	sj : for i in 0 to 15 generate
+--		ibit(i) <= i_bit when (i=to_integer(unsigned(i_address_row)) and i_tristate_input='1');
 		ibit(i) <= i_bit when (i=to_integer(unsigned(i_address_row)) and falling_edge(i_tristate_input));
 	end generate sj;
 
