@@ -32,7 +32,7 @@ use UNISIM.VComponents.all;
 
 entity sram_62256 is
 Generic (
-address_size : integer := 4;
+address_size : integer := 8;
 data_size : integer := 8
 );
 Port (
@@ -62,18 +62,19 @@ architecture Behavioral of sram_62256 is
 --	);
 --	end component mem_decoder_row;
 
-	component sram_row is
+	component sram_cell is
 	Generic (
-		N : integer
+		N : integer := 4
 	);
 	Port (
 		i_tristate_input : in std_logic;
 		i_tristate_output : in std_logic;
+		i_address_row : in std_logic_vector(N-1 downto 0);
 		i_address_col : in std_logic_vector(N-1 downto 0);
 		i_bit : in std_logic;
 		o_bit : out std_logic
 	);
-	end component sram_row;
+	end component sram_cell;
 
 	constant memory_bits_rows : integer := 4;
 	constant memory_bits_cols : integer := 4;
@@ -84,7 +85,7 @@ architecture Behavioral of sram_62256 is
 	signal ceb,web,oeb,tristate_input,tristate_output : std_logic;
 	signal data_in,data_out : std_logic_vector(data_size-1 downto 0);
 
---	signal decoder_row_input : std_logic_vector(memory_bits_rows-1 downto 0);
+	signal decoder_row_input : std_logic_vector(memory_bits_rows-1 downto 0);
 	signal decoder_col_input : std_logic_vector(memory_bits_cols-1 downto 0);
 
 --	signal decoder_row_output : std_logic_vector(memory_rows-1 downto 0);
@@ -125,9 +126,9 @@ begin
 	oeb <= not i_oeb;
 	tristate_input <= ceb and web;
 	tristate_output <= ceb and i_web and oeb;
---	decoder_row_input <= i_address(5 downto 2); -- XXX
---	decoder_col_input <= i_address(7 downto 6) & i_address(1 downto 0); -- XXX
-	decoder_col_input <= i_address; -- XXX
+	decoder_row_input <= i_address(5 downto 2); -- XXX
+	decoder_col_input <= i_address(7 downto 6) & i_address(1 downto 0); -- XXX
+--	decoder_col_input <= i_address; -- XXX
 
 --	process (tristate_input,tristate_output,decoder_row_output,decoder_col_output,data_in) is
 --		variable r : integer range 0 to 2**memory_rows-1;
@@ -143,15 +144,17 @@ begin
 --		end if;
 --	end process;
 
-	sg : for i in 0 to data_size-1 generate
-		sr : sram_row Generic map (n=>4) Port map (
-			i_tristate_input=>tristate_input,
-			i_tristate_output=>tristate_output,
-			i_address_col=>decoder_col_input,
-			i_bit=>data_in(i),
-			o_bit=>data_out(i)
-		);
-	end generate sg;
+	g0 : for i in 0 to data_size-1 generate
+		s0 : sram_cell
+		Generic map (N=>4) Port map (
+		i_tristate_input=>tristate_input,
+		i_tristate_output=>tristate_output,
+		i_address_row=>decoder_row_input,
+		i_address_col=>decoder_col_input,
+		i_bit=>data_in(i),
+		o_bit=>data_out(i)
+	);
+	end generate g0;
 
 	input_IOBUFDS_generate : for i in 0 to data_size-1 generate
 		input_IOBUFDS_inst  : OBUFT port map (O=>data_in(i), I=>i_data(i),   T=>not tristate_input);
