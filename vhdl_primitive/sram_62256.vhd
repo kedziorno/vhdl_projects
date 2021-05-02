@@ -144,8 +144,8 @@ begin
 --		end if;
 --	end process;
 
-	g0 : for i in 0 to data_size-1 generate
-		s0 : sram_cell
+	sram_data_generate : for i in 0 to data_size-1 generate
+		sram_cell_entity : sram_cell
 		Generic map (N=>4) Port map (
 		i_tristate_input=>tristate_input,
 		i_tristate_output=>tristate_output,
@@ -154,7 +154,7 @@ begin
 		i_bit=>data_in(i),
 		o_bit=>data_out(i)
 	);
-	end generate g0;
+	end generate sram_data_generate;
 
 	input_IOBUFDS_generate : for i in 0 to data_size-1 generate
 		input_IOBUFDS_inst  : OBUFT port map (O=>data_in(i), I=>i_data(i),   T=>not tristate_input);

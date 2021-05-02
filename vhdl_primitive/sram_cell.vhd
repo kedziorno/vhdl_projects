@@ -63,24 +63,26 @@ architecture Behavioral of sram_cell is
 
 begin
 
-	sg : for i in 0 to 15 generate
-		sr : sram_row Generic map (n=>4) Port map (
+	sram_row_generate : for i in 0 to 15 generate
+		sram_col : sram_row Generic map (n=>4) Port map (
 			i_tristate_input=>tristate_input(i),
 			i_tristate_output=>tristate_output(i),
 			i_address_col=>i_address_col,
 			i_bit=>i_bit,
 			o_bit=>obit(i)
 		);
-	end generate sg;
+	end generate sram_row_generate;
 	
 	sh : for i in 0 to 15 generate
 		tristate_input(i) <= '1' when (i=to_integer(unsigned(i_address_row)) and i_tristate_input='1') else '0';
 	end generate sh;
+--	tristate_input(to_integer(unsigned(i_address_row))) <= '1' when i_tristate_input='1' else '0';
 
 	si : for i in 0 to 15 generate
 		tristate_output(i) <= '1' when (i=to_integer(unsigned(i_address_row)) and i_tristate_output='1') else '0';
 	end generate si;
+--	tristate_output(to_integer(unsigned(i_address_row))) <= '1' when i_tristate_output='1' else '0';
 
-	o_bit <= obit(to_integer(unsigned(i_address_row))) when i_tristate_output='1' else '0';
+	o_bit <= obit(to_integer(unsigned(i_address_row))) when rising_edge(i_tristate_output);
 
 end Behavioral;

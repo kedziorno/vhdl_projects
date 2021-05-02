@@ -46,8 +46,8 @@ architecture Behavioral of sram_row is
 	type t_row is array(2**N-1 downto 0) of std_logic;
 	signal sram_cell : t_row;
 begin
-	g0 : for i in sram_cell'range generate
+	sram_cell_generate : for i in sram_cell'range generate
 		sram_cell(i) <= i_bit when (i=to_integer(unsigned(i_address_col)) and rising_edge(i_tristate_input));
-	end generate g0;
-	o_bit <= sram_cell(to_integer(unsigned(i_address_col))) when rising_edge(i_tristate_output);
+	end generate sram_cell_generate;
+	o_bit <= sram_cell(to_integer(unsigned(i_address_col))) when falling_edge(i_tristate_output);
 end Behavioral;
