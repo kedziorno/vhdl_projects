@@ -32,7 +32,7 @@ use UNISIM.VComponents.all;
 
 entity sram_62256 is
 Generic (
-address_size : integer := 8;
+address_size : integer := 4;
 data_size : integer := 8
 );
 Port (
@@ -47,20 +47,33 @@ end sram_62256;
 
 architecture Behavioral of sram_62256 is
 
-	component mem_decoder_col is
-	Port (
-		signal decoder_col_input : in std_logic_vector(4-1 downto 0);
-		signal decoder_col_output : out std_logic_vector(2**4-1 downto 0);
-		signal e : std_logic
+--	component mem_decoder_col is
+--	Port (
+--		signal decoder_col_input : in std_logic_vector(4-1 downto 0);
+--		signal decoder_col_output : out std_logic_vector(2**4-1 downto 0);
+--		signal e : std_logic
+--	);
+--	end component mem_decoder_col;
+--	component mem_decoder_row
+--	Port (
+--		signal decoder_row_input : IN  std_logic_vector(4-1 downto 0);
+--		signal decoder_row_output : OUT  std_logic_vector(2**4-1 downto 0);
+--		signal e : IN  std_logic
+--	);
+--	end component mem_decoder_row;
+
+	component sram_row is
+	Generic (
+		N : integer
 	);
-	end component mem_decoder_col;
-	component mem_decoder_row
 	Port (
-		signal decoder_row_input : IN  std_logic_vector(4-1 downto 0);
-		signal decoder_row_output : OUT  std_logic_vector(2**4-1 downto 0);
-		signal e : IN  std_logic
+		i_tristate_input : in std_logic;
+		i_tristate_output : in std_logic;
+		i_address_col : in std_logic_vector(N-1 downto 0);
+		i_bit : in std_logic;
+		o_bit : out std_logic
 	);
-	end component mem_decoder_row;
+	end component sram_row;
 
 	constant memory_bits_rows : integer := 4;
 	constant memory_bits_cols : integer := 4;
@@ -71,14 +84,14 @@ architecture Behavioral of sram_62256 is
 	signal ceb,web,oeb,tristate_input,tristate_output : std_logic;
 	signal data_in,data_out : std_logic_vector(data_size-1 downto 0);
 
-	signal decoder_row_input : std_logic_vector(memory_bits_rows-1 downto 0);
+--	signal decoder_row_input : std_logic_vector(memory_bits_rows-1 downto 0);
 	signal decoder_col_input : std_logic_vector(memory_bits_cols-1 downto 0);
 
-	signal decoder_row_output : std_logic_vector(memory_rows-1 downto 0);
-	signal decoder_col_output : std_logic_vector(memory_cols-1 downto 0);
+--	signal decoder_row_output : std_logic_vector(memory_rows-1 downto 0);
+--	signal decoder_col_output : std_logic_vector(memory_cols-1 downto 0);
 
-	type ram is array(memory_rows-1 downto 0,memory_cols-1 downto 0) of std_logic_vector(data_size-1 downto 0);
-	signal mem : ram;
+--	type ram is array(memory_rows-1 downto 0,memory_cols-1 downto 0) of std_logic_vector(data_size-1 downto 0);
+--	signal mem : ram;
 
 	function one_position(v : unsigned) return integer is
 		variable r : integer;
@@ -112,22 +125,33 @@ begin
 	oeb <= not i_oeb;
 	tristate_input <= ceb and web;
 	tristate_output <= ceb and i_web and oeb;
-	decoder_row_input <= i_address(5 downto 2); -- XXX
-	decoder_col_input <= i_address(7 downto 6) & i_address(1 downto 0); -- XXX
+--	decoder_row_input <= i_address(5 downto 2); -- XXX
+--	decoder_col_input <= i_address(7 downto 6) & i_address(1 downto 0); -- XXX
+	decoder_col_input <= i_address; -- XXX
 
-	process (tristate_input,tristate_output,decoder_row_output,decoder_col_output,data_in) is
-		variable r : integer range 0 to 2**memory_rows-1;
-		variable c : integer range 0 to 2**memory_cols-1;
-	begin
-		r := one_position(unsigned(decoder_row_output));
-		c := one_position(unsigned(decoder_col_output));
-		if (falling_edge(tristate_input) and tristate_output = '0') then
-			mem(r,c) <= data_in;
-		end if;
-		if (tristate_input = '0' and rising_edge(tristate_output)) then
-			data_out <= mem(r,c);
-		end if;
-	end process;
+--	process (tristate_input,tristate_output,decoder_row_output,decoder_col_output,data_in) is
+--		variable r : integer range 0 to 2**memory_rows-1;
+--		variable c : integer range 0 to 2**memory_cols-1;
+--	begin
+--		r := one_position(unsigned(decoder_row_output));
+--		c := one_position(unsigned(decoder_col_output));
+--		if (falling_edge(tristate_input) and tristate_output = '0') then
+--			mem(r,c) <= data_in;
+--		end if;
+--		if (tristate_input = '0' and rising_edge(tristate_output)) then
+--			data_out <= mem(r,c);
+--		end if;
+--	end process;
+
+	sg : for i in 0 to data_size-1 generate
+		sr : sram_row Generic map (n=>4) Port map (
+			i_tristate_input=>tristate_input,
+			i_tristate_output=>tristate_output,
+			i_address_col=>decoder_col_input,
+			i_bit=>data_in(i),
+			o_bit=>data_out(i)
+		);
+	end generate sg;
 
 	input_IOBUFDS_generate : for i in 0 to data_size-1 generate
 		input_IOBUFDS_inst  : OBUFT port map (O=>data_in(i), I=>i_data(i),   T=>not tristate_input);
@@ -136,10 +160,10 @@ begin
 		output_OBUFTDS_inst : OBUFT port map (O=>o_data(i),  I=>data_out(i), T=>not tristate_output);
 	end generate output_OBUFTDS_generate;
 
-	mdc_entity : mem_decoder_col
-	Port map (decoder_col_input=>decoder_col_input,decoder_col_output=>decoder_col_output,e=>'1');
+--	mdc_entity : mem_decoder_col
+--	Port map (decoder_col_input=>decoder_col_input,decoder_col_output=>decoder_col_output,e=>'1');
 
-	mdr_entity : mem_decoder_row
-	Port map (decoder_row_input=>decoder_row_input,decoder_row_output=>decoder_row_output,e=>'1');
+--	mdr_entity : mem_decoder_row
+--	Port map (decoder_row_input=>decoder_row_input,decoder_row_output=>decoder_row_output,e=>'1');
 
 end Behavioral;
