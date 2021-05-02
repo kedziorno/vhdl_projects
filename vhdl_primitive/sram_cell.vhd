@@ -59,8 +59,7 @@ architecture Behavioral of sram_cell is
 	end component sram_row;
 
 	signal tristate_input,tristate_output : std_logic_vector(15 downto 0);
-	signal obit : std_logic_vector(15 downto 0);
-
+	signal ibit,obit : std_logic_vector(15 downto 0);
 begin
 
 	sram_row_generate : for i in 0 to 15 generate
@@ -68,11 +67,11 @@ begin
 			i_tristate_input=>tristate_input(i),
 			i_tristate_output=>tristate_output(i),
 			i_address_col=>i_address_col,
-			i_bit=>i_bit,
+			i_bit=>ibit(i),
 			o_bit=>obit(i)
 		);
 	end generate sram_row_generate;
-	
+
 	sh : for i in 0 to 15 generate
 		tristate_input(i) <= '1' when (i=to_integer(unsigned(i_address_row)) and i_tristate_input='1') else '0';
 	end generate sh;
@@ -82,6 +81,10 @@ begin
 		tristate_output(i) <= '1' when (i=to_integer(unsigned(i_address_row)) and i_tristate_output='1') else '0';
 	end generate si;
 --	tristate_output(to_integer(unsigned(i_address_row))) <= '1' when i_tristate_output='1' else '0';
+
+	sj : for i in 0 to 15 generate
+		ibit(i) <= i_bit when (i=to_integer(unsigned(i_address_row)) and falling_edge(i_tristate_input));
+	end generate sj;
 
 	o_bit <= obit(to_integer(unsigned(i_address_row))) when rising_edge(i_tristate_output);
 
