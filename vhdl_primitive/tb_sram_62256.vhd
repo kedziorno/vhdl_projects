@@ -86,9 +86,10 @@ begin
 	i_web <= '1';
 	i_oeb <= '0';
 	wait for 01*clock_period;
-	i_ceb <= '1';
 	i_web <= '1';
 	i_oeb <= '1';
+	wait for 02*clock_period;
+	i_ceb <= '1';
 end procedure;
 
 procedure wr_data(
@@ -109,9 +110,10 @@ begin
 	i_web <= '0';
 	i_oeb <= '1';
 	wait for 01*clock_period;
-	i_ceb <= '1';
 	i_web <= '1';
 	i_oeb <= '1';
+	wait for 02*clock_period;
+	i_ceb <= '1';
 end procedure;
 
 BEGIN
@@ -141,6 +143,7 @@ begin
 -- insert stimulus here
 wait for clock_period;
 -- XXX address reverse order
+-- XXX write
 l0 : for i in 0 to 2**address_size-1 loop
 wr_data(std_logic_vector(to_unsigned(i,address_size)),std_logic_vector(to_unsigned(i,data_size)),i_address,i_data,i_ceb,i_web,i_oeb);
 end loop l0;
@@ -149,8 +152,10 @@ wait for clock_period;
 i_data <= (others => 'Z');
 wait for clock_period;
 
+-- XXX rw1
 l1 : for i in 0 to 2**address_size-1 loop
 rd_data(std_logic_vector(to_unsigned(i,address_size)),i_address,i_ceb,i_web,i_oeb);
+wait for clock_period; -- XXX wait for data
 assert (o_data=std_logic_vector(to_unsigned(i,data_size))) report "Error on " & integer'image(i);
 end loop l1;
 
@@ -158,11 +163,13 @@ wait for clock_period;
 i_data <= (others => 'Z');
 wait for clock_period;
 
+-- XXX rw2
 l3 : for i in 0 to 2**address_size-1 loop
 wr_data(std_logic_vector(to_unsigned(i,address_size)),std_logic_vector(to_unsigned(i,data_size)),i_address,i_data,i_ceb,i_web,i_oeb);
 wait for clock_period;
 i_data <= (others => 'Z');
 rd_data(std_logic_vector(to_unsigned(i,address_size)),i_address,i_ceb,i_web,i_oeb);
+wait for clock_period; -- XXX wait for data
 assert (o_data=std_logic_vector(to_unsigned(i,data_size))) report "Error on " & integer'image(i);
 end loop l3;
 

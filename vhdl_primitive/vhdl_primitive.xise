@@ -42,12 +42,12 @@
     <file xil_pn:name="nxp_74hc573.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="tb_nxp_74hc573.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="sram_62256.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="6"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="6"/>
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="4"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="4"/>
     </file>
     <file xil_pn:name="decoder.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="tb_sram_62256.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="7"/>
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="5"/>
       <association xil_pn:name="PostMapSimulation" xil_pn:seqID="29"/>
       <association xil_pn:name="PostRouteSimulation" xil_pn:seqID="29"/>
       <association xil_pn:name="PostTranslateSimulation" xil_pn:seqID="29"/>
@@ -95,16 +95,13 @@
     <file xil_pn:name="lfsr.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="tb_debounce.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="../../../.local/Xilinx/14.7/ISE_DS/ISE/vhdl/hdlMacro/d2_4e.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="2"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="2"/>
-    </file>
-    <file xil_pn:name="../../../.local/Xilinx/14.7/ISE_DS/ISE/vhdl/hdlMacro/d3_8e.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
+    <file xil_pn:name="../../../.local/Xilinx/14.7/ISE_DS/ISE/vhdl/hdlMacro/d3_8e.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="mem_decoder_row.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="4"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="4"/>
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
     <file xil_pn:name="tb_mem_decoder_row.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
@@ -113,8 +110,8 @@
       <association xil_pn:name="PostTranslateSimulation" xil_pn:seqID="72"/>
     </file>
     <file xil_pn:name="mem_decoder_col.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="5"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="5"/>
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
     <file xil_pn:name="tb_mem_decoder_col.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
@@ -125,8 +122,22 @@
     <file xil_pn:name="tb_ones_detector.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="ones_detector.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="../../../.local/Xilinx/14.7/ISE_DS/ISE/vhdl/hdlMacro/d4_16e.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+    </file>
+    <file xil_pn:name="sram_row.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="1"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="1"/>
+    </file>
+    <file xil_pn:name="tb_sram_row.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="PostMapSimulation" xil_pn:seqID="164"/>
+      <association xil_pn:name="PostRouteSimulation" xil_pn:seqID="164"/>
+      <association xil_pn:name="PostTranslateSimulation" xil_pn:seqID="164"/>
+    </file>
+    <file xil_pn:name="sram_cell.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="2"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="2"/>
     </file>
   </files>
 
