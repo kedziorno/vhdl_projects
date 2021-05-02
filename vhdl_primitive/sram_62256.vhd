@@ -119,7 +119,15 @@ architecture Behavioral of sram_62256 is
 		return r;
 	end function one_position;
 
+	signal bufi,bufo : std_logic;
+
 begin
+
+	bufi <= '1' when (falling_edge(tristate_input))
+	else '0';
+
+	bufo <= '1' when (falling_edge(tristate_output))
+	else '0';
 
 	ceb <= not i_ceb;
 	web <= not i_web;
@@ -147,8 +155,8 @@ begin
 	sram_data_generate : for i in 0 to data_size-1 generate
 		sram_cell_entity : sram_cell
 		Generic map (N=>4) Port map (
-		i_tristate_input=>tristate_input,
-		i_tristate_output=>tristate_output,
+		i_tristate_input=>bufi,
+		i_tristate_output=>bufo,
 		i_address_row=>decoder_row_input,
 		i_address_col=>decoder_col_input,
 		i_bit=>data_in(i),
@@ -157,10 +165,10 @@ begin
 	end generate sram_data_generate;
 
 	input_IOBUFDS_generate : for i in 0 to data_size-1 generate
-		input_IOBUFDS_inst  : OBUFT port map (O=>data_in(i), I=>i_data(i),   T=>not tristate_input);
+		input_IOBUFDS_inst  : OBUFT port map (O=>data_in(i), I=>i_data(i),   T=>not bufi);
 	end generate input_IOBUFDS_generate;
 	output_OBUFTDS_generate : for i in 0 to data_size-1 generate
-		output_OBUFTDS_inst : OBUFT port map (O=>o_data(i),  I=>data_out(i), T=>not tristate_output);
+		output_OBUFTDS_inst : OBUFT port map (O=>o_data(i),  I=>data_out(i), T=>not bufo);
 	end generate output_OBUFTDS_generate;
 
 --	mdc_entity : mem_decoder_col
