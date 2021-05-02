@@ -126,17 +126,19 @@ architecture Behavioral of sram_62256 is
 
 begin
 
+--	b3 <= web when i_ceb='0' else not web;
 --	bufi <= '1' when (falling_edge(tristate_input))
 --	else '0';
 --	bufo <= '1' when (falling_edge(tristate_output))
 --	else '0';
 
-	LDCPE_bufi1 : LDCPE port map (Q=>bufi2,D=>bufi1,GE=>'1',G=>'1',CLR=>not ceb,PRE=>web);
-	LDCPE_bufi2 : LDCPE port map (Q=>bufi1,D=>bufi2,GE=>'1',G=>'1',CLR=>'0',PRE=>'0');
-	bufo1 <= bufi1 xor bufi2;
+--	LDCPE_bufi1 : LDCPE port map (Q=>bufi2,D=>bufi1,GE=>'1',G=>'1',CLR=>not ceb,PRE=>web);
+--	LDCPE_bufi2 : LDCPE port map (Q=>bufi1,D=>bufi2,GE=>'1',G=>'1',CLR=>'0',PRE=>'0');
+--	bufo1 <= bufi1 xor bufi2;
 
-	LDCPE_bufo1 : LDCPE port map (Q=>b3,D=>a3,GE=>'1',G=>'1',CLR=>'0',PRE=>'0');
-	LDCPE_bufo2 : LDCPE port map (Q=>a3,D=>b3,GE=>'1',G=>'1',CLR=>'0',PRE=>bufo1);
+	b3 <= not a3;
+	LDCPE_bufo1 : LDCPE port map (Q=>a3,D=>b3,GE=>'1',G=>'1',CLR=>not web,PRE=>web);
+--	LDCPE_bufo2 : LDCPE port map (Q=>a3,D=>b3,GE=>'1',G=>'1',CLR=>'0',PRE=>bufo1);
 
 --	BUFG_inst2 : LDCPE port map (
 --	Q => bufo,D => tristate_output, GE => not i_ceb, G => tristate_output, CLR => '0', PRE => '0');
@@ -178,10 +180,10 @@ begin
 	end generate sram_data_generate;
 
 	input_IOBUFDS_generate : for i in 0 to data_size-1 generate
-		input_IOBUFDS_inst  : OBUFT port map (O=>data_in(i), I=>i_data(i),   T=>not bufi2);
+		input_IOBUFDS_inst  : OBUFT port map (O=>data_in(i), I=>i_data(i),   T=>not tristate_input);
 	end generate input_IOBUFDS_generate;
 	output_OBUFTDS_generate : for i in 0 to data_size-1 generate
-		output_OBUFTDS_inst : OBUFT port map (O=>o_data(i),  I=>data_out(i), T=>not bufo2);
+		output_OBUFTDS_inst : OBUFT port map (O=>o_data(i),  I=>data_out(i), T=>tristate_output);
 	end generate output_OBUFTDS_generate;
 
 --	mdc_entity : mem_decoder_col
