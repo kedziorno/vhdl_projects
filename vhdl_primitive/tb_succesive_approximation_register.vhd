@@ -90,24 +90,22 @@ wait for i_clock_period/2;
 i_clock <= '1';
 wait for i_clock_period/2;
 end process;
-
 -- Stimulus process
 stim_proc: process
 begin
 -- hold reset state for 100 ns.
-i_reset <= '1';
-wait for 100 ns;
 i_reset <= '0';
-wait for i_clock_period*10;
+wait for i_clock_period;
+i_reset <= '1';
 -- insert stimulus here
-wait for i_clock_period*(N+5);
-i_select <= '1';
-wait for i_clock_period;
-i_select <= '0';
-wait for i_clock_period*3;
-i_select <= '1';
-wait for i_clock_period;
-i_select <= '0';
+l0 : for i in 0 to 2**N-1 loop
+--wait for i_clock_period*17; -- XXX must be less than (2**N)
+--i_select <= '1';
+--o_end <= '0';
+--wait for i_clock_period;
+--i_select <= '0';
+--o_end <= '0';
+end loop l0;
 wait;
 end process;
 
