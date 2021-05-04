@@ -2,15 +2,15 @@
 -- Company: 
 -- Engineer:
 --
--- Create Date:   12:55:32 05/04/2021
+-- Create Date:   14:05:50 05/04/2021
 -- Design Name:   
--- Module Name:   /home/user/workspace/vhdl_projects/vhdl_primitive/tb_ripple_counter.vhd
+-- Module Name:   /home/user/workspace/vhdl_projects/vhdl_primitive/tb_ff_jk.vhd
 -- Project Name:  vhdl_primitive
 -- Target Device:  
 -- Tool versions:  
 -- Description:   
 -- 
--- VHDL Test Bench Created by ISE for module: ripple_counter
+-- VHDL Test Bench Created by ISE for module: FF_JK
 -- 
 -- Dependencies:
 -- 
@@ -32,28 +32,30 @@ USE ieee.std_logic_1164.ALL;
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
 
-ENTITY tb_ripple_counter IS
-END tb_ripple_counter;
+ENTITY tb_ff_jk IS
+END tb_ff_jk;
 
-ARCHITECTURE behavior OF tb_ripple_counter IS
+ARCHITECTURE behavior OF tb_ff_jk IS
 
 -- Component Declaration for the Unit Under Test (UUT)
-COMPONENT ripple_counter
+COMPONENT FF_JK
 PORT(
-i_clock : IN  std_logic;
-i_cpb : IN  std_logic;
-i_mrb : IN  std_logic;
-o_q : INOUT  std_logic_vector(11 downto 0)
+J : IN  std_logic;
+K : IN  std_logic;
+C : IN  std_logic;
+Q1 : INOUT  std_logic;
+Q2 : INOUT  std_logic
 );
 END COMPONENT;
 
 --Inputs
-signal i_clock : std_logic := '0';
-signal i_cpb : std_logic := '0';
-signal i_mrb : std_logic := '0';
+signal J : std_logic := '0';
+signal K : std_logic := '0';
+signal C : std_logic := '0';
 
 --BiDirs
-signal o_q : std_logic_vector(11 downto 0);
+signal Q1 : std_logic := '0';
+signal Q2 : std_logic := '0';
 
 signal clock : std_logic := '0';
 constant clock_period : time := 20 ns;
@@ -61,11 +63,12 @@ constant clock_period : time := 20 ns;
 BEGIN
 
 -- Instantiate the Unit Under Test (UUT)
-uut: ripple_counter PORT MAP (
-i_clock => i_clock,
-i_cpb => i_cpb,
-i_mrb => i_mrb,
-o_q => o_q
+uut: FF_JK PORT MAP (
+J => J,
+K => K,
+C => C,
+Q1 => Q1,
+Q2 => Q2
 );
 
 -- Clock process definitions
@@ -77,20 +80,32 @@ clock <= '1';
 wait for clock_period/2;
 end process;
 
-i_clock <= clock;
-
 -- Stimulus process
-stim_proc: process
-begin
+--stim_proc: process (clock) is
+--	type vt is array(0 to 3) of std_logic_vector(1 downto 0);
+----	variable v : vt := ("00","01","10","11"); -- bin
+--	variable v : vt := ("00","01","11","10"); -- grey
+--	variable i : integer range 0 to 3 := 0;
+--begin
 ---- insert stimulus here
-i_mrb <= '1';
-wait for 10*clock_period;
-i_mrb <= '0';
-wait for 10*clock_period;
-i_cpb <= '1';
-wait for 100*clock_period;
-i_cpb <= '0';
-wait;
+--C <= '1';
+--if (rising_edge(clock)) then
+--J <= v(i)(0);
+--K <= v(i)(1);
+--if (i=3) then
+--i := 0;
+--else
+--i := i + 1;
+--end if;
+--end if;
+--end process;
+
+stim_proc: process (clock) is
+begin
+-- insert stimulus here
+C <= clock;
+J <= '1';
+K <= '1';
 end process;
 
 END;

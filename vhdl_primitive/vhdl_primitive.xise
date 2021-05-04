@@ -17,8 +17,8 @@
   <files>
     <file xil_pn:name="TB_FF_SR_GATED.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="FF_SR.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="4"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="4"/>
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
     <file xil_pn:name="FF_SR_GATED.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="FULL_ADDER.vhd" xil_pn:type="FILE_VHDL"/>
@@ -29,16 +29,16 @@
     <file xil_pn:name="gate_xnor.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="FF_D_PE.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="gate_or.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="1"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="1"/>
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
     <file xil_pn:name="gate_and.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="3"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="3"/>
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
     <file xil_pn:name="gate_not.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="2"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="2"/>
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
     <file xil_pn:name="clock.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="FF_D_MS.vhd" xil_pn:type="FILE_VHDL"/>
@@ -50,19 +50,13 @@
     <file xil_pn:name="TB_HALF_ADDER.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="TB_GATE_XOR.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="FF_JK.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="5"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="5"/>
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
     <file xil_pn:name="FF_E_LATCH.vhd" xil_pn:type="FILE_VHDL"/>
-    <file xil_pn:name="nxp_74hc573.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
-    </file>
+    <file xil_pn:name="nxp_74hc573.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="tb_nxp_74hc573.vhd" xil_pn:type="FILE_VHDL"/>
-    <file xil_pn:name="sram_62256.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
-    </file>
+    <file xil_pn:name="sram_62256.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="decoder.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="tb_sram_62256.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="succesive_approximation_register.vhd" xil_pn:type="FILE_VHDL"/>
@@ -113,28 +107,29 @@
     <file xil_pn:name="tb_ones_detector.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="ones_detector.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="../../../.local/Xilinx/14.7/ISE_DS/ISE/vhdl/hdlMacro/d4_16e.vhd" xil_pn:type="FILE_VHDL"/>
-    <file xil_pn:name="sram_row.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
-    </file>
+    <file xil_pn:name="sram_row.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="tb_sram_row.vhd" xil_pn:type="FILE_VHDL"/>
-    <file xil_pn:name="sram_cell.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
-    </file>
-    <file xil_pn:name="logic_analyser.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
-    </file>
+    <file xil_pn:name="sram_cell.vhd" xil_pn:type="FILE_VHDL"/>
+    <file xil_pn:name="logic_analyser.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="ripple_counter.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="6"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="6"/>
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="2"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="1"/>
     </file>
     <file xil_pn:name="tb_ripple_counter.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="7"/>
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="3"/>
       <association xil_pn:name="PostMapSimulation" xil_pn:seqID="199"/>
       <association xil_pn:name="PostRouteSimulation" xil_pn:seqID="199"/>
       <association xil_pn:name="PostTranslateSimulation" xil_pn:seqID="199"/>
+    </file>
+    <file xil_pn:name="tb_ff_jk.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="PostMapSimulation" xil_pn:seqID="203"/>
+      <association xil_pn:name="PostRouteSimulation" xil_pn:seqID="203"/>
+      <association xil_pn:name="PostTranslateSimulation" xil_pn:seqID="203"/>
+    </file>
+    <file xil_pn:name="../../../.local/Xilinx/14.7/ISE_DS/ISE/vhdl/hdlMacro/ftce.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="1"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="119"/>
     </file>
   </files>
 
