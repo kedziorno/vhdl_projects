@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity GATE_NOT is
 generic (
-delay_not : TIME := 0 ns
+delay_not : TIME := 1 ns
 );
 port (
 A : in STD_LOGIC;
