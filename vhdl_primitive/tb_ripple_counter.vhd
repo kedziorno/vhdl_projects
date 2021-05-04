@@ -78,12 +78,18 @@ wait for clock_period/2;
 end process;
 
 i_clock <= clock;
-i_cpb <= '0';
 
 -- Stimulus process
 stim_proc: process
 begin
 ---- insert stimulus here
+i_mrb <= '1';
+wait for 10*clock_period;
+i_mrb <= '0';
+wait for 10*clock_period;
+i_cpb <= '1';
+wait for 100*clock_period;
+i_cpb <= '0';
 wait;
 end process;
 

@@ -43,30 +43,36 @@ end ripple_counter;
 
 architecture Behavioral of ripple_counter is
 
-	component FF_JK is port (J,K,C:in STD_LOGIC;Q1,Q2:inout STD_LOGIC);
-	end component FF_JK;
-	for all : FF_JK use entity WORK.FF_JK(Structural);
+	component FTCE is
+	generic(
+	INIT : bit := '0'
+	);
+	port (
+	Q   : out STD_LOGIC := '0';
+	C   : in STD_LOGIC;
+	CE  : in STD_LOGIC;
+	CLR : in STD_LOGIC;
+	T   : in STD_LOGIC
+	);
+	end component FTCE;
 
-	signal cp : std_logic;
-	signal q : std_logic_vector(N-1 downto 0) := (others => '0');
+	signal cp,mr : std_logic;
+	signal q : std_logic_vector(N-1 downto 0);
 
 begin
 
-	cp <= not i_cpb;
+	cp <= i_cpb;
+	mr <= i_mrb;
 
-	g0 : for i in 0 to N-1 generate
+	g0 : for i in N-1 downto 0 generate
 		ffjk_first : if (i=0) generate
-			ffjk : FF_JK port map (
-				J=>cp,K=>cp,C=>i_clock,
-				Q1=>o_q(0),Q2=>q(0)
-			);
+			ffjk : FTCE port map (T=>cp,C=>i_clock,CE=>'1',CLR=>mr,Q=>q(0));
 		end generate ffjk_first;
 		ffjk_chain : if (i>0) generate
-			ffjk : FF_JK port map (
-				J=>cp,K=>cp,C=>not q(i-1),
-				Q1=>o_q(i),Q2=>q(i)
-			);
+			ffjk : FTCE port map (T=>cp,C=>not q(i-1),CE=>'1',CLR=>mr,Q=>q(i));
 		end generate ffjk_chain;
 	end generate g0;
+
+	o_q <= q;
 
 end Behavioral;
