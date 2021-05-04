@@ -54,8 +54,8 @@ signal K : std_logic := '0';
 signal C : std_logic := '0';
 
 --BiDirs
-signal Q1 : std_logic;
-signal Q2 : std_logic;
+signal Q1 : std_logic := '0';
+signal Q2 : std_logic := '0';
 
 signal clock : std_logic := '0';
 constant clock_period : time := 20 ns;
@@ -81,23 +81,31 @@ wait for clock_period/2;
 end process;
 
 -- Stimulus process
+--stim_proc: process (clock) is
+--	type vt is array(0 to 3) of std_logic_vector(1 downto 0);
+----	variable v : vt := ("00","01","10","11"); -- bin
+--	variable v : vt := ("00","01","11","10"); -- grey
+--	variable i : integer range 0 to 3 := 0;
+--begin
+---- insert stimulus here
+--C <= '1';
+--if (rising_edge(clock)) then
+--J <= v(i)(0);
+--K <= v(i)(1);
+--if (i=3) then
+--i := 0;
+--else
+--i := i + 1;
+--end if;
+--end if;
+--end process;
+
 stim_proc: process (clock) is
-	type vt is array(0 to 3) of std_logic_vector(1 downto 0);
---	variable v : vt := ("00","01","10","11"); -- bin
-	variable v : vt := ("00","01","11","10"); -- grey
-	variable i : integer range 0 to 3 := 0;
 begin
 -- insert stimulus here
-C <= '1';
-if (rising_edge(clock)) then
-J <= v(i)(0);
-K <= v(i)(1);
-if (i=3) then
-i := 0;
-else
-i := i + 1;
-end if;
-end if;
+C <= clock;
+J <= '1';
+K <= '1';
 end process;
 
 END;

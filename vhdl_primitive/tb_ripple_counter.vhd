@@ -77,14 +77,12 @@ clock <= '1';
 wait for clock_period/2;
 end process;
 
-i_cpb <= '1';
-i_clock <= '1';
+i_clock <= clock;
+i_cpb <= '0';
 
 -- Stimulus process
 stim_proc: process
 begin
----- hold reset state for 100 ns.
---wait for clock_period;
 ---- insert stimulus here
 wait;
 end process;

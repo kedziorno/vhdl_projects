@@ -45,9 +45,10 @@ architecture Behavioral of ripple_counter is
 
 	component FF_JK is port (J,K,C:in STD_LOGIC;Q1,Q2:inout STD_LOGIC);
 	end component FF_JK;
+	for all : FF_JK use entity WORK.FF_JK(Structural);
 
 	signal cp : std_logic;
-	signal q : std_logic_vector(N-1 downto 0);
+	signal q : std_logic_vector(N-1 downto 0) := (others => '0');
 
 begin
 
@@ -62,11 +63,10 @@ begin
 		end generate ffjk_first;
 		ffjk_chain : if (i>0) generate
 			ffjk : FF_JK port map (
-				J=>q(i-1),K=>q(i-1),C=>i_clock,
+				J=>cp,K=>cp,C=>not q(i-1),
 				Q1=>o_q(i),Q2=>q(i)
 			);
 		end generate ffjk_chain;
 	end generate g0;
 
 end Behavioral;
-
