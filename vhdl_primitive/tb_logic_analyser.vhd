@@ -61,6 +61,9 @@ signal o_rs232_tx : std_logic;
 -- Clock period definitions
 constant i_clock_period : time := 20 ns;
 
+signal a : std_logic;
+signal b : std_logic;
+
 BEGIN
 
 -- Instantiate the Unit Under Test (UUT)
@@ -85,7 +88,8 @@ end process;
 --oc0 <= i_clock;
 
 -- Stimulus process
-stim_proc: process
+
+write_proc : process
 constant N : integer := 256;
 begin
 -- hold reset state for 100 ns.
@@ -103,6 +107,8 @@ i_data <= std_logic_vector(to_unsigned(i,8));
 --ain1 <= '0';
 wait for i_clock_period;
 end loop l0;
+ain1 <= '1';
+wait for i_clock_period;
 wait;
 end process;
 

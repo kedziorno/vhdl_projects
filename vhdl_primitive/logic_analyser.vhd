@@ -121,7 +121,10 @@ signal rs232_b2s : std_logic_vector(8 downto 0);
 signal wr,rd,a,b : std_logic;
 --signal oc0,ain1 : std_logic;
 
-type state_type is (idle,start,stop,check_write);
+type state_type is (
+idle,start,stop,check_write,wait1,wait0,wait0_increment,
+read0,read_check
+);
 signal state_c,state_n : state_type;
 
 begin
@@ -135,36 +138,65 @@ begin
 	end if;
 end process p0;
 
-p1 : process (state_c) is
+p1 : process (state_c,oc0,ain1) is
+constant C_W0 : integer := 10;
+variable w0 : integer range 0 to C_W0-1 := 0;
 begin
 	case (state_c) is
 		when idle =>
-			state_n <= start;
-			wr <= '0';
+			if (ain1 = '1') then
+				state_n <= start;
+				wr <= '0';
+				rc_mrb <= '1';
+			else
+				state_n <= idle;
+			end if;
 		when start =>
 			state_n <= check_write;
 			wr <= '1';
+			rc_mrb <= '0';
 		when check_write =>
 			wr <= '0';
 			if (sram_address(address_size-1)='1') then
-				state_n <= stop;
+				state_n <= wait1;
 			else
 				state_n <= start;
 			end if;
+		when wait1 =>
+			if (oc0 = '1') then
+				state_n <= wait1;
+			elsif (oc0 = '0') then
+				state_n <= wait0;
+				w0 := 0;
+			end if;
+		when wait0 =>
+			if (w0 = C_W0-1) then
+				state_n <= read_check;
+			else
+				state_n <= wait0_increment;
+			end if;
+		when wait0_increment =>
+			state_n <= wait0;
+			w0 := w0 + 1;
+		when read_check =>
+			if (ain1 = '1') then
+				state_n <= read0;
+				rc_mrb <= '1';
+			else
+				state_n <= read_check;
+			end if;
+		when read0 =>
+			state_n <= stop;
+			rc_mrb <= '0';
+			wr <= '0';
+			rd <= '1';
 		when stop =>
-			state_n <= stop; --idle;
+			state_n <= stop;
 	end case;
 end process p1;
 
---oc0 <= i_clock;
---ain1 <= i_clock;
---rs232_etx <= i_clock;
---wr <= rc_oq(address_size-1);
 a <= oc0 and not wr;
 b <= ain1 and a;
---rc_mrb <= rd;
---rs232_reset <= i_reset;
---rd <= '1' when falling_edge(rs232_busy) else '0';
 
 sram_ceb <= '0';
 sram_web <= not (a and i_clock);
