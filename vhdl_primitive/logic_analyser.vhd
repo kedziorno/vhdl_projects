@@ -156,6 +156,7 @@ begin
 			state_n <= check_write;
 			wr <= '0';
 			rc_mrb <= '0';
+			latch_oeb <= '0';
 		when check_write =>
 			wr <= '1';
 			if (sram_address(address_size-1)='1') then
@@ -172,6 +173,7 @@ begin
 				w0 := 0;
 			end if;
 		when wait0 =>
+			latch_oeb <= '1';
 			if (w0 = C_W0-1) then
 				state_n <= read_check;
 			else
@@ -181,9 +183,9 @@ begin
 			state_n <= wait0;
 			w0 := w0 + 1;
 		when read_check =>
+			rc_mrb <= '1';
 			if (ain1 = '1') then
 				state_n <= read0;
-				rc_mrb <= '1';
 			else
 				state_n <= read_check;
 			end if;
@@ -197,18 +199,18 @@ begin
 	end case;
 end process p1;
 
-a <= i_clock and not wr;
+a <= i_clock and (not wr or not rd);
 b <= ain1 and a;
 
 sram_ceb <= '0';
 sram_web <= a when rd='0' else '1'; --not (a and i_clock);
-sram_oeb <= b when rd='1' else '1';
+sram_oeb <= not b when rd='1' else '1';
 
 rc_clock <= b;-- and i_clock;
 rc_cpb <= '1';
 
-latch_le <= a; --not (a and i_clock);
-latch_oeb <= '0'; -- XXX distinct signal
+latch_le <= a when rd='0' else '0'; --not (a and i_clock);
+--latch_oeb <= '0'; -- XXX distinct signal
 
 latch_d <= i_data;
 sram_di <= latch_q;
