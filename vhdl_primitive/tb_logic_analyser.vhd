@@ -89,21 +89,22 @@ end process;
 write_proc : process
 constant N : integer := 256;
 begin
--- hold reset state for 100 ns.
 i_reset <= '1';
 wait for i_clock_period;
 i_reset <= '0';
 wait for i_clock_period*10;
 -- insert stimulus here
-ain1 <= '1','0' after i_clock_period*200;
+ain1 <= '1';
+wait for i_clock_period;
 l0 : for i in 0 to N-1 loop
---ain1 <= '1';
 i_data <= std_logic_vector(to_unsigned(i,8));
---wait for i_clock_period;
---ain1 <= '0';
 wait for i_clock_period;
 end loop l0;
+ain1 <= '0';
+wait for i_clock_period;
 ain1 <= '1';
+wait for i_clock_period;
+ain1 <= '0';
 wait for i_clock_period;
 wait;
 end process;
