@@ -43,7 +43,8 @@ PORT(
 i_clock : IN  std_logic;
 i_reset : IN  std_logic;
 i_data : IN  std_logic_vector(7 downto 0);
-o_rs232_tx : OUT  std_logic
+o_rs232_tx : OUT  std_logic;
+oc0,ain1 : IN  std_logic
 );
 END COMPONENT;
 
@@ -51,6 +52,8 @@ END COMPONENT;
 signal i_clock : std_logic := '0';
 signal i_reset : std_logic := '0';
 signal i_data : std_logic_vector(7 downto 0) := (others => '0');
+signal oc0 : std_logic := '0';
+signal ain1 : std_logic := '0';
 
 --Outputs
 signal o_rs232_tx : std_logic;
@@ -65,7 +68,9 @@ uut: logic_analyser PORT MAP (
 i_clock => i_clock,
 i_reset => i_reset,
 i_data => i_data,
-o_rs232_tx => o_rs232_tx
+o_rs232_tx => o_rs232_tx,
+oc0 => oc0,
+ain1 => ain1
 );
 
 -- Clock process definitions
@@ -87,8 +92,12 @@ wait for 100 ns;
 i_reset <= '0';
 wait for i_clock_period*10;
 -- insert stimulus here
+oc0 <= '1','0' after i_clock_period*200;
 l0 : for i in 0 to N-1 loop
+ain1 <= '1';
 i_data <= std_logic_vector(to_unsigned(i,8));
+wait for i_clock_period;
+ain1 <= '0';
 wait for i_clock_period;
 end loop l0;
 wait;

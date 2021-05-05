@@ -40,7 +40,8 @@ Port (
 i_clock : in std_logic;
 i_reset : in std_logic;
 i_data : in std_logic_vector(data_size-1 downto 0);
-o_rs232_tx : out std_logic
+o_rs232_tx : out std_logic;
+oc0,ain1 : in std_logic
 );
 end logic_analyser;
 
@@ -117,26 +118,60 @@ signal rc_oq : std_logic_vector(address_size-1 downto 0);
 signal rs232_clock,rs232_reset,rs232_etx,rs232_tx,rs232_rx,rs232_busy : std_logic;
 signal rs232_b2s : std_logic_vector(8 downto 0);
 
-signal oc0,ain1,wr,rd,a,b : std_logic;
+signal wr,rd,a,b : std_logic;
+--signal oc0,ain1 : std_logic;
+
+type state_type is (idle,start,stop,check_write);
+signal state_c,state_n : state_type;
 
 begin
 
-oc0 <= i_clock;
-ain1 <= i_clock;
-rs232_etx <= i_clock;
-wr <= rc_oq(address_size-1);
+p0 : process (i_clock,i_reset) is
+begin
+	if (i_reset = '1') then
+		state_c <= idle;
+	elsif (rising_edge(i_clock)) then
+		state_c <= state_n;
+	end if;
+end process p0;
+
+p1 : process (state_c) is
+begin
+	case (state_c) is
+		when idle =>
+			state_n <= start;
+			wr <= '0';
+		when start =>
+			state_n <= check_write;
+			wr <= '1';
+		when check_write =>
+			wr <= '0';
+			if (sram_address(address_size-1)='1') then
+				state_n <= stop;
+			else
+				state_n <= start;
+			end if;
+		when stop =>
+			state_n <= stop; --idle;
+	end case;
+end process p1;
+
+--oc0 <= i_clock;
+--ain1 <= i_clock;
+--rs232_etx <= i_clock;
+--wr <= rc_oq(address_size-1);
 a <= oc0 and wr;
 sram_web <= not a;
 latch_le <= a;
-sram_oeb <= not ain1;
+sram_oeb <= rd;
 b <= a and ain1;
 sram_ceb <= '0';
 rc_clock <= b;
 rc_cpb <= '1';
-rc_mrb <= rd;
-rs232_reset <= i_reset;
-latch_oeb <= oc0;
-rd <= '1' when falling_edge(rs232_busy) else '0';
+--rc_mrb <= rd;
+--rs232_reset <= i_reset;
+latch_oeb <= '0';
+--rd <= '1' when falling_edge(rs232_busy) else '0';
 
 latch_d <= i_data;
 sram_di <= latch_q;
@@ -174,7 +209,7 @@ o_q=>rc_oq
 );
 
 rs232_entity : rs232
-Generic map (G_BOARD_CLOCK=>50_000_000,G_BAUD_RATE=>9_600)
+Generic map (G_BOARD_CLOCK=>G_BOARD_CLOCK,G_BAUD_RATE=>G_BAUD_RATE)
 Port map (
 clk=>rs232_clock,
 rst=>rs232_reset,
