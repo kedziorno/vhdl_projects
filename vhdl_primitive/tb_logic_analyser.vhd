@@ -64,6 +64,8 @@ constant i_clock_period : time := 20 ns;
 signal a : std_logic;
 signal b : std_logic;
 
+constant N : integer := 256;
+
 BEGIN
 
 -- Instantiate the Unit Under Test (UUT)
@@ -87,25 +89,23 @@ end process;
 
 -- Stimulus process
 write_proc : process
-constant N : integer := 256;
 begin
 i_reset <= '1';
 wait for 100 ns;
 i_reset <= '0';
-ain1 <= '1';
-wait for i_clock_period;
-ain1 <= '0';
 -- insert stimulus here
 l0 : for i in 0 to N-1 loop
 i_data <= std_logic_vector(to_unsigned(i,8));
 wait for i_clock_period;
 end loop l0;
-ain1 <= '0';
-wait for i_clock_period;
-ain1 <= '1';
-wait for i_clock_period;
-ain1 <= '0';
-wait for i_clock_period;
+wait;
+end process write_proc;
+
+ain1_proc : process
+begin
+--ain1 <= '1','0' after 1*i_clock_period,'1' after (N/2-1)*i_clock_period,'0' after N/2*i_clock_period;
+--ain1 <= '1','0' after 1*i_clock_period,'1' after (N-1)*i_clock_period,'0' after N*i_clock_period;
+ain1 <= '1','0' after 1*i_clock_period;
 wait;
 end process;
 

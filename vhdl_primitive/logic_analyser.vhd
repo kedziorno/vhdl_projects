@@ -199,16 +199,17 @@ end process p0;
 --	end case;
 --end process p1;
 
+-- XXX work only write
 wr <= '0' when sram_address(address_size-1)='1' else '1';
-rc_mrb <= '1' when (i_reset = '1' or ain1 = '1') else '0' when wr='1' else '0';
+rc_mrb <= '1' when (i_reset = '1' or ain1 = '1') else '0';
 rd <= '1' when wr = '0' else '0';
 
-a <= i_clock and wr;
+a <= i_clock and (wr or rd);
 b <= ain1 and a;
 
 sram_ceb <= '0';
 sram_web <= a when wr='1' else '1'; --not (a and i_clock);
-sram_oeb <= not a when rd='1' else '1';--ain1; --not b when rd='1' else '1';
+sram_oeb <= a when rd='1' else '1';--ain1; --not b when rd='1' else '1';
 
 rc_clock <= i_clock;
 rc_cpb <= '1';
