@@ -195,17 +195,17 @@ begin
 	end case;
 end process p1;
 
-a <= oc0 and not wr;
+a <= i_clock and not wr;
 b <= ain1 and a;
 
 sram_ceb <= '0';
-sram_web <= not (a and i_clock);
+sram_web <= a; --not (a and i_clock);
 sram_oeb <= rd;
 
-rc_clock <= b and i_clock;
+rc_clock <= b;-- and i_clock;
 rc_cpb <= '1';
 
-latch_le <= not (a and i_clock);
+latch_le <= a; --not (a and i_clock);
 latch_oeb <= '0'; -- XXX distinct signal
 
 latch_d <= i_data;
