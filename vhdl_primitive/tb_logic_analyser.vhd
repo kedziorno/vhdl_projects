@@ -82,22 +82,25 @@ i_clock <= '1';
 wait for i_clock_period/2;
 end process;
 
+--oc0 <= i_clock;
+
 -- Stimulus process
 stim_proc: process
-constant N : integer := 1000;
+constant N : integer := 256;
 begin
 -- hold reset state for 100 ns.
 i_reset <= '1';
-wait for 100 ns;
+wait for i_clock_period;
 i_reset <= '0';
 wait for i_clock_period*10;
 -- insert stimulus here
 oc0 <= '1','0' after i_clock_period*200;
+ain1 <= '1','0' after i_clock_period*200;
 l0 : for i in 0 to N-1 loop
-ain1 <= '1';
+--ain1 <= '1';
 i_data <= std_logic_vector(to_unsigned(i,8));
-wait for i_clock_period;
-ain1 <= '0';
+--wait for i_clock_period;
+--ain1 <= '0';
 wait for i_clock_period;
 end loop l0;
 wait;

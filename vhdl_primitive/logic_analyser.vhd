@@ -160,18 +160,21 @@ end process p1;
 --ain1 <= i_clock;
 --rs232_etx <= i_clock;
 --wr <= rc_oq(address_size-1);
-a <= oc0 and wr;
-sram_web <= not a;
-latch_le <= a;
-sram_oeb <= rd;
-b <= a and ain1;
-sram_ceb <= '0';
-rc_clock <= b;
-rc_cpb <= '1';
+a <= oc0 and not wr;
+b <= ain1 and a;
 --rc_mrb <= rd;
 --rs232_reset <= i_reset;
-latch_oeb <= '0';
 --rd <= '1' when falling_edge(rs232_busy) else '0';
+
+sram_ceb <= '0';
+sram_web <= not (a and i_clock);
+sram_oeb <= rd;
+
+rc_clock <= b and i_clock;
+rc_cpb <= '1';
+
+latch_le <= not (a and i_clock);
+latch_oeb <= '0'; -- XXX distinct signal
 
 latch_d <= i_data;
 sram_di <= latch_q;
