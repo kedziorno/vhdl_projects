@@ -146,19 +146,19 @@ begin
 		when idle =>
 			if (ain1 = '1') then
 				state_n <= start;
-				wr <= '0';
 				rc_mrb <= '1';
 			else
 				state_n <= idle;
 			end if;
 		when start =>
 			state_n <= check_write;
-			wr <= '1';
+			wr <= '0';
 			rc_mrb <= '0';
 		when check_write =>
-			wr <= '0';
+			wr <= '1';
 			if (sram_address(address_size-1)='1') then
 				state_n <= wait1;
+				wr <= '1';
 			else
 				state_n <= start;
 			end if;
