@@ -40,7 +40,8 @@ Port (
 i_clock : in std_logic;
 i_reset : in std_logic;
 i_data : in std_logic_vector(data_size-1 downto 0);
-o_rs232_tx : out std_logic
+o_rs232_tx : out std_logic;
+oc0,ain1 : in std_logic
 );
 end logic_analyser;
 
@@ -117,26 +118,104 @@ signal rc_oq : std_logic_vector(address_size-1 downto 0);
 signal rs232_clock,rs232_reset,rs232_etx,rs232_tx,rs232_rx,rs232_busy : std_logic;
 signal rs232_b2s : std_logic_vector(8 downto 0);
 
-signal oc0,ain1,wr,rd,a,b : std_logic;
+signal wr,rd,a,b : std_logic;
+--signal oc0,ain1 : std_logic;
+
+type state_type is (
+idle,start,stop,check_write,wait1,wait0,wait0_increment,
+read0,read_check
+);
+signal state_c,state_n : state_type;
 
 begin
 
-oc0 <= i_clock;
-ain1 <= i_clock;
-rs232_etx <= i_clock;
-wr <= rc_oq(address_size-1);
-a <= oc0 and wr;
-sram_web <= not a;
-latch_le <= a;
-sram_oeb <= not ain1;
-b <= a and ain1;
+p0 : process (i_clock,i_reset) is
+begin
+	if (i_reset = '1') then
+		state_c <= idle;
+	elsif (rising_edge(i_clock)) then
+		state_c <= state_n;
+	end if;
+end process p0;
+
+--p1 : process (state_c,oc0,ain1) is
+--constant C_W0 : integer := 10;
+--variable w0 : integer range 0 to C_W0-1 := 0;
+--begin
+--	case (state_c) is
+--		when idle =>
+--			rd <= '0';
+--			wr <= '0';
+--			if (ain1 = '1') then
+--				state_n <= start;
+--				rc_mrb <= '1';
+--			else
+--				state_n <= idle;
+--			end if;
+--		when start =>
+--			state_n <= check_write;
+--			wr <= '0';
+--			rc_mrb <= '0';
+--			latch_oeb <= '0';
+--		when check_write =>
+--			wr <= '1';
+--			if (sram_address(address_size-1)='1') then
+--				state_n <= wait1;
+--				wr <= '1';
+--			else
+--				state_n <= start;
+--			end if;
+--		when wait1 =>
+--			if (oc0 = '1') then
+--				state_n <= wait1;
+--			elsif (oc0 = '0') then
+--				state_n <= wait0;
+--				w0 := 0;
+--			end if;
+--		when wait0 =>
+--			latch_oeb <= '1';
+--			if (w0 = C_W0-1) then
+--				state_n <= read_check;
+--			else
+--				state_n <= wait0_increment;
+--			end if;
+--		when wait0_increment =>
+--			state_n <= wait0;
+--			w0 := w0 + 1;
+--		when read_check =>
+--			rc_mrb <= '1';
+--			if (ain1 = '1') then
+--				state_n <= read0;
+--			else
+--				state_n <= read_check;
+--			end if;
+--		when read0 =>
+--			state_n <= stop;
+--			rc_mrb <= '0';
+--			wr <= '0';
+--			rd <= '1';
+--		when stop =>
+--			state_n <= stop;
+--	end case;
+--end process p1;
+
+-- XXX work only write
+wr <= '0' when sram_address(address_size-1)='1' else '1';
+rc_mrb <= '1' when (i_reset = '1' or ain1 = '1') else '0';
+rd <= '1' when wr = '0' else '0';
+
+a <= i_clock and (wr or rd);
+b <= ain1 and a;
+
 sram_ceb <= '0';
-rc_clock <= b;
+sram_web <= a when wr='1' else '1'; --not (a and i_clock);
+sram_oeb <= a when rd='1' else '1';--ain1; --not b when rd='1' else '1';
+
+rc_clock <= i_clock;
 rc_cpb <= '1';
-rc_mrb <= rd;
-rs232_reset <= i_reset;
-latch_oeb <= oc0;
-rd <= '1' when falling_edge(rs232_busy) else '0';
+
+latch_le <= a when wr='1' else '0'; --not (a and i_clock);
+latch_oeb <= not a when wr='1' else '1'; -- XXX distinct signal
 
 latch_d <= i_data;
 sram_di <= latch_q;
@@ -174,7 +253,7 @@ o_q=>rc_oq
 );
 
 rs232_entity : rs232
-Generic map (G_BOARD_CLOCK=>50_000_000,G_BAUD_RATE=>9_600)
+Generic map (G_BOARD_CLOCK=>G_BOARD_CLOCK,G_BAUD_RATE=>G_BAUD_RATE)
 Port map (
 clk=>rs232_clock,
 rst=>rs232_reset,
