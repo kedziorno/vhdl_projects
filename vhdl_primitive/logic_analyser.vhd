@@ -138,79 +138,83 @@ begin
 	end if;
 end process p0;
 
-p1 : process (state_c,oc0,ain1) is
-constant C_W0 : integer := 10;
-variable w0 : integer range 0 to C_W0-1 := 0;
-begin
-	case (state_c) is
-		when idle =>
-			rd <= '0';
-			wr <= '0';
-			if (ain1 = '1') then
-				state_n <= start;
-				rc_mrb <= '1';
-			else
-				state_n <= idle;
-			end if;
-		when start =>
-			state_n <= check_write;
-			wr <= '0';
-			rc_mrb <= '0';
-			latch_oeb <= '0';
-		when check_write =>
-			wr <= '1';
-			if (sram_address(address_size-1)='1') then
-				state_n <= wait1;
-				wr <= '1';
-			else
-				state_n <= start;
-			end if;
-		when wait1 =>
-			if (oc0 = '1') then
-				state_n <= wait1;
-			elsif (oc0 = '0') then
-				state_n <= wait0;
-				w0 := 0;
-			end if;
-		when wait0 =>
-			latch_oeb <= '1';
-			if (w0 = C_W0-1) then
-				state_n <= read_check;
-			else
-				state_n <= wait0_increment;
-			end if;
-		when wait0_increment =>
-			state_n <= wait0;
-			w0 := w0 + 1;
-		when read_check =>
-			rc_mrb <= '1';
-			if (ain1 = '1') then
-				state_n <= read0;
-			else
-				state_n <= read_check;
-			end if;
-		when read0 =>
-			state_n <= stop;
-			rc_mrb <= '0';
-			wr <= '0';
-			rd <= '1';
-		when stop =>
-			state_n <= stop;
-	end case;
-end process p1;
+--p1 : process (state_c,oc0,ain1) is
+--constant C_W0 : integer := 10;
+--variable w0 : integer range 0 to C_W0-1 := 0;
+--begin
+--	case (state_c) is
+--		when idle =>
+--			rd <= '0';
+--			wr <= '0';
+--			if (ain1 = '1') then
+--				state_n <= start;
+--				rc_mrb <= '1';
+--			else
+--				state_n <= idle;
+--			end if;
+--		when start =>
+--			state_n <= check_write;
+--			wr <= '0';
+--			rc_mrb <= '0';
+--			latch_oeb <= '0';
+--		when check_write =>
+--			wr <= '1';
+--			if (sram_address(address_size-1)='1') then
+--				state_n <= wait1;
+--				wr <= '1';
+--			else
+--				state_n <= start;
+--			end if;
+--		when wait1 =>
+--			if (oc0 = '1') then
+--				state_n <= wait1;
+--			elsif (oc0 = '0') then
+--				state_n <= wait0;
+--				w0 := 0;
+--			end if;
+--		when wait0 =>
+--			latch_oeb <= '1';
+--			if (w0 = C_W0-1) then
+--				state_n <= read_check;
+--			else
+--				state_n <= wait0_increment;
+--			end if;
+--		when wait0_increment =>
+--			state_n <= wait0;
+--			w0 := w0 + 1;
+--		when read_check =>
+--			rc_mrb <= '1';
+--			if (ain1 = '1') then
+--				state_n <= read0;
+--			else
+--				state_n <= read_check;
+--			end if;
+--		when read0 =>
+--			state_n <= stop;
+--			rc_mrb <= '0';
+--			wr <= '0';
+--			rd <= '1';
+--		when stop =>
+--			state_n <= stop;
+--	end case;
+--end process p1;
 
-a <= i_clock and (not wr or not rd);
+wr <= '0' when sram_address(address_size-1)='1' else '1';
+rc_mrb <= '1' when (i_reset = '1' or ain1 = '1') else '0' when wr='1' else '0';
+rd <= '1' when wr = '0' else '0';
+
+a <= i_clock and wr;
 b <= ain1 and a;
 
 sram_ceb <= '0';
-sram_web <= a when rd='0' else '1'; --not (a and i_clock);
-sram_oeb <= not b when rd='1' else '1';
+sram_web <= a when wr='1' else '1'; --not (a and i_clock);
+sram_oeb <= not a when rd='1' else '1';--ain1; --not b when rd='1' else '1';
 
-rc_clock <= b;-- and i_clock;
+rc_clock <= i_clock;
 rc_cpb <= '1';
 
-latch_le <= a when rd='0' else '0'; --not (a and i_clock);
---latch_oeb <= '0'; -- XXX distinct signal
+latch_le <= a when wr='1' else '0'; --not (a and i_clock);
+latch_oeb <= not a when wr='1' else '1'; -- XXX distinct signal
 
 latch_d <= i_data;
 sram_di <= latch_q;

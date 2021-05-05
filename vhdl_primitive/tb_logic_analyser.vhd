@@ -90,12 +90,12 @@ write_proc : process
 constant N : integer := 256;
 begin
 i_reset <= '1';
-wait for i_clock_period;
+wait for 100 ns;
 i_reset <= '0';
-wait for i_clock_period*10;
--- insert stimulus here
 ain1 <= '1';
 wait for i_clock_period;
+ain1 <= '0';
+-- insert stimulus here
 l0 : for i in 0 to N-1 loop
 i_data <= std_logic_vector(to_unsigned(i,8));
 wait for i_clock_period;
