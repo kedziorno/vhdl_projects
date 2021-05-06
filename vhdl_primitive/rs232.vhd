@@ -170,7 +170,6 @@ begin
 				when idle =>
 					if (enable_tx = '1') then
 						tx_state <= start;
-						is_byte_sended <= '0';
 					end if;
 				when start =>
 					tx_state <= wstart;
@@ -295,7 +294,6 @@ begin
 						tx_state <= idle;
 						parity_tx <= p_tx;
 						t_w <= (others => '0');
-						is_byte_sended <= '1';
 					else
 						tx_state <= wstop;
 						t_w <= std_logic_vector(to_unsigned(to_integer(unsigned(t_w)) + 1,32));
@@ -304,5 +302,7 @@ begin
 			end case;
 		end if;
 	end process p1;
+
+	is_byte_sended <= '1' when (tx_state = stop and clk = '0') else '0';
 
 end Behavioral;
