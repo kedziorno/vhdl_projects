@@ -102,6 +102,7 @@ parity_rx : out  STD_LOGIC;
 busy : out  STD_LOGIC;
 ready : out  STD_LOGIC;
 is_byte_received : out STD_LOGIC;
+is_byte_sended : out STD_LOGIC;
 RsTx : out  STD_LOGIC;
 RsRx : in  STD_LOGIC
 );
@@ -114,7 +115,7 @@ signal sram_address : std_logic_vector(address_size-1 downto 0);
 signal sram_di,sram_do : std_logic_vector(data_size-1 downto 0);
 signal rc_clock,rc_cpb,rc_mrb : std_logic;
 signal rc_oq : std_logic_vector(address_size-1 downto 0);
-signal rs232_clock,rs232_reset,rs232_etx,rs232_tx,rs232_rx,rs232_busy,rs232_ready : std_logic;
+signal rs232_clock,rs232_reset,rs232_etx,rs232_tx,rs232_rx,rs232_busy,rs232_ready,rs232_byte_sended : std_logic;
 signal rs232_b2s : std_logic_vector(8 downto 0);
 
 signal wr,rd,a,b : std_logic;
@@ -122,7 +123,7 @@ signal wr,rd,a,b : std_logic;
 type state_type is (
 idle,start,stop,check_write,wait0,wait0_increment,
 read0,
-st_enable_tx,st_rs232_ready,st_rs232_send,st_rs232_waiting,st_disable_tx
+st_enable_tx,st_rs232_waiting,st_disable_tx
 );
 signal state_c,state_n : state_type;
 
@@ -140,12 +141,12 @@ end process p0;
 latch_le <= '1' when (i_clock = '1' and wr = '1') else '0';
 latch_oeb <= '0' when (i_clock = '0' and wr = '1') else '1';
 sram_web <= '0' when latch_le = '1' else '1';
-sram_oeb <= i_clock when rd = '1' and (rs232_busy = '0' or rs232_ready = '1') else '1';
-rc_clock <= i_clock when rc_cpb = '1' and (wr = '1' or rd = '1') and (rs232_busy = '0' or rs232_ready = '1') else '0';
+sram_oeb <= i_clock when rd = '1' and rs232_etx = '1' and rs232_byte_sended = '1' else '1';
+rc_clock <= i_clock when wr = '1' or (rd = '1' and rs232_etx = '1' and rs232_byte_sended = '1') else '0';
 rc_mrb <= '1' when i_reset = '1' else '0';
 sram_ceb <= '0';
 
-p1 : process (state_c) is
+p1 : process (state_c,rs232_etx,rs232_byte_sended) is
 constant C_W0 : integer := 10;
 variable w0 : integer range 0 to C_W0-1 := 0;
 begin
@@ -181,25 +182,13 @@ begin
 			wr <= '0';
 			rd <= '1';
 		when st_enable_tx =>
-			state_n <= st_rs232_ready;
+			state_n <= st_rs232_waiting;
 			rs232_etx <= '1';
-		when st_rs232_ready =>
---			if (rs232_ready = '1') then
-				state_n <= st_rs232_send;
---			else
---				state_n <= st_rs232_ready;
---			end if;
-		when st_rs232_send =>
---			if (rs232_ready = '0') then
-				state_n <= st_rs232_waiting;
---			else
---				state_n <= st_rs232_send;
---			end if;
 		when st_rs232_waiting =>
-			if (rs232_busy = '1' or rs232_ready = '0') then
-				state_n <= st_rs232_waiting;
-			else
+			if (rs232_byte_sended = '1') then
 				state_n <= st_disable_tx;
+			else
+				state_n <= st_rs232_waiting;
 			end if;
 		when st_disable_tx =>
 			state_n <= read0;
@@ -258,6 +247,7 @@ parity_rx=>open,
 busy=>rs232_busy,
 ready=>rs232_ready,
 is_byte_received=>open,
+is_byte_sended=>rs232_byte_sended,
 RsTx=>rs232_tx,
 RsRx=>rs232_rx
 );
