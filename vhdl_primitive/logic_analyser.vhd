@@ -22,7 +22,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
@@ -38,10 +38,9 @@ data_size : integer := 8
 );
 Port (
 i_clock : in std_logic;
-i_reset : in std_logic;
+i_reset : in std_logic; -- XXX use for catch data
 i_data : in std_logic_vector(data_size-1 downto 0);
-o_rs232_tx : out std_logic;
-oc0,ain1 : in std_logic
+o_rs232_tx : out std_logic
 );
 end logic_analyser;
 
@@ -115,15 +114,15 @@ signal sram_address : std_logic_vector(address_size-1 downto 0);
 signal sram_di,sram_do : std_logic_vector(data_size-1 downto 0);
 signal rc_clock,rc_cpb,rc_mrb : std_logic;
 signal rc_oq : std_logic_vector(address_size-1 downto 0);
-signal rs232_clock,rs232_reset,rs232_etx,rs232_tx,rs232_rx,rs232_busy : std_logic;
+signal rs232_clock,rs232_reset,rs232_etx,rs232_tx,rs232_rx,rs232_busy,rs232_ready : std_logic;
 signal rs232_b2s : std_logic_vector(8 downto 0);
 
 signal wr,rd,a,b : std_logic;
---signal oc0,ain1 : std_logic;
 
 type state_type is (
-idle,start,stop,check_write,wait1,wait0,wait0_increment,
-read0,read_check
+idle,start,stop,check_write,wait0,wait0_increment,
+read0,
+st_enable_tx,st_rs232_ready,st_rs232_send,st_rs232_waiting,st_disable_tx
 );
 signal state_c,state_n : state_type;
 
@@ -138,84 +137,77 @@ begin
 	end if;
 end process p0;
 
---p1 : process (state_c,oc0,ain1) is
---constant C_W0 : integer := 10;
---variable w0 : integer range 0 to C_W0-1 := 0;
---begin
---	case (state_c) is
---		when idle =>
---			rd <= '0';
---			wr <= '0';
---			if (ain1 = '1') then
---				state_n <= start;
---				rc_mrb <= '1';
---			else
---				state_n <= idle;
---			end if;
---		when start =>
---			state_n <= check_write;
---			wr <= '0';
---			rc_mrb <= '0';
---			latch_oeb <= '0';
---		when check_write =>
---			wr <= '1';
---			if (sram_address(address_size-1)='1') then
---				state_n <= wait1;
---				wr <= '1';
---			else
---				state_n <= start;
---			end if;
---		when wait1 =>
---			if (oc0 = '1') then
---				state_n <= wait1;
---			elsif (oc0 = '0') then
---				state_n <= wait0;
---				w0 := 0;
---			end if;
---		when wait0 =>
---			latch_oeb <= '1';
---			if (w0 = C_W0-1) then
---				state_n <= read_check;
---			else
---				state_n <= wait0_increment;
---			end if;
---		when wait0_increment =>
---			state_n <= wait0;
---			w0 := w0 + 1;
---		when read_check =>
---			rc_mrb <= '1';
---			if (ain1 = '1') then
---				state_n <= read0;
---			else
---				state_n <= read_check;
---			end if;
---		when read0 =>
---			state_n <= stop;
---			rc_mrb <= '0';
---			wr <= '0';
---			rd <= '1';
---		when stop =>
---			state_n <= stop;
---	end case;
---end process p1;
-
--- XXX work only write
-wr <= '0' when sram_address(address_size-1)='1' else '1';
-rc_mrb <= '1' when (i_reset = '1' or ain1 = '1') else '0';
-rd <= '1' when wr = '0' else '0';
-
-a <= i_clock and (wr or rd);
-b <= ain1 and a;
-
+latch_le <= '1' when (i_clock = '1' and wr = '1') else '0';
+latch_oeb <= '0' when (i_clock = '0' and wr = '1') else '1';
+sram_web <= '0' when latch_le = '1' else '1';
+sram_oeb <= i_clock when rd = '1' and (rs232_busy = '0' or rs232_ready = '1') else '1';
+rc_clock <= i_clock when rc_cpb = '1' and (wr = '1' or rd = '1') and (rs232_busy = '0' or rs232_ready = '1') else '0';
+rc_mrb <= '1' when i_reset = '1' else '0';
 sram_ceb <= '0';
-sram_web <= a when wr='1' else '1'; --not (a and i_clock);
-sram_oeb <= a when rd='1' else '1';--ain1; --not b when rd='1' else '1';
 
-rc_clock <= i_clock;
-rc_cpb <= '1';
-
-latch_le <= a when wr='1' else '0'; --not (a and i_clock);
-latch_oeb <= not a when wr='1' else '1'; -- XXX distinct signal
+p1 : process (state_c) is
+constant C_W0 : integer := 10;
+variable w0 : integer range 0 to C_W0-1 := 0;
+begin
+	case (state_c) is
+		when idle =>
+			state_n <= start;
+			rd <= '0';
+			wr <= '0';
+			rc_cpb <= '0';
+			rs232_etx <= '0';
+		when start =>
+			state_n <= check_write;
+			wr <= '1';
+			rc_cpb <= '1';
+		when check_write =>
+			if (to_integer(unsigned(sram_address)) = (2**address_size)-1) then
+				state_n <= wait0;
+				wr <= '0';
+			else
+				state_n <= start;
+			end if;
+		when wait0 =>
+			if (w0 = C_W0-1) then
+				state_n <= read0;
+			else
+				state_n <= wait0_increment;
+			end if;
+		when wait0_increment =>
+			state_n <= wait0;
+			w0 := w0 + 1;
+		when read0 =>
+			state_n <= st_enable_tx;
+			wr <= '0';
+			rd <= '1';
+		when st_enable_tx =>
+			state_n <= st_rs232_ready;
+			rs232_etx <= '1';
+		when st_rs232_ready =>
+--			if (rs232_ready = '1') then
+				state_n <= st_rs232_send;
+--			else
+--				state_n <= st_rs232_ready;
+--			end if;
+		when st_rs232_send =>
+--			if (rs232_ready = '0') then
+				state_n <= st_rs232_waiting;
+--			else
+--				state_n <= st_rs232_send;
+--			end if;
+		when st_rs232_waiting =>
+			if (rs232_busy = '1' or rs232_ready = '0') then
+				state_n <= st_rs232_waiting;
+			else
+				state_n <= st_disable_tx;
+			end if;
+		when st_disable_tx =>
+			state_n <= read0;
+			rs232_etx <= '0';
+		when stop =>
+			state_n <= stop;
+	end case;
+end process p1;
 
 latch_d <= i_data;
 sram_di <= latch_q;
@@ -255,8 +247,8 @@ o_q=>rc_oq
 rs232_entity : rs232
 Generic map (G_BOARD_CLOCK=>G_BOARD_CLOCK,G_BAUD_RATE=>G_BAUD_RATE)
 Port map (
-clk=>rs232_clock,
-rst=>rs232_reset,
+clk=>i_clock,
+rst=>i_reset,
 enable_tx=>rs232_etx,
 enable_rx=>'0',
 byte_to_send=>rs232_b2s,
@@ -264,7 +256,7 @@ byte_received=>open,
 parity_tx=>open,
 parity_rx=>open,
 busy=>rs232_busy,
-ready=>open,
+ready=>rs232_ready,
 is_byte_received=>open,
 RsTx=>rs232_tx,
 RsRx=>rs232_rx
