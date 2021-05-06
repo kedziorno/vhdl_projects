@@ -46,6 +46,7 @@ Port(
 	busy : out  STD_LOGIC;
 	ready : out  STD_LOGIC;
 	is_byte_received : out STD_LOGIC;
+	is_byte_sended : out STD_LOGIC;
 	RsTx : out  STD_LOGIC;
 	RsRx : in  STD_LOGIC
 );
@@ -159,7 +160,7 @@ begin
 	p1 : process (clk,rst) is -- tx mode
 	begin
 		if (rst = '1') then
-			tx_state <= start;
+			tx_state <= idle;
 			busy <= '0';
 			ready <= '1';
 			RsTx <= '0';
@@ -301,5 +302,7 @@ begin
 			end case;
 		end if;
 	end process p1;
+
+	is_byte_sended <= '1' when (tx_state = stop and clk = '0') else '0';
 
 end Behavioral;

@@ -43,8 +43,7 @@ PORT(
 i_clock : IN  std_logic;
 i_reset : IN  std_logic;
 i_data : IN  std_logic_vector(7 downto 0);
-o_rs232_tx : OUT  std_logic;
-oc0,ain1 : IN  std_logic
+o_rs232_tx : OUT  std_logic
 );
 END COMPONENT;
 
@@ -52,17 +51,12 @@ END COMPONENT;
 signal i_clock : std_logic := '0';
 signal i_reset : std_logic := '0';
 signal i_data : std_logic_vector(7 downto 0) := (others => '0');
-signal oc0 : std_logic := '0';
-signal ain1 : std_logic := '0';
 
 --Outputs
 signal o_rs232_tx : std_logic;
 
 -- Clock period definitions
 constant i_clock_period : time := 20 ns;
-
-signal a : std_logic;
-signal b : std_logic;
 
 constant N : integer := 256;
 
@@ -73,9 +67,7 @@ uut: logic_analyser PORT MAP (
 i_clock => i_clock,
 i_reset => i_reset,
 i_data => i_data,
-o_rs232_tx => o_rs232_tx,
-oc0 => oc0,
-ain1 => ain1
+o_rs232_tx => o_rs232_tx
 );
 
 -- Clock process definitions
@@ -100,13 +92,5 @@ wait for i_clock_period;
 end loop l0;
 wait;
 end process write_proc;
-
-ain1_proc : process
-begin
---ain1 <= '1','0' after 1*i_clock_period,'1' after (N/2-1)*i_clock_period,'0' after N/2*i_clock_period;
---ain1 <= '1','0' after 1*i_clock_period,'1' after (N-1)*i_clock_period,'0' after N*i_clock_period;
-ain1 <= '1','0' after 1*i_clock_period;
-wait;
-end process;
 
 END;
