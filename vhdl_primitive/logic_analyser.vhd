@@ -139,12 +139,13 @@ begin
 end process p0;
 
 latch_le <= '1' when (i_clock = '1' and wr = '1') else '0';
-latch_oeb <= '0' when (i_clock = '0' and wr = '1') else '1';
+--latch_oeb <= '0' when (i_clock = '0' and wr = '1') else '0';
+latch_oeb <= '1' when rd = '1' else '0'; -- XXX todo
 sram_web <= '0' when latch_le = '1' else '1';
-sram_oeb <= '0' when rd = '1' and rs232_etx = '1' and rs232_byte_sended = '1' else '1';
+sram_oeb <= '0' when rd = '1' and state_c = st_disable_tx else '1';
 rc_clock <= not i_clock when wr = '1' or (rd = '1' and rs232_etx = '1' and rs232_byte_sended = '1') else '0';
 rc_mrb <= '1' when i_reset = '1' else '0';
-sram_ceb <= '0';
+sram_ceb <= '0' when rc_clock = '1' or rs232_etx = '0' else '1';
 
 p1 : process (state_c,rs232_etx,rs232_byte_sended) is
 constant C_W0 : integer := 10;
