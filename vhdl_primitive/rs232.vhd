@@ -46,6 +46,7 @@ Port(
 	busy : out  STD_LOGIC;
 	ready : out  STD_LOGIC;
 	is_byte_received : out STD_LOGIC;
+	is_byte_sended : out STD_LOGIC;
 	RsTx : out  STD_LOGIC;
 	RsRx : in  STD_LOGIC
 );
@@ -169,6 +170,7 @@ begin
 				when idle =>
 					if (enable_tx = '1') then
 						tx_state <= start;
+						is_byte_sended <= '0';
 					end if;
 				when start =>
 					tx_state <= wstart;
@@ -293,6 +295,7 @@ begin
 						tx_state <= idle;
 						parity_tx <= p_tx;
 						t_w <= (others => '0');
+						is_byte_sended <= '1';
 					else
 						tx_state <= wstop;
 						t_w <= std_logic_vector(to_unsigned(to_integer(unsigned(t_w)) + 1,32));
