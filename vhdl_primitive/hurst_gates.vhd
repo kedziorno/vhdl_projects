@@ -38,11 +38,11 @@ end hurst_gates;
 
 architecture Behavioral of hurst_gates is
 begin
-	y1 <= (a xnor b) and ((not a) or c);
-	y2 <= ((b xor c) and (not a)) or (a and b and c);
-	y3 <= (b xnor c) and a;
-	y4 <= (a xnor b) and (b xnor c);
+	y1 <= ((not a) and (not b)) or (a and b and c); --(a xnor b) and ((not a) or c);
+	y2 <= (a and b and c) or ((not a) or (not b) or c) or ((not a) or b or (not c)); --((b xor c) and (not a)) or (a and b and c);
+	y3 <= a and ((b and c) or ((not b) or (not c))); --(b xnor c) and a;
+	y4 <= (a and b and c) or (a and (not b) and (not c)); --(a xnor b) and (b xnor c);
 	y5 <= (a and b) or ((not a) and (not c));
-	y6 <= (a and b) xnor c;
+	y6 <= (a and b and c) or ((not a) and (not c)) or ((not b) and (not c)); --(a and b) xnor c;
 end Behavioral;
 
