@@ -86,36 +86,41 @@ y6 => y6
 stim_proc: process
 	constant N : integer := 4;
 	type input_array is array(0 to N-1) of std_logic_vector(1 downto 0);
-	variable input : input_array := ("00","01","10","11");
+	variable input : input_array := ("01","01","10","11");
 	constant M : integer := 16;
-	type f_array is array(0 to M-1) of std_logic_vector(2 downto 0);
-	variable f : f_array := (
-		('1','0',input(0)(1)),
-		('0','0',input(0)(1)),
-		(not input(0)(0),'0',input(0)(1)),
-		(input(0)(0),'0',input(0)(1)),
-		(not input(0)(1),'0',input(0)(1)),
-		(input(0)(1),'0',input(0)(1)),
-		(input(0)(0),'1',input(0)(1)),
-		(input(0)(0),'1',not input(0)(1)),
-		(not input(0)(0),'1',not input(0)(1)),
-		(not input(0)(0),'1',not input(0)(1)),
-		(not input(0)(0),not input(0)(0),input(0)(1)),
-		(not input(0)(0),not input(0)(0),not input(0)(1)),
-		(input(0)(0),input(0)(0),input(0)(1)),
-		(input(0)(0),input(0)(0),not input(0)(1)),
-		(not input(0)(0),input(0)(1),input(0)(1)),
-		(input(0)(0),input(0)(1),input(0)(1))
+	type fy1_record is record
+		ip : std_logic_vector(2 downto 0);
+		op : std_logic;
+	end record fy1_record;
+	type fy1_array is array(0 to M-1) of fy1_record;
+	variable fy1 : fy1_array := ( -- a b c
+		(('1',               '0',               input(0)(1)),     input(0)(0)), -- 1 0 x2
+		(('0',               '0',               input(0)(1)),     input(0)(1)), -- 0 0 x2
+		((not input(0)(0),   '0',               input(0)(1)),     input(0)(0)), -- x1b 0 x2
+		((input(0)(0),       '0',               input(0)(1)),     not input(0)(0)), -- x1 0 x2
+		((not input(0)(1),   '0',               input(0)(1)),     input(0)(1)), -- x2b 0 x2
+		((input(0)(1),       '0',               input(0)(1)),     not input(0)(1)), -- x2 0 x2
+		((input(0)(0),       '1',               input(0)(1)),     input(0)(0) and input(0)(1)), -- x1 1 x2
+		((input(0)(0),       '1',               not input(0)(1)), input(0)(0) and not input(0)(1)), -- x1 1 x2b
+		((not input(0)(0),   '1',               not input(0)(1)), not input(0)(0) and input(0)(1)), -- x1b 1 x2b
+		((not input(0)(0),   '1',               not input(0)(1)), not input(0)(0) and not input(0)(1)), -- x1b 1 x2b
+		((not input(0)(0),   not input(0)(0),   input(0)(1)),     input(0)(0) or input(0)(1)), -- x1b x1b x2
+		((not input(0)(0),   not input(0)(0),   not input(0)(1)), input(0)(0) or not input(0)(1)), -- x1b x1b x2b
+		((input(0)(0),       input(0)(0),       input(0)(1)),     not input(0)(0) or input(0)(1)), -- x1 x1 x2
+		((input(0)(0),       input(0)(0),       not input(0)(1)), not input(0)(0) or not input(0)(1)), -- x1 x1 x2b
+		((not input(0)(0),   input(0)(1),       input(0)(1)),     input(0)(0) xor input(0)(1)), -- x1b x2 x2
+		((input(0)(0),       input(0)(1),       input(0)(1)),     input(0)(0) xnor input(0)(1)) -- x1 x2 x2
 	);
 begin
+	wait for clock_period;
 	-- insert stimulus here
-	l0 : for i in f'range loop
-		a <= f(i)(0);
-		b <= f(i)(1);
-		c <= f(i)(2);
-		assert (y1=(input(0)(0) xnor input(0)(1)))
+	l0 : for i in fy1'range loop
+		a <= fy1(i).ip(0);
+		b <= fy1(i).ip(1);
+		c <= fy1(i).ip(2);
+		assert (y1=fy1(i).op)
 			report
-			"fail"
+			"fail on i="&integer'image(i)&",y="&std_logic'image(y1)&" expected "&std_logic'image(fy1(i).op)
 			severity warning;
 		wait for clock_period;
 	end loop l0;	
