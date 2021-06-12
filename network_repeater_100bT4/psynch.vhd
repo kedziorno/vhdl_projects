@@ -40,9 +40,9 @@ end psynch;
 architecture archpsynch of psynch is
 	signal temp : std_logic;
 begin
-	p1 : process (preset,clk) is
+	p1 : process (reset,clk) is
 	begin
-		if (preset = '1') then
+		if (reset = '1') then
 			q <= '1';
 		elsif (rising_edge(clk)) then
 			temp <= d;

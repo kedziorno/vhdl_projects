@@ -32,7 +32,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity reg is
 generic (size : integer := 2);
 port (
-	clk,reset : in std_logic;
+	clk,load: in std_logic;
 	rst,pst : in std_logic;
 	d : in std_logic_vector(size-1 downto 0);
 	q : inout std_logic_vector(size-1 downto 0)

@@ -22,7 +22,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
@@ -37,7 +37,7 @@ port (
 );
 end ascount;
 
-use work.std_math.all;
+--use work.std_math.all;
 
 architecture archascount of ascount is
 begin
@@ -49,7 +49,7 @@ begin
 			if (sreset = '1') then
 				count <= (others => '0');
 			elsif (enable = '1') then
-				count <= count + 1;
+				count <= std_logic_vector(to_unsigned(to_integer(unsigned(count)) + 1,CounterSize));
 			else
 				count <= count;
 			end if;

@@ -2,9 +2,9 @@
 -- Company: 
 -- Engineer: 
 -- 
--- Create Date:    12:57:56 06/12/2021 
+-- Create Date:    19:31:03 06/12/2021 
 -- Design Name: 
--- Module Name:    rsynch - Behavioral 
+-- Module Name:    clockmux8 - Behavioral 
 -- Project Name: 
 -- Target Devices: 
 -- Tool versions: 
@@ -29,24 +29,36 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity rsynch is
+entity clockmux8 is
 port (
-	clk,reset : in std_logic;
-	d : in std_logic;
-	q : out std_logic
+	areset : in std_logic;
+	sreset : in std_logic;
+	clk1 : in std_logic;
+	clk2 : in std_logic;
+	clk3 : in std_logic;
+	clk4 : in std_logic;
+	clk5 : in std_logic;
+	clk6 : in std_logic;
+	clk7 : in std_logic;
+	clk8 : in std_logic;
+	clk9 : in std_logic;
+	sel1 : in std_logic;
+	sel2 : in std_logic;
+	sel3 : in std_logic;
+	sel4 : in std_logic;
+	sel5 : in std_logic;
+	sel6 : in std_logic;
+	sel7 : in std_logic;
+	sel8 : in std_logic;
+	sel9 : in std_logic;
+	rxclk : out std_logic
 );
-end rsynch;
+end clockmux8;
 
-architecture archrsynch of rsynch is
-	signal temp : std_logic;
+architecture Behavioral of clockmux8 is
+
 begin
-	p1 : process (reset,clk) is
-	begin
-		if (reset = '1') then
-			q <= '0';
-		elsif (rising_edge(clk)) then
-			temp <= d;
-			q <= temp;
-		end if;
-	end process p1;
-end archrsynch;
+
+
+end Behavioral;
+
