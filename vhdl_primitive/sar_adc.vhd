@@ -22,7 +22,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
@@ -31,6 +31,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity sar_adc is
 Generic (
+G_BOARD_CLOCK : integer := 50_000_000;
 data_size : integer := 8
 );
 Port (
@@ -68,17 +69,35 @@ end component succesive_approximation_register;
 
 signal data2 : std_logic_vector(data_size-1 downto 0);
 signal andgate : std_logic;
+signal divclock : std_logic;
+constant count_max : integer := G_BOARD_CLOCK/100;
 
 begin
+
+p0 : process (i_clock,i_reset) is --XXX use FF
+	variable count : integer range 0 to count_max-1 := 0;
+begin
+	if (i_reset = '1') then
+		count := 0;
+	elsif (rising_edge(i_clock)) then
+		if (count = count_max-1) then
+			count := 0;
+			divclock <= '1';
+		else
+			count := count + 1;
+			divclock <= '0';
+		end if;
+	end if;
+end process p0;
 
 o_data <= data2;
 andgate <= i_clock and i_from_comparator;
 
 dac_entity : dac_delta_sigma
-Port map (clk=>i_clock,data=>data2,PulseStream=>o_to_pluscomparator);
+Port map (clk=>divclock,data=>data2,PulseStream=>o_to_pluscomparator);
 
 sar_entity : succesive_approximation_register
 Generic map (n => data_size)
-Port map (i_clock=>i_clock,i_reset=>not i_reset,i_select=>andgate,o_q=>data2,o_end=>o_sar_end);
+Port map (i_clock=>divclock,i_reset=>not andgate,i_select=>not andgate,o_q=>data2,o_end=>o_sar_end);
 
 end Behavioral;

@@ -91,7 +91,23 @@ i_reset <= '1';
 wait for 100 ns;
 i_reset <= '0';
 wait for i_clock_period*10;
--- insert stimulus here
+i_from_comparator <= '1';
+wait for i_clock_period;
+i_from_comparator <= '0';
+wait for i_clock_period;
+i_from_comparator <= '1';
+wait for i_clock_period;
+i_from_comparator <= '0';
+wait for i_clock_period;
+i_from_comparator <= '1';
+wait for i_clock_period;
+i_from_comparator <= '0';
+wait for i_clock_period;
+i_from_comparator <= '1';
+wait for i_clock_period;
+i_from_comparator <= '0';
+wait for i_clock_period;
+--o_sar_end <= '1';
 wait;
 end process;
 
