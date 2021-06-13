@@ -56,10 +56,9 @@ begin
 		elsif (rising_edge(i_clock)) then
 			if (i_enable = '1') then
 				if (clock_counter = C_CLOCK_COUNTER/2 - 1) then
-					clock_divider <= '1';
+					clock_divider <= not clock_divider;
 					clock_counter := 0;
 				else
-					clock_divider <= '0';
 					clock_counter := clock_counter + 1;
 				end if;
 			else
