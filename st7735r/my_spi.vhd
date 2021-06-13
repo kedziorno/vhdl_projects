@@ -55,7 +55,7 @@ begin
 			clock_divider <= '0';
 		elsif (rising_edge(i_clock)) then
 			if (i_enable = '1') then
-				if (clock_counter = C_CLOCK_COUNTER - 1) then
+				if (clock_counter = C_CLOCK_COUNTER/2 - 1) then
 					clock_divider <= '1';
 					clock_counter := 0;
 				else
@@ -87,15 +87,14 @@ begin
 	begin
 		if (i_reset = '1') then
 			o_do <= '0';
-		elsif (rising_edge(clock_divider)) then
+		elsif (falling_edge(clock_divider)) then
 			if (i_enable = '1') then
 				if (data_index = BYTE_SIZE - 1) then
 					data_index := 0;
 				else
 					data_index := data_index + 1;
 				end if;
-							o_do <= i_data_byte(data_index);
-
+				o_do <= i_data_byte(data_index);
 			else
 				o_do <= '0';
 			end if;
