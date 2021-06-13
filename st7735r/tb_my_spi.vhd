@@ -102,13 +102,25 @@ i_enable <= '1';
 i_data_byte <= x"AA";
 wait for i_clock_period*BYTE_SIZE*C_CLOCK_COUNTER;
 i_enable <= '0';
-wait for i_clock_period*C_CLOCK_COUNTER;
+wait for i_clock_period*C_CLOCK_COUNTER*10;
 
 i_enable <= '1';
 i_data_byte <= x"55";
 wait for i_clock_period*BYTE_SIZE*C_CLOCK_COUNTER;
 i_enable <= '0';
-wait for i_clock_period*C_CLOCK_COUNTER;
+wait for i_clock_period*C_CLOCK_COUNTER*10;
+
+i_enable <= '1';
+i_data_byte <= x"00";
+wait for i_clock_period*BYTE_SIZE*C_CLOCK_COUNTER;
+i_enable <= '0';
+wait for i_clock_period*C_CLOCK_COUNTER*10;
+
+i_enable <= '1';
+i_data_byte <= x"FF";
+wait for i_clock_period*BYTE_SIZE*C_CLOCK_COUNTER;
+i_enable <= '0';
+wait for i_clock_period*C_CLOCK_COUNTER*10;
 
 wait;
 end process;
