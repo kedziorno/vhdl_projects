@@ -48,14 +48,14 @@ begin
 	o_cs <= '0' when i_enable = '1' else '1';
 
 	p0 : process (i_clock,i_reset) is
-		variable clock_counter : integer range 0 to C_CLOCK_COUNTER - 1 := 0;
+		variable clock_counter : integer range 0 to C_CLOCK_COUNTER/2 - 1 := 0;
 	begin
 		if (i_reset = '1') then
 			clock_counter := 0;
 			clock_divider <= '0';
 		elsif (rising_edge(i_clock)) then
 			if (i_enable = '1') then
-				if (clock_counter = C_CLOCK_COUNTER/2 - 1) then
+				if (clock_counter = C_CLOCK_COUNTER/4 - 1) then
 					clock_divider <= not clock_divider;
 					clock_counter := 0;
 				else
