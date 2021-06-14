@@ -92,7 +92,7 @@ stim_proc: process
 begin
 
 i_reset <= '1';
-wait for i_clock_period;
+wait for i_clock_period*C_CLOCK_COUNTER;
 i_reset <= '0';
 wait for i_clock_period;
 
@@ -100,24 +100,28 @@ wait for i_clock_period;
 
 i_enable <= '1';
 i_data_byte <= x"AA";
+--wait for i_clock_period*(BYTE_SIZE+1)*C_CLOCK_COUNTER;
 wait for i_clock_period*BYTE_SIZE*C_CLOCK_COUNTER;
 i_enable <= '0';
 wait for i_clock_period*C_CLOCK_COUNTER*10;
 
 i_enable <= '1';
 i_data_byte <= x"55";
+--wait for i_clock_period*(BYTE_SIZE+1)*C_CLOCK_COUNTER;
 wait for i_clock_period*BYTE_SIZE*C_CLOCK_COUNTER;
 i_enable <= '0';
 wait for i_clock_period*C_CLOCK_COUNTER*10;
 
 i_enable <= '1';
 i_data_byte <= x"00";
+--wait for i_clock_period*(BYTE_SIZE+1)*C_CLOCK_COUNTER;
 wait for i_clock_period*BYTE_SIZE*C_CLOCK_COUNTER;
 i_enable <= '0';
 wait for i_clock_period*C_CLOCK_COUNTER*10;
 
 i_enable <= '1';
 i_data_byte <= x"FF";
+--wait for i_clock_period*(BYTE_SIZE+1)*C_CLOCK_COUNTER;
 wait for i_clock_period*BYTE_SIZE*C_CLOCK_COUNTER;
 i_enable <= '0';
 wait for i_clock_period*C_CLOCK_COUNTER*10;
