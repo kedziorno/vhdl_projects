@@ -43,12 +43,12 @@ port (
 end my_spi;
 
 architecture Behavioral of my_spi is
-	signal clock_divider : std_logic;
+	signal clock_divider,clock_data : std_logic;
 begin
 	o_cs <= '0' when i_enable = '1' else '1';
 
 	p0 : process (i_clock,i_reset) is
-		variable clock_counter : integer range 0 to C_CLOCK_COUNTER/2 - 1 := 0;
+		variable clock_counter : integer range 0 to C_CLOCK_COUNTER - 1 := 0;
 	begin
 		if (i_reset = '1') then
 			clock_counter := 0;
@@ -81,22 +81,40 @@ begin
 		end if;
 	end process p1;
 
-	p2 : process (clock_divider,i_reset,i_enable) is
+	p2 : process (clock_data,i_reset,i_enable) is
 		variable data_index : integer range 0 to BYTE_SIZE - 1 := 0;
 	begin
 		if (i_reset = '1') then
 			o_do <= '0';
-		elsif (falling_edge(clock_divider)) then
+		elsif (rising_edge(clock_data)) then
 			if (i_enable = '1') then
 				if (data_index = BYTE_SIZE - 1) then
 					data_index := 0;
+					o_do <= '0';
 				else
 					data_index := data_index + 1;
 				end if;
-				o_do <= i_data_byte(data_index);
 			else
 				o_do <= '0';
 			end if;
+			o_do <= i_data_byte(data_index);
 		end if;
 	end process p2;
+
+	p3 : process (clock_divider,i_reset,i_enable) is
+		variable d : integer := 0;
+		constant cd : integer := 2;
+	begin
+		if (i_reset = '1') then
+			clock_data <= '0';
+		elsif (rising_edge(clock_divider)) then
+			if (d = cd - 1) then
+				clock_data <= '0';
+				d := 0;
+			else
+				clock_data <= '1';
+				d := d + 1;
+			end if;
+		end if;
+	end process p3;
 end Behavioral;
