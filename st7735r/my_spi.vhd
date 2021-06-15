@@ -49,7 +49,7 @@ architecture Behavioral of my_spi is
 begin
 	o_cs <= '0' when i_enable = '1' else '1';
 	o_do <= i_data_byte(data_index) when i_enable = '1' else '0';
-	o_sended <= '1' when data_index = BYTE_SIZE - 1 else '0' when i_enable = '0' else '0';
+	o_sended <= '1' when data_index = 0 else '0' when i_enable = '0' else '0';
 
 	p0 : process (i_clock,i_reset) is
 		variable clock_counter : integer range 0 to C_CLOCK_COUNTER - 1 := 0;
@@ -88,16 +88,16 @@ begin
 	p2 : process (clock_data,i_reset,i_enable) is
 	begin
 		if (i_reset = '1') then
-			data_index <= 0;
+			data_index <= BYTE_SIZE - 1;
 		elsif (rising_edge(clock_data)) then
 			if (i_enable = '1') then
-				if (data_index = BYTE_SIZE - 1) then
-					data_index <= 0;
+				if (data_index = 0) then
+					data_index <= BYTE_SIZE - 1;
 				else
-					data_index <= data_index + 1;
+					data_index <= data_index - 1;
 				end if;
 			else
-				data_index <= 0;
+				data_index <= BYTE_SIZE - 1;
 			end if;
 		end if;
 	end process p2;
