@@ -35,7 +35,7 @@ port (
 	i_clock : in std_logic;
 	i_reset : in std_logic;
 	i_enable : in std_logic;
-	i_data_byte : in std_logic_vector(BYTE_SIZE-1 downto 0);
+	i_data_byte : in std_logic_vector(0 to BYTE_SIZE-1);
 	o_cs : out std_logic;
 	o_do : out std_logic;
 	o_ck : inout std_logic;
@@ -49,7 +49,7 @@ architecture Behavioral of my_spi is
 begin
 	o_cs <= '0' when i_enable = '1' else '1';
 	o_do <= i_data_byte(data_index) when i_enable = '1' else '0';
-	o_sended <= '1' when data_index = 0 else '0' when i_enable = '0' else '0';
+	o_sended <= '1' when data_index = BYTE_SIZE - 1 else '0' when i_enable = '0' else '0';
 
 	p0 : process (i_clock,i_reset) is
 		variable clock_counter : integer range 0 to C_CLOCK_COUNTER - 1 := 0;
@@ -80,7 +80,7 @@ begin
 			if (i_enable = '1') then
 				o_ck <= not o_ck;
 			else
-				o_ck <= '0';
+				o_ck <= '1';
 			end if;
 		end if;
 	end process p1;
@@ -88,16 +88,16 @@ begin
 	p2 : process (clock_data,i_reset,i_enable) is
 	begin
 		if (i_reset = '1') then
-			data_index <= BYTE_SIZE - 1;
+			data_index <= 0;
 		elsif (rising_edge(clock_data)) then
 			if (i_enable = '1') then
-				if (data_index = 0) then
-					data_index <= BYTE_SIZE - 1;
+				if (data_index = BYTE_SIZE - 1) then
+					data_index <= 0;
 				else
-					data_index <= data_index - 1;
+					data_index <= data_index + 1;
 				end if;
 			else
-				data_index <= BYTE_SIZE - 1;
+				data_index <= 0;
 			end if;
 		end if;
 	end process p2;

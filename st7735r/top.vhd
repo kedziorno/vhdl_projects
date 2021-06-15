@@ -46,14 +46,14 @@ architecture Behavioral of top is
 		i_clock : in std_logic;
 		i_reset : in std_logic;
 		i_enable : in std_logic;
-		i_data_byte : in std_logic_vector(BYTE_SIZE-1 downto 0);
+		i_data_byte : in std_logic_vector(0 to BYTE_SIZE-1);
 		o_cs : out std_logic;
 		o_do : out std_logic;
 		o_ck : inout std_logic;
 		o_sended : out std_logic
 	);
 	end component my_spi;
-	signal data_byte : std_logic_vector(BYTE_SIZE-1 downto 0);
+	signal data_byte : std_logic_vector(0 to BYTE_SIZE-1);
 	signal enable,sended : std_logic;
 	type states is (idle,start,stop,wait0);
 	signal state : states;
@@ -71,7 +71,7 @@ begin
 	
 	p0 : process (i_clock,i_reset,sended) is
 		constant data_size : integer := 32;
-		type data_array is array(0 to data_size-1) of std_logic_vector(BYTE_SIZE-1 downto 0);
+		type data_array is array(0 to data_size-1) of std_logic_vector(0 to BYTE_SIZE-1);
 		variable data : data_array := (
 		x"6c",x"6f",x"72",x"65",x"6d",x"20",x"69",x"70",
 		x"73",x"75",x"6d",x"20",x"64",x"6f",x"6c",x"6f",
@@ -96,10 +96,10 @@ begin
 					else
 						enable <= '1';
 						if (sended = '1') then
+							data_byte <= data(data_index);
 							data_index := data_index + 1;
 						end if;
 					end if;
-					data_byte <= data(data_index);
 					if (sended = '1') then
 						state <= stop;
 					else
