@@ -45,7 +45,7 @@ end my_spi;
 
 architecture Behavioral of my_spi is
 	signal clock_divider,clock_data : std_logic;
-	signal data_index : integer range 0 to BYTE_SIZE - 1;
+	signal data_index : integer range BYTE_SIZE - 1 downto 0;
 begin
 	o_cs <= '0' when i_enable = '1' else '1';
 	o_do <= i_data_byte(data_index) when i_enable = '1' else '0';
@@ -75,7 +75,7 @@ begin
 	p1 : process (clock_divider,i_reset,i_enable) is
 	begin
 		if (i_reset = '1') then
-			o_ck <= '0';
+			o_ck <= '1';
 		elsif (rising_edge(clock_divider)) then
 			if (i_enable = '1') then
 				o_ck <= not o_ck;
