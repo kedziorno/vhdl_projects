@@ -50,7 +50,7 @@ architecture Behavioral of top is
 		o_cs : out std_logic;
 		o_do : out std_logic;
 		o_ck : inout std_logic;
-		o_sended : out std_logic
+		o_sended : inout std_logic
 	);
 	end component my_spi;
 	signal data_byte : std_logic_vector(0 to BYTE_SIZE-1);
@@ -73,7 +73,7 @@ begin
 		constant data_size : integer := 32;
 		type data_array is array(0 to data_size-1) of std_logic_vector(0 to BYTE_SIZE-1);
 		variable data : data_array := (
-		x"6c",x"6f",x"72",x"65",x"6d",x"20",x"69",x"70",
+		x"6c",x"6f",x"72",x"65",x"6d",x"ff",x"69",x"70",
 		x"73",x"75",x"6d",x"20",x"64",x"6f",x"6c",x"6f",
 		x"72",x"20",x"69",x"6e",x"65",x"73",x"6c",x"6f",
 		x"72",x"65",x"6d",x"20",x"69",x"70",x"73",x"75");
@@ -96,15 +96,13 @@ begin
 					else
 						enable <= '1';
 						if (sended = '1') then
-							data_byte <= data(data_index);
 							data_index := data_index + 1;
+							state <= stop;
+						else
+							state <= start;
 						end if;
 					end if;
-					if (sended = '1') then
-						state <= stop;
-					else
-						state <= start;
-					end if;
+					data_byte <= data(data_index);
 				when stop =>
 					if (sended = '1') then
 						state <= stop;
