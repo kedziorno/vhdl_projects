@@ -44,30 +44,24 @@ package p_package is
 	shared variable data_temp_index : integer range 0 to BYTE_SIZE - 1;
 
 	procedure check_test(
-		signal sended : in std_logic;
 		signal cs : in std_logic;
 		signal do : in std_logic;
 		signal ck : in std_logic
 	) is
 	begin
-		if (sended'event and sended = '1') then
+		if (cs'event and cs = '1') then
+			assert (data_rom(data_rom_index) = data_temp)
+			report "FAIL : " & vec2str(data_temp) & " expect " & vec2str(data_rom(data_rom_index)) severity warning;
+			data_temp_index := 0;
 			if (data_rom_index = data_size - 1) then
 				data_rom_index := 0;
 			else
 				data_rom_index := data_rom_index + 1;
 			end if;
-			assert (data_rom(data_rom_index) = data_temp)
-			report "FAIL : " & vec2str(data_temp) & " expect " & vec2str(data_rom(data_rom_index)) severity warning;
-		elsif (sended = '0') then
-			if ((ck'event and ck = '1') and cs = '0') then
---			assert (false) report "AAA" severity WARNING;
-				if (data_temp_index = BYTE_SIZE - 1) then
-					data_temp_index := 0;
-				else
-					data_temp_index := data_temp_index + 1;
-				end if;
-				data_temp(data_temp_index) := do;
-			end if;
+		elsif ((ck'event and ck = '1') and cs = '0') then
+--		assert (false) report "AAA" severity WARNING;
+			data_temp(data_temp_index) := do;
+			data_temp_index := data_temp_index + 1;
 		end if;
 	end procedure check_test;
 

@@ -75,7 +75,7 @@ begin
 	p1 : process (clock_divider,i_reset,i_enable) is
 	begin
 		if (i_reset = '1') then
-			o_ck <= '1';
+			o_ck <= '0';
 		elsif (rising_edge(clock_divider)) then
 			if (i_enable = '1') then
 				o_ck <= not o_ck;

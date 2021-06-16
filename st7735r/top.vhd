@@ -78,6 +78,7 @@ begin
 			enable <= '0';
 			state <= idle;
 			w0_index := 0;
+			data_byte <= (others => '0');
 		elsif (rising_edge(i_clock)) then
 			case state is
 				when idle =>
@@ -117,7 +118,7 @@ begin
 		end if;
 	end process p0;
 
-	check_test(sended,o_cs,o_do,o_ck); -- XXX check the bits on spi and compare with rom data
+	check_test(o_cs,o_do,o_ck); -- XXX check the bits on spi and compare with rom data
 
 end Behavioral;
 
