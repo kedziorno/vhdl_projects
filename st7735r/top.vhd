@@ -55,7 +55,7 @@ architecture Behavioral of top is
 	end component my_spi;
 	signal data_byte : std_logic_vector(0 to BYTE_SIZE-1);
 	signal enable,sended : std_logic;
-	type states is (idle,start,stop,wait0);
+	type states is (idle,smallwait,start,stop,wait0);
 	signal state : states;
 
 begin
@@ -79,12 +79,18 @@ begin
 			state <= idle;
 			w0_index := 0;
 			data_index := 0;
---			data_byte <= data_rom(0);
 		elsif (rising_edge(i_clock)) then
 			case state is
 				when idle =>
-					state <= start;
-					enable <= '1';
+					state <= smallwait;
+				when smallwait =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= start;
+						w0_index := 0;
+					else
+						state <= smallwait;
+						w0_index := w0_index + 1;
+					end if;
 				when start =>
 					if (data_index = data_size - 1) then
 						data_index := 0;
@@ -110,7 +116,7 @@ begin
 					end if;
 				when wait0 =>
 					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= idle;
+						state <= start;
 						w0_index := 0;
 					else
 						state <= wait0;
