@@ -60,9 +60,9 @@ package p_package is
 			data_temp_index := data_temp_index + 1;
 		elsif (cs'event and cs = '1') then
 			assert (data_rom(data_rom_index) = data_temp)
-			report "FAIL : " & vec2str(data_temp) & " expect " & vec2str(data_rom(data_rom_index)) severity note;
+			report "FAIL : (" & integer'image(data_rom_index) & ") " & vec2str(data_temp) & " expect " & vec2str(data_rom(data_rom_index)) severity note;
 			assert (data_rom(data_rom_index) /= data_temp)
-			report "OK   : " & vec2str(data_temp) & " equals " & vec2str(data_rom(data_rom_index)) severity note;
+			report "OK   : (" & integer'image(data_rom_index) & ") " & vec2str(data_temp) & " equals " & vec2str(data_rom(data_rom_index)) severity note;
 			data_temp_index := 0;
 			if (data_rom_index = data_size - 1) then
 				data_rom_index := 0;
