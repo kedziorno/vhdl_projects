@@ -78,7 +78,7 @@ begin
 			enable <= '0';
 			state <= idle;
 			w0_index := 0;
-			data_byte <= (others => '0');
+--			data_byte <= (others => '0');
 		elsif (rising_edge(i_clock)) then
 			case state is
 				when idle =>

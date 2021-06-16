@@ -16,6 +16,7 @@ package p_package is
 
 	constant data_size : integer := 32;
 	type data_array is array(0 to data_size-1) of std_logic_vector(0 to BYTE_SIZE-1);
+	-- XXX " lorem ipsum ... "
 	constant data_rom : data_array := (
 	x"6c",x"6f",x"72",x"65",x"6d",x"ff",x"69",x"70",
 	x"73",x"75",x"6d",x"20",x"64",x"6f",x"6c",x"6f",
@@ -30,8 +31,12 @@ package p_package is
 				result(i) := '1';
 			elsif (vec(i) = '0') then
 				result(i) := '0';
-			else
+			elsif (vec(i) = 'X') then
 				result(i) := 'X';
+			elsif (vec(i) = 'U') then
+				result(i) := 'U';
+			else
+				result(i) := '?';
 			end if;
 		end loop;
 		return result;
@@ -48,20 +53,25 @@ package p_package is
 		signal do : in std_logic;
 		signal ck : in std_logic
 	) is
+		constant Xs : std_logic_vector(0 to BYTE_SIZE - 1) := (others => 'U');
 	begin
-		if (cs'event and cs = '1') then
+		if ((ck'event and ck = '1') and cs = '0') then
+			data_temp(data_temp_index) := do;
+			data_temp_index := data_temp_index + 1;
+		elsif (cs'event and cs = '0') then
 			assert (data_rom(data_rom_index) = data_temp)
-			report "FAIL : " & vec2str(data_temp) & " expect " & vec2str(data_rom(data_rom_index)) severity warning;
+			report "FAIL : " & vec2str(data_temp) & " expect " & vec2str(data_rom(data_rom_index)) severity note;
+			assert (data_rom(data_rom_index) /= data_temp)
+			report "OK   : " & vec2str(data_temp) & " equals " & vec2str(data_rom(data_rom_index)) severity note;
 			data_temp_index := 0;
 			if (data_rom_index = data_size - 1) then
 				data_rom_index := 0;
+				assert (false) report "=== END TEST ===" severity note;
 			else
-				data_rom_index := data_rom_index + 1;
+				if (data_temp /= Xs) then -- XXX omit first undefined/uninitialized
+					data_rom_index := data_rom_index + 1;
+				end if;
 			end if;
-		elsif ((ck'event and ck = '1') and cs = '0') then
---		assert (false) report "AAA" severity WARNING;
-			data_temp(data_temp_index) := do;
-			data_temp_index := data_temp_index + 1;
 		end if;
 	end procedure check_test;
 
