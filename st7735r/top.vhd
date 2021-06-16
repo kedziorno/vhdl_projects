@@ -78,7 +78,8 @@ begin
 			enable <= '0';
 			state <= idle;
 			w0_index := 0;
---			data_byte <= (others => '0');
+			data_index := 0;
+--			data_byte <= data_rom(0);
 		elsif (rising_edge(i_clock)) then
 			case state is
 				when idle =>
@@ -88,6 +89,7 @@ begin
 					if (data_index = data_size - 1) then
 						data_index := 0;
 						enable <= '0';
+						state <= stop;
 					else
 						enable <= '1';
 						if (sended = '1') then
@@ -108,7 +110,7 @@ begin
 					end if;
 				when wait0 =>
 					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= start;
+						state <= idle;
 						w0_index := 0;
 					else
 						state <= wait0;

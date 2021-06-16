@@ -58,7 +58,7 @@ package p_package is
 		if ((ck'event and ck = '1') and cs = '0') then
 			data_temp(data_temp_index) := do;
 			data_temp_index := data_temp_index + 1;
-		elsif (cs'event and cs = '0') then
+		elsif (cs'event and cs = '1') then
 			assert (data_rom(data_rom_index) = data_temp)
 			report "FAIL : " & vec2str(data_temp) & " expect " & vec2str(data_rom(data_rom_index)) severity note;
 			assert (data_rom(data_rom_index) /= data_temp)
