@@ -127,7 +127,7 @@ begin
 		end if;
 	end process p0;
 
-	check_test(o_cs,o_do,o_ck); -- XXX check the bits on spi and compare with rom data
+--	check_test(cs,do,ck); -- XXX check the bits on spi and compare with rom data , for simulation
 
 end Behavioral;
 
