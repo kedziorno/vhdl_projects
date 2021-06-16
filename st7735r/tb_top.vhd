@@ -43,8 +43,8 @@ COMPONENT top
 PORT(
 i_clock : IN  std_logic;
 i_reset : IN  std_logic;
-o_cs : OUT  std_logic;
-o_do : OUT  std_logic;
+o_cs : INOUT  std_logic;
+o_do : INOUT  std_logic;
 o_ck : INOUT  std_logic
 );
 END COMPONENT;

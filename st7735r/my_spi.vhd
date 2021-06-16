@@ -36,8 +36,8 @@ port (
 	i_reset : in std_logic;
 	i_enable : in std_logic;
 	i_data_byte : in std_logic_vector(0 to BYTE_SIZE-1);
-	o_cs : out std_logic;
-	o_do : out std_logic;
+	o_cs : inout std_logic;
+	o_do : inout std_logic;
 	o_ck : inout std_logic;
 	o_sended : inout std_logic
 );

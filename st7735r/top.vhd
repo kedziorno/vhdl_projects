@@ -34,8 +34,8 @@ entity top is
 port (
 	i_clock : in std_logic;
 	i_reset : in std_logic;
-	o_cs : out std_logic;
-	o_do : out std_logic;
+	o_cs : inout std_logic;
+	o_do : inout std_logic;
 	o_ck : inout std_logic
 );
 end top;
@@ -47,8 +47,8 @@ architecture Behavioral of top is
 		i_reset : in std_logic;
 		i_enable : in std_logic;
 		i_data_byte : in std_logic_vector(0 to BYTE_SIZE-1);
-		o_cs : out std_logic;
-		o_do : out std_logic;
+		o_cs : inout std_logic;
+		o_do : inout std_logic;
 		o_ck : inout std_logic;
 		o_sended : inout std_logic
 	);
@@ -57,6 +57,7 @@ architecture Behavioral of top is
 	signal enable,sended : std_logic;
 	type states is (idle,start,stop,wait0);
 	signal state : states;
+
 begin
 	u0 : my_spi port map (
 		i_clock => i_clock,
@@ -70,13 +71,6 @@ begin
 	);
 	
 	p0 : process (i_clock,i_reset,sended) is
-		constant data_size : integer := 32;
-		type data_array is array(0 to data_size-1) of std_logic_vector(0 to BYTE_SIZE-1);
-		variable data : data_array := (
-		x"6c",x"6f",x"72",x"65",x"6d",x"ff",x"69",x"70",
-		x"73",x"75",x"6d",x"20",x"64",x"6f",x"6c",x"6f",
-		x"72",x"20",x"69",x"6e",x"65",x"73",x"6c",x"6f",
-		x"72",x"65",x"6d",x"20",x"69",x"70",x"73",x"75");
 		variable data_index : integer range 0 to data_size - 1 := 0;
 		variable w0_index : integer range 0 to C_CLOCK_COUNTER - 1 := 0;
 	begin
@@ -102,7 +96,7 @@ begin
 							state <= start;
 						end if;
 					end if;
-					data_byte <= data(data_index);
+					data_byte <= data_rom(data_index);
 				when stop =>
 					if (sended = '1') then
 						state <= stop;
@@ -122,6 +116,8 @@ begin
 			end case;
 		end if;
 	end process p0;
+
+	check_test(sended,o_cs,o_do,o_ck); -- XXX check the bits on spi and compare with rom data
 
 end Behavioral;
 
