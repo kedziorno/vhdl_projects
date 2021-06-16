@@ -48,8 +48,8 @@ architecture Behavioral of my_spi is
 	signal data_index : integer range BYTE_SIZE - 1 downto 0;
 begin
 	o_cs <= '0' when i_enable = '1' else '1';
-	o_do <= i_data_byte(data_index) when (i_enable = '1' and o_sended = '0') else '0';
-	o_sended <= '1' when data_index = BYTE_SIZE - 1 else '0' when i_enable = '0' else '0';
+	o_do <= i_data_byte(data_index) when o_cs = '0' else '0';
+	o_sended <= '1' when data_index = BYTE_SIZE - 1 and i_enable = '1' else '0';
 
 	p0 : process (i_clock,i_reset) is
 		variable clock_counter : integer range 0 to C_CLOCK_COUNTER - 1 := 0;
@@ -75,12 +75,12 @@ begin
 	p1 : process (clock_divider,i_reset,i_enable) is
 	begin
 		if (i_reset = '1') then
-			o_ck <= '1';
+			o_ck <= '0';
 		elsif (rising_edge(clock_divider)) then
 			if (i_enable = '1') then
 				o_ck <= not o_ck;
 			else
-				o_ck <= '1';
+				o_ck <= '0';
 			end if;
 		end if;
 	end process p1;
@@ -107,13 +107,13 @@ begin
 		constant cd : integer := 2;
 	begin
 		if (i_reset = '1') then
-			clock_data <= '0';
+			clock_data <= '1';
 		elsif (rising_edge(clock_divider)) then
 			if (d = cd - 1) then
-				clock_data <= '0';
+				clock_data <= '1';
 				d := 0;
 			else
-				clock_data <= '1';
+				clock_data <= '0';
 				d := d + 1;
 			end if;
 		end if;
