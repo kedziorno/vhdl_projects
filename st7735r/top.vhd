@@ -83,7 +83,12 @@ begin
 
 	p0 : process (i_clock,i_reset,sended) is
 		variable data_index : integer range 0 to data_size - 1;
-		variable w0_index : integer range 0 to C_CLOCK_COUNTER - 1;
+		variable w0_index : integer;
+		constant C_CLOCK_COUNTER_7 : integer := C_CLOCK_COUNTER * 7;
+		constant C_CLOCK_COUNTER_150 : integer := C_CLOCK_COUNTER * 150;
+		constant C_CLOCK_COUNTER_500 : integer := C_CLOCK_COUNTER * 500;
+		constant C_CLOCK_COUNTER_10 : integer := C_CLOCK_COUNTER * 10;
+		constant C_CLOCK_COUNTER_100 : integer := C_CLOCK_COUNTER * 100;
 	begin
 		if (i_reset = '1') then
 			enable <= '0';
@@ -108,7 +113,8 @@ begin
 						cs1 <= '0';
 					end if;
 				when smallwait1 =>
-					if (w0_index = 7 * C_CLOCK_COUNTER - 1) then
+					if (w0_index = C_CLOCK_COUNTER_7 - 1) then
+--					if (w0_index = C_CLOCK_COUNTER - 1) then
 						state <= smallwait2;
 						w0_index := 0;
 						o_reset <= '1';
@@ -143,7 +149,8 @@ begin
 						w0_index := w0_index + 1;
 					end if;
 				when initwait0a =>
-					if (w0_index = 150 * C_CLOCK_COUNTER - 1) then
+					if (w0_index = C_CLOCK_COUNTER_150 - 1) then
+--					if (w0_index = C_CLOCK_COUNTER - 1) then
 						state <= slpout;
 						w0_index := 0;
 					else
@@ -168,7 +175,8 @@ begin
 						w0_index := w0_index + 1;
 					end if;
 				when initwait1a =>
-					if (w0_index = 500 * C_CLOCK_COUNTER - 1) then
+					if (w0_index = C_CLOCK_COUNTER_500 - 1) then
+--					if (w0_index = C_CLOCK_COUNTER - 1) then
 						state <= start;
 						w0_index := 0;
 					else
@@ -248,7 +256,8 @@ begin
 						w0_index := w0_index + 1;
 					end if;
 				when initwait2a =>
-					if (w0_index = 10 * C_CLOCK_COUNTER - 1) then
+					if (w0_index = C_CLOCK_COUNTER_10 - 1) then
+--					if (w0_index = C_CLOCK_COUNTER - 1) then
 						state <= dispon;
 						w0_index := 0;
 					else
@@ -274,7 +283,8 @@ begin
 						w0_index := w0_index + 1;
 					end if;
 				when initwait3a =>
-					if (w0_index = 100 * C_CLOCK_COUNTER - 1) then
+					if (w0_index = C_CLOCK_COUNTER_100 - 1) then
+--					if (w0_index = C_CLOCK_COUNTER - 1) then
 						state <= csup;
 						w0_index := 0;
 					else
@@ -282,6 +292,7 @@ begin
 						w0_index := w0_index + 1;
 					end if;
 				when csup =>
+					enable <= '0';
 					state <= csup;
 					cs1 <= '1';
 			end case;
