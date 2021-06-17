@@ -61,9 +61,9 @@ architecture Behavioral of top is
 	idle,
 	smallwait0,smallwait1,smallwait2,
 	swreset,initwait0,initwait0a,slpout,initwait1,initwait1a,
-	start,check_index,wait0,wait1,
+	start,check_index,initwait4,wait0,wait1,initwait4a,
 	noron,initwait2,initwait2a,dispon,initwait3,initwait3a,
-	initwait4,initwait4a);
+	csup);
 	signal state : states;
 	signal cs1,cs2 : std_logic;
 
@@ -79,11 +79,11 @@ begin
 		o_sended => sended
 	);
 
-	o_cs <= cs1 when (state = idle or state = smallwait0 or state = smallwait1) else cs2;
+	o_cs <= cs1 when (state = idle or state = smallwait0 or state = smallwait1 or state = csup) else cs2;
 
 	p0 : process (i_clock,i_reset,sended) is
-		variable data_index : integer range 0 to data_size - 1 := 0;
-		variable w0_index : integer range 0 to C_CLOCK_COUNTER - 1 := 0;
+		variable data_index : integer range 0 to data_size - 1;
+		variable w0_index : integer range 0 to C_CLOCK_COUNTER - 1;
 	begin
 		if (i_reset = '1') then
 			enable <= '0';
@@ -276,12 +276,15 @@ begin
 					end if;
 				when initwait3a =>
 					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= initwait3a;
+						state <= csup;
 						w0_index := 0;
 					else
 						state <= initwait3a;
 						w0_index := w0_index + 1;
 					end if;
+				when csup =>
+					state <= csup;
+					cs1 <= '1';
 			end case;
 		end if;
 	end process p0;
