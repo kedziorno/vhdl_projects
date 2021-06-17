@@ -14,14 +14,93 @@ package p_package is
 	constant BYTE_SIZE : integer := 8;
 	constant C_CLOCK_COUNTER : integer := 2**16;
 
-	constant data_size : integer := 32;
+	constant data_size : integer := 166;
 	type data_array is array(0 to data_size-1) of std_logic_vector(0 to BYTE_SIZE-1);
-	-- XXX " lorem ipsum ... "
+	-- XXX based on https://github.com/Dungyichao/STM32F4-LCD_ST7735s/blob/master/ST7735/st7735.c
 	constant data_rom : data_array := (
-	x"6c",x"6f",x"72",x"65",x"6d",x"ff",x"69",x"70",
-	x"73",x"75",x"6d",x"20",x"64",x"6f",x"6c",x"6f",
-	x"72",x"20",x"69",x"6e",x"65",x"73",x"6c",x"6f",
-	x"72",x"65",x"6d",x"20",x"69",x"70",x"73",x"75");
+	x"b1",x"01",--FRMCTR1
+	x"01",x"00",
+	x"2c",x"00",
+	x"2d",x"00",
+	x"b2",x"01",--FRMCTR2
+	x"01",x"00",
+	x"2c",x"00",
+	x"2d",x"00",
+	x"b3",x"01",--FRMCTR3
+	x"01",x"00",
+	x"2c",x"00",
+	x"2d",x"00",
+	x"01",x"00",
+	x"2c",x"00",
+	x"2d",x"00",
+	x"b4",x"01",--INVCTR
+	x"07",x"00",
+	x"c0",x"01",--PWCTR1
+	x"a2",x"00",
+	x"02",x"00",
+	x"84",x"00",
+	x"c1",x"01",--PWCTR2
+	x"c5",x"00",
+	x"c2",x"01",--PWCTR3
+	x"0a",x"00",
+	x"00",x"00",
+	x"c3",x"01",--PWCTR4
+	x"8a",x"00",
+	x"2a",x"00",
+	x"c4",x"01",--PWCTR5
+	x"8a",x"00",
+	x"ee",x"00",
+	x"c5",x"01",--VMCTR1
+	x"0e",x"00",
+	x"20",x"01",--INVOFF
+	x"36",x"01",--MADCTL
+	x"c0",x"00",--ROTATION (ST7735_MADCTL_MX | ST7735_MADCTL_MY) 0x40 | 0x80
+	x"3a",x"01",--COLMOD
+	x"05",x"00",
+	x"2a",x"01",--CASET
+	x"00",x"00",
+	x"00",x"00",
+	x"00",x"00",
+	x"7f",x"00",
+	x"2b",x"01",--RASET
+	x"00",x"00",
+	x"00",x"00",
+	x"00",x"00",
+	x"7f",x"00",
+	x"e0",x"01",--GMCTRP1
+	x"02",x"00",
+	x"1c",x"00",
+	x"07",x"00",
+	x"12",x"00",
+	x"37",x"00",
+	x"32",x"00",
+	x"29",x"00",
+	x"2d",x"00",
+	x"29",x"00",
+	x"25",x"00",
+	x"2b",x"00",
+	x"39",x"00",
+	x"00",x"00",
+	x"01",x"00",
+	x"03",x"00",
+	x"10",x"00",
+	x"e1",x"01",--GMCTRN1
+	x"03",x"00",
+	x"1d",x"00",
+	x"07",x"00",
+	x"06",x"00",
+	x"2e",x"00",
+	x"2c",x"00",
+	x"29",x"00",
+	x"2d",x"00",
+	x"2e",x"00",
+	x"2e",x"00",
+	x"37",x"00",
+	x"3f",x"00",
+	x"00",x"00",
+	x"00",x"00",
+	x"02",x"00",
+	x"10",x"00");
 
 	-- XXX for simulation
 --	shared variable data_rom_index : integer range 0 to data_size - 1;

@@ -45,7 +45,9 @@ i_clock : IN  std_logic;
 i_reset : IN  std_logic;
 o_cs : INOUT  std_logic;
 o_do : INOUT  std_logic;
-o_ck : INOUT  std_logic
+o_ck : INOUT  std_logic;
+o_reset : INOUT  std_logic;
+o_rs : INOUT  std_logic
 );
 END COMPONENT;
 
@@ -57,6 +59,8 @@ signal i_reset : std_logic := '0';
 signal o_cs : std_logic;
 signal o_do : std_logic;
 signal o_ck : std_logic;
+signal o_reset : std_logic;
+signal o_rs : std_logic;
 
 -- Clock period definitions
 constant i_clock_period : time := 20 ns;
@@ -69,7 +73,9 @@ i_clock => i_clock,
 i_reset => i_reset,
 o_cs => o_cs,
 o_do => o_do,
-o_ck => o_ck
+o_ck => o_ck,
+o_reset => o_reset,
+o_rs => o_rs
 );
 
 -- Clock process definitions

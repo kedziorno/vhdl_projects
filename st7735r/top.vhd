@@ -36,7 +36,9 @@ port (
 	i_reset : in std_logic;
 	o_cs : inout std_logic;
 	o_do : inout std_logic;
-	o_ck : inout std_logic
+	o_ck : inout std_logic;
+	o_reset : inout std_logic;
+	o_rs : inout std_logic
 );
 end top;
 
@@ -55,8 +57,14 @@ architecture Behavioral of top is
 	end component my_spi;
 	signal data_byte : std_logic_vector(0 to BYTE_SIZE-1);
 	signal enable,sended : std_logic;
-	type states is (idle,smallwait,start,check_index,wait0,wait1);
+	type states is (
+	idle,
+	smallwait0,smallwait1,smallwait2,
+	swreset,initwait0,initwait0a,slpout,initwait1,initwait1a,
+	start,check_index,wait0,wait1,
+	noron,initwait2,initwait2a,dispon,initwait3,initwait3a);
 	signal state : states;
+	signal cs1,cs2 : std_logic;
 
 begin
 	u0 : my_spi port map (
@@ -64,12 +72,14 @@ begin
 		i_reset => i_reset,
 		i_enable => enable,
 		i_data_byte => data_byte,
-		o_cs => o_cs,
+		o_cs => cs2,
 		o_do => o_do,
 		o_ck => o_ck,
 		o_sended => sended
 	);
-	
+
+	o_cs <= cs1 when (state = idle or state = smallwait0 or state = smallwait1) else cs2;
+
 	p0 : process (i_clock,i_reset,sended) is
 		variable data_index : integer range 0 to data_size - 1 := 0;
 		variable w0_index : integer range 0 to C_CLOCK_COUNTER - 1 := 0;
@@ -79,16 +89,90 @@ begin
 			state <= idle;
 			w0_index := 0;
 			data_index := 0;
+			cs1 <= '1';
+			o_reset <= '1';
+			o_rs <= '1';
 		elsif (rising_edge(i_clock)) then
 			case state is
 				when idle =>
-					state <= smallwait;
-				when smallwait =>
+					state <= smallwait0;
+				when smallwait0 =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= smallwait1;
+						w0_index := 0;
+						o_reset <= '0';
+					else
+						state <= smallwait0;
+						w0_index := w0_index + 1;
+						cs1 <= '0';
+					end if;
+				when smallwait1 =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= smallwait2;
+						w0_index := 0;
+						o_reset <= '1';
+					else
+						state <= smallwait1;
+						w0_index := w0_index + 1;
+					end if;
+				when smallwait2 =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= swreset;
+						w0_index := 0;
+						o_rs <= '0';
+					else
+						state <= smallwait2;
+						w0_index := w0_index + 1;
+					end if;
+				when swreset =>
+					data_byte <= x"01";
+					enable <= '1';
+					if (sended = '1') then
+						state <= initwait0;
+					else
+						state <= swreset;
+					end if;
+				when initwait0 =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= initwait0a;
+						w0_index := 0;
+						enable <= '0';
+					else
+						state <= initwait0;
+						w0_index := w0_index + 1;
+					end if;
+				when initwait0a =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= slpout;
+						w0_index := 0;
+					else
+						state <= initwait0a;
+						w0_index := w0_index + 1;
+					end if;
+				when slpout =>
+					data_byte <= x"11";
+					enable <= '1';
+					if (sended = '1') then
+						state <= initwait1;
+					else
+						state <= slpout;
+					end if;
+				when initwait1 =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= initwait1a;
+						w0_index := 0;
+						enable <= '0';
+						o_rs <= '1';
+					else
+						state <= initwait1;
+						w0_index := w0_index + 1;
+					end if;
+				when initwait1a =>
 					if (w0_index = C_CLOCK_COUNTER - 1) then
 						state <= start;
 						w0_index := 0;
 					else
-						state <= smallwait;
+						state <= initwait1a;
 						w0_index := w0_index + 1;
 					end if;
 				when start =>
@@ -100,11 +184,12 @@ begin
 						state <= start;
 					end if;
 				when check_index =>
-					state <= wait0;
 					if (data_index = data_size - 1) then
 						data_index := 0;
+						state <= noron;
 					else
 						data_index := data_index + 1;
+						state <= wait0;
 					end if;
 				when wait0 =>
 					if (w0_index = C_CLOCK_COUNTER - 1) then
@@ -121,6 +206,57 @@ begin
 						w0_index := 0;
 					else
 						state <= wait1;
+						w0_index := w0_index + 1;
+					end if;
+				when noron =>
+					data_byte <= x"13";
+					enable <= '1';
+					if (sended = '1') then
+						state <= initwait2;
+					else
+						state <= noron;
+					end if;
+				when initwait2 =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= initwait2a;
+						w0_index := 0;
+						enable <= '0';
+					else
+						state <= initwait2;
+						w0_index := w0_index + 1;
+					end if;
+				when initwait2a =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= dispon;
+						w0_index := 0;
+					else
+						state <= initwait2a;
+						w0_index := w0_index + 1;
+					end if;
+				when dispon =>
+					data_byte <= x"29";
+					enable <= '1';
+					if (sended = '1') then
+						state <= initwait3;
+					else
+						state <= dispon;
+					end if;
+				when initwait3 =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= initwait3a;
+						w0_index := 0;
+						enable <= '0';
+						o_rs <= '1';
+					else
+						state <= initwait3;
+						w0_index := w0_index + 1;
+					end if;
+				when initwait3a =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= initwait3a;
+						w0_index := 0;
+					else
+						state <= initwait3a;
 						w0_index := w0_index + 1;
 					end if;
 			end case;
