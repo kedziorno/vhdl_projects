@@ -62,7 +62,8 @@ architecture Behavioral of top is
 	smallwait0,smallwait1,smallwait2,
 	swreset,initwait0,initwait0a,slpout,initwait1,initwait1a,
 	start,check_index,wait0,wait1,
-	noron,initwait2,initwait2a,dispon,initwait3,initwait3a);
+	noron,initwait2,initwait2a,dispon,initwait3,initwait3a,
+	initwait4,initwait4a);
 	signal state : states;
 	signal cs1,cs2 : std_logic;
 
@@ -178,17 +179,22 @@ begin
 				when start =>
 					data_byte <= data_rom(data_index);
 					enable <= '1';
+					if (data_rom(data_index + 1) = x"01") then
+						o_rs <= '0';
+					elsif (data_rom(data_index + 1) = x"00") then
+						o_rs <= '1';
+					end if;
 					if (sended = '1') then
 						state <= check_index;
 					else
 						state <= start;
 					end if;
 				when check_index =>
-					if (data_index = data_size - 1) then
+					if (data_index = data_size - 2) then
 						data_index := 0;
-						state <= noron;
+						state <= initwait4;
 					else
-						data_index := data_index + 1;
+						data_index := data_index + 2;
 						state <= wait0;
 					end if;
 				when wait0 =>
@@ -206,6 +212,23 @@ begin
 						w0_index := 0;
 					else
 						state <= wait1;
+						w0_index := w0_index + 1;
+					end if;
+				when initwait4 =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= initwait4a;
+						w0_index := 0;
+						enable <= '0';
+					else
+						state <= initwait4;
+						w0_index := w0_index + 1;
+					end if;
+				when initwait4a =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= noron;
+						w0_index := 0;
+					else
+						state <= initwait4a;
 						w0_index := w0_index + 1;
 					end if;
 				when noron =>
