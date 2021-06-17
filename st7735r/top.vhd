@@ -108,7 +108,7 @@ begin
 						cs1 <= '0';
 					end if;
 				when smallwait1 =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
+					if (w0_index = 7 * C_CLOCK_COUNTER - 1) then
 						state <= smallwait2;
 						w0_index := 0;
 						o_reset <= '1';
@@ -143,7 +143,7 @@ begin
 						w0_index := w0_index + 1;
 					end if;
 				when initwait0a =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
+					if (w0_index = 150 * C_CLOCK_COUNTER - 1) then
 						state <= slpout;
 						w0_index := 0;
 					else
@@ -163,13 +163,12 @@ begin
 						state <= initwait1a;
 						w0_index := 0;
 						enable <= '0';
-						o_rs <= '1';
 					else
 						state <= initwait1;
 						w0_index := w0_index + 1;
 					end if;
 				when initwait1a =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
+					if (w0_index = 500 * C_CLOCK_COUNTER - 1) then
 						state <= start;
 						w0_index := 0;
 					else
@@ -249,7 +248,7 @@ begin
 						w0_index := w0_index + 1;
 					end if;
 				when initwait2a =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
+					if (w0_index = 10 * C_CLOCK_COUNTER - 1) then
 						state <= dispon;
 						w0_index := 0;
 					else
@@ -275,7 +274,7 @@ begin
 						w0_index := w0_index + 1;
 					end if;
 				when initwait3a =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
+					if (w0_index = 100 * C_CLOCK_COUNTER - 1) then
 						state <= csup;
 						w0_index := 0;
 					else
