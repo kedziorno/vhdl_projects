@@ -89,11 +89,11 @@ begin
 	p0 : process (i_clock,i_reset,sended) is
 		variable data_index : integer range 0 to 2**16;
 		variable w0_index : integer range 0 to 2**25;
-		constant C_CLOCK_COUNTER_7 : integer := ABOUT_1coma31_MS * 7;
-		constant C_CLOCK_COUNTER_150 : integer := ABOUT_1coma31_MS * 150;
-		constant C_CLOCK_COUNTER_500 : integer := ABOUT_1coma31_MS * 500;
-		constant C_CLOCK_COUNTER_10 : integer := ABOUT_1coma31_MS * 10;
-		constant C_CLOCK_COUNTER_100 : integer := ABOUT_1coma31_MS * 100;
+		constant C_CLOCK_COUNTER_7 : integer := C_CLOCK_COUNTER * 7;
+		constant C_CLOCK_COUNTER_150 : integer := C_CLOCK_COUNTER * 150;
+		constant C_CLOCK_COUNTER_500 : integer := C_CLOCK_COUNTER * 500;
+		constant C_CLOCK_COUNTER_10 : integer := C_CLOCK_COUNTER * 10;
+		constant C_CLOCK_COUNTER_100 : integer := C_CLOCK_COUNTER * 100;
 	begin
 		if (i_reset = '1') then
 			enable <= '0';
