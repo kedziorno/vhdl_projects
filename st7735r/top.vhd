@@ -67,7 +67,9 @@ architecture Behavioral of top is
 	csup,
 	-- XXX black screen
 	bsinitwait,bsstart,bs_check_index,bswaitdata0,bswait0,bswait1,
-	bswaitdata0a,bsfill,bsfill_check_index,bscsup,bsfillwait0,bsfillwait1
+	bswaitdata0a,bsfillbytel,bsfillbytelwait0,bsfillbytelwait0a,
+	bsfillbyteh,bsfillbytehwait0,bsfillbytehwait0a,bsfill_check_index,
+	bscsup,bsfillwait0,bsfillwait1
 	);
 	signal state : states;
 	signal cs1,cs2 : std_logic;
@@ -94,6 +96,7 @@ begin
 		constant C_CLOCK_COUNTER_500 : integer := C_CLOCK_COUNTER * 500;
 		constant C_CLOCK_COUNTER_10 : integer := C_CLOCK_COUNTER * 10;
 		constant C_CLOCK_COUNTER_100 : integer := C_CLOCK_COUNTER * 100;
+		variable color_data : std_logic_vector(15 downto 0);
 	begin
 		if (i_reset = '1') then
 			enable <= '0';
@@ -103,6 +106,7 @@ begin
 			cs1 <= '1';
 			o_reset <= '1';
 			o_rs <= '1';
+			color_data := SCREEN_LIGHTGREY;
 		elsif (rising_edge(i_clock)) then
 			case state is
 				when idle =>
@@ -365,20 +369,63 @@ begin
 					end if;
 				when bswaitdata0a =>
 					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= bsfill;
+						state <= bsfillbytel;
 						w0_index := 0;
 					else
 						state <= bswaitdata0a;
 						w0_index := w0_index + 1;
 					end if;
-				when bsfill =>
-					data_byte <= x"00";
+				when bsfillbytel =>
+					data_byte <= color_data(15 downto 8);
 					enable <= '1';
 					o_rs <= '1';
 					if (sended = '1') then
-						state <= bsfill_check_index;
+						state <= bsfillbytelwait0;
 					else
-						state <= bsfill;
+						state <= bsfillbytel;
+					end if;
+				when bsfillbytelwait0 =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= bsfillbytelwait0a;
+						w0_index := 0;
+						enable <= '0';
+					else
+						state <= bsfillbytelwait0;
+						w0_index := w0_index + 1;
+					end if;
+				when bsfillbytelwait0a =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= bsfillbyteh;
+						w0_index := 0;
+					else
+						state <= bsfillbytelwait0a;
+						w0_index := w0_index + 1;
+					end if;
+				when bsfillbyteh =>
+					data_byte <= color_data(7 downto 0);
+					enable <= '1';
+					o_rs <= '1';
+					if (sended = '1') then
+						state <= bsfillbytehwait0;
+					else
+						state <= bsfillbyteh;
+					end if;
+				when bsfillbytehwait0 =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= bsfillbytehwait0a;
+						w0_index := 0;
+						enable <= '0';
+					else
+						state <= bsfillbytehwait0;
+						w0_index := w0_index + 1;
+					end if;
+				when bsfillbytehwait0a =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= bsfill_check_index;
+						w0_index := 0;
+					else
+						state <= bsfillbytehwait0a;
+						w0_index := w0_index + 1;
 					end if;
 				when bsfill_check_index =>
 					if (data_index = SCREEN_FILL - 1) then
@@ -399,7 +446,7 @@ begin
 					end if;
 				when bsfillwait1 =>
 					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= bsfill;
+						state <= bsfillbytel;
 						w0_index := 0;
 					else
 						state <= bsfillwait1;

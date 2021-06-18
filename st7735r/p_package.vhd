@@ -19,13 +19,28 @@ package p_package is
 	constant C_CLOCK_COUNTER : integer := 2**3; -- XXX extreme fast
 --	constant C_CLOCK_COUNTER : integer := 2**2; -- XXX monster fast,not work
 
+	-- XXX based on https://github.com/Dungyichao/STM32F4-LCD_ST7735s/blob/master/ST7735/st7735.c
+	-- XXX based on https://github.com/Dungyichao/STM32F4-LCD_ST7735s/blob/master/ST7735/st7735.h
+
 	constant SCREEN_WIDTH : integer := 128;
 	constant SCREEN_HEIGHT : integer := 160;
 	constant SCREEN_FILL : integer := 2 * SCREEN_WIDTH * SCREEN_HEIGHT;
 
+	constant SCREEN_BLACK : std_logic_vector(15 downto 0) := x"0000";
+	constant SCREEN_BLUE : std_logic_vector(15 downto 0) := x"001F";
+	constant SCREEN_RED : std_logic_vector(15 downto 0) := x"F800";
+	constant SCREEN_GREEN : std_logic_vector(15 downto 0) := x"07E0";
+	constant SCREEN_CYAN : std_logic_vector(15 downto 0) := x"07FF";
+	constant SCREEN_MAGENTA : std_logic_vector(15 downto 0) := x"F81F";
+	constant SCREEN_YELLOW : std_logic_vector(15 downto 0) := x"FFE0";
+	constant SCREEN_WHITE : std_logic_vector(15 downto 0) := x"FFFF";
+	constant SCREEN_ORANGE : std_logic_vector(15 downto 0) := x"FD60";
+	constant SCREEN_LIGHTGREEN : std_logic_vector(15 downto 0) := x"07EF";
+	constant SCREEN_LIGHTGREY : std_logic_vector(15 downto 0) := x"A514";
+	-- COLOR888_COLOR565(r, g, b) (((r & 0xF8) << 8) | ((g & 0xFC) << 3) | ((b & 0xF8) >> 3))
+
 	constant data_size_initscreen : integer := 83 * 2;
 	type data_array_initscreen is array(0 to data_size_initscreen-1) of std_logic_vector(0 to BYTE_SIZE-1);
-	-- XXX based on https://github.com/Dungyichao/STM32F4-LCD_ST7735s/blob/master/ST7735/st7735.c
 	constant data_rom_initscreen : data_array_initscreen := (
 	x"b1",x"01",--FRMCTR1
 	x"01",x"00",
