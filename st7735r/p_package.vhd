@@ -114,16 +114,18 @@ package p_package is
 	constant data_size_blackscreen : integer := 11 * 2;
 	type data_array_blackscreen is array(0 to data_size_blackscreen-1) of std_logic_vector(0 to BYTE_SIZE-1);
 	constant data_rom_blackscreen : data_array_blackscreen := (
+	-- XXX sequence for box 1px around
+	-- x"2a",x"01",x"00",x"00",x"01",x"00",x"00",x"00",x"7e",x"00",x"2b",x"01",x"00",x"00",x"01",x"00",x"00",x"00",x"9e",x"00",x"2c",x"01"
 	x"2a",x"01",--CASET
 	x"00",x"00",
-	x"01",x"00",
 	x"00",x"00",
-	x"82",x"00",
+	x"00",x"00",
+	x"7f",x"00",
 	x"2b",x"01",--RASET
 	x"00",x"00",
-	x"02",x"00",
 	x"00",x"00",
-	x"a1",x"00",
+	x"00",x"00",
+	x"9f",x"00",
 	x"2c",x"01" --RAMWR
 	);
 
