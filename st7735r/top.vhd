@@ -101,7 +101,14 @@ begin
 		elsif (rising_edge(i_clock)) then
 			case state is
 				when idle =>
-					state <= smallwait0;
+					if (w0_index = C_CLOCK_COUNTER_100 - 1) then
+--					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= smallwait0;
+						w0_index := 0;
+					else
+						state <= idle;
+						w0_index := w0_index + 1;
+					end if;
 				when smallwait0 =>
 					if (w0_index = C_CLOCK_COUNTER - 1) then
 						state <= smallwait1;
@@ -126,7 +133,6 @@ begin
 					if (w0_index = C_CLOCK_COUNTER - 1) then
 						state <= swreset;
 						w0_index := 0;
-						o_rs <= '0';
 					else
 						state <= smallwait2;
 						w0_index := w0_index + 1;
@@ -134,6 +140,7 @@ begin
 				when swreset =>
 					data_byte <= x"01";
 					enable <= '1';
+					o_rs <= '0';
 					if (sended = '1') then
 						state <= initwait0;
 					else
@@ -144,6 +151,7 @@ begin
 						state <= initwait0a;
 						w0_index := 0;
 						enable <= '0';
+						o_rs <= '1';
 					else
 						state <= initwait0;
 						w0_index := w0_index + 1;
@@ -160,6 +168,7 @@ begin
 				when slpout =>
 					data_byte <= x"11";
 					enable <= '1';
+					o_rs <= '0';
 					if (sended = '1') then
 						state <= initwait1;
 					else
@@ -170,6 +179,7 @@ begin
 						state <= initwait1a;
 						w0_index := 0;
 						enable <= '0';
+						o_rs <= '1';
 					else
 						state <= initwait1;
 						w0_index := w0_index + 1;
@@ -241,6 +251,7 @@ begin
 				when noron =>
 					data_byte <= x"13";
 					enable <= '1';
+					o_rs <= '0';
 					if (sended = '1') then
 						state <= initwait2;
 					else
@@ -251,6 +262,7 @@ begin
 						state <= initwait2a;
 						w0_index := 0;
 						enable <= '0';
+						o_rs <= '1';
 					else
 						state <= initwait2;
 						w0_index := w0_index + 1;
@@ -267,6 +279,7 @@ begin
 				when dispon =>
 					data_byte <= x"29";
 					enable <= '1';
+					o_rs <= '0';
 					if (sended = '1') then
 						state <= initwait3;
 					else
