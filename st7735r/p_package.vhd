@@ -12,8 +12,12 @@ use IEEE.STD_LOGIC_1164.all;
 
 package p_package is
 	constant BYTE_SIZE : integer := 8;
---	constant C_CLOCK_COUNTER : integer := 2**16;
-	constant C_CLOCK_COUNTER : integer := 2**8;
+	constant ABOUT_1coma31_MS: integer := 2**16; --XXX ~1.31ms on 50mhz
+--	constant C_CLOCK_COUNTER : integer := 2**16; -- XXX slow
+--	constant C_CLOCK_COUNTER : integer := 2**8; -- XXX fast
+--	constant C_CLOCK_COUNTER : integer := 2**4; -- XXX very fast
+	constant C_CLOCK_COUNTER : integer := 2**3; -- XXX extreme fast
+--	constant C_CLOCK_COUNTER : integer := 2**2; -- XXX monster fast,not work
 
 	constant SCREEN_WIDTH : integer := 128;
 	constant SCREEN_HEIGHT : integer := 160;
