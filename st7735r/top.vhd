@@ -59,11 +59,17 @@ architecture Behavioral of top is
 	signal enable,sended : std_logic;
 	type states is (
 	idle,
+	-- XXX initialize
 	smallwait0,smallwait1,smallwait2,
 	swreset,initwait0,initwait0a,slpout,initwait1,initwait1a,
 	start,check_index,initwait4,wait0,wait1,initwait4a,
 	noron,initwait2,initwait2a,dispon,initwait3,initwait3a,
-	csup);
+	csup,
+	-- XXX black screen
+	bsinitwait,bsstart,bs_check_index,bswait0,bswait1,
+	bswaitdata0,bswaitdata0a,bsfill,bsfill_check_index,bsfillwait0,bsfillwait1,
+	bscsup
+	);
 	signal state : states;
 	signal cs1,cs2 : std_logic;
 
@@ -79,10 +85,10 @@ begin
 		o_sended => sended
 	);
 
-	o_cs <= cs1 when (state = idle or state = smallwait0 or state = smallwait1 or state = csup) else cs2;
+	o_cs <= cs1 when (state = idle or state = smallwait0 or state = smallwait1 or state = csup or state = bscsup) else cs2;
 
 	p0 : process (i_clock,i_reset,sended) is
-		variable data_index : integer range 0 to data_size - 1;
+		variable data_index : integer range 0 to 2**15;
 		variable w0_index : integer;
 		constant C_CLOCK_COUNTER_7 : integer := C_CLOCK_COUNTER * 7;
 		constant C_CLOCK_COUNTER_150 : integer := C_CLOCK_COUNTER * 150;
@@ -194,11 +200,11 @@ begin
 						w0_index := w0_index + 1;
 					end if;
 				when start =>
-					data_byte <= data_rom(data_index);
+					data_byte <= data_rom_initscreen(data_index);
 					enable <= '1';
-					if (data_rom(data_index + 1) = x"01") then
+					if (data_rom_initscreen(data_index + 1) = x"01") then
 						o_rs <= '0';
-					elsif (data_rom(data_index + 1) = x"00") then
+					elsif (data_rom_initscreen(data_index + 1) = x"00") then
 						o_rs <= '1';
 					end if;
 					if (sended = '1') then
@@ -207,7 +213,7 @@ begin
 						state <= start;
 					end if;
 				when check_index =>
-					if (data_index = data_size - 2) then
+					if (data_index = data_size_initscreen - 2) then
 						data_index := 0;
 						state <= initwait4;
 					else
@@ -306,7 +312,109 @@ begin
 					end if;
 				when csup =>
 					enable <= '0';
-					state <= csup;
+					state <= bsinitwait ;
+					cs1 <= '1';
+				-----------------------------------------------
+				when bsinitwait =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= bsstart;
+						w0_index := 0;
+					else
+						state <= bsinitwait ;
+						w0_index := w0_index + 1;
+					end if;
+				when bsstart =>
+					data_byte <= data_rom_blackscreen(data_index);
+					enable <= '1';
+					if (data_rom_blackscreen(data_index + 1) = x"01") then
+						o_rs <= '0';
+					elsif (data_rom_blackscreen(data_index + 1) = x"00") then
+						o_rs <= '1';
+					end if;
+					if (sended = '1') then
+						state <= bs_check_index;
+					else
+						state <= bsstart;
+					end if;
+				when bs_check_index =>
+					if (data_index = data_size_blackscreen - 2) then
+						data_index := 0;
+						state <= bswaitdata0;
+					else
+						data_index := data_index + 2;
+						state <= bswait0;
+					end if;
+				when bswait0 =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= bswait1;
+						w0_index := 0;
+						enable <= '0';
+					else
+						state <= bswait0;
+						w0_index := w0_index + 1;
+					end if;
+				when bswait1 =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= bsstart;
+						w0_index := 0;
+					else
+						state <= bswait1;
+						w0_index := w0_index + 1;
+					end if;
+				when bswaitdata0 =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= bswaitdata0a;
+						w0_index := 0;
+						enable <= '0';
+					else
+						state <= bswaitdata0;
+						w0_index := w0_index + 1;
+					end if;
+				when bswaitdata0a =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= bsfill;
+						w0_index := 0;
+					else
+						state <= bswaitdata0a;
+						w0_index := w0_index + 1;
+					end if;
+				when bsfill =>
+					data_byte <= x"00";
+					enable <= '1';
+					o_rs <= '1';
+					if (sended = '1') then
+						state <= bsfill_check_index;
+					else
+						state <= bsfill;
+					end if;
+				when bsfill_check_index =>
+					if (data_index = SCREEN_FILL - 1) then
+						data_index := 0;
+						state <= bscsup;
+					else
+						data_index := data_index + 1;
+						state <= bsfillwait0;
+					end if;
+				when bsfillwait0 =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= bsfillwait1;
+						w0_index := 0;
+						enable <= '0';
+					else
+						state <= bsfillwait0;
+						w0_index := w0_index + 1;
+					end if;
+				when bsfillwait1 =>
+					if (w0_index = C_CLOCK_COUNTER - 1) then
+						state <= bsfill;
+						w0_index := 0;
+					else
+						state <= bsfillwait1;
+						w0_index := w0_index + 1;
+					end if;
+				when bscsup =>
+					enable <= '0';
+					state <= bscsup ;
 					cs1 <= '1';
 			end case;
 		end if;

@@ -12,12 +12,17 @@ use IEEE.STD_LOGIC_1164.all;
 
 package p_package is
 	constant BYTE_SIZE : integer := 8;
-	constant C_CLOCK_COUNTER : integer := 2**16;
+--	constant C_CLOCK_COUNTER : integer := 2**16;
+	constant C_CLOCK_COUNTER : integer := 2**8;
 
-	constant data_size : integer := 166;
-	type data_array is array(0 to data_size-1) of std_logic_vector(0 to BYTE_SIZE-1);
+	constant SCREEN_WIDTH : integer := 128;
+	constant SCREEN_HEIGHT : integer := 160;
+	constant SCREEN_FILL : integer := 2 * SCREEN_WIDTH * SCREEN_HEIGHT;
+
+	constant data_size_initscreen : integer := 83 * 2;
+	type data_array_initscreen is array(0 to data_size_initscreen-1) of std_logic_vector(0 to BYTE_SIZE-1);
 	-- XXX based on https://github.com/Dungyichao/STM32F4-LCD_ST7735s/blob/master/ST7735/st7735.c
-	constant data_rom : data_array := (
+	constant data_rom_initscreen : data_array_initscreen := (
 	x"b1",x"01",--FRMCTR1
 	x"01",x"00",
 	x"2c",x"00",
@@ -101,6 +106,22 @@ package p_package is
 	x"00",x"00",
 	x"02",x"00",
 	x"10",x"00");
+
+	constant data_size_blackscreen : integer := 11 * 2;
+	type data_array_blackscreen is array(0 to data_size_blackscreen-1) of std_logic_vector(0 to BYTE_SIZE-1);
+	constant data_rom_blackscreen : data_array_blackscreen := (
+	x"2a",x"01",--CASET
+	x"00",x"00",
+	x"01",x"00",
+	x"00",x"00",
+	x"82",x"00",
+	x"2b",x"01",--RASET
+	x"00",x"00",
+	x"02",x"00",
+	x"00",x"00",
+	x"a1",x"00",
+	x"2c",x"01" --RAMWR
+	);
 
 	-- XXX for simulation
 --	shared variable data_rom_index : integer range 0 to data_size - 1;
