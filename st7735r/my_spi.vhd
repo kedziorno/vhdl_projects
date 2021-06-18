@@ -103,18 +103,23 @@ begin
 	end process p2;
 
 	p3 : process (clock_divider,i_reset,i_enable) is
-		variable d : integer := 0;
 		constant cd : integer := 2;
+		variable d : integer range 0 to cd - 1;
 	begin
 		if (i_reset = '1') then
-			clock_data <= '1';
+			clock_data <= '0';
+			d := 0;
 		elsif (rising_edge(clock_divider)) then
-			if (d = cd - 1) then
-				clock_data <= '1';
-				d := 0;
+			if (i_enable = '1') then
+				if (d = cd - 1) then
+					clock_data <= '1';
+					d := 0;
+				else
+					clock_data <= '0';
+					d := d + 1;
+				end if;
 			else
 				clock_data <= '0';
-				d := d + 1;
 			end if;
 		end if;
 	end process p3;

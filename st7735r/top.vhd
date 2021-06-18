@@ -66,9 +66,8 @@ architecture Behavioral of top is
 	noron,initwait2,initwait2a,dispon,initwait3,initwait3a,
 	csup,
 	-- XXX black screen
-	bsinitwait,bsstart,bs_check_index,bswait0,bswait1,
-	bswaitdata0,bswaitdata0a,bsfill,bsfill_check_index,bsfillwait0,bsfillwait1,
-	bscsup
+	bsinitwait,bsstart,bs_check_index,bswaitdata0,bswait0,bswait1,
+	bswaitdata0a,bsfill,bsfill_check_index,bscsup,bsfillwait0,bsfillwait1
 	);
 	signal state : states;
 	signal cs1,cs2 : std_logic;
@@ -88,8 +87,8 @@ begin
 	o_cs <= cs1 when (state = idle or state = smallwait0 or state = smallwait1 or state = csup or state = bscsup) else cs2;
 
 	p0 : process (i_clock,i_reset,sended) is
-		variable data_index : integer range 0 to 2**15;
-		variable w0_index : integer;
+		variable data_index : integer range 0 to 2**16;
+		variable w0_index : integer range 0 to 2**25;
 		constant C_CLOCK_COUNTER_7 : integer := C_CLOCK_COUNTER * 7;
 		constant C_CLOCK_COUNTER_150 : integer := C_CLOCK_COUNTER * 150;
 		constant C_CLOCK_COUNTER_500 : integer := C_CLOCK_COUNTER * 500;
@@ -108,7 +107,6 @@ begin
 			case state is
 				when idle =>
 					if (w0_index = C_CLOCK_COUNTER_100 - 1) then
---					if (w0_index = C_CLOCK_COUNTER - 1) then
 						state <= smallwait0;
 						w0_index := 0;
 					else
@@ -127,7 +125,6 @@ begin
 					end if;
 				when smallwait1 =>
 					if (w0_index = C_CLOCK_COUNTER_7 - 1) then
---					if (w0_index = C_CLOCK_COUNTER - 1) then
 						state <= smallwait2;
 						w0_index := 0;
 						o_reset <= '1';
@@ -164,7 +161,6 @@ begin
 					end if;
 				when initwait0a =>
 					if (w0_index = C_CLOCK_COUNTER_150 - 1) then
---					if (w0_index = C_CLOCK_COUNTER - 1) then
 						state <= slpout;
 						w0_index := 0;
 					else
@@ -192,7 +188,6 @@ begin
 					end if;
 				when initwait1a =>
 					if (w0_index = C_CLOCK_COUNTER_500 - 1) then
---					if (w0_index = C_CLOCK_COUNTER - 1) then
 						state <= start;
 						w0_index := 0;
 					else
@@ -275,7 +270,6 @@ begin
 					end if;
 				when initwait2a =>
 					if (w0_index = C_CLOCK_COUNTER_10 - 1) then
---					if (w0_index = C_CLOCK_COUNTER - 1) then
 						state <= dispon;
 						w0_index := 0;
 					else
@@ -303,7 +297,6 @@ begin
 					end if;
 				when initwait3a =>
 					if (w0_index = C_CLOCK_COUNTER_100 - 1) then
---					if (w0_index = C_CLOCK_COUNTER - 1) then
 						state <= csup;
 						w0_index := 0;
 					else
