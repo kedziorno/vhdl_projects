@@ -2,7 +2,7 @@
 -- Company: 
 -- Engineer: 
 -- 
--- Create Date:    15:41:34 06/14/2021 
+-- Create Date:    19:59:41 06/21/2021 
 -- Design Name: 
 -- Module Name:    top - Behavioral 
 -- Project Name: 
@@ -20,6 +20,8 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use WORK.p_package.ALL;
+use WORK.p_screen.ALL;
+use WORK.p_rom_data.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -31,7 +33,7 @@ use WORK.p_package.ALL;
 --use UNISIM.VComponents.all;
 
 entity top is
-port (
+Port (
 	i_clock : in std_logic;
 	i_reset : in std_logic;
 	o_cs : inout std_logic;
@@ -43,424 +45,117 @@ port (
 end top;
 
 architecture Behavioral of top is
-	component my_spi is
+
+	component initialize is
 	port (
 		i_clock : in std_logic;
 		i_reset : in std_logic;
-		i_enable : in std_logic;
-		i_data_byte : in std_logic_vector(0 to BYTE_SIZE-1);
+		i_run : in std_logic;
+		i_color : inout COLOR_TYPE;
+		o_initialized : inout std_logic;
 		o_cs : inout std_logic;
 		o_do : inout std_logic;
 		o_ck : inout std_logic;
-		o_sended : inout std_logic
+		o_reset : inout std_logic;
+		o_rs : inout std_logic
 	);
-	end component my_spi;
-	signal data_byte : std_logic_vector(0 to BYTE_SIZE-1);
-	signal enable,sended : std_logic;
-	type states is (
-	idle,
-	-- XXX initialize
-	smallwait0,smallwait1,smallwait2,
-	swreset,initwait0,initwait0a,slpout,initwait1,initwait1a,
-	start,check_index,initwait4,wait0,wait1,initwait4a,
-	noron,initwait2,initwait2a,dispon,initwait3,initwait3a,
-	csup,
-	-- XXX black screen
-	bsinitwait,bsstart,bs_check_index,bswaitdata0,bswait0,bswait1,
-	bswaitdata0a,bsfillbytel,bsfillbytelwait0,bsfillbytelwait0a,
-	bsfillbyteh,bsfillbytehwait0,bsfillbytehwait0a,bsfill_check_index,
-	bscsup,bsfillwait0,bsfillwait1
-	);
+	end component initialize;
+	signal initialize_run,initialize_initialized,initialize_cs,initialize_do,initialize_ck,initialize_reset,initialize_rs : std_logic;
+	signal initialize_color : COLOR_TYPE;
+
+	type states is (idle,get_instruction,execute_instruction,get_color,screen_initialized);
 	signal state : states;
-	signal cs1,cs2 : std_logic;
+
+	signal index0 : integer;
+	signal temp_data : BYTE_TYPE;
 
 begin
-	u0 : my_spi port map (
+
+	o_cs <= initialize_cs when initialize_run = '1' else 'Z';
+	o_do <= initialize_do when initialize_run = '1' else 'Z';
+	o_ck <= initialize_ck when initialize_run = '1' else 'Z';
+	o_reset <= initialize_reset when initialize_run = '1' else 'Z';
+	o_rs <= initialize_rs when initialize_run = '1' else 'Z';
+
+	c0 : initialize
+	port map (
 		i_clock => i_clock,
 		i_reset => i_reset,
-		i_enable => enable,
-		i_data_byte => data_byte,
-		o_cs => cs2,
-		o_do => o_do,
-		o_ck => o_ck,
-		o_sended => sended
+		i_run => initialize_run,
+		i_color => initialize_color,
+		o_initialized => initialize_initialized,
+		o_cs => initialize_cs,
+		o_do => initialize_do,
+		o_ck => initialize_ck,
+		o_reset => initialize_reset,
+		o_rs => initialize_rs
 	);
 
-	o_cs <= cs1 when (state = idle or state = smallwait0 or state = smallwait1 or state = csup or state = bscsup) else cs2;
+	p1 : process (temp_data) is
+	begin
+		case (temp_data) is
+			when x"00" =>
+				initialize_color <= SCREEN_BLACK;
+			when x"01" =>
+				initialize_color <= SCREEN_BLUE;
+			when x"02" =>
+				initialize_color <= SCREEN_RED;
+			when x"03" =>
+				initialize_color <= SCREEN_GREEN;
+			when x"04" =>
+				initialize_color <= SCREEN_CYAN;
+			when x"05" =>
+				initialize_color <= SCREEN_MAGENTA;
+			when x"06" =>
+				initialize_color <= SCREEN_YELLOW;
+			when x"07" =>
+				initialize_color <= SCREEN_WHITE;
+			when x"08" =>
+				initialize_color <= SCREEN_ORANGE;
+			when x"09" =>
+				initialize_color <= SCREEN_LIGHTGREEN;
+			when x"0a" =>
+				initialize_color <= SCREEN_LIGHTGREY;
+			when others =>
+				initialize_color <= SCREEN_BLACK;
+		end case;	
+	end process p1;
 
-	p0 : process (i_clock,i_reset,sended) is
-		variable data_index : integer range 0 to 2**16;
-		variable w0_index : integer range 0 to 2**25;
-		constant C_CLOCK_COUNTER_7 : integer := C_CLOCK_COUNTER * 7;
-		constant C_CLOCK_COUNTER_150 : integer := C_CLOCK_COUNTER * 150;
-		constant C_CLOCK_COUNTER_500 : integer := C_CLOCK_COUNTER * 500;
-		constant C_CLOCK_COUNTER_10 : integer := C_CLOCK_COUNTER * 10;
-		constant C_CLOCK_COUNTER_100 : integer := C_CLOCK_COUNTER * 100;
-		variable color_data : std_logic_vector(15 downto 0);
+	p0 : process (i_clock,i_reset) is
 	begin
 		if (i_reset = '1') then
-			enable <= '0';
 			state <= idle;
-			w0_index := 0;
-			data_index := 0;
-			cs1 <= '1';
-			o_reset <= '1';
-			o_rs <= '1';
-			color_data := SCREEN_LIGHTGREY;
+			index0 <= 0;
+			temp_data <= (others => '0');
+			initialize_color <= (others => '0');
 		elsif (rising_edge(i_clock)) then
-			case state is
+			case (state) is
 				when idle =>
-					if (w0_index = C_CLOCK_COUNTER_100 - 1) then
-						state <= smallwait0;
-						w0_index := 0;
-					else
+					state <= get_instruction;
+					initialize_run <= '0';
+				when get_instruction =>
+					state <= execute_instruction;
+					temp_data <= C_ROM_DATA(index0);
+					index0 <= index0 + 1;
+				when execute_instruction =>
+					case (temp_data) is
+						when x"01" =>
+							state <= get_color;
+						when others => null;
+					end case;
+				when get_color =>
+					state <= screen_initialized;
+					initialize_run <= '1';
+					temp_data <= C_ROM_DATA(index0);
+				when screen_initialized =>
+					if (initialize_initialized = '1') then
 						state <= idle;
-						w0_index := w0_index + 1;
-					end if;
-				when smallwait0 =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= smallwait1;
-						w0_index := 0;
-						o_reset <= '0';
 					else
-						state <= smallwait0;
-						w0_index := w0_index + 1;
-						cs1 <= '0';
+						state <= screen_initialized;
 					end if;
-				when smallwait1 =>
-					if (w0_index = C_CLOCK_COUNTER_7 - 1) then
-						state <= smallwait2;
-						w0_index := 0;
-						o_reset <= '1';
-					else
-						state <= smallwait1;
-						w0_index := w0_index + 1;
-					end if;
-				when smallwait2 =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= swreset;
-						w0_index := 0;
-					else
-						state <= smallwait2;
-						w0_index := w0_index + 1;
-					end if;
-				when swreset =>
-					data_byte <= x"01";
-					enable <= '1';
-					o_rs <= '0';
-					if (sended = '1') then
-						state <= initwait0;
-					else
-						state <= swreset;
-					end if;
-				when initwait0 =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= initwait0a;
-						w0_index := 0;
-						enable <= '0';
-						o_rs <= '1';
-					else
-						state <= initwait0;
-						w0_index := w0_index + 1;
-					end if;
-				when initwait0a =>
-					if (w0_index = C_CLOCK_COUNTER_150 - 1) then
-						state <= slpout;
-						w0_index := 0;
-					else
-						state <= initwait0a;
-						w0_index := w0_index + 1;
-					end if;
-				when slpout =>
-					data_byte <= x"11";
-					enable <= '1';
-					o_rs <= '0';
-					if (sended = '1') then
-						state <= initwait1;
-					else
-						state <= slpout;
-					end if;
-				when initwait1 =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= initwait1a;
-						w0_index := 0;
-						enable <= '0';
-						o_rs <= '1';
-					else
-						state <= initwait1;
-						w0_index := w0_index + 1;
-					end if;
-				when initwait1a =>
-					if (w0_index = C_CLOCK_COUNTER_500 - 1) then
-						state <= start;
-						w0_index := 0;
-					else
-						state <= initwait1a;
-						w0_index := w0_index + 1;
-					end if;
-				when start =>
-					data_byte <= data_rom_initscreen(data_index);
-					enable <= '1';
-					if (data_rom_initscreen(data_index + 1) = x"01") then
-						o_rs <= '0';
-					elsif (data_rom_initscreen(data_index + 1) = x"00") then
-						o_rs <= '1';
-					end if;
-					if (sended = '1') then
-						state <= check_index;
-					else
-						state <= start;
-					end if;
-				when check_index =>
-					if (data_index = data_size_initscreen - 2) then
-						data_index := 0;
-						state <= initwait4;
-					else
-						data_index := data_index + 2;
-						state <= wait0;
-					end if;
-				when wait0 =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= wait1;
-						w0_index := 0;
-						enable <= '0';
-					else
-						state <= wait0;
-						w0_index := w0_index + 1;
-					end if;
-				when wait1 =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= start;
-						w0_index := 0;
-					else
-						state <= wait1;
-						w0_index := w0_index + 1;
-					end if;
-				when initwait4 =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= initwait4a;
-						w0_index := 0;
-						enable <= '0';
-					else
-						state <= initwait4;
-						w0_index := w0_index + 1;
-					end if;
-				when initwait4a =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= noron;
-						w0_index := 0;
-					else
-						state <= initwait4a;
-						w0_index := w0_index + 1;
-					end if;
-				when noron =>
-					data_byte <= x"13";
-					enable <= '1';
-					o_rs <= '0';
-					if (sended = '1') then
-						state <= initwait2;
-					else
-						state <= noron;
-					end if;
-				when initwait2 =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= initwait2a;
-						w0_index := 0;
-						enable <= '0';
-						o_rs <= '1';
-					else
-						state <= initwait2;
-						w0_index := w0_index + 1;
-					end if;
-				when initwait2a =>
-					if (w0_index = C_CLOCK_COUNTER_10 - 1) then
-						state <= dispon;
-						w0_index := 0;
-					else
-						state <= initwait2a;
-						w0_index := w0_index + 1;
-					end if;
-				when dispon =>
-					data_byte <= x"29";
-					enable <= '1';
-					o_rs <= '0';
-					if (sended = '1') then
-						state <= initwait3;
-					else
-						state <= dispon;
-					end if;
-				when initwait3 =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= initwait3a;
-						w0_index := 0;
-						enable <= '0';
-						o_rs <= '1';
-					else
-						state <= initwait3;
-						w0_index := w0_index + 1;
-					end if;
-				when initwait3a =>
-					if (w0_index = C_CLOCK_COUNTER_100 - 1) then
-						state <= csup;
-						w0_index := 0;
-					else
-						state <= initwait3a;
-						w0_index := w0_index + 1;
-					end if;
-				when csup =>
-					enable <= '0';
-					state <= bsinitwait ;
-					cs1 <= '1';
-				-----------------------------------------------
-				when bsinitwait =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= bsstart;
-						w0_index := 0;
-					else
-						state <= bsinitwait ;
-						w0_index := w0_index + 1;
-					end if;
-				when bsstart =>
-					data_byte <= data_rom_blackscreen(data_index);
-					enable <= '1';
-					if (data_rom_blackscreen(data_index + 1) = x"01") then
-						o_rs <= '0';
-					elsif (data_rom_blackscreen(data_index + 1) = x"00") then
-						o_rs <= '1';
-					end if;
-					if (sended = '1') then
-						state <= bs_check_index;
-					else
-						state <= bsstart;
-					end if;
-				when bs_check_index =>
-					if (data_index = data_size_blackscreen - 2) then
-						data_index := 0;
-						state <= bswaitdata0;
-					else
-						data_index := data_index + 2;
-						state <= bswait0;
-					end if;
-				when bswait0 =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= bswait1;
-						w0_index := 0;
-						enable <= '0';
-					else
-						state <= bswait0;
-						w0_index := w0_index + 1;
-					end if;
-				when bswait1 =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= bsstart;
-						w0_index := 0;
-					else
-						state <= bswait1;
-						w0_index := w0_index + 1;
-					end if;
-				when bswaitdata0 =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= bswaitdata0a;
-						w0_index := 0;
-						enable <= '0';
-					else
-						state <= bswaitdata0;
-						w0_index := w0_index + 1;
-					end if;
-				when bswaitdata0a =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= bsfillbytel;
-						w0_index := 0;
-					else
-						state <= bswaitdata0a;
-						w0_index := w0_index + 1;
-					end if;
-				when bsfillbytel =>
-					data_byte <= color_data(15 downto 8);
-					enable <= '1';
-					o_rs <= '1';
-					if (sended = '1') then
-						state <= bsfillbytelwait0;
-					else
-						state <= bsfillbytel;
-					end if;
-				when bsfillbytelwait0 =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= bsfillbytelwait0a;
-						w0_index := 0;
-						enable <= '0';
-					else
-						state <= bsfillbytelwait0;
-						w0_index := w0_index + 1;
-					end if;
-				when bsfillbytelwait0a =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= bsfillbyteh;
-						w0_index := 0;
-					else
-						state <= bsfillbytelwait0a;
-						w0_index := w0_index + 1;
-					end if;
-				when bsfillbyteh =>
-					data_byte <= color_data(7 downto 0);
-					enable <= '1';
-					o_rs <= '1';
-					if (sended = '1') then
-						state <= bsfillbytehwait0;
-					else
-						state <= bsfillbyteh;
-					end if;
-				when bsfillbytehwait0 =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= bsfillbytehwait0a;
-						w0_index := 0;
-						enable <= '0';
-					else
-						state <= bsfillbytehwait0;
-						w0_index := w0_index + 1;
-					end if;
-				when bsfillbytehwait0a =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= bsfill_check_index;
-						w0_index := 0;
-					else
-						state <= bsfillbytehwait0a;
-						w0_index := w0_index + 1;
-					end if;
-				when bsfill_check_index =>
-					if (data_index = SCREEN_FILL - 1) then
-						data_index := 0;
-						state <= bscsup;
-					else
-						data_index := data_index + 1;
-						state <= bsfillwait0;
-					end if;
-				when bsfillwait0 =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= bsfillwait1;
-						w0_index := 0;
-						enable <= '0';
-					else
-						state <= bsfillwait0;
-						w0_index := w0_index + 1;
-					end if;
-				when bsfillwait1 =>
-					if (w0_index = C_CLOCK_COUNTER - 1) then
-						state <= bsfillbytel;
-						w0_index := 0;
-					else
-						state <= bsfillwait1;
-						w0_index := w0_index + 1;
-					end if;
-				when bscsup =>
-					enable <= '0';
-					state <= bscsup ;
-					cs1 <= '1';
 			end case;
 		end if;
 	end process p0;
-
---	check_test(cs,do,ck); -- XXX check the bits on spi and compare with rom data , for simulation
 
 end Behavioral;
 

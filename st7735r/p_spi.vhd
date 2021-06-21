@@ -58,14 +58,14 @@ package body p_spi is
 --		signal ck : in std_logic
 --	) is
 --	begin
---		if ((ck'event and ck = '1') and cs = '0') then
+--		if ((ck'event and ck = R_EDGE) and cs = '0') then
 --			data_temp(data_temp_index) := do;
 --			if (data_temp_index = BYTE_SIZE - 1) then
 --				data_temp_index := 0;
 --			else
 --				data_temp_index := data_temp_index + 1;
 --			end if;
---		elsif (cs'event and cs = '1') then
+--		elsif (cs'event and cs = R_EDGE) then
 --			assert (data_rom(data_rom_index) = data_temp)
 --			report "FAIL : (" & integer'image(data_rom_index) & ") " & vec2str(data_temp) & " expect " & vec2str(data_rom(data_rom_index)) severity note;
 --			assert (data_rom(data_rom_index) /= data_temp)
