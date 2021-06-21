@@ -14,10 +14,10 @@ use WORK.p_package.ALL;
 package p_rom_data is
 
 	constant COUNT_ROM_DATA : integer := 3;
-	type ARRAY_ROM_DATA is array(0 to COUNT_ROM_DATA - 1) of std_logic_vector(BYTE_SIZE - 1 downto 0);
+	type ARRAY_ROM_DATA is array(0 to COUNT_ROM_DATA - 1) of BYTE_TYPE;
 	constant C_ROM_DATA : ARRAY_ROM_DATA := (
 		x"01", -- initialize
-		x"01", -- color_number
+		x"02", -- color_number
 		x"00"
 	);
 

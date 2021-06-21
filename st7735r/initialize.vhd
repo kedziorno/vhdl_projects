@@ -36,7 +36,7 @@ port (
 	i_clock : in std_logic;
 	i_reset : in std_logic;
 	i_run : in std_logic;
-	i_color : inout std_logic_vector(15 downto 0);
+	i_color : in COLOR_TYPE;
 	o_initialized : inout std_logic;
 	o_cs : inout std_logic;
 	o_do : inout std_logic;
@@ -100,7 +100,6 @@ begin
 		constant C_CLOCK_COUNTER_500 : integer := C_CLOCK_COUNTER * 500;
 		constant C_CLOCK_COUNTER_10 : integer := C_CLOCK_COUNTER * 10;
 		constant C_CLOCK_COUNTER_100 : integer := C_CLOCK_COUNTER * 100;
-		variable color_data : std_logic_vector(15 downto 0);
 	begin
 		if (i_reset = '1') then
 			enable <= '0';
@@ -110,7 +109,6 @@ begin
 			cs1 <= '1';
 			o_reset <= '1';
 			o_rs <= '1';
-			color_data := i_color;
 			o_initialized <= '0';
 		elsif (rising_edge(i_clock)) then
 			case state is
@@ -380,7 +378,7 @@ begin
 						w0_index := w0_index + 1;
 					end if;
 				when bsfillbytel =>
-					data_byte <= color_data(15 downto 8);
+					data_byte <= i_color(15 downto 8);
 					enable <= '1';
 					o_rs <= '1';
 					if (sended = '1') then
@@ -406,7 +404,7 @@ begin
 						w0_index := w0_index + 1;
 					end if;
 				when bsfillbyteh =>
-					data_byte <= color_data(7 downto 0);
+					data_byte <= i_color(7 downto 0);
 					enable <= '1';
 					o_rs <= '1';
 					if (sended = '1') then

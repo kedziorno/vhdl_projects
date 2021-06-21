@@ -51,7 +51,7 @@ architecture Behavioral of top is
 		i_clock : in std_logic;
 		i_reset : in std_logic;
 		i_run : in std_logic;
-		i_color : inout COLOR_TYPE;
+		i_color : in COLOR_TYPE;
 		o_initialized : inout std_logic;
 		o_cs : inout std_logic;
 		o_do : inout std_logic;
@@ -63,7 +63,7 @@ architecture Behavioral of top is
 	signal initialize_run,initialize_initialized,initialize_cs,initialize_do,initialize_ck,initialize_reset,initialize_rs : std_logic;
 	signal initialize_color : COLOR_TYPE;
 
-	type states is (idle,get_instruction,execute_instruction,get_color,screen_initialized);
+	type states is (idle,get_instruction,execute_instruction,get_color,screen_initialize,stop);
 	signal state : states;
 
 	signal index0 : integer;
@@ -127,7 +127,6 @@ begin
 			state <= idle;
 			index0 <= 0;
 			temp_data <= (others => '0');
-			initialize_color <= (others => '0');
 		elsif (rising_edge(i_clock)) then
 			case (state) is
 				when idle =>
@@ -144,15 +143,17 @@ begin
 						when others => null;
 					end case;
 				when get_color =>
-					state <= screen_initialized;
+					state <= screen_initialize;
 					initialize_run <= '1';
 					temp_data <= C_ROM_DATA(index0);
-				when screen_initialized =>
+				when screen_initialize =>
 					if (initialize_initialized = '1') then
-						state <= idle;
+						state <= stop;
 					else
-						state <= screen_initialized;
+						state <= screen_initialize;
 					end if;
+				when stop =>
+					state <= stop;
 			end case;
 		end if;
 	end process p0;
