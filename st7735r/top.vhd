@@ -36,11 +36,11 @@ entity top is
 Port (
 	i_clock : in std_logic;
 	i_reset : in std_logic;
-	o_cs : inout std_logic;
-	o_do : inout std_logic;
-	o_ck : inout std_logic;
-	o_reset : inout std_logic;
-	o_rs : inout std_logic
+	o_cs : out std_logic;
+	o_do : out std_logic;
+	o_ck : out std_logic;
+	o_reset : out std_logic;
+	o_rs : out std_logic
 );
 end top;
 
@@ -52,19 +52,19 @@ architecture Behavioral of top is
 		i_reset : in std_logic;
 		i_run : in std_logic;
 		i_color : in COLOR_TYPE;
-		o_initialized : inout std_logic;
-		o_cs : inout std_logic;
-		o_do : inout std_logic;
-		o_ck : inout std_logic;
-		o_reset : inout std_logic;
-		o_rs : inout std_logic
+		o_initialized : out std_logic;
+		o_cs : out std_logic;
+		o_do : out std_logic;
+		o_ck : out std_logic;
+		o_reset : out std_logic;
+		o_rs : out std_logic
 	);
 	end component initialize;
 	signal initialize_run,initialize_initialized,initialize_cs,initialize_do,initialize_ck,initialize_reset,initialize_rs : std_logic;
 	signal initialize_color : COLOR_TYPE;
 
 	type states is (idle,start,get_instruction,execute_instruction,get_color,screen_initialize,screen_initialize_finish,stop);
-	signal state_current,state_next : states;
+	signal state : states;
 
 	signal index0 : integer range 0 to COUNT_ROM_DATA - 1;
 	signal byte_instruciton : BYTE_TYPE;
@@ -121,83 +121,50 @@ begin
 		end case;	
 	end process p1;
 
-	p_control : process (i_clock,i_reset) is
+	p_control : process (i_clock,i_reset,initialize_initialized) is
 	begin
 		if (i_reset = '1') then
-			state_current <= idle;
+			state <= idle;
 		elsif (rising_edge(i_clock)) then
-			state_current <= state_next;
+			case (state) is
+				when idle =>
+					state <= start;
+					byte_instruciton <= (others => '0');
+					initialize_run <= '0';
+					index0 <= 0;
+				when start =>
+					state <= get_instruction;
+				when get_instruction =>
+					state <= execute_instruction;
+					byte_instruciton <= C_ROM_DATA(index0);
+					index0 <= index0 + 1;
+				when execute_instruction =>
+					case (byte_instruciton) is
+						when x"00" =>
+							state <= get_instruction;
+						when x"01" =>
+							state <= get_color;
+						when others => null;
+					end case;
+				when get_color =>
+					state <= screen_initialize;
+					byte_instruciton <= C_ROM_DATA(index0);
+					initialize_run <= '1';
+				when screen_initialize =>
+					if (initialize_initialized = '1') then
+						state <= screen_initialize_finish;
+					else
+						state <= screen_initialize;
+					end if;
+				when screen_initialize_finish =>
+					state <= stop;
+				when stop =>
+					state <= stop;
+				when others =>
+					state <= idle;
+			end case;
 		end if;
 	end process p_control;
-
-	pa : process (state_current,initialize_run) is
-	begin
---		case (state_current) is
---			when idle =>
---				byte_instruciton <= (others => '0');
---				initialize_run <= '0';
---				index0 <= 0;
---			when get_instruction =>
---				index0 <= index0 + 1;
---			when get_color =>
---				initialize_run <= '1';
---			when others =>
---				byte_instruciton <= C_ROM_DATA(index0);
---			index0 <= index0;
---			initialize_run <= initialize_run;
---		end case;
-
---		initialize_run <= initialize_run;
---		index0 <= index0;
-		if (state_current = idle) then
-			byte_instruciton <= (others => '0');
-			initialize_run <= '0';
-			index0 <= 0;
-		elsif (state_current = get_color) then
-			initialize_run <= '1';
-		elsif (state_current = get_instruction) then
-			index0 <= index0 + 1;
-		else
-			byte_instruciton <= C_ROM_DATA(index0);
-			initialize_run <= initialize_run;
-			index0 <= index0;
-		end if;
-	end process pa;
-
-	p_data : process (state_current,byte_instruciton,initialize_initialized) is
-	begin
-		state_next <= state_current;
-		case (state_current) is
-			when idle =>
-				state_next <= start;
-			when start =>
-				state_next <= get_instruction;
-			when get_instruction =>
-				state_next <= execute_instruction;
-			when execute_instruction =>
-				case (byte_instruciton) is
-					when x"00" =>
-						state_next <= get_instruction;
-					when x"01" =>
-						state_next <= get_color;
-					when others => null;
-				end case;
-			when get_color =>
-				state_next <= screen_initialize;
-			when screen_initialize =>
-				if (initialize_initialized = '1') then
-					state_next <= screen_initialize_finish;
-				else
-					state_next <= screen_initialize;
-				end if;
-			when screen_initialize_finish =>
-				state_next <= stop;
-			when stop =>
-				state_next <= stop;
-			when others =>
-				state_next <= idle;
-		end case;
-	end process p_data;
 
 end Behavioral;
 

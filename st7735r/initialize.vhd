@@ -37,12 +37,12 @@ port (
 	i_reset : in std_logic;
 	i_run : in std_logic;
 	i_color : in COLOR_TYPE;
-	o_initialized : inout std_logic;
-	o_cs : inout std_logic;
-	o_do : inout std_logic;
-	o_ck : inout std_logic;
-	o_reset : inout std_logic;
-	o_rs : inout std_logic
+	o_initialized : out std_logic;
+	o_cs : out std_logic;
+	o_do : out std_logic;
+	o_ck : out std_logic;
+	o_reset : out std_logic;
+	o_rs : out std_logic
 );
 end initialize;
 
@@ -52,11 +52,11 @@ architecture Behavioral of initialize is
 		i_clock : in std_logic;
 		i_reset : in std_logic;
 		i_enable : in std_logic;
-		i_data_byte : in BYTE_TYPE;
-		o_cs : inout std_logic;
-		o_do : inout std_logic;
-		o_ck : inout std_logic;
-		o_sended : inout std_logic
+		i_data_byte : in std_logic_vector(0 to BYTE_SIZE-1);
+		o_cs : out std_logic;
+		o_do : out std_logic;
+		o_ck : out std_logic;
+		o_sended : out std_logic
 	);
 	end component my_spi;
 	signal data_byte : BYTE_TYPE;
