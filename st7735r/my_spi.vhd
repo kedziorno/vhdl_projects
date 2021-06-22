@@ -35,7 +35,7 @@ port (
 	i_clock : in std_logic;
 	i_reset : in std_logic;
 	i_enable : in std_logic;
-	i_data_byte : in std_logic_vector(0 to BYTE_SIZE-1);
+	i_data_byte : in BYTE_TYPE;
 	o_cs : inout std_logic;
 	o_do : inout std_logic;
 	o_ck : inout std_logic;
@@ -48,7 +48,7 @@ architecture Behavioral of my_spi is
 	signal data_index : integer range BYTE_SIZE - 1 downto 0;
 begin
 	o_cs <= '0' when i_enable = '1' else '1';
-	o_do <= i_data_byte(data_index) when o_cs = '0' else '0';
+	o_do <= i_data_byte(BYTE_SIZE - 1 - data_index) when o_cs = '0' else '0';
 	o_sended <= '1' when data_index = BYTE_SIZE - 1 and i_enable = '1' else '0';
 
 	p0 : process (i_clock,i_reset) is

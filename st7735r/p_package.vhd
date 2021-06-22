@@ -13,7 +13,7 @@ use IEEE.STD_LOGIC_1164.all;
 package p_package is
 
 	constant BYTE_SIZE : integer := 8;
-	subtype BYTE_TYPE is std_logic_vector(0 to BYTE_SIZE - 1);
+	subtype BYTE_TYPE is std_logic_vector(BYTE_SIZE - 1 downto 0);
 	constant ABOUT_1coma31_MS: integer := 2**16; --XXX ~1.31ms on 50mhz
 --	constant C_CLOCK_COUNTER : integer := 2**16; -- XXX slow
 --	constant C_CLOCK_COUNTER : integer := 2**8; -- XXX fast
