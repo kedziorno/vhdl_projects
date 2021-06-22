@@ -67,7 +67,7 @@ architecture Behavioral of top is
 	signal state : states;
 
 	signal index0 : integer;
-	signal temp_data : BYTE_TYPE;
+	signal byte_instruciton : BYTE_TYPE;
 
 begin
 
@@ -91,9 +91,9 @@ begin
 		o_rs => initialize_rs
 	);
 
-	p1 : process (temp_data) is
+	p1 : process (byte_instruciton) is
 	begin
-		case (temp_data) is
+		case (byte_instruciton) is
 			when x"00" =>
 				initialize_color <= SCREEN_BLACK;
 			when x"01" =>
@@ -126,7 +126,7 @@ begin
 		if (i_reset = '1') then
 			state <= idle;
 			index0 <= 0;
-			temp_data <= (others => '0');
+			byte_instruciton <= (others => '0');
 		elsif (rising_edge(i_clock)) then
 			case (state) is
 				when idle =>
@@ -134,10 +134,12 @@ begin
 					initialize_run <= '0';
 				when get_instruction =>
 					state <= execute_instruction;
-					temp_data <= C_ROM_DATA(index0);
+					byte_instruciton <= C_ROM_DATA(index0);
 					index0 <= index0 + 1;
 				when execute_instruction =>
-					case (temp_data) is
+					case (byte_instruciton) is
+						when x"00" =>
+							state <= get_instruction;
 						when x"01" =>
 							state <= get_color;
 						when others => null;
@@ -145,7 +147,7 @@ begin
 				when get_color =>
 					state <= screen_initialize;
 					initialize_run <= '1';
-					temp_data <= C_ROM_DATA(index0);
+					byte_instruciton <= C_ROM_DATA(index0);
 				when screen_initialize =>
 					if (initialize_initialized = '1') then
 						state <= stop;
