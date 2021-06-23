@@ -46,22 +46,40 @@ end top;
 
 architecture Behavioral of top is
 
+	component my_spi is
+	port (
+		i_clock : in std_logic;
+		i_reset : in std_logic;
+		i_enable : in std_logic;
+		i_data_byte : in std_logic_vector(0 to BYTE_SIZE-1);
+		o_cs : out std_logic;
+		o_do : out std_logic;
+		o_ck : out std_logic;
+		o_sended : out std_logic
+	);
+	end component my_spi;
+	signal spi_enable,spi_cs,spi_do,spi_ck,spi_sended : std_logic;
+	signal spi_data_byte : std_logic_vector(0 to BYTE_SIZE-1);
+
 	component initialize is
 	port (
 		i_clock : in std_logic;
 		i_reset : in std_logic;
 		i_run : in std_logic;
 		i_color : in COLOR_TYPE;
+		i_sended : in std_logic;
 		o_initialized : out std_logic;
-		o_cs : out std_logic;
-		o_do : out std_logic;
-		o_ck : out std_logic;
+		o_enable : out std_logic;
 		o_reset : out std_logic;
-		o_rs : out std_logic
+		o_rs : out std_logic;
+		o_cs : out std_logic;
+		o_data_byte : out std_logic_vector(0 to BYTE_SIZE-1)
 	);
 	end component initialize;
-	signal initialize_run,initialize_initialized,initialize_cs,initialize_do,initialize_ck,initialize_reset,initialize_rs : std_logic;
+	signal initialize_run,initialize_sended : std_logic;
+	signal initialize_initialized,initialize_enable,initialize_reset,initialize_rs,initialize_cs : std_logic;
 	signal initialize_color : COLOR_TYPE;
+	signal initialize_data_byte : std_logic_vector(0 to BYTE_SIZE-1);
 
 	type states is (idle,start,get_instruction,execute_instruction,get_color,screen_initialize,screen_initialize_finish,stop);
 	signal state : states;
@@ -71,24 +89,41 @@ architecture Behavioral of top is
 
 begin
 
-	o_cs <= initialize_cs when initialize_run = '1' else '1';
-	o_do <= initialize_do when initialize_run = '1' else '0';
-	o_ck <= initialize_ck when initialize_run = '1' else '0';
-	o_reset <= initialize_reset when initialize_run = '1' else '0';
-	o_rs <= initialize_rs when initialize_run = '1' else '0';
+	o_cs <= spi_cs; -- TODO use initialize_cs mux
+	o_do <= spi_do;
+	o_ck <= spi_ck;
+	o_reset <= initialize_reset;
+	o_rs <= initialize_rs;
 
-	c0 : initialize
+	spi_data_byte <= initialize_data_byte;
+	spi_enable <= initialize_enable;
+	initialize_sended <= spi_sended;
+
+	c0 : my_spi
+	port map (
+		i_clock => i_clock,
+		i_reset => i_reset,
+		i_enable => spi_enable,
+		i_data_byte => spi_data_byte,
+		o_cs => spi_cs,
+		o_do => spi_do,
+		o_ck => spi_ck,
+		o_sended => spi_sended
+	);
+
+	c1 : initialize
 	port map (
 		i_clock => i_clock,
 		i_reset => i_reset,
 		i_run => initialize_run,
 		i_color => initialize_color,
+		i_sended => initialize_sended,
 		o_initialized => initialize_initialized,
 		o_cs => initialize_cs,
-		o_do => initialize_do,
-		o_ck => initialize_ck,
 		o_reset => initialize_reset,
-		o_rs => initialize_rs
+		o_rs => initialize_rs,
+		o_enable => initialize_enable,
+		o_data_byte => initialize_data_byte
 	);
 
 	p1 : process (byte_instruciton) is

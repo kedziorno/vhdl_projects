@@ -37,30 +37,19 @@ port (
 	i_reset : in std_logic;
 	i_run : in std_logic;
 	i_color : in COLOR_TYPE;
+	i_sended : in std_logic;
 	o_initialized : out std_logic;
-	o_cs : out std_logic;
-	o_do : out std_logic;
-	o_ck : out std_logic;
+	o_enable : out std_logic;
+	o_data_byte : out std_logic_vector(0 to BYTE_SIZE-1);
 	o_reset : out std_logic;
-	o_rs : out std_logic
+	o_rs : out std_logic;
+	o_cs : out std_logic
 );
 end initialize;
 
 architecture Behavioral of initialize is
-	component my_spi is
-	port (
-		i_clock : in std_logic;
-		i_reset : in std_logic;
-		i_enable : in std_logic;
-		i_data_byte : in std_logic_vector(0 to BYTE_SIZE-1);
-		o_cs : out std_logic;
-		o_do : out std_logic;
-		o_ck : out std_logic;
-		o_sended : out std_logic
-	);
-	end component my_spi;
 	signal data_byte : BYTE_TYPE;
-	signal enable,sended : std_logic;
+	signal sended : std_logic;
 	type states is (
 	idle,
 	-- XXX initialize
@@ -76,24 +65,20 @@ architecture Behavioral of initialize is
 	bscsup,bsfillwait0,bsfillwait1
 	);
 	signal state : states;
-	signal cs1,cs2 : std_logic;
+	signal enable,cs,reset,rs,initialized : std_logic;
+	signal data_index : integer range 0 to 2**16;
 
 begin
-	u0 : my_spi port map (
-		i_clock => i_clock,
-		i_reset => i_reset,
-		i_enable => enable,
-		i_data_byte => data_byte,
-		o_cs => cs2,
-		o_do => o_do,
-		o_ck => o_ck,
-		o_sended => sended
-	);
 
-	o_cs <= cs1 when (state = idle or state = smallwait0 or state = smallwait1 or state = csup or state = bscsup) else cs2;
+	o_enable <= enable;
+	o_cs <= cs;
+	o_reset <= reset;
+	o_rs <= rs;
+	o_initialized <= initialized;
+	sended <= i_sended;
+	o_data_byte <= data_byte;
 
 	p0 : process (i_clock,i_reset,sended) is
-		variable data_index : integer range 0 to 2**16;
 		variable w0_index : integer range 0 to 2**25;
 		constant C_CLOCK_COUNTER_7 : integer := C_CLOCK_COUNTER * 7;
 		constant C_CLOCK_COUNTER_150 : integer := C_CLOCK_COUNTER * 150;
@@ -102,18 +87,18 @@ begin
 		constant C_CLOCK_COUNTER_100 : integer := C_CLOCK_COUNTER * 100;
 	begin
 		if (i_reset = '1') then
-			enable <= '0';
 			state <= idle;
 			w0_index := 0;
-			data_index := 0;
-			cs1 <= '1';
-			o_reset <= '1';
-			o_rs <= '1';
-			o_initialized <= '0';
+			data_index <= 0;
+			enable <= '0';
+			cs <= '1';
+			reset <= '1';
+			rs <= '1';
+			initialized <= '0';
 		elsif (rising_edge(i_clock)) then
 			case state is
 				when idle =>
-					o_initialized <= '0';
+					initialized <= '0';
 					if (i_run = '1') then
 						state <= smallwait0;
 					else
@@ -123,17 +108,17 @@ begin
 					if (w0_index = C_CLOCK_COUNTER - 1) then
 						state <= smallwait1;
 						w0_index := 0;
-						o_reset <= '0';
+						reset <= '0';
 					else
 						state <= smallwait0;
 						w0_index := w0_index + 1;
-						cs1 <= '0';
+						cs <= '0';
 					end if;
 				when smallwait1 =>
 					if (w0_index = C_CLOCK_COUNTER_7 - 1) then
 						state <= smallwait2;
 						w0_index := 0;
-						o_reset <= '1';
+						reset <= '1';
 					else
 						state <= smallwait1;
 						w0_index := w0_index + 1;
@@ -149,7 +134,7 @@ begin
 				when swreset =>
 					data_byte <= x"01";
 					enable <= '1';
-					o_rs <= '0';
+					rs <= '0';
 					if (sended = '1') then
 						state <= initwait0;
 					else
@@ -160,7 +145,7 @@ begin
 						state <= initwait0a;
 						w0_index := 0;
 						enable <= '0';
-						o_rs <= '1';
+						rs <= '1';
 					else
 						state <= initwait0;
 						w0_index := w0_index + 1;
@@ -176,7 +161,7 @@ begin
 				when slpout =>
 					data_byte <= x"11";
 					enable <= '1';
-					o_rs <= '0';
+					rs <= '0';
 					if (sended = '1') then
 						state <= initwait1;
 					else
@@ -187,7 +172,7 @@ begin
 						state <= initwait1a;
 						w0_index := 0;
 						enable <= '0';
-						o_rs <= '1';
+						rs <= '1';
 					else
 						state <= initwait1;
 						w0_index := w0_index + 1;
@@ -204,9 +189,9 @@ begin
 					data_byte <= data_rom_initscreen(data_index);
 					enable <= '1';
 					if (data_rom_initscreen(data_index + 1) = x"01") then
-						o_rs <= '0';
+						rs <= '0';
 					elsif (data_rom_initscreen(data_index + 1) = x"00") then
-						o_rs <= '1';
+						rs <= '1';
 					end if;
 					if (sended = '1') then
 						state <= check_index;
@@ -215,10 +200,10 @@ begin
 					end if;
 				when check_index =>
 					if (data_index = data_size_initscreen - 2) then
-						data_index := 0;
+						data_index <= 0;
 						state <= initwait4;
 					else
-						data_index := data_index + 2;
+						data_index <= data_index + 2;
 						state <= wait0;
 					end if;
 				when wait0 =>
@@ -258,7 +243,7 @@ begin
 				when noron =>
 					data_byte <= x"13";
 					enable <= '1';
-					o_rs <= '0';
+					rs <= '0';
 					if (sended = '1') then
 						state <= initwait2;
 					else
@@ -269,7 +254,7 @@ begin
 						state <= initwait2a;
 						w0_index := 0;
 						enable <= '0';
-						o_rs <= '1';
+						rs <= '1';
 					else
 						state <= initwait2;
 						w0_index := w0_index + 1;
@@ -285,7 +270,7 @@ begin
 				when dispon =>
 					data_byte <= x"29";
 					enable <= '1';
-					o_rs <= '0';
+					rs <= '0';
 					if (sended = '1') then
 						state <= initwait3;
 					else
@@ -296,7 +281,7 @@ begin
 						state <= initwait3a;
 						w0_index := 0;
 						enable <= '0';
-						o_rs <= '1';
+						rs <= '1';
 					else
 						state <= initwait3;
 						w0_index := w0_index + 1;
@@ -310,9 +295,9 @@ begin
 						w0_index := w0_index + 1;
 					end if;
 				when csup =>
-					enable <= '0';
 					state <= bsinitwait ;
-					cs1 <= '1';
+					enable <= '0';
+					cs <= '1';
 				-----------------------------------------------
 				when bsinitwait =>
 					if (w0_index = C_CLOCK_COUNTER - 1) then
@@ -326,9 +311,9 @@ begin
 					data_byte <= data_rom_blackscreen(data_index);
 					enable <= '1';
 					if (data_rom_blackscreen(data_index + 1) = x"01") then
-						o_rs <= '0';
+						rs <= '0';
 					elsif (data_rom_blackscreen(data_index + 1) = x"00") then
-						o_rs <= '1';
+						rs <= '1';
 					end if;
 					if (sended = '1') then
 						state <= bs_check_index;
@@ -337,10 +322,10 @@ begin
 					end if;
 				when bs_check_index =>
 					if (data_index = data_size_blackscreen - 2) then
-						data_index := 0;
+						data_index <= 0;
 						state <= bswaitdata0;
 					else
-						data_index := data_index + 2;
+						data_index <= data_index + 2;
 						state <= bswait0;
 					end if;
 				when bswait0 =>
@@ -380,7 +365,7 @@ begin
 				when bsfillbytel =>
 					data_byte <= i_color(15 downto 8);
 					enable <= '1';
-					o_rs <= '1';
+					rs <= '1';
 					if (sended = '1') then
 						state <= bsfillbytelwait0;
 					else
@@ -406,7 +391,7 @@ begin
 				when bsfillbyteh =>
 					data_byte <= i_color(7 downto 0);
 					enable <= '1';
-					o_rs <= '1';
+					rs <= '1';
 					if (sended = '1') then
 						state <= bsfillbytehwait0;
 					else
@@ -431,10 +416,10 @@ begin
 					end if;
 				when bsfill_check_index =>
 					if (data_index = SCREEN_FILL - 1) then
-						data_index := 0;
+						data_index <= 0;
 						state <= bscsup;
 					else
-						data_index := data_index + 1;
+						data_index <= data_index + 1;
 						state <= bsfillwait0;
 					end if;
 				when bsfillwait0 =>
@@ -455,10 +440,10 @@ begin
 						w0_index := w0_index + 1;
 					end if;
 				when bscsup =>
-					enable <= '0';
 					state <= bscsup ;
-					cs1 <= '1';
-					o_initialized <= '1';
+					enable <= '0';
+					cs <= '1';
+					initialized <= '1';
 			end case;
 		end if;
 	end process p0;
