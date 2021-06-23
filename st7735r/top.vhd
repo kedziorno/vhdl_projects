@@ -51,7 +51,7 @@ architecture Behavioral of top is
 		i_clock : in std_logic;
 		i_reset : in std_logic;
 		i_enable : in std_logic;
-		i_data_byte : in std_logic_vector(0 to BYTE_SIZE-1);
+		i_data_byte : in BYTE_TYPE;
 		o_cs : out std_logic;
 		o_do : out std_logic;
 		o_ck : out std_logic;
@@ -59,7 +59,7 @@ architecture Behavioral of top is
 	);
 	end component my_spi;
 	signal spi_enable,spi_cs,spi_do,spi_ck,spi_sended : std_logic;
-	signal spi_data_byte : std_logic_vector(0 to BYTE_SIZE-1);
+	signal spi_data_byte : BYTE_TYPE;
 
 	component initialize is
 	port (
@@ -73,13 +73,37 @@ architecture Behavioral of top is
 		o_reset : out std_logic;
 		o_rs : out std_logic;
 		o_cs : out std_logic;
-		o_data_byte : out std_logic_vector(0 to BYTE_SIZE-1)
+		o_data_byte : out BYTE_TYPE
 	);
 	end component initialize;
 	signal initialize_run,initialize_sended : std_logic;
 	signal initialize_initialized,initialize_enable,initialize_reset,initialize_rs,initialize_cs : std_logic;
 	signal initialize_color : COLOR_TYPE;
-	signal initialize_data_byte : std_logic_vector(0 to BYTE_SIZE-1);
+	signal initialize_data_byte : BYTE_TYPE;
+
+	component draw_box is
+	port (
+		i_clock : in std_logic;
+		i_reset : in std_logic;
+		i_sended : in std_logic;
+		i_color : in COLOR_TYPE;
+		i_raxs : in BYTE_TYPE;
+		i_raxe : in BYTE_TYPE;
+		i_rays : in BYTE_TYPE;
+		i_raye : in BYTE_TYPE;
+		i_caxs : in BYTE_TYPE;
+		i_caxe : in BYTE_TYPE;
+		i_cays : in BYTE_TYPE;
+		i_caye : in BYTE_TYPE;
+		o_data : out BYTE_TYPE;
+		o_enable : out std_logic;
+		o_rs : out std_logic
+	);
+	end component draw_box;
+	signal drawbox_sended,drawbox_enable,drawbox_rs : std_logic;
+	signal drawbox_raxs,drawbox_raxe,drawbox_rays,drawbox_raye,drawbox_caxs,drawbox_caxe,drawbox_cays,drawbox_caye : BYTE_TYPE;
+	signal drawbox_data : BYTE_TYPE;
+	signal drawbox_color : COLOR_TYPE;
 
 	type states is (idle,start,get_instruction,execute_instruction,get_color,screen_initialize,screen_initialize_finish,stop);
 	signal state : states;
@@ -124,6 +148,25 @@ begin
 		o_rs => initialize_rs,
 		o_enable => initialize_enable,
 		o_data_byte => initialize_data_byte
+	);
+
+	c2 : draw_box
+	port map (
+		i_clock => i_clock,
+		i_reset => i_reset,
+		i_sended => drawbox_sended,
+		i_color => drawbox_color,
+		i_raxs => drawbox_raxs,
+		i_raxe => drawbox_raxe,
+		i_rays => drawbox_rays,
+		i_raye => drawbox_raye,
+		i_caxs => drawbox_caxs,
+		i_caxe => drawbox_caxe,
+		i_cays => drawbox_cays,
+		i_caye => drawbox_caye,
+		o_data => drawbox_data,
+		o_enable => drawbox_enable,
+		o_rs => drawbox_rs
 	);
 
 	p1 : process (byte_instruciton) is

@@ -40,7 +40,7 @@ port (
 	i_sended : in std_logic;
 	o_initialized : out std_logic;
 	o_enable : out std_logic;
-	o_data_byte : out std_logic_vector(0 to BYTE_SIZE-1);
+	o_data_byte : out BYTE_TYPE;
 	o_reset : out std_logic;
 	o_rs : out std_logic;
 	o_cs : out std_logic
