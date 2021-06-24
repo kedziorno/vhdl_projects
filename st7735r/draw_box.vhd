@@ -219,7 +219,7 @@ begin
 					end if;
 				when sendraye => -- c4
 					rs <= '1';
-					send_data <= i_raye;
+					send_data <= i_caxe;
 					enable <= '1';
 					if (sended = '1') then
 						state <= sendrayew1;
@@ -297,7 +297,7 @@ begin
 					end if;
 				when sendcays => -- c6
 					rs <= '1';
-					send_data <= i_caxe;
+					send_data <= i_raye;
 					enable <= '1';
 					if (sended = '1') then
 						state <= sendcaysw1;
