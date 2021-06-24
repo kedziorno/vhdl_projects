@@ -43,7 +43,8 @@ PORT(
 i_clock : IN  std_logic;
 i_cpb : IN  std_logic;
 i_mrb : IN  std_logic;
-o_q : INOUT  std_logic_vector(11 downto 0)
+o_q : INOUT  std_logic_vector(11 downto 0);
+o_ping : OUT  std_logic
 );
 END COMPONENT;
 
@@ -54,6 +55,7 @@ signal i_mrb : std_logic := '0';
 
 --BiDirs
 signal o_q : std_logic_vector(11 downto 0);
+signal o_ping : std_logic;
 
 signal clock : std_logic := '0';
 constant clock_period : time := 20 ns;
@@ -65,7 +67,8 @@ uut: ripple_counter PORT MAP (
 i_clock => i_clock,
 i_cpb => i_cpb,
 i_mrb => i_mrb,
-o_q => o_q
+o_q => o_q,
+o_ping => o_ping
 );
 
 -- Clock process definitions
@@ -88,7 +91,7 @@ wait for 10*clock_period;
 i_mrb <= '0';
 wait for 10*clock_period;
 i_cpb <= '1';
-wait for 100*clock_period;
+wait for 4000*clock_period;
 i_cpb <= '0';
 wait;
 end process;
