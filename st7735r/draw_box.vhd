@@ -464,14 +464,14 @@ begin
 					if (index = (x*y) - 1) then -- XXX TODO x*y - 1 drop last pixel
 						state <= stop;
 						index := 0;
+						enable <= '0';
+						initialized <= '1';
 					else
 						state <= fillarealb;
 						index := index + 1;
 					end if;
 				when stop =>
 					state <= idle;
-					enable <= '0';
-					initialized <= '1';
 				when others =>
 					state <= idle;
 			end case;
