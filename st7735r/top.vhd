@@ -272,12 +272,12 @@ begin
 				when screen_initialize =>
 					if (initialize_initialized = '1') then
 						state <= screen_initialize_finish;
+						initialize_run <= '0';
 					else
 						state <= screen_initialize;
 					end if;
 				when screen_initialize_finish =>
 					state <= start;
-					initialize_run <= '0';
 				when get_draw_box =>
 					state <= get_draw_box_c1;
 					byte_instruciton <= C_ROM_DATA(index0);

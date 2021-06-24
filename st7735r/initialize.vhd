@@ -418,6 +418,8 @@ begin
 					if (data_index = SCREEN_FILL - 1) then
 						data_index <= 0;
 						state <= bscsup;
+						initialized <= '1';
+						enable <= '0';
 					else
 						data_index <= data_index + 1;
 						state <= bsfillwait0;
@@ -441,9 +443,7 @@ begin
 					end if;
 				when bscsup =>
 					state <= idle ;
-					enable <= '0';
 					cs <= '1';
-					initialized <= '1';
 			end case;
 		end if;
 	end process p0;
