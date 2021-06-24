@@ -57,6 +57,7 @@ architecture Behavioral of draw_box is
 
 	signal rs,enable,sended,initialized : std_logic;
 	signal send_data,send_command : BYTE_TYPE;
+	signal raxs,raxe,rays,raye,caxs,caxe,cays,caye : BYTE_TYPE;
 	type states is (
 	idle,start,
 	sendracmd,sendracmdw1,sendracmdw1a,
@@ -83,11 +84,19 @@ begin
 	sended <= i_sended;
 	o_enable <= enable;
 	o_initialized <= initialized;
+	raxs <= i_raxs;
+	raxe <= i_raxe;
+	rays <= i_rays;
+	raye <= i_raye;
+	caxs <= i_caxs;
+	caxe <= i_caxe;
+	cays <= i_cays;
+	caye <= i_caye;
 
 	p0 : process (i_clock,i_reset) is
 		variable w0_index : integer range 0 to 2**25;
-		variable x,y : integer;
 		variable index : integer;
+		variable x,y : integer;
 	begin
 		if (i_reset = '1') then
 			state <= idle;
@@ -111,8 +120,6 @@ begin
 					end if;
 				when start =>
 					state <= sendracmd;
-					x := to_integer(unsigned(i_caxe));
-					y := to_integer(unsigned(i_caye));
 				when sendracmd =>
 					send_command <= x"2b"; --RASET
 					rs <= '0';
@@ -141,7 +148,7 @@ begin
 					end if;
 				when sendraxs => -- c1
 					rs <= '1';
-					send_data <= i_raxs;
+					send_data <= raxs;
 					enable <= '1';
 					if (sended = '1') then
 						state <= sendraxsw1;
@@ -167,7 +174,7 @@ begin
 					end if;
 				when sendrays => -- c2
 					rs <= '1';
-					send_data <= i_raxe;
+					send_data <= raxe;
 					enable <= '1';
 					if (sended = '1') then
 						state <= sendraysw1;
@@ -193,7 +200,7 @@ begin
 					end if;
 				when sendraxe => -- c3
 					rs <= '1';
-					send_data <= i_rays;
+					send_data <= rays;
 					enable <= '1';
 					if (sended = '1') then
 						state <= sendraxew1;
@@ -219,7 +226,7 @@ begin
 					end if;
 				when sendraye => -- c4
 					rs <= '1';
-					send_data <= i_caxe;
+					send_data <= caxe;
 					enable <= '1';
 					if (sended = '1') then
 						state <= sendrayew1;
@@ -271,7 +278,7 @@ begin
 					end if;
 				when sendcaxs => -- c5
 					rs <= '1';
-					send_data <= i_caxs;
+					send_data <= caxs;
 					enable <= '1';
 					if (sended = '1') then
 						state <= sendcaxsw1;
@@ -297,7 +304,7 @@ begin
 					end if;
 				when sendcays => -- c6
 					rs <= '1';
-					send_data <= i_raye;
+					send_data <= raye;
 					enable <= '1';
 					if (sended = '1') then
 						state <= sendcaysw1;
@@ -323,7 +330,7 @@ begin
 					end if;
 				when sendcaxe => -- c7
 					rs <= '1';
-					send_data <= i_cays;
+					send_data <= cays;
 					enable <= '1';
 					if (sended = '1') then
 						state <= sendcaxew1;
@@ -349,7 +356,7 @@ begin
 					end if;
 				when sendcaye => -- c8
 					rs <= '1';
-					send_data <= i_caye;
+					send_data <= caye;
 					enable <= '1';
 					if (sended = '1') then
 						state <= sendcayew1;
@@ -374,6 +381,8 @@ begin
 						w0_index := w0_index + 1;
 					end if;
 				when sendmemwr =>
+					x := to_integer(unsigned(caxe)) - to_integer(unsigned(raxe));
+					y := to_integer(unsigned(caye)) - to_integer(unsigned(raye));
 					rs <= '0';
 					send_command <= x"2c"; --RAMWR
 					enable <= '1';
@@ -452,7 +461,7 @@ begin
 						w0_index := w0_index + 1;
 					end if;
 				when fillarenaindex =>
-					if (index = 1024 - 1) then -- XXX TODO x*y - 1
+					if (index = (x*y) - 1) then -- XXX TODO x*y - 1 drop last pixel
 						state <= stop;
 						index := 0;
 					else

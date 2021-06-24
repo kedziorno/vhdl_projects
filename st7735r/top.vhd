@@ -240,6 +240,14 @@ begin
 					initialize_run <= '0';
 					drawbox_run <= '0';
 					index0 <= 0;
+					drawbox_raxs <= (others => '0');
+					drawbox_raxe <= (others => '0');
+					drawbox_rays <= (others => '0');
+					drawbox_raye <= (others => '0');
+					drawbox_caxs <= (others => '0');
+					drawbox_caxe <= (others => '0');
+					drawbox_cays <= (others => '0');
+					drawbox_caye <= (others => '0');
 				when start =>
 					state <= get_instruction;
 				when get_instruction =>
