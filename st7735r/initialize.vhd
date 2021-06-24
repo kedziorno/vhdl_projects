@@ -440,7 +440,7 @@ begin
 						w0_index := w0_index + 1;
 					end if;
 				when bscsup =>
-					state <= bscsup ;
+					state <= idle ;
 					enable <= '0';
 					cs <= '1';
 					initialized <= '1';

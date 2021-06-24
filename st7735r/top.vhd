@@ -85,6 +85,7 @@ architecture Behavioral of top is
 	port (
 		i_clock : in std_logic;
 		i_reset : in std_logic;
+		i_run : in std_logic;
 		i_sended : in std_logic;
 		i_color : in COLOR_TYPE;
 		i_raxs : in BYTE_TYPE;
@@ -97,15 +98,23 @@ architecture Behavioral of top is
 		i_caye : in BYTE_TYPE;
 		o_data : out BYTE_TYPE;
 		o_enable : out std_logic;
-		o_rs : out std_logic
+		o_rs : out std_logic;
+		o_initialized : out std_logic
 	);
 	end component draw_box;
-	signal drawbox_sended,drawbox_enable,drawbox_rs : std_logic;
+	signal drawbox_sended,drawbox_enable,drawbox_rs,drawbox_run,drawbox_initialized : std_logic;
 	signal drawbox_raxs,drawbox_raxe,drawbox_rays,drawbox_raye,drawbox_caxs,drawbox_caxe,drawbox_cays,drawbox_caye : BYTE_TYPE;
 	signal drawbox_data : BYTE_TYPE;
 	signal drawbox_color : COLOR_TYPE;
 
-	type states is (idle,start,get_instruction,execute_instruction,get_color,screen_initialize,screen_initialize_finish,stop);
+	type states is (
+	idle,
+	start,get_instruction,execute_instruction,
+	get_color,screen_initialize,screen_initialize_finish,
+	get_draw_box,
+	get_draw_box_c1,get_draw_box_c2,get_draw_box_c3,get_draw_box_c4,get_draw_box_c5,get_draw_box_c6,get_draw_box_c7,get_draw_box_c8,
+	get_draw_box_finish,
+	stop);
 	signal state : states;
 
 	signal index0 : integer range 0 to COUNT_ROM_DATA - 1;
@@ -116,12 +125,13 @@ begin
 	o_cs <= spi_cs; -- TODO use initialize_cs mux
 	o_do <= spi_do;
 	o_ck <= spi_ck;
-	o_reset <= initialize_reset;
-	o_rs <= initialize_rs;
+	o_reset <= initialize_reset when initialize_run = '1' else '1';
+	o_rs <= initialize_rs when initialize_run = '1' else drawbox_rs when drawbox_run = '1' else '1';
 
-	spi_data_byte <= initialize_data_byte;
-	spi_enable <= initialize_enable;
-	initialize_sended <= spi_sended;
+	spi_data_byte <= initialize_data_byte when initialize_run = '1' else drawbox_data when drawbox_run = '1' else (others => '0');
+	spi_enable <= initialize_enable when initialize_run = '1' else drawbox_enable when drawbox_run = '1' else '0';
+	initialize_sended <= spi_sended when initialize_run = '1' else '0';
+	drawbox_sended <= spi_sended when drawbox_run = '1' else '0';
 
 	c0 : my_spi
 	port map (
@@ -154,6 +164,7 @@ begin
 	port map (
 		i_clock => i_clock,
 		i_reset => i_reset,
+		i_run => drawbox_run,
 		i_sended => drawbox_sended,
 		i_color => drawbox_color,
 		i_raxs => drawbox_raxs,
@@ -166,37 +177,55 @@ begin
 		i_caye => drawbox_caye,
 		o_data => drawbox_data,
 		o_enable => drawbox_enable,
-		o_rs => drawbox_rs
+		o_rs => drawbox_rs,
+		o_initialized => drawbox_initialized
 	);
 
-	p1 : process (byte_instruciton) is
+	p1 : process (byte_instruciton,initialize_run,drawbox_run) is -- TODO use mux
 	begin
-		case (byte_instruciton) is
-			when x"00" =>
-				initialize_color <= SCREEN_BLACK;
-			when x"01" =>
-				initialize_color <= SCREEN_BLUE;
-			when x"02" =>
-				initialize_color <= SCREEN_RED;
-			when x"03" =>
-				initialize_color <= SCREEN_GREEN;
-			when x"04" =>
-				initialize_color <= SCREEN_CYAN;
-			when x"05" =>
-				initialize_color <= SCREEN_MAGENTA;
-			when x"06" =>
-				initialize_color <= SCREEN_YELLOW;
-			when x"07" =>
-				initialize_color <= SCREEN_WHITE;
-			when x"08" =>
-				initialize_color <= SCREEN_ORANGE;
-			when x"09" =>
-				initialize_color <= SCREEN_LIGHTGREEN;
-			when x"0a" =>
-				initialize_color <= SCREEN_LIGHTGREY;
-			when others =>
-				initialize_color <= SCREEN_BLACK;
-		end case;	
+		if (initialize_run = '1' or drawbox_run = '1') then
+			case (byte_instruciton) is
+				when x"00" =>
+					initialize_color <= SCREEN_BLACK;
+					drawbox_color <= SCREEN_BLACK;
+				when x"01" =>
+					initialize_color <= SCREEN_BLUE;
+					drawbox_color <= SCREEN_BLUE;
+				when x"02" =>
+					initialize_color <= SCREEN_RED;
+					drawbox_color <= SCREEN_RED;
+				when x"03" =>
+					initialize_color <= SCREEN_GREEN;
+					drawbox_color <= SCREEN_GREEN;
+				when x"04" =>
+					initialize_color <= SCREEN_CYAN;
+					drawbox_color <= SCREEN_CYAN;
+				when x"05" =>
+					initialize_color <= SCREEN_MAGENTA;
+					drawbox_color <= SCREEN_MAGENTA;
+				when x"06" =>
+					initialize_color <= SCREEN_YELLOW;
+					drawbox_color <= SCREEN_YELLOW;
+				when x"07" =>
+					initialize_color <= SCREEN_WHITE;
+					drawbox_color <= SCREEN_WHITE;
+				when x"08" =>
+					initialize_color <= SCREEN_ORANGE;
+					drawbox_color <= SCREEN_ORANGE;
+				when x"09" =>
+					initialize_color <= SCREEN_LIGHTGREEN;
+					drawbox_color <= SCREEN_LIGHTGREEN;
+				when x"0a" =>
+					initialize_color <= SCREEN_LIGHTGREY;
+					drawbox_color <= SCREEN_LIGHTGREY;
+				when others =>
+					initialize_color <= SCREEN_BLACK;
+					drawbox_color <= SCREEN_BLACK;
+			end case;
+		else
+			initialize_color <= SCREEN_BLACK;
+			drawbox_color <= SCREEN_BLACK;
+		end if;
 	end process p1;
 
 	p_control : process (i_clock,i_reset,initialize_initialized) is
@@ -209,6 +238,7 @@ begin
 					state <= start;
 					byte_instruciton <= (others => '0');
 					initialize_run <= '0';
+					drawbox_run <= '0';
 					index0 <= 0;
 				when start =>
 					state <= get_instruction;
@@ -222,11 +252,14 @@ begin
 							state <= get_instruction;
 						when x"01" =>
 							state <= get_color;
+						when x"02" =>
+							state <= get_draw_box;
 						when others => null;
 					end case;
 				when get_color =>
 					state <= screen_initialize;
 					byte_instruciton <= C_ROM_DATA(index0);
+					index0 <= index0 + 1;
 					initialize_run <= '1';
 				when screen_initialize =>
 					if (initialize_initialized = '1') then
@@ -235,9 +268,54 @@ begin
 						state <= screen_initialize;
 					end if;
 				when screen_initialize_finish =>
-					state <= stop;
+					state <= start;
+					initialize_run <= '0';
+				when get_draw_box =>
+					state <= get_draw_box_c1;
+					byte_instruciton <= C_ROM_DATA(index0);
+					index0 <= index0 + 1;
+					drawbox_run <= '1';
+				when get_draw_box_c1 =>
+					state <= get_draw_box_c2;
+					drawbox_raxs <= x"00";
+				when get_draw_box_c2 =>
+					state <= get_draw_box_c3;
+					drawbox_raxe <= C_ROM_DATA(index0);
+					index0 <= index0 + 1;
+				when get_draw_box_c3 =>
+					state <= get_draw_box_c4;
+					drawbox_rays <= x"00";
+				when get_draw_box_c4 =>
+					state <= get_draw_box_c5;
+					drawbox_raye <= C_ROM_DATA(index0);
+					index0 <= index0 + 1;
+				when get_draw_box_c5 =>
+					state <= get_draw_box_c6;
+					drawbox_caxs <= x"00";
+				when get_draw_box_c6 =>
+					state <= get_draw_box_c7;
+					drawbox_caxe <= C_ROM_DATA(index0);
+					index0 <= index0 + 1;
+				when get_draw_box_c7 =>
+					state <= get_draw_box_c8;
+					drawbox_cays <= x"00";
+				when get_draw_box_c8 =>
+					state <= get_draw_box_finish;
+					drawbox_caye <= C_ROM_DATA(index0);
+					index0 <= index0 + 1;
+				when get_draw_box_finish =>
+					if (drawbox_initialized = '1') then
+						state <= stop;
+						drawbox_run <= '0';
+					else
+						state <= get_draw_box_finish;
+					end if;
 				when stop =>
-					state <= stop;
+					if (index0 = COUNT_ROM_DATA - 1) then
+						state <= stop;
+					else
+						state <= start;
+					end if;
 				when others =>
 					state <= idle;
 			end case;
