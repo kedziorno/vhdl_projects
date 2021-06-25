@@ -60,13 +60,15 @@ architecture Behavioral of ripple_counter is
 
 	signal cp,mr : std_logic;
 	signal q : std_logic_vector(N-1 downto 0);
+	signal ping : std_logic;
 
 begin
 
 	cp <= i_cpb;
 	mr <= '1' when o_q = std_logic_vector(to_unsigned(MAX,N)) else i_mrb;
-	o_ping <= '1' when o_q = std_logic_vector(to_unsigned(MAX,N)) else '0';
+	ping <= '1' when o_q = std_logic_vector(to_unsigned(MAX,N)) else '0';
 	o_q <= q;
+	o_ping <= ping;
 
 	g0 : for i in N-1 downto 0 generate
 		ffjk_first : if (i=0) generate

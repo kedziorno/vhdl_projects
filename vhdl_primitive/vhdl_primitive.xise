@@ -16,7 +16,10 @@
 
   <files>
     <file xil_pn:name="TB_FF_SR_GATED.vhd" xil_pn:type="FILE_VHDL"/>
-    <file xil_pn:name="FF_SR.vhd" xil_pn:type="FILE_VHDL"/>
+    <file xil_pn:name="FF_SR.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="2"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+    </file>
     <file xil_pn:name="FF_SR_GATED.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="FULL_ADDER.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="TB_GATE_XNOR.vhd" xil_pn:type="FILE_VHDL"/>
@@ -25,10 +28,19 @@
     <file xil_pn:name="FF_D_DET.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="gate_xnor.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="FF_D_PE.vhd" xil_pn:type="FILE_VHDL"/>
-    <file xil_pn:name="gate_or.vhd" xil_pn:type="FILE_VHDL"/>
+    <file xil_pn:name="gate_or.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="11"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+    </file>
     <file xil_pn:name="gate_and.vhd" xil_pn:type="FILE_VHDL"/>
-    <file xil_pn:name="gate_not.vhd" xil_pn:type="FILE_VHDL"/>
-    <file xil_pn:name="clock.vhd" xil_pn:type="FILE_VHDL"/>
+    <file xil_pn:name="gate_not.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="13"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+    </file>
+    <file xil_pn:name="clock.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="14"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+    </file>
     <file xil_pn:name="FF_D_MS.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="TB_FF_D_GATED.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="HALF_ADDER.vhd" xil_pn:type="FILE_VHDL"/>
@@ -56,7 +68,10 @@
     <file xil_pn:name="x3_nand_x1_nor.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="tb_pwm_generator.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="ftrse.vhd" xil_pn:type="FILE_VHDL"/>
-    <file xil_pn:name="counter_n.vhd" xil_pn:type="FILE_VHDL"/>
+    <file xil_pn:name="counter_n.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="42"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+    </file>
     <file xil_pn:name="tb_x3_nand_x1_nor.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="parity_detector.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="leading_zeros.vhd" xil_pn:type="FILE_VHDL"/>
@@ -79,7 +94,10 @@
     <file xil_pn:name="frequency_meter.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="neural_net.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="signal_generator.vhd" xil_pn:type="FILE_VHDL"/>
-    <file xil_pn:name="counter_ping.vhd" xil_pn:type="FILE_VHDL"/>
+    <file xil_pn:name="counter_ping.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="65"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+    </file>
     <file xil_pn:name="graycode.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="lfsr.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="tb_debounce.vhd" xil_pn:type="FILE_VHDL"/>
@@ -116,7 +134,9 @@
     <file xil_pn:name="sar_adc.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="dac_delta_sigma.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="tb_sar_adc.vhd" xil_pn:type="FILE_VHDL"/>
-    <file xil_pn:name="Nexys2_1200General.ucf" xil_pn:type="FILE_UCF"/>
+    <file xil_pn:name="Nexys2_1200General.ucf" xil_pn:type="FILE_UCF">
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+    </file>
     <file xil_pn:name="universal_function.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="tb_universal_function.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="ulm_cell.vhd" xil_pn:type="FILE_VHDL"/>
@@ -126,6 +146,10 @@
     <file xil_pn:name="tb_hurst_gates.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="ripple_counter.ucf" xil_pn:type="FILE_UCF">
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+    </file>
+    <file xil_pn:name="top_ripple_counter.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="258"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="3"/>
     </file>
   </files>
 
@@ -139,7 +163,7 @@
     <property xil_pn:name="Analysis Effort Level" xil_pn:value="Standard" xil_pn:valueState="default"/>
     <property xil_pn:name="Asynchronous To Synchronous" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Auto Implementation Compile Order" xil_pn:value="true" xil_pn:valueState="default"/>
-    <property xil_pn:name="Auto Implementation Top" xil_pn:value="true" xil_pn:valueState="default"/>
+    <property xil_pn:name="Auto Implementation Top" xil_pn:value="false" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Automatic BRAM Packing" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Automatically Insert glbl Module in the Netlist" xil_pn:value="true" xil_pn:valueState="default"/>
     <property xil_pn:name="Automatically Run Generate Target PROM/ACE File" xil_pn:value="false" xil_pn:valueState="default"/>
@@ -233,9 +257,9 @@
     <property xil_pn:name="ISim UUT Instance Name" xil_pn:value="UUT" xil_pn:valueState="default"/>
     <property xil_pn:name="Ignore User Timing Constraints Map" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Ignore User Timing Constraints Par" xil_pn:value="false" xil_pn:valueState="default"/>
-    <property xil_pn:name="Implementation Top" xil_pn:value="Architecture|ripple_counter|Behavioral" xil_pn:valueState="non-default"/>
-    <property xil_pn:name="Implementation Top File" xil_pn:value="ripple_counter.vhd" xil_pn:valueState="non-default"/>
-    <property xil_pn:name="Implementation Top Instance Path" xil_pn:value="/ripple_counter" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Implementation Top" xil_pn:value="Architecture|top_ripple_counter|Behavioral" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Implementation Top File" xil_pn:value="top_ripple_counter.vhd" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Implementation Top Instance Path" xil_pn:value="/top_ripple_counter" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Include 'uselib Directive in Verilog File" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Include SIMPRIM Models in Verilog File" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Include UNISIM Models in Verilog File" xil_pn:value="false" xil_pn:valueState="default"/>
@@ -293,7 +317,7 @@
     <property xil_pn:name="Other XPWR Command Line Options" xil_pn:value="" xil_pn:valueState="default"/>
     <property xil_pn:name="Other XST Command Line Options" xil_pn:value="-use_new_parser no" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Output Extended Identifiers" xil_pn:value="false" xil_pn:valueState="default"/>
-    <property xil_pn:name="Output File Name" xil_pn:value="ripple_counter" xil_pn:valueState="default"/>
+    <property xil_pn:name="Output File Name" xil_pn:value="top_ripple_counter" xil_pn:valueState="default"/>
     <property xil_pn:name="Overwrite Compiled Libraries" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Overwrite Existing Symbol" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Pack I/O Registers into IOBs" xil_pn:value="Auto" xil_pn:valueState="default"/>
@@ -306,10 +330,10 @@
     <property xil_pn:name="Place And Route Mode" xil_pn:value="Normal Place and Route" xil_pn:valueState="default"/>
     <property xil_pn:name="Placer Effort Level (Overrides Overall Level)" xil_pn:value="None" xil_pn:valueState="default"/>
     <property xil_pn:name="Port to be used" xil_pn:value="Auto - default" xil_pn:valueState="default"/>
-    <property xil_pn:name="Post Map Simulation Model Name" xil_pn:value="ripple_counter_map.vhd" xil_pn:valueState="default"/>
-    <property xil_pn:name="Post Place &amp; Route Simulation Model Name" xil_pn:value="ripple_counter_timesim.vhd" xil_pn:valueState="default"/>
-    <property xil_pn:name="Post Synthesis Simulation Model Name" xil_pn:value="ripple_counter_synthesis.vhd" xil_pn:valueState="default"/>
-    <property xil_pn:name="Post Translate Simulation Model Name" xil_pn:value="ripple_counter_translate.vhd" xil_pn:valueState="default"/>
+    <property xil_pn:name="Post Map Simulation Model Name" xil_pn:value="top_ripple_counter_map.vhd" xil_pn:valueState="default"/>
+    <property xil_pn:name="Post Place &amp; Route Simulation Model Name" xil_pn:value="top_ripple_counter_timesim.vhd" xil_pn:valueState="default"/>
+    <property xil_pn:name="Post Synthesis Simulation Model Name" xil_pn:value="top_ripple_counter_synthesis.vhd" xil_pn:valueState="default"/>
+    <property xil_pn:name="Post Translate Simulation Model Name" xil_pn:value="top_ripple_counter_translate.vhd" xil_pn:valueState="default"/>
     <property xil_pn:name="Power Reduction Map" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Power Reduction Par" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Preferred Language" xil_pn:value="VHDL" xil_pn:valueState="non-default"/>
@@ -329,7 +353,7 @@
     <property xil_pn:name="Release Write Enable (Output Events)" xil_pn:value="Default (6)" xil_pn:valueState="default"/>
     <property xil_pn:name="Rename Design Instance in Testbench File to" xil_pn:value="UUT" xil_pn:valueState="default"/>
     <property xil_pn:name="Rename Top Level Architecture To" xil_pn:value="Structure" xil_pn:valueState="default"/>
-    <property xil_pn:name="Rename Top Level Entity to" xil_pn:value="ripple_counter" xil_pn:valueState="default"/>
+    <property xil_pn:name="Rename Top Level Entity to" xil_pn:value="top_ripple_counter" xil_pn:valueState="default"/>
     <property xil_pn:name="Rename Top Level Module To" xil_pn:value="" xil_pn:valueState="default"/>
     <property xil_pn:name="Report Fastest Path(s) in Each Constraint" xil_pn:value="true" xil_pn:valueState="default"/>
     <property xil_pn:name="Report Fastest Path(s) in Each Constraint Post Trace" xil_pn:value="true" xil_pn:valueState="default"/>
@@ -435,7 +459,10 @@
     <property xil_pn:name="PROP_intWorkingDirUsed" xil_pn:value="No" xil_pn:valueState="non-default"/>
   </properties>
 
-  <bindings/>
+  <bindings>
+    <binding xil_pn:location="/top_ripple_counter" xil_pn:name="Nexys2_1200General.ucf"/>
+    <binding xil_pn:location="/clock" xil_pn:name="ripple_counter.ucf"/>
+  </bindings>
 
   <libraries/>
 
