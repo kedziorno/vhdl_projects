@@ -22,22 +22,24 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
+library UNISIM;
+use UNISIM.VComponents.all;
 
 entity ripple_counter is
 Generic (
-N : integer := 12
+N : integer := 12;
+MAX : integer := 571
 );
 Port (
 i_clock : in std_logic;
 i_cpb : in std_logic;
 i_mrb : in std_logic;
-o_q : inout std_logic_vector(N-1 downto 0)
+o_q : inout std_logic_vector(N-1 downto 0);
+o_ping : out std_logic
 );
 end ripple_counter;
 
@@ -56,13 +58,32 @@ architecture Behavioral of ripple_counter is
 	);
 	end component FTCE;
 
+	component MUX_21 is
+	port (S,A,B:in STD_LOGIC;C:out STD_LOGIC);
+	end component MUX_21;
+
 	signal cp,mr : std_logic;
 	signal q : std_logic_vector(N-1 downto 0);
+	signal ping,ping_metastable : std_logic;
 
 begin
 
+	o_q <= q;
 	cp <= i_cpb;
-	mr <= i_mrb;
+	mr <= '1' when o_q = std_logic_vector(to_unsigned(MAX,N)) else i_mrb;
+	ping <= '1' when o_q = std_logic_vector(to_unsigned(MAX,N)) else '0';
+
+	u1 : MUX_21
+	port map (
+		S => ping,
+		A => '1',
+		B => '0',
+		C => ping_metastable
+	);
+
+	FDCPE_inst1 : FDCPE
+	generic map (INIT => '0')
+	port map (Q=>o_ping,C=>i_clock,CE=>'1',CLR=>'0',D=>ping_metastable,PRE=>ping);
 
 	g0 : for i in N-1 downto 0 generate
 		ffjk_first : if (i=0) generate
@@ -72,7 +93,5 @@ begin
 			ffjk : FTCE port map (T=>cp,C=>not q(i-1),CE=>'1',CLR=>mr,Q=>q(i));
 		end generate ffjk_chain;
 	end generate g0;
-
-	o_q <= q;
 
 end Behavioral;
