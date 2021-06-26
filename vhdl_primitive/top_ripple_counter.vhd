@@ -26,21 +26,21 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
+library UNISIM;
+use UNISIM.VComponents.all;
 
 entity top_ripple_counter is
 port (
 	i_clock : in std_logic;
 	i_reset : in std_logic;
-	o_led : out std_logic_vector(7 downto 0)
+	o_led : out std_logic
 );
 end top_ripple_counter;
 
 architecture Behavioral of top_ripple_counter is
 
 	constant N : integer := 32;
-	constant MAX : integer := 10000000;
+	constant MAX : integer := 1_000_000;
 
 	component ripple_counter is
 	Generic (
@@ -60,10 +60,14 @@ architecture Behavioral of top_ripple_counter is
 	signal i_mrb : std_logic;
 	signal o_q : std_logic_vector(N-1 downto 0);
 	signal o_ping : std_logic;
-	signal led : std_logic_vector(7 downto 0);
+	signal led,led1,not_led,d1,d2 : std_logic;
 
 	type states is (idle,start);
 	signal state : states;
+
+	component MUX_21 is
+	port (S,A,B:in STD_LOGIC;C:out STD_LOGIC);
+	end component MUX_21;
 
 begin
 
@@ -83,11 +87,34 @@ begin
 					i_cpb <= '1';
 			end case;
 		end if;
-	
 	end process p0;
 
-	o_led <= led;
-	led <= not led when o_ping = '1' else led when o_ping = '0';
+	p1 : process (led) is
+		variable led1 : std_logic := '0';
+	begin
+		o_led <= led1;
+		if (led = '1') then
+			led1 := not led1;
+		else
+			led1 := led1;
+		end if;
+	end process p1;
+
+	u1 : MUX_21
+	port map (
+		S => o_ping,
+		A => '1',
+		B => '0',
+		C => d1
+	);
+
+	FDCPE_inst1 : FDCPE
+	generic map (INIT => '0')
+	port map (Q=>d2,C=>i_clock,CE=>'1',CLR=>'0',D=>d1,PRE=>o_ping);
+
+	FDCPE_inst2 : FDCPE
+	generic map (INIT => '0')
+	port map (Q=>led,C=>not i_clock,CE=>'1',CLR=>'0',D=>d2,PRE=>'0');
 
 	u0 : ripple_counter
 	generic map (
@@ -101,6 +128,6 @@ begin
 		o_q => o_q,
 		o_ping => o_ping
 	);
-	
+
 end Behavioral;
 
