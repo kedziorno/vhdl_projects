@@ -5,8 +5,8 @@ entity FF_JK is
 port (J,K,C:in STD_LOGIC;Q1,Q2:inout STD_LOGIC);
 end entity FF_JK;
 
--- https://en.wikipedia.org/wiki/Flip-flop_(electronics)#JK_flip-flop
--- XXX strange operation
+---- https://en.wikipedia.org/wiki/Flip-flop_(electronics)#JK_flip-flop
+---- XXX strange operation
 --architecture Behavioral_FF_JK of FF_JK is
 --component GAND is
 --port (A,B:in STD_LOGIC;C:out STD_LOGIC);
@@ -20,10 +20,10 @@ end entity FF_JK;
 ----end component GNOT;
 ----for all : GNOT use entity WORK.GATE_NOT(GATE_NOT_BEHAVIORAL_1);
 --for all : GAND use entity WORK.GATE_AND(GATE_AND_BEHAVIORAL_1);
-----for all : FF_SR_NOR use entity WORK.FF_SR(Behavioral_NOR);
+--for all : FF_SR_NOR use entity WORK.FF_SR(Behavioral_NOR);
 ----for all : FF_SR_NOR use entity WORK.FF_SR(Behavioral_NAND);
 ----for all : FF_SR_NOR use entity WORK.FF_SR(Behavioral_ANDOR);
---for all : FF_SR_NOR use entity WORK.FF_SR(Behavioral_NOT_S_NOT_R);
+----for all : FF_SR_NOR use entity WORK.FF_SR(Behavioral_NOT_S_NOT_R);
 --signal sa,sb,sc,sd: STD_LOGIC;
 ----signal n1,n2 : STD_LOGIC;
 --begin
@@ -60,26 +60,85 @@ end entity FF_JK;
 --Q2 <= sg;
 --end architecture Structural;
 
-architecture Structural of FF_JK is
---component GAND is port (A,B:in STD_LOGIC;C:out STD_LOGIC); end component GAND;
---component GOR is port (A,B:in STD_LOGIC;C:out STD_LOGIC); end component GOR;
---component GNOT is port (A:in STD_LOGIC;B:out STD_LOGIC); end component GNOT;
---for all : GAND use entity WORK.GATE_AND(GATE_AND_BEHAVIORAL_1);
---for all : GOR use entity WORK.GATE_OR(GATE_OR_BEHAVIORAL_1);
---for all : GNOT use entity WORK.GATE_NOT(GATE_NOT_BEHAVIORAL_1);
-signal sa,sb,sc,sd,se,sf,sg,sh,si,sj : std_logic := '0';
-constant clock_period : time := 1 ns;
+--architecture Structural of FF_JK is
+----component GAND is port (A,B:in STD_LOGIC;C:out STD_LOGIC); end component GAND;
+----component GOR is port (A,B:in STD_LOGIC;C:out STD_LOGIC); end component GOR;
+----component GNOT is port (A:in STD_LOGIC;B:out STD_LOGIC); end component GNOT;
+----for all : GAND use entity WORK.GATE_AND(GATE_AND_BEHAVIORAL_1);
+----for all : GOR use entity WORK.GATE_OR(GATE_OR_BEHAVIORAL_1);
+----for all : GNOT use entity WORK.GATE_NOT(GATE_NOT_BEHAVIORAL_1);
+--signal sa,sb,sc,sd,se,sf,sg,sh,si,sj : std_logic := '0';
+--constant clock_period : time := 1 ns;
+--begin
+--g1 : sa <= J and C;
+--sb <= sa and Q2 after clock_period;
+--
+--g2 : sc <= K and C;
+--sd <= sc and Q1 after clock_period;
+--
+--g3 : se <= sb nor Q2 after clock_period;
+--
+--g4 : sf <= sd nor Q1 after clock_period;
+--
+--Q1 <= se;
+--Q2 <= sf;
+--end architecture Structural;
+
+architecture structural of FF_JK is
+	constant W_NOT : time := 1 ns;
 begin
-g1 : sa <= J and C;
-sb <= sa and Q2 after clock_period;
+	p0 : process (C,j,k,q1,q2) is
+		variable sa,sb,sc,sd : std_logic;
+		variable se,sf,sg : std_logic;
+		variable sh,si,sj : std_logic;
+		variable sk,sn : std_logic;
+		variable so,sp : std_logic := '0';
+		variable sr,ss : std_logic := '0';
+		variable st,su : std_logic;
+		variable sw,sx : std_logic;
+		variable sy,sz : std_logic;
+	begin
+	sa := C;
+	sb := not C;
+	sc := j;
+	sd := k;
+	
+	-- nand3 1u
+	se := sa and sc;
+	sf := se and q2;
+	sg := not sf;
+	
+	-- nand3 1d
+	sh := sa and sd;
+	si := sh and q1;
+	sj := not si;
+	
+	-- nand2 1u
+	sk := sg and sp;
+	sn := not sk;
+	
+	-- nand2 1d
+	so := sj and sn;
+	sp := not so;
 
-g2 : sc <= K and C;
-sd <= sc and Q1 after clock_period;
+	-- nand2 1u
+	sr := sn and sb;
+	ss := not sr;
 
-g3 : se <= sb nor Q2 after clock_period;
-
-g4 : sf <= sd nor Q1 after clock_period;
-
-Q1 <= se;
-Q2 <= sf;
+	-- nand2 1d
+	st := sp and sb;
+	su := not st;
+	
+	-- nand2 q1
+	sw := ss and q2;
+	sx := not sw;
+	
+	-- nand2 q2
+	sy := su and q1;
+	sz := not sy;
+		
+	q1 <= sx;
+	q2 <= sy;
+	end process p0;
+	
 end architecture Structural;

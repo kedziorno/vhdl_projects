@@ -100,12 +100,29 @@ end process;
 --end if;
 --end process;
 
-stim_proc: process (clock) is
+C <= clock;
+stim_proc: process is
 begin
 -- insert stimulus here
-C <= clock;
 J <= '1';
 K <= '1';
+wait for clock_period;
+J <= '0';
+K <= '0';
+wait for 10*clock_period;
+J <= '1';
+K <= '1';
+wait for clock_period;
+J <= '0';
+K <= '0';
+wait for 10*clock_period;
+J <= '1';
+K <= '1';
+wait for clock_period;
+J <= '0';
+K <= '0';
+wait for 10*clock_period;
+wait;
 end process;
 
 END;
