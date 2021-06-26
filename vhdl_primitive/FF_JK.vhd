@@ -2,8 +2,69 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 entity FF_JK is
-port (J,K,C:in STD_LOGIC;Q1,Q2:inout STD_LOGIC);
+port (
+J,K,C:in STD_LOGIC;
+Q1:inout STD_LOGIC := '1';
+Q2:inout STD_LOGIC := '0'
+);
 end entity FF_JK;
+
+architecture structural of FF_JK is
+	constant W_NOT : time := 1 ns;
+	signal sa,sb,sc,sd : std_logic := '0';
+	signal se,sf,sg : std_logic := '0';
+	signal sh,si,sj : std_logic := '0';
+	signal sk,sn : std_logic := '0';
+	signal so,sp : std_logic := '0';
+	signal sr,ss : std_logic := '0';
+	signal st,su : std_logic := '0';
+	signal sw,sx : std_logic := '0';
+	signal sy,sz : std_logic := '0';
+begin
+
+	sa <= C;
+	sb <= not C;
+	sc <= j;
+	sd <= k;
+	
+	-- nand3 1u
+	se <= not (sa and sc and q2);
+--	sf <= se nand q2;
+	sg <= se after 2 ns;
+	
+	-- nand3 1d
+	sh <= not (sa and sd and q1);
+--	si <= sh nand q1;
+	sj <= sh after 2 ns;
+	
+	-- nand2 1u
+	sk <= sg nand sp;
+	sn <= sk after 2 ns;
+	
+	-- nand2 1d
+	so <= sj nand sn;
+	sp <= so after 2 ns;
+
+	-- nand2 1u
+	sr <= sn nand sb;
+	ss <= sr after 2 ns;
+
+	-- nand2 1d
+	st <= sp nand sb;
+	su <= st after 2 ns;
+	
+	-- nand2 q1
+	sw <= ss nand q2;
+	sx <= sw after 2 ns;
+	
+	-- nand2 q2
+	sy <= su nand q1;
+	sz <= sy after 2 ns;
+		
+	q1 <= sx;
+	q2 <= sy;
+
+end architecture Structural;
 
 ---- https://en.wikipedia.org/wiki/Flip-flop_(electronics)#JK_flip-flop
 ---- XXX strange operation
@@ -84,60 +145,7 @@ end entity FF_JK;
 --Q2 <= sf;
 --end architecture Structural;
 
-architecture structural of FF_JK is
-	constant W_NOT : time := 1 ns;
-	signal sa,sb,sc,sd : std_logic;
-	signal se,sf,sg : std_logic;
-	signal sh,si,sj : std_logic;
-	signal sk,sn : std_logic;
-	signal so,sp : std_logic;
-	signal sr,ss : std_logic;
-	signal st,su : std_logic;
-	signal sw,sx : std_logic;
-	signal sy,sz : std_logic;
-begin
 
-	sa <= C;
-	sb <= not C after W_NOT;
-	sc <= j;
-	sd <= k;
-	
-	-- nand3 1u
-	se <= sa and sc;
-	sf <= se and q2;
-	sg <= not sf;
-	
-	-- nand3 1d
-	sh <= sa and sd;
-	si <= sh and q1;
-	sj <= not si;
-	
-	-- nand2 1u
-	sk <= sg and sp;
-	sn <= not sk;
-	
-	-- nand2 1d
-	so <= sj and sn;
-	sp <= not so;
-
-	-- nand2 1u
-	sr <= sn and sb;
-	ss <= not sr;
-
-	-- nand2 1d
-	st <= sp and sb;
-	su <= not st;
-	
-	-- nand2 q1
-	sw <= ss and q2;
-	sx <= not sw;
-	
-	-- nand2 q2
-	sy <= su and q1;
-	sz <= not sy;
-		
-	q1 <= sx;
-	q2 <= sy;
 	
 --	p0 : process (C,j,k,q1,q2) is
 --		variable sa,sb,sc,sd : std_logic;
@@ -192,5 +200,3 @@ begin
 --	q1 <= sx;
 --	q2 <= sy;
 --	end process p0;
-	
-end architecture Structural;
