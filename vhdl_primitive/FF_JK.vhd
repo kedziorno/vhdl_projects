@@ -86,59 +86,111 @@ end entity FF_JK;
 
 architecture structural of FF_JK is
 	constant W_NOT : time := 1 ns;
+	signal sa,sb,sc,sd : std_logic;
+	signal se,sf,sg : std_logic;
+	signal sh,si,sj : std_logic;
+	signal sk,sn : std_logic;
+	signal so,sp : std_logic;
+	signal sr,ss : std_logic;
+	signal st,su : std_logic;
+	signal sw,sx : std_logic;
+	signal sy,sz : std_logic;
 begin
-	p0 : process (C,j,k,q1,q2) is
-		variable sa,sb,sc,sd : std_logic;
-		variable se,sf,sg : std_logic;
-		variable sh,si,sj : std_logic;
-		variable sk,sn : std_logic;
-		variable so,sp : std_logic := '0';
-		variable sr,ss : std_logic := '0';
-		variable st,su : std_logic;
-		variable sw,sx : std_logic;
-		variable sy,sz : std_logic;
-	begin
-	sa := C;
-	sb := not C;
-	sc := j;
-	sd := k;
+
+	sa <= C;
+	sb <= not C after W_NOT;
+	sc <= j;
+	sd <= k;
 	
 	-- nand3 1u
-	se := sa and sc;
-	sf := se and q2;
-	sg := not sf;
+	se <= sa and sc;
+	sf <= se and q2;
+	sg <= not sf;
 	
 	-- nand3 1d
-	sh := sa and sd;
-	si := sh and q1;
-	sj := not si;
+	sh <= sa and sd;
+	si <= sh and q1;
+	sj <= not si;
 	
 	-- nand2 1u
-	sk := sg and sp;
-	sn := not sk;
+	sk <= sg and sp;
+	sn <= not sk;
 	
 	-- nand2 1d
-	so := sj and sn;
-	sp := not so;
+	so <= sj and sn;
+	sp <= not so;
 
 	-- nand2 1u
-	sr := sn and sb;
-	ss := not sr;
+	sr <= sn and sb;
+	ss <= not sr;
 
 	-- nand2 1d
-	st := sp and sb;
-	su := not st;
+	st <= sp and sb;
+	su <= not st;
 	
 	-- nand2 q1
-	sw := ss and q2;
-	sx := not sw;
+	sw <= ss and q2;
+	sx <= not sw;
 	
 	-- nand2 q2
-	sy := su and q1;
-	sz := not sy;
+	sy <= su and q1;
+	sz <= not sy;
 		
 	q1 <= sx;
 	q2 <= sy;
-	end process p0;
+	
+--	p0 : process (C,j,k,q1,q2) is
+--		variable sa,sb,sc,sd : std_logic;
+--		variable se,sf,sg : std_logic;
+--		variable sh,si,sj : std_logic;
+--		variable sk,sn : std_logic;
+--		variable so,sp : std_logic := '0';
+--		variable sr,ss : std_logic := '0';
+--		variable st,su : std_logic;
+--		variable sw,sx : std_logic;
+--		variable sy,sz : std_logic;
+--	begin
+--	sa := C;
+--	sb := not C;
+--	sc := j;
+--	sd := k;
+--	
+--	-- nand3 1u
+--	se := sa and sc;
+--	sf := se and q2;
+--	sg := not sf;
+--	
+--	-- nand3 1d
+--	sh := sa and sd;
+--	si := sh and q1;
+--	sj := not si;
+--	
+--	-- nand2 1u
+--	sk := sg and sp;
+--	sn := not sk;
+--	
+--	-- nand2 1d
+--	so := sj and sn;
+--	sp := not so;
+--
+--	-- nand2 1u
+--	sr := sn and sb;
+--	ss := not sr;
+--
+--	-- nand2 1d
+--	st := sp and sb;
+--	su := not st;
+--	
+--	-- nand2 q1
+--	sw := ss and q2;
+--	sx := not sw;
+--	
+--	-- nand2 q2
+--	sy := su and q1;
+--	sz := not sy;
+--		
+--	q1 <= sx;
+--	q2 <= sy;
+--	end process p0;
 	
 end architecture Structural;
