@@ -23,10 +23,10 @@ architecture structural of FF_JK is
 	signal sy,sz : std_logic := '0';
 begin
 
-	sa <= C;
-	sb <= not C;
-	sc <= j;
-	sd <= k;
+	sa <= C after 1 ns;
+	sb <= not C after 2 ns;
+	sc <= j after 1 ns;
+	sd <= k after 1 ns;
 
 	-- nand3 1u
 	se <= not (sa and sc and q2);
