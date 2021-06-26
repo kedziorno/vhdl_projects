@@ -26,8 +26,8 @@ use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
+library UNISIM;
+use UNISIM.VComponents.all;
 
 entity ripple_counter is
 Generic (
@@ -58,17 +58,32 @@ architecture Behavioral of ripple_counter is
 	);
 	end component FTCE;
 
+	component MUX_21 is
+	port (S,A,B:in STD_LOGIC;C:out STD_LOGIC);
+	end component MUX_21;
+
 	signal cp,mr : std_logic;
 	signal q : std_logic_vector(N-1 downto 0);
-	signal ping : std_logic;
+	signal ping,ping_metastable : std_logic;
 
 begin
 
+	o_q <= q;
 	cp <= i_cpb;
 	mr <= '1' when o_q = std_logic_vector(to_unsigned(MAX,N)) else i_mrb;
 	ping <= '1' when o_q = std_logic_vector(to_unsigned(MAX,N)) else '0';
-	o_q <= q;
-	o_ping <= ping;
+
+	u1 : MUX_21
+	port map (
+		S => ping,
+		A => '1',
+		B => '0',
+		C => ping_metastable
+	);
+
+	FDCPE_inst1 : FDCPE
+	generic map (INIT => '0')
+	port map (Q=>o_ping,C=>i_clock,CE=>'1',CLR=>'0',D=>ping_metastable,PRE=>ping);
 
 	g0 : for i in N-1 downto 0 generate
 		ffjk_first : if (i=0) generate
