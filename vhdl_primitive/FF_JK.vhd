@@ -3,15 +3,23 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity FF_JK is
 port (
-J,K,C:in STD_LOGIC;
-Q1:inout STD_LOGIC;
-Q2:inout STD_LOGIC
+	i_s,i_r : in STD_LOGIC;
+	J,K,C : in STD_LOGIC;
+	Q1 : inout STD_LOGIC;
+	Q2 : inout STD_LOGIC
 );
 end entity FF_JK;
 
 architecture structural of FF_JK is
-	constant W_NAND2 : time := 1 ns;
-	constant W_NAND3 : time := 2 ns;
+	constant W_NAND2 : time := 1 ps;
+	constant W_NAND3 : time := 2 ps;
+	constant W_Q1MS : time := 100 ps;
+	constant W_Q2MS : time := 0 ps;
+	constant W_C : time := 0 ns;
+	constant W_NOTC : time := 0 ns;
+	constant W_J : time := 0 ns;
+	constant W_K : time := 0 ns;
+
 	signal sa,sb,sc,sd : std_logic := '0';
 	signal se,sf,sg : std_logic := '0';
 	signal sh,si,sj : std_logic := '0';
@@ -23,10 +31,10 @@ architecture structural of FF_JK is
 	signal sy,sz : std_logic := '0';
 begin
 
-	sa <= C after 1 ns;
-	sb <= not C after 2 ns;
-	sc <= j after 1 ns;
-	sd <= k after 1 ns;
+	sa <= C after W_C;
+	sb <= not C after W_NOTC;
+	sc <= j after W_J;
+	sd <= k after W_K;
 
 	-- nand3 1u
 	se <= not (sa and sc and q2);
@@ -60,8 +68,10 @@ begin
 	sy <= su nand q1;
 	sz <= sy after W_NAND2;
 
-	q1 <= sx after 1 ns; -- XXX metastable
-	q2 <= sz after 0 ns;
+--	q1 <= '1' when i_s = '1' else '0' when i_r = '1' else sx after 1 ns; -- XXX metastable
+--	q2 <= '0' when i_s = '1' else '1' when i_r = '1' else sz after 0 ns;
+	q1 <= sx after W_Q1MS when i_r = '0' else '1'; -- XXX metastable
+	q2 <= sz after W_Q2MS when i_r = '0' else '0';
 
 end architecture Structural;
 
