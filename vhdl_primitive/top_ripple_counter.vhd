@@ -39,8 +39,8 @@ end top_ripple_counter;
 
 architecture Behavioral of top_ripple_counter is
 
-	constant N : integer := 32;
-	constant MAX : integer := 10_000_000;
+	constant N : integer := 8;
+	constant MAX : integer := 237;
 
 	component ripple_counter is
 	Generic (
@@ -67,6 +67,7 @@ architecture Behavioral of top_ripple_counter is
 
 	component FF_JK is
 	port (
+		i_s,i_r:in STD_LOGIC;
 		J,K,C:in STD_LOGIC;
 		Q1:inout STD_LOGIC;
 		Q2:inout STD_LOGIC
@@ -97,6 +98,8 @@ begin
 
 	u1 : FF_JK
 	port map (
+		i_s => '0',
+		i_r => i_mrb,
 		J => o_ping,
 		K => o_ping,
 		C => i_clock,

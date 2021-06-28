@@ -13,7 +13,7 @@ end entity FF_JK;
 architecture structural of FF_JK is
 	constant W_NAND2 : time := 1 ps;
 	constant W_NAND3 : time := 2 ps;
-	constant W_Q1MS : time := 100 ps;
+	constant W_Q1MS : time := 10 ps;
 	constant W_Q2MS : time := 0 ps;
 	constant W_C : time := 0 ns;
 	constant W_NOTC : time := 0 ns;

@@ -45,26 +45,18 @@ end ripple_counter;
 
 architecture Behavioral of ripple_counter is
 
-	component FTCE is
-	generic(
-	INIT : bit := '0'
-	);
+	component FF_JK is
 	port (
-	Q   : out STD_LOGIC := '0';
-	C   : in STD_LOGIC;
-	CE  : in STD_LOGIC;
-	CLR : in STD_LOGIC;
-	T   : in STD_LOGIC
+	i_s,i_r:in STD_LOGIC;
+	J,K,C:in STD_LOGIC;
+	Q1:inout STD_LOGIC;
+	Q2:inout STD_LOGIC
 	);
-	end component FTCE;
-
-	component MUX_21 is
-	port (S,A,B:in STD_LOGIC;C:out STD_LOGIC);
-	end component MUX_21;
+	end component FF_JK;
 
 	signal cp,mr : std_logic;
 	signal q : std_logic_vector(N-1 downto 0);
-	signal ping,ping_metastable : std_logic;
+	signal ping : std_logic;
 
 begin
 
@@ -73,24 +65,16 @@ begin
 	mr <= '1' when o_q = std_logic_vector(to_unsigned(MAX,N)) else i_mrb;
 	ping <= '1' when o_q = std_logic_vector(to_unsigned(MAX,N)) else '0';
 
-	u1 : MUX_21
-	port map (
-		S => ping,
-		A => '1',
-		B => '0',
-		C => ping_metastable
-	);
-
 	FDCPE_inst1 : FDCPE
 	generic map (INIT => '0')
-	port map (Q=>o_ping,C=>i_clock,CE=>'1',CLR=>'0',D=>ping_metastable,PRE=>ping);
+	port map (Q=>o_ping,C=>i_clock,CE=>'1',CLR=>'0',D=>ping,PRE=>ping);
 
 	g0 : for i in N-1 downto 0 generate
 		ffjk_first : if (i=0) generate
-			ffjk : FTCE port map (T=>cp,C=>i_clock,CE=>'1',CLR=>mr,Q=>q(0));
+			ffjk : FF_JK port map (i_s=>'0',i_r=>mr,J=>cp,K=>cp,C=>i_clock,Q1=>q(0));
 		end generate ffjk_first;
 		ffjk_chain : if (i>0) generate
-			ffjk : FTCE port map (T=>cp,C=>not q(i-1),CE=>'1',CLR=>mr,Q=>q(i));
+			ffjk : FF_JK port map (i_s=>'0',i_r=>mr,J=>cp,K=>cp,C=>q(i-1),Q1=>q(i));
 		end generate ffjk_chain;
 	end generate g0;
 
