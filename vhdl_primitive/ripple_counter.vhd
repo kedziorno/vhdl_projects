@@ -47,7 +47,7 @@ architecture Behavioral of ripple_counter is
 
 	component FF_JK is
 	port (
-	i_s,i_r:in STD_LOGIC;
+	i_r:in STD_LOGIC;
 	J,K,C:in STD_LOGIC;
 	Q1:inout STD_LOGIC;
 	Q2:inout STD_LOGIC
@@ -62,19 +62,19 @@ begin
 
 	o_q <= q;
 	cp <= i_cpb;
-	mr <= '1' when o_q = std_logic_vector(to_unsigned(MAX,N)) else i_mrb;
-	ping <= '1' when o_q = std_logic_vector(to_unsigned(MAX,N)) else '0';
+	mr <= '1' when q = std_logic_vector(to_unsigned(MAX,N)) else i_mrb;
+	ping <= '1' when q = std_logic_vector(to_unsigned(MAX,N)) else '0';
 
 	FDCPE_inst1 : FDCPE
 	generic map (INIT => '0')
-	port map (Q=>o_ping,C=>i_clock,CE=>'1',CLR=>'0',D=>ping,PRE=>ping);
+	port map (Q=>o_ping,C=>i_clock,CE=>'1',CLR=>'0',D=>'0',PRE=>ping); -- XXX D=ping give ~10mhz,d=0 give ~400mhz
 
 	g0 : for i in N-1 downto 0 generate
 		ffjk_first : if (i=0) generate
-			ffjk : FF_JK port map (i_s=>'0',i_r=>mr,J=>cp,K=>cp,C=>i_clock,Q1=>q(0));
+			ffjk : FF_JK port map (i_r=>mr,J=>cp,K=>cp,C=>i_clock,Q1=>q(0));
 		end generate ffjk_first;
 		ffjk_chain : if (i>0) generate
-			ffjk : FF_JK port map (i_s=>'0',i_r=>mr,J=>cp,K=>cp,C=>q(i-1),Q1=>q(i));
+			ffjk : FF_JK port map (i_r=>mr,J=>cp,K=>cp,C=>q(i-1),Q1=>q(i));
 		end generate ffjk_chain;
 	end generate g0;
 

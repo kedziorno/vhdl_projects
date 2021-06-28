@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity FF_JK is
 port (
-	i_s,i_r : in STD_LOGIC;
+	i_r : in STD_LOGIC;
 	J,K,C : in STD_LOGIC;
 	Q1 : inout STD_LOGIC;
 	Q2 : inout STD_LOGIC
@@ -68,8 +68,6 @@ begin
 	sy <= su nand q1;
 	sz <= sy after W_NAND2;
 
---	q1 <= '1' when i_s = '1' else '0' when i_r = '1' else sx after 1 ns; -- XXX metastable
---	q2 <= '0' when i_s = '1' else '1' when i_r = '1' else sz after 0 ns;
 	q1 <= sx after W_Q1MS when i_r = '0' else '1'; -- XXX metastable
 	q2 <= sz after W_Q2MS when i_r = '0' else '0';
 
