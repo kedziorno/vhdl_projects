@@ -78,7 +78,7 @@ begin
 	);
 	o_ping <= ping1;
 
-	g0 : for i in N-1 downto 0 generate
+	g0 : for i in 0 to N-1 generate
 		ffjk_first : if (i=0) generate
 			ffjk : FF_JK port map (i_r=>mr,J=>cp,K=>cp,C=>i_clock,Q1=>q(0));
 		end generate ffjk_first;
