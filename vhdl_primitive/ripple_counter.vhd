@@ -66,7 +66,7 @@ begin
 
 	o_q <= q;
 	cp <= i_cpb;
-	mr <= '1' when o_q = std_logic_vector(to_unsigned(MAX,N)) else i_mrb;
+	mr <= '1' when o_q = std_logic_vector(to_unsigned(MAX-1,N)) else i_mrb;
 	ping <= '1' when o_q = std_logic_vector(to_unsigned(0,N)) else '0';
 
 	inst1 : FF_D_POSITIVE_EDGE

@@ -39,8 +39,14 @@ end top_ripple_counter;
 
 architecture Behavioral of top_ripple_counter is
 
-	constant N : integer := 24; -- XXX log2(MAX)-1/+1?
-	constant MAX : integer := 20_000_000;
+---- XXX log2(MAX)-1/+1? for syn
+	-- XXX for this settings see like led toogle after 1s
+	constant N : integer := 26; -- XXX 0-25 ff jk regs
+	constant MAX : integer := 49_999_999; -- XXX for this on 0-50*10^6-1 hz
+
+---- XXX log2(MAX)-1/+1? for sim
+--	constant N : integer := 11;
+--	constant MAX : integer := 1_000;
 
 	component ripple_counter is
 	Generic (
@@ -101,7 +107,7 @@ begin
 		i_r => i_mrb,
 		J => o_ping,
 		K => o_ping,
-		C => i_clock,
+		C => not i_clock,
 		Q1 => led,
 		Q2 => open
 	);
