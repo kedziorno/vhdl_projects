@@ -54,20 +54,29 @@ architecture Behavioral of ripple_counter is
 	);
 	end component FF_JK;
 
+	component FF_D_POSITIVE_EDGE is
+	port (C,D:in STD_LOGIC;Q1,Q2:inout STD_LOGIC);
+	end component FF_D_POSITIVE_EDGE;
+
 	signal cp,mr : std_logic;
 	signal q : std_logic_vector(N-1 downto 0);
-	signal ping : std_logic;
+	signal ping,ping1 : std_logic;
 
 begin
 
 	o_q <= q;
 	cp <= i_cpb;
-	mr <= '1' when q = std_logic_vector(to_unsigned(MAX,N)) else i_mrb;
-	ping <= '1' when q = std_logic_vector(to_unsigned(MAX,N)) else '0';
+	mr <= '1' when o_q = std_logic_vector(to_unsigned(MAX,N)) else i_mrb;
+	ping <= '1' when o_q = std_logic_vector(to_unsigned(0,N)) else '0';
 
-	FDCPE_inst1 : FDCPE
-	generic map (INIT => '0')
-	port map (Q=>o_ping,C=>i_clock,CE=>'1',CLR=>'0',D=>'0',PRE=>ping); -- XXX D=ping give ~10mhz,d=0 give ~400mhz
+	inst1 : FF_D_POSITIVE_EDGE
+	PORT MAP (
+	D => ping,
+	C => i_clock,
+	Q1 => ping1,
+	Q2 => open
+	);
+	o_ping <= ping1;
 
 	g0 : for i in N-1 downto 0 generate
 		ffjk_first : if (i=0) generate

@@ -39,8 +39,8 @@ end top_ripple_counter;
 
 architecture Behavioral of top_ripple_counter is
 
-	constant N : integer := 32;
-	constant MAX : integer := 10_000;
+	constant N : integer := 24; -- XXX log2(MAX)-1/+1?
+	constant MAX : integer := 20_000_000;
 
 	component ripple_counter is
 	Generic (
