@@ -67,7 +67,7 @@ signal o_q : std_logic_vector(N-1 downto 0);
 signal o_ping : std_logic;
 
 signal clock : std_logic := '0';
-constant clock_period : time := 100 ns;
+constant clock_period : time := 10 ns;
 
 BEGIN
 
@@ -118,8 +118,38 @@ i_cpb <= '1';
 i_ud <= '1'; -- count up
 wait for 1*clock_period;
 i_mrb <= '0'; -- start counting
-wait for MAX*clock_period; -- wait MAX ticks
+wait for 4*MAX*clock_period; -- wait MAX ticks
 i_cpb <= '0'; -- ok, count from 0 to MAX-2, MAX-1=0 then ping
+i_ud <= '0';
+
+-- wait some time
+wait for 100*clock_period;
+
+-- dont want reset, reset in middle cpb
+wait for clock_period;
+i_cpb <= '1';
+i_ud <= '0'; -- count down
+wait for (MAX*clock_period)/2 - 241 ns;
+i_mrb <= '1';
+wait for clock_period;
+i_mrb <= '0';
+wait for (MAX*clock_period)/2 + 241 ns;
+wait for (MAX*clock_period)/2 - 123 ns;
+i_mrb <= '1';
+wait for clock_period;
+i_mrb <= '0';
+wait for (MAX*clock_period)/2 + 123 ns;
+wait for (MAX*clock_period)/2 - 177 ns;
+i_mrb <= '1';
+wait for clock_period;
+i_mrb <= '0';
+wait for (MAX*clock_period)/2 + 177 ns;
+wait for (MAX*clock_period)/2 - 89 ns;
+i_mrb <= '1';
+wait for clock_period;
+i_mrb <= '0';
+wait for (MAX*clock_period)/2 + 89 ns;
+i_cpb <= '0'; -- strange
 i_ud <= '0';
 
 -- wait some time, not count, stay on 1
@@ -132,7 +162,7 @@ i_cpb <= '1';
 i_ud <= '0'; -- count down
 wait for 1*clock_period; -- wait for reset
 i_mrb <= '0'; -- start counting
-wait for MAX*clock_period;
+wait for 4*MAX*clock_period;
 i_cpb <= '0'; -- strange
 i_ud <= '0';
 
