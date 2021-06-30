@@ -31,13 +31,14 @@ use UNISIM.VComponents.all;
 
 entity ripple_counter is
 Generic (
-N : integer := 12;
-MAX : integer := 571
+N : integer := 32;
+MAX : integer := 1
 );
 Port (
 i_clock : in std_logic;
 i_cpb : in std_logic;
 i_mrb : in std_logic;
+i_ud : in std_logic;
 o_q : inout std_logic_vector(N-1 downto 0);
 o_ping : out std_logic
 );
@@ -58,13 +59,37 @@ architecture Behavioral of ripple_counter is
 	port (C,D:in STD_LOGIC;Q1,Q2:inout STD_LOGIC);
 	end component FF_D_POSITIVE_EDGE;
 
+	component GATE_AND is
+	generic (
+	delay_and : TIME := 1 ns
+	);
+	port (
+	A,B : in STD_LOGIC;
+	C : out STD_LOGIC
+	);
+	end component GATE_AND;
+
+	component GATE_OR is
+	generic (
+	delay_or : TIME := 1 ns
+	);
+	port (
+	A,B : in STD_LOGIC;
+	C : out STD_LOGIC
+	);
+	end component GATE_OR;
+
 	signal cp,mr : std_logic;
-	signal q : std_logic_vector(N-1 downto 0);
+	signal q1,q2 : std_logic_vector(N-1 downto 0);
 	signal ping,ping1 : std_logic;
+	signal ffjk_and_u,ffjk_and_d,ffjk_or : std_logic_vector(N-1 downto 0);
+
+	constant WAIT_AND : time := 0 ns;
+	constant WAIT_OR : time := 0 ns;
 
 begin
 
-	o_q <= q;
+	o_q <= q1;
 	cp <= i_cpb;
 	mr <= '1' when o_q = std_logic_vector(to_unsigned(MAX-1,N)) else i_mrb;
 	ping <= '1' when o_q = std_logic_vector(to_unsigned(0,N)) else '0';
@@ -80,11 +105,20 @@ begin
 
 	g0 : for i in 0 to N-1 generate
 		ffjk_first : if (i=0) generate
-			ffjk : FF_JK port map (i_r=>mr,J=>cp,K=>cp,C=>i_clock,Q1=>q(0));
+			ffjkf : FF_JK port map (i_r=>mr,J=>cp,K=>cp,C=>i_clock,Q1=>q1(0),Q2=>q2(0));
+			ffjk_and_uf : GATE_AND generic map (WAIT_AND) port map (A=>q1(0),B=>i_ud,C=>ffjk_and_u(0));
+			ffjk_and_df : GATE_AND generic map (WAIT_AND) port map (A=>q2(0),B=>not i_ud,C=>ffjk_and_d(0));
+			ffjk_orf : GATE_OR generic map (WAIT_OR) port map (A=>ffjk_and_u(0),B=>ffjk_and_d(0),C=>ffjk_or(0));
 		end generate ffjk_first;
-		ffjk_chain : if (i>0) generate
-			ffjk : FF_JK port map (i_r=>mr,J=>cp,K=>cp,C=>q(i-1),Q1=>q(i));
+		ffjk_chain : if (i>0 and i<N-1) generate
+			ffjkc : FF_JK port map (i_r=>mr,J=>ffjk_or(i-1),K=>ffjk_or(i-1),C=>i_clock,Q1=>q1(i),Q2=>q2(i));
+			ffjk_and_uc : GATE_AND generic map (WAIT_AND) port map (A=>q1(i),B=>ffjk_and_u(i-1),C=>ffjk_and_u(i));
+			ffjk_and_dc : GATE_AND generic map (WAIT_AND) port map (A=>q2(i),B=>ffjk_and_d(i-1),C=>ffjk_and_d(i));
+			ffjk_orc : GATE_OR generic map (WAIT_OR) port map (A=>ffjk_and_u(i),B=>ffjk_and_d(i),C=>ffjk_or(i));
 		end generate ffjk_chain;
+		ffjk_last : if (i=N-1) generate
+			ffjkl : FF_JK port map (i_r=>mr,J=>ffjk_or(i-1),K=>ffjk_or(i-1),C=>i_clock,Q1=>q1(N-1),Q2=>open);
+		end generate ffjk_last;
 	end generate g0;
 
 end Behavioral;
