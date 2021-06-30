@@ -39,8 +39,14 @@ end top_ripple_counter;
 
 architecture Behavioral of top_ripple_counter is
 
-	constant N : integer := 32;
-	constant MAX : integer := 10_000_000;
+---- XXX log2(MAX)-1/+1? for syn
+	-- XXX for this settings see like led toogle after 1s
+--	constant N : integer := 26; -- XXX 0-25 ff jk regs
+--	constant MAX : integer := 49_999_999; -- XXX for this on 0-50*10^6-1 hz
+
+---- XXX log2(MAX)-1/+1? for sim
+	constant N : integer := 8;
+	constant MAX : integer := 130;
 
 	component ripple_counter is
 	Generic (
@@ -51,6 +57,7 @@ architecture Behavioral of top_ripple_counter is
 		i_clock : in std_logic;
 		i_cpb : in std_logic;
 		i_mrb : in std_logic;
+		i_ud : in std_logic;
 		o_q : inout std_logic_vector(N-1 downto 0);
 		o_ping : out std_logic
 	);
@@ -67,6 +74,7 @@ architecture Behavioral of top_ripple_counter is
 
 	component FF_JK is
 	port (
+		i_r:in STD_LOGIC;
 		J,K,C:in STD_LOGIC;
 		Q1:inout STD_LOGIC;
 		Q2:inout STD_LOGIC
@@ -97,9 +105,10 @@ begin
 
 	u1 : FF_JK
 	port map (
+		i_r => i_mrb,
 		J => o_ping,
 		K => o_ping,
-		C => i_clock,
+		C => not i_clock,
 		Q1 => led,
 		Q2 => open
 	);
@@ -113,6 +122,7 @@ begin
 		i_clock => i_clock,
 		i_cpb => i_cpb,
 		i_mrb => i_mrb,
+		i_ud => '1',
 		o_q => o_q,
 		o_ping => o_ping
 	);
