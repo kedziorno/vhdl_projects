@@ -40,6 +40,7 @@ ARCHITECTURE behavior OF tb_ff_jk IS
 -- Component Declaration for the Unit Under Test (UUT)
 COMPONENT FF_JK
 PORT(
+i_r : IN  STD_LOGIC;
 J : IN  std_logic;
 K : IN  std_logic;
 C : IN  std_logic;
@@ -49,6 +50,7 @@ Q2 : INOUT  std_logic
 END COMPONENT;
 
 --Inputs
+signal i_r : std_logic := '0';
 signal J : std_logic := '0';
 signal K : std_logic := '0';
 signal C : std_logic := '0';
@@ -64,6 +66,7 @@ BEGIN
 
 -- Instantiate the Unit Under Test (UUT)
 uut: FF_JK PORT MAP (
+i_r => i_r,
 J => J,
 K => K,
 C => C,
@@ -100,6 +103,7 @@ end process;
 --end if;
 --end process;
 
+i_r <= '1','0' after clock_period/2;
 C <= clock;
 stim_proc: process is
 begin
