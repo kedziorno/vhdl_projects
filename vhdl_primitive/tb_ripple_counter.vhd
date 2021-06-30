@@ -103,38 +103,43 @@ begin
 
 ---- insert stimulus here
 
-wait for clock_period; -- XXX reset
+-- reset, ok 0 when reset=1
+wait for clock_period;
 i_mrb <= '1';
-wait for 10*clock_period;
+wait for 25*clock_period;
 i_mrb <= '0';
 
-wait for clock_period; -- XXX count
+-- wait some time, count down when ud=0
+wait for 100*clock_period;
+
+-- mrb,cpb must be 1 to reset and start count
+i_mrb <= '1';
 i_cpb <= '1';
-i_ud <= '1';
-wait for MAX*clock_period;
-i_cpb <= '0';
+i_ud <= '1'; -- count up
+wait for 1*clock_period;
+i_mrb <= '0'; -- start counting
+wait for MAX*clock_period; -- wait MAX ticks
+i_cpb <= '0'; -- ok, count from 0 to MAX-2, MAX-1=0 then ping
 i_ud <= '0';
 
+-- wait some time, not count, stay on 1
+wait for 100*clock_period;
 
-wait for 5*clock_period;
-
---wait for clock_period; -- XXX reset
---i_mrb <= '1';
---wait for clock_period;
---i_mrb <= '0';
-
-wait for clock_period; -- XXX count
-i_cpb <= '1';
-i_ud <= '0';
-wait for MAX*clock_period;
-i_cpb <= '0';
-i_ud <= '0';
+-- mrb,cpb must be 1 to reset and start count
 wait for clock_period;
+i_mrb <= '1';
+i_cpb <= '1';
+i_ud <= '0'; -- count down
+wait for 1*clock_period; -- wait for reset
+i_mrb <= '0'; -- start counting
+wait for MAX*clock_period;
+i_cpb <= '0'; -- strange
+i_ud <= '0';
 
---wait for clock_period; -- XXX reset
---i_mrb <= '1';
---wait for clock_period;
---i_mrb <= '0';
+wait for 10*clock_period; -- XXX reset
+i_mrb <= '1';
+wait for 100*clock_period;
+i_mrb <= '0';
 
 wait;
 end process;

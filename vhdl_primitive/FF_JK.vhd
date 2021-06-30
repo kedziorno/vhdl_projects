@@ -37,7 +37,7 @@ begin
 	sd <= k after W_K;
 
 	-- nand3 1u
-	se <= not (sa and sc and q2);
+	se <= not (sa and sc and q2 and not i_r);
 	sg <= se after W_NAND3;
 
 	-- nand3 1d
@@ -49,7 +49,7 @@ begin
 	sn <= sk after W_NAND2;
 
 	-- nand2 1d
-	so <= sj nand sn;
+	so <= not (sj and sn and not i_r);
 	sp <= so after W_NAND2;
 
 	-- nand2 1u
@@ -68,8 +68,8 @@ begin
 	sy <= su nand q1;
 	sz <= sy after W_NAND2;
 
-	q1 <= sx after W_Q1MS when i_r = '0' else '1'; -- XXX metastable
-	q2 <= sz after W_Q2MS when i_r = '0' else '0';
+	q1 <= sx and not i_r after W_Q1MS; -- XXX metastable
+	q2 <= sz after W_Q2MS;
 
 end architecture Structural;
 
