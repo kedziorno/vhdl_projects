@@ -82,7 +82,7 @@ architecture Behavioral of ripple_counter is
 	signal cp,mr : std_logic;
 	signal q1,q2 : std_logic_vector(N-1 downto 0);
 	signal ping,ping1 : std_logic;
-	signal ffjk_and_u,ffjk_and_d,ffjk_or : std_logic_vector(N-1 downto 0);
+	signal ffjk_and_u,ffjk_and_d,ffjk_or : std_logic_vector(N-1-1 downto 0); -- XXX omit last FF JK
 	signal ud,udb : std_logic;
 
 	constant WAIT_AND : time := 2 ps;
@@ -106,18 +106,39 @@ begin
 	);
 	o_ping <= ping1;
 
+	g0_and_u : for i in 0 to N-2 generate -- XXX omit last FF JK
+		g0_and_u_first : if (i=0) generate
+			g0_and_u_first : GATE_AND generic map (WAIT_AND) port map (A=>q1(i),B=>ud,C=>ffjk_and_u(i));
+		end generate g0_and_u_first;
+		g0_and_u_chain : if (i>0 and i<N-1) generate
+			g0_and_u_chain : GATE_AND generic map (WAIT_AND) port map (A=>q1(i),B=>ffjk_and_u(i-1),C=>ffjk_and_u(i));
+		end generate g0_and_u_chain;
+	end generate g0_and_u;
+
+	g0_and_d : for i in 0 to N-2 generate -- XXX omit last FF JK
+		g0_and_d_first : if (i=0) generate
+			g0_and_d_first : GATE_AND generic map (WAIT_AND) port map (A=>q2(i),B=>udb,C=>ffjk_and_d(i)); -- XXX udb make unconnected
+		end generate g0_and_d_first;
+		g0_and_d_chain : if (i>0 and i<N-1) generate
+			g0_and_d_chain : GATE_AND generic map (WAIT_AND) port map (A=>q2(i),B=>ffjk_and_d(i-1),C=>ffjk_and_d(i));
+		end generate g0_and_d_chain;
+	end generate g0_and_d;
+
+	g0_or : for i in 0 to N-2 generate -- XXX omit last FF JK
+		g0_or_first : if (i=0) generate
+			g0_or_first : GATE_OR generic map (WAIT_OR) port map (A=>ffjk_and_u(i),B=>ffjk_and_d(i),C=>ffjk_or(i));
+		end generate g0_or_first;
+		g0_or_chain : if (i>0 and i<N-1) generate
+			g0_or_chain : GATE_OR generic map (WAIT_OR) port map (A=>ffjk_and_u(i),B=>ffjk_and_d(i),C=>ffjk_or(i));
+		end generate g0_or_chain;
+	end generate g0_or;
+
 	g0 : for i in 0 to N-1 generate
 		ffjk_first : if (i=0) generate
 			ffjk_first : FF_JK port map (i_r=>mr,J=>cp,K=>cp,C=>i_clock,Q1=>q1(i),Q2=>q2(i));
-			ffjk_and_u_first : GATE_AND generic map (WAIT_AND) port map (A=>q1(i),B=>ud,C=>ffjk_and_u(i));
-			ffjk_and_d_first : GATE_AND generic map (WAIT_AND) port map (A=>q2(i),B=>udb,C=>ffjk_and_d(i));
-			ffjk_or_first : GATE_OR generic map (WAIT_OR) port map (A=>ffjk_and_u(i),B=>ffjk_and_d(i),C=>ffjk_or(i));
 		end generate ffjk_first;
 		ffjk_chain : if (i>0 and i<N-1) generate
 			ffjk_chain : FF_JK port map (i_r=>mr,J=>ffjk_or(i-1),K=>ffjk_or(i-1),C=>i_clock,Q1=>q1(i),Q2=>q2(i));
-			ffjk_and_u_chain : GATE_AND generic map (WAIT_AND) port map (A=>q1(i),B=>ffjk_and_u(i-1),C=>ffjk_and_u(i));
-			ffjk_and_d_chain : GATE_AND generic map (WAIT_AND) port map (A=>q2(i),B=>ffjk_and_d(i-1),C=>ffjk_and_d(i));
-			ffjk_or_chain : GATE_OR generic map (WAIT_OR) port map (A=>ffjk_and_u(i),B=>ffjk_and_d(i),C=>ffjk_or(i));
 		end generate ffjk_chain;
 		ffjk_last : if (i=N-1) generate
 			ffjk_last : FF_JK port map (i_r=>mr,J=>ffjk_or(i-1),K=>ffjk_or(i-1),C=>i_clock,Q1=>q1(i),Q2=>q2(i));

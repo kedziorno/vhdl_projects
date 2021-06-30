@@ -105,39 +105,36 @@ begin
 
 wait for clock_period; -- XXX reset
 i_mrb <= '1';
-i_ud <= '0';
-wait for 2*clock_period;
+wait for 10*clock_period;
 i_mrb <= '0';
 
-wait for clock_period; -- XXX set up
+wait for clock_period; -- XXX count
+i_cpb <= '1';
 i_ud <= '1';
-
-wait for clock_period; -- XXX count
-i_cpb <= '1';
 wait for MAX*clock_period;
 i_cpb <= '0';
-wait for clock_period;
-
-wait for clock_period; -- XXX reset
-i_mrb <= '1';
 i_ud <= '0';
-wait for 2*clock_period;
-i_mrb <= '0';
 
-wait for clock_period; -- XXX set down
-i_ud <= '0';
+
+wait for 5*clock_period;
+
+--wait for clock_period; -- XXX reset
+--i_mrb <= '1';
+--wait for clock_period;
+--i_mrb <= '0';
 
 wait for clock_period; -- XXX count
 i_cpb <= '1';
 i_ud <= '0';
 wait for MAX*clock_period;
 i_cpb <= '0';
+i_ud <= '0';
 wait for clock_period;
 
-wait for clock_period; -- XXX reset
-i_mrb <= '1';
-wait for 2*clock_period;
-i_mrb <= '0';
+--wait for clock_period; -- XXX reset
+--i_mrb <= '1';
+--wait for clock_period;
+--i_mrb <= '0';
 
 wait;
 end process;
