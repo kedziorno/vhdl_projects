@@ -179,10 +179,11 @@ begin
 	end generate sram_data_generate;
 
 	input_IOBUFDS_generate : for i in 0 to data_size-1 generate
-		input_IOBUFDS_inst  : OBUFT port map (O=>data_in(i), I=>i_data(i),   T=>not tristate_input);
+--		input_IOBUFDS_inst  : IOBUF port map (O=>data_in(i), I=>i_data(i),   T=>not tristate_input);
+		input_IOBUFDS_inst  : IBUF port map (O=>data_in(i), I=>i_data(i));
 	end generate input_IOBUFDS_generate;
 	output_OBUFTDS_generate : for i in 0 to data_size-1 generate
-		output_OBUFTDS_inst : OBUFT port map (O=>o_data(i),  I=>data_out(i), T=>tristate_output);
+		output_OBUFTDS_inst : IOBUF port map (O=>o_data(i),  I=>data_out(i), T=>tristate_output);
 	end generate output_OBUFTDS_generate;
 
 --	mdc_entity : mem_decoder_col
