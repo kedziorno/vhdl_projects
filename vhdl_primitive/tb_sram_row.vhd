@@ -40,8 +40,8 @@ ARCHITECTURE behavior OF tb_sram_row IS
 -- Component Declaration for the Unit Under Test (UUT)
 COMPONENT sram_row
 PORT(
-i_tristate_input : IN  std_logic;
-i_tristate_output : IN  std_logic;
+i_we : IN  std_logic;
+i_oe : IN  std_logic;
 i_address_col : IN  std_logic_vector(3 downto 0);
 i_bit : IN  std_logic;
 o_bit : OUT  std_logic
@@ -63,8 +63,8 @@ BEGIN
 
 -- Instantiate the Unit Under Test (UUT)
 uut: sram_row PORT MAP (
-i_tristate_input => i_tristate_input,
-i_tristate_output => i_tristate_output,
+i_we => i_tristate_input,
+i_oe => i_tristate_output,
 i_address_col => i_address_col,
 i_bit => i_bit,
 o_bit => o_bit
