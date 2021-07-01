@@ -100,7 +100,7 @@ begin
 --	PRE => '0');
 
 	sram_row_generate : for i in 0 to 15 generate
-		sram_col : sram_row Generic map (n=>4) Port map (
+		sram_col : sram_row Generic map (n=>N) Port map (
 			i_we=>we(i),
 			i_oe=>oe(i),
 			i_address_col=>i_address_col,

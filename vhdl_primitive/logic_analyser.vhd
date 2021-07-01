@@ -39,6 +39,7 @@ data_size : integer := 8
 Port (
 i_clock : in std_logic;
 i_reset : in std_logic; -- XXX use for catch data
+i_catch : in std_logic;
 i_data : in std_logic_vector(data_size-1 downto 0);
 o_rs232_tx : out std_logic
 );
@@ -111,6 +112,26 @@ RsRx : in  STD_LOGIC
 );
 end component rs232;
 
+component GATE_AND is
+generic (
+delay_and : TIME := 1 ns
+);
+port (
+A,B : in STD_LOGIC;
+C : out STD_LOGIC
+);
+end component GATE_AND;
+
+component GATE_NOT is
+generic (
+delay_not : TIME := 1 ns
+);
+port (
+A : in STD_LOGIC;
+B : out STD_LOGIC
+);
+end component GATE_NOT;
+
 signal latch_le,latch_oeb : std_logic;
 signal latch_d,latch_q : std_logic_vector(data_size-1 downto 0);
 signal sram_ceb,sram_web,sram_oeb : std_logic;
@@ -120,8 +141,11 @@ signal rc_clock,rc_cpb,rc_mrb,rc_ud,rc_ping : std_logic;
 signal rc_oq : std_logic_vector(address_size-1 downto 0);
 signal rs232_clock,rs232_reset,rs232_etx,rs232_tx,rs232_rx,rs232_busy,rs232_ready,rs232_byte_sended : std_logic;
 signal rs232_b2s : std_logic_vector(8 downto 0);
-
 signal wr,rd,a,b : std_logic;
+signal catch,catch_not,catch_tick : std_logic;
+
+constant WAIT_AND : time := 3 ps;
+constant WAIT_NOT : time := 2 ps;
 
 type state_type is (
 idle,start,stop,check_write,wait0,wait0_increment,
@@ -141,14 +165,17 @@ begin
 	end if;
 end process p0;
 
-latch_le <= '1' when (i_clock = '1' and wr = '1') else '0';
+latch_le <= '1' when (catch_tick = '1' and wr = '1') else '0';
 --latch_oeb <= '0' when (i_clock = '0' and wr = '1') else '0';
 latch_oeb <= '1' when rd = '1' else '0'; -- XXX todo
 sram_web <= '0' when latch_le = '1' else '1';
 sram_oeb <= '0' when rd = '1' and state_c = st_disable_tx else '1';
-rc_clock <= not i_clock when wr = '1' or (rd = '1' and rs232_etx = '1' and rs232_byte_sended = '1') else '0';
+rc_clock <= not i_clock when (wr = '1' and catch_tick = '1') or (rd = '1' and rs232_etx = '1' and rs232_byte_sended = '1') else '0';
 sram_ceb <= '0' when rc_clock = '1' or rs232_etx = '0' else '1';
 --rc_mrb <= '1' when i_reset = '1' else '0';
+
+g_catch_and : GATE_AND Generic map (WAIT_AND) Port map (A=>i_catch,B=>catch_not,C=>catch_tick);
+g_catch_not : GATE_NOT Generic map (WAIT_AND) Port map (A=>i_catch,B=>catch_not);
 
 p1 : process (state_c,rs232_etx,rs232_byte_sended,sram_address) is
 constant C_W0 : integer := 10;
@@ -169,7 +196,7 @@ begin
 			rc_cpb <= '1';
 			rc_mrb <= '0';
 		when check_write =>
-			if (to_integer(unsigned(sram_address)) = (2**(address_size-1))-1) then
+			if (to_integer(unsigned(sram_address)) = (2**(address_size))-1) then
 				state_n <= wait0;
 				wr <= '0';
 				rd <= '1';
@@ -188,7 +215,7 @@ begin
 			state_n <= wait0;
 			w0 := w0 + 1;
 		when read0 =>
-			if (to_integer(unsigned(sram_address)) = (2**(address_size-1))-1) then
+			if (to_integer(unsigned(sram_address)) = (2**(address_size))-1) then
 				state_n <= stop;
 			else
 				state_n <= st_enable_tx;
