@@ -119,7 +119,12 @@ end procedure;
 BEGIN
 
 -- Instantiate the Unit Under Test (UUT)
-uut: sram_62256 PORT MAP (
+uut: sram_62256
+GENERIC MAP (
+address_size => address_size,
+data_size => data_size
+)
+PORT MAP (
 i_ceb => i_ceb,
 i_web => i_web,
 i_oeb => i_oeb,

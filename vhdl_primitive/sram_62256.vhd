@@ -76,8 +76,8 @@ architecture Behavioral of sram_62256 is
 	);
 	end component sram_cell;
 
-	constant memory_bits_rows : integer := 2;
-	constant memory_bits_cols : integer := 2;
+	constant memory_bits_rows : integer := address_size/2;
+	constant memory_bits_cols : integer := address_size/2;
 	constant memory_rows : integer := 2**memory_bits_rows;
 	constant memory_cols : integer := 2**memory_bits_cols;
 	constant memory_cols_bits : integer := memory_cols*data_size;
@@ -149,8 +149,10 @@ begin
 	tristate_output <= ceb and i_web and oeb;
 --	decoder_row_input <= i_address(5 downto 2); -- XXX
 --	decoder_col_input <= i_address(7 downto 6) & i_address(1 downto 0); -- XXX
-	decoder_row_input <= i_address(2 downto 1); -- XXX
-	decoder_col_input <= i_address(3) & i_address(0); -- XXX
+	decoder_row_input <= i_address(address_size-1 downto address_size/2); -- XXX
+	decoder_col_input <= i_address(address_size/2-1 downto 0); -- XXX
+--	decoder_row_input <= i_address(7 downto 4); -- XXX
+--	decoder_col_input <= i_address(3 downto 0); -- XXX
 --	decoder_col_input <= i_address; -- XXX
 
 --	process (tristate_input,tristate_output,decoder_row_output,decoder_col_output,data_in) is
