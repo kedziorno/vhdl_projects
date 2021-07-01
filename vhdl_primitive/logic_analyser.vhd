@@ -196,10 +196,9 @@ begin
 			rc_cpb <= '1';
 			rc_mrb <= '0';
 		when check_write =>
-			if (to_integer(unsigned(sram_address)) = (2**(address_size))-1) then
+			if (to_integer(unsigned(sram_address)) = address_size-1) then
 				state_n <= wait0;
 				wr <= '0';
-				rd <= '1';
 			else
 				state_n <= start;
 			end if;
@@ -215,7 +214,8 @@ begin
 			state_n <= wait0;
 			w0 := w0 + 1;
 		when read0 =>
-			if (to_integer(unsigned(sram_address)) = (2**(address_size))-1) then
+			rd <= '1';
+			if (to_integer(unsigned(sram_address)) = address_size-1) then
 				state_n <= stop;
 			else
 				state_n <= st_enable_tx;
@@ -264,7 +264,7 @@ o_data=>sram_do
 );
 
 rc_entity : ripple_counter
-Generic map (N=>address_size,MAX=>2**address_size-1)
+Generic map (N=>address_size,MAX=>address_size)
 Port map (
 i_clock=>rc_clock,
 i_cpb=>rc_cpb,

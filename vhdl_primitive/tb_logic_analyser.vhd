@@ -37,6 +37,11 @@ END tb_logic_analyser;
 
 ARCHITECTURE behavior OF tb_logic_analyser IS 
 
+constant G_BOARD_CLOCK : integer := 50_000_000;
+constant G_BAUD_RATE : integer := 115_200;
+constant address_size : integer := 8;
+constant data_size : integer := 8;
+
 -- Component Declaration for the Unit Under Test (UUT)
 COMPONENT logic_analyser
 GENERIC(
@@ -49,7 +54,7 @@ PORT(
 i_clock : IN  std_logic;
 i_reset : IN  std_logic;
 i_catch : IN  std_logic;
-i_data : IN  std_logic_vector(7 downto 0);
+i_data : IN  std_logic_vector(data_size-1 downto 0);
 o_rs232_tx : OUT  std_logic
 );
 END COMPONENT;
@@ -58,7 +63,7 @@ END COMPONENT;
 signal i_clock : std_logic := '0';
 signal i_reset : std_logic := '0';
 signal i_catch : std_logic := '0';
-signal i_data : std_logic_vector(7 downto 0) := (others => '0');
+signal i_data : std_logic_vector(data_size-1 downto 0) := (others => '0');
 
 --Outputs
 signal o_rs232_tx : std_logic;
@@ -66,17 +71,17 @@ signal o_rs232_tx : std_logic;
 -- Clock period definitions
 constant i_clock_period : time := 20 ns;
 
-constant N : integer := 256;
+constant N : integer := 2**address_size-1;
 
 BEGIN
 
 -- Instantiate the Unit Under Test (UUT)
 uut: logic_analyser
 GENERIC MAP (
-G_BOARD_CLOCK => 50_000_000,
-G_BAUD_RATE => 115_200,
-address_size => 4,
-data_size => 8
+G_BOARD_CLOCK => G_BOARD_CLOCK,
+G_BAUD_RATE => G_BAUD_RATE,
+address_size => address_size,
+data_size => data_size
 )
 PORT MAP (
 i_clock => i_clock,
@@ -109,7 +114,7 @@ wait for 10*i_clock_period;
 
 l0 : for i in 0 to N-1 loop
 
-i_data <= std_logic_vector(to_unsigned(i,8));
+i_data <= std_logic_vector(to_unsigned(i,data_size));
 
 i_catch <= '1';
 wait for i_clock_period;
