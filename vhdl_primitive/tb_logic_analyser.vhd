@@ -55,7 +55,8 @@ i_clock : IN  std_logic;
 i_reset : IN  std_logic;
 i_catch : IN  std_logic;
 i_data : IN  std_logic_vector(data_size-1 downto 0);
-o_rs232_tx : OUT  std_logic
+o_rs232_tx : OUT  std_logic;
+o_sended : OUT  std_logic
 );
 END COMPONENT;
 
@@ -67,6 +68,7 @@ signal i_data : std_logic_vector(data_size-1 downto 0) := (others => '0');
 
 --Outputs
 signal o_rs232_tx : std_logic;
+signal o_sended : std_logic;
 
 -- Clock period definitions
 constant i_clock_period : time := 20 ns;
@@ -88,7 +90,8 @@ i_clock => i_clock,
 i_reset => i_reset,
 i_catch => i_catch,
 i_data => i_data,
-o_rs232_tx => o_rs232_tx
+o_rs232_tx => o_rs232_tx,
+o_sended => o_sended
 );
 
 -- Clock process definitions
@@ -126,5 +129,7 @@ end loop l0;
 wait;
 
 end process write_proc;
+
+assert (o_sended /= '1') report "end test" severity failure;
 
 END;

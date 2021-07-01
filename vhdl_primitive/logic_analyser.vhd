@@ -41,7 +41,8 @@ i_clock : in std_logic;
 i_reset : in std_logic; -- XXX use for catch data
 i_catch : in std_logic;
 i_data : in std_logic_vector(data_size-1 downto 0);
-o_rs232_tx : out std_logic
+o_rs232_tx : out std_logic;
+o_sended : out std_logic
 );
 end logic_analyser;
 
@@ -190,6 +191,7 @@ begin
 			rc_ud <= '1';
 			rc_mrb <= '1';
 			rs232_etx <= '0';
+			o_sended <= '0';
 		when start =>
 			state_n <= check_write;
 			wr <= '1';
@@ -234,6 +236,7 @@ begin
 			rs232_etx <= '0';
 		when stop =>
 			state_n <= stop;
+			o_sended <= '1';
 	end case;
 end process p1;
 
