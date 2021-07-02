@@ -39,7 +39,7 @@ ARCHITECTURE behavior OF tb_logic_analyser IS
 
 constant G_BOARD_CLOCK : integer := 50_000_000;
 constant G_BAUD_RATE : integer := 115_200;
-constant address_size : integer := 8;
+constant address_size : integer := 4;
 constant data_size : integer := 8;
 
 -- Component Declaration for the Unit Under Test (UUT)

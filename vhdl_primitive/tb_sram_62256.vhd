@@ -178,6 +178,8 @@ wait for clock_period; -- XXX wait for data
 assert (o_data=std_logic_vector(to_unsigned(i,data_size))) report "Error on " & integer'image(i);
 end loop l3;
 
+assert (false) report "end test" severity failure;
+
 wait;
 end process;
 

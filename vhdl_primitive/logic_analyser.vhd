@@ -33,7 +33,7 @@ entity logic_analyser is
 Generic (
 G_BOARD_CLOCK : integer := 50_000_000;
 G_BAUD_RATE : integer := 9_600;
-address_size : integer := 8;
+address_size : integer := 4;
 data_size : integer := 8
 );
 Port (
@@ -154,7 +154,7 @@ constant WAIT_AND : time := 3 ps;
 constant WAIT_NOT : time := 2 ps;
 
 type state_type is (
-idle,start,stop,check_write,wait0,wait0_increment,
+idle,start,start_count,stop,check_write,wait0,wait0_increment,
 read0,
 st_enable_tx,st_rs232_waiting,st_disable_tx
 );
@@ -175,7 +175,7 @@ latch_le <= '1' when (catch = '1' and wr = '1') else '0';
 --latch_oeb <= '0' when (i_clock = '0' and wr = '1') else '0';
 latch_oeb <= '1' when rd = '1' else '0'; -- XXX todo
 sram_web <= '0' when latch_le = '1' else '1';
-sram_oeb <= '0' when rd = '1' and state_c = st_disable_tx else '1';
+sram_oeb <= '0' when rd = '1' and state_c = read0 else '1';
 rc_clock <= not i_clock when (wr = '1' and catch = '1') or (rd = '1' and rs232_etx = '1' and rs232_byte_sended = '1') else '0';
 sram_ceb <= '0' when rc_clock = '1' or rs232_etx = '0' else '1';
 --rc_mrb <= '1' when i_reset = '1' else '0';
@@ -208,7 +208,7 @@ variable w0 : integer range 0 to C_W0-1 := 0;
 begin
 	case (state_c) is
 		when idle =>
-			state_n <= start;
+			state_n <= start_count;
 			rd <= '0';
 			wr <= '0';
 			rc_cpb <= '1';
@@ -216,15 +216,17 @@ begin
 			rc_mrb <= '1';
 			rs232_etx <= '0';
 			o_sended <= '0';
+		when start_count =>
+			state_n <= start;
+			rc_mrb <= '0';
 		when start =>
 			state_n <= check_write;
 			wr <= '1';
-			rc_cpb <= '1';
-			rc_mrb <= '0';
 		when check_write =>
-			if (to_integer(unsigned(sram_address)) = address_size-1) then
+			if (to_integer(unsigned(sram_address)) = 2**address_size/2-1) then
 				state_n <= wait0;
 				wr <= '0';
+				rd <= '1';
 			else
 				state_n <= start;
 			end if;
@@ -240,8 +242,7 @@ begin
 			state_n <= wait0;
 			w0 := w0 + 1;
 		when read0 =>
-			rd <= '1';
-			if (to_integer(unsigned(sram_address)) = address_size-1) then
+			if (to_integer(unsigned(sram_address)) = 2**address_size/2-1) then
 				state_n <= stop;
 			else
 				state_n <= st_enable_tx;
@@ -291,7 +292,7 @@ o_data=>sram_do
 );
 
 rc_entity : ripple_counter
-Generic map (N=>address_size,MAX=>address_size)
+Generic map (N=>address_size,MAX=>2**address_size-1)
 Port map (
 i_clock=>rc_clock,
 i_cpb=>rc_cpb,
