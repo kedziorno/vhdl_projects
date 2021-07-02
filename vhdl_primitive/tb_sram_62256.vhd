@@ -119,7 +119,12 @@ end procedure;
 BEGIN
 
 -- Instantiate the Unit Under Test (UUT)
-uut: sram_62256 PORT MAP (
+uut: sram_62256
+GENERIC MAP (
+address_size => address_size,
+data_size => data_size
+)
+PORT MAP (
 i_ceb => i_ceb,
 i_web => i_web,
 i_oeb => i_oeb,
@@ -172,6 +177,8 @@ rd_data(std_logic_vector(to_unsigned(i,address_size)),i_address,i_ceb,i_web,i_oe
 wait for clock_period; -- XXX wait for data
 assert (o_data=std_logic_vector(to_unsigned(i,data_size))) report "Error on " & integer'image(i);
 end loop l3;
+
+assert (false) report "end test" severity failure;
 
 wait;
 end process;

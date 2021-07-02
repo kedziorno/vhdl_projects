@@ -76,8 +76,8 @@ architecture Behavioral of sram_62256 is
 	);
 	end component sram_cell;
 
-	constant memory_bits_rows : integer := 4;
-	constant memory_bits_cols : integer := 4;
+	constant memory_bits_rows : integer := address_size/2;
+	constant memory_bits_cols : integer := address_size/2;
 	constant memory_rows : integer := 2**memory_bits_rows;
 	constant memory_cols : integer := 2**memory_bits_cols;
 	constant memory_cols_bits : integer := memory_cols*data_size;
@@ -147,8 +147,12 @@ begin
 	oeb <= not i_oeb;
 	tristate_input <= ceb and web;
 	tristate_output <= ceb and i_web and oeb;
-	decoder_row_input <= i_address(5 downto 2); -- XXX
-	decoder_col_input <= i_address(7 downto 6) & i_address(1 downto 0); -- XXX
+--	decoder_row_input <= i_address(5 downto 2); -- XXX
+--	decoder_col_input <= i_address(7 downto 6) & i_address(1 downto 0); -- XXX
+	decoder_row_input <= i_address(address_size-1 downto address_size/2); -- XXX
+	decoder_col_input <= i_address(address_size/2-1 downto 0); -- XXX
+--	decoder_row_input <= i_address(7 downto 4); -- XXX
+--	decoder_col_input <= i_address(3 downto 0); -- XXX
 --	decoder_col_input <= i_address; -- XXX
 
 --	process (tristate_input,tristate_output,decoder_row_output,decoder_col_output,data_in) is
@@ -167,7 +171,7 @@ begin
 
 	sram_data_generate : for i in 0 to data_size-1 generate
 		sram_cell_entity : sram_cell
-		Generic map (N=>4) Port map (
+		Generic map (N=>memory_bits_rows) Port map (
 		i_ce=>ceb,
 		i_we=>web,
 		i_oe=>oeb,
@@ -179,10 +183,11 @@ begin
 	end generate sram_data_generate;
 
 	input_IOBUFDS_generate : for i in 0 to data_size-1 generate
-		input_IOBUFDS_inst  : OBUFT port map (O=>data_in(i), I=>i_data(i),   T=>not tristate_input);
+--		input_IOBUFDS_inst  : IOBUF port map (O=>data_in(i), I=>i_data(i),   T=>not tristate_input);
+		input_IOBUFDS_inst  : IBUF port map (O=>data_in(i), I=>i_data(i));
 	end generate input_IOBUFDS_generate;
 	output_OBUFTDS_generate : for i in 0 to data_size-1 generate
-		output_OBUFTDS_inst : OBUFT port map (O=>o_data(i),  I=>data_out(i), T=>tristate_output);
+		output_OBUFTDS_inst : IOBUF port map (O=>o_data(i),  I=>data_out(i), T=>tristate_output);
 	end generate output_OBUFTDS_generate;
 
 --	mdc_entity : mem_decoder_col
