@@ -133,6 +133,10 @@ B : out STD_LOGIC
 );
 end component GATE_NOT;
 
+component FF_D_POSITIVE_EDGE is
+port (C,D:in STD_LOGIC;Q1,Q2:inout STD_LOGIC);
+end component FF_D_POSITIVE_EDGE;
+
 signal latch_le,latch_oeb : std_logic;
 signal latch_d,latch_q : std_logic_vector(data_size-1 downto 0);
 signal sram_ceb,sram_web,sram_oeb : std_logic;
@@ -143,7 +147,8 @@ signal rc_oq : std_logic_vector(address_size-1 downto 0);
 signal rs232_clock,rs232_reset,rs232_etx,rs232_tx,rs232_rx,rs232_busy,rs232_ready,rs232_byte_sended : std_logic;
 signal rs232_b2s : std_logic_vector(8 downto 0);
 signal wr,rd,a,b : std_logic;
-signal catch,catch_not,catch_tick : std_logic;
+signal catch,catch_not,catch_not1,catch_not2,catch_tick : std_logic;
+signal clock_mux1,clock_mux2,clock_mux3 : std_logic;
 
 constant WAIT_AND : time := 3 ps;
 constant WAIT_NOT : time := 2 ps;
@@ -166,17 +171,36 @@ begin
 	end if;
 end process p0;
 
-latch_le <= '1' when (catch_tick = '1' and wr = '1') else '0';
+latch_le <= '1' when (catch = '1' and wr = '1') else '0';
 --latch_oeb <= '0' when (i_clock = '0' and wr = '1') else '0';
 latch_oeb <= '1' when rd = '1' else '0'; -- XXX todo
 sram_web <= '0' when latch_le = '1' else '1';
 sram_oeb <= '0' when rd = '1' and state_c = st_disable_tx else '1';
-rc_clock <= not i_clock when (wr = '1' and catch_tick = '1') or (rd = '1' and rs232_etx = '1' and rs232_byte_sended = '1') else '0';
+rc_clock <= not i_clock when (wr = '1' and catch = '1') or (rd = '1' and rs232_etx = '1' and rs232_byte_sended = '1') else '0';
 sram_ceb <= '0' when rc_clock = '1' or rs232_etx = '0' else '1';
 --rc_mrb <= '1' when i_reset = '1' else '0';
 
 g_catch_and : GATE_AND Generic map (WAIT_AND) Port map (A=>i_catch,B=>catch_not,C=>catch_tick);
-g_catch_not : GATE_NOT Generic map (WAIT_AND) Port map (A=>i_catch,B=>catch_not);
+g_catch_not1 : GATE_NOT Generic map (WAIT_NOT) Port map (A=>i_catch,B=>catch_not1);
+g_catch_not2 : GATE_NOT Generic map (WAIT_NOT) Port map (A=>catch_not1,B=>catch_not2);
+g_catch_not3 : GATE_NOT Generic map (WAIT_NOT) Port map (A=>catch_not2,B=>catch_not);
+
+p2 : process (i_clock,clock_mux1,catch_tick) is
+begin
+	if (i_clock='0' and catch_tick='1') then
+		clock_mux1 <= '1';
+	elsif (i_clock = '1') then
+		clock_mux1 <= '0';
+	end if;
+end process p2;
+
+ff_d_catch : FF_D_POSITIVE_EDGE
+PORT MAP (
+	D => clock_mux1,
+	C => i_clock,
+	Q1 => catch,
+	Q2 => open
+);
 
 p1 : process (state_c,rs232_etx,rs232_byte_sended,sram_address) is
 constant C_W0 : integer := 10;
