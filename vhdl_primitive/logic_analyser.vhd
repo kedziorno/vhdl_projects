@@ -143,7 +143,7 @@ signal sram_ceb,sram_web,sram_oeb : std_logic;
 signal sram_address : std_logic_vector(address_size-1 downto 0);
 signal sram_di,sram_do : std_logic_vector(data_size-1 downto 0);
 signal rc_clock,rc_cpb,rc_mrb,rc_ud,rc_ping : std_logic;
-signal rc_oq : std_logic_vector(address_size-1 downto 0);
+signal rc_oq : std_logic_vector(address_size downto 0);
 signal rs232_clock,rs232_reset,rs232_etx,rs232_tx,rs232_rx,rs232_busy,rs232_ready,rs232_byte_sended : std_logic;
 signal rs232_b2s : std_logic_vector(8 downto 0);
 signal wr,rd,a,b : std_logic;
@@ -223,7 +223,7 @@ begin
 			state_n <= check_write;
 			wr <= '1';
 		when check_write =>
-			if (to_integer(unsigned(sram_address)) = 2**address_size/2-1) then
+			if (to_integer(unsigned(sram_address)) = 2**address_size-1) then
 				state_n <= wait0;
 				wr <= '0';
 				rd <= '1';
@@ -242,7 +242,7 @@ begin
 			state_n <= wait0;
 			w0 := w0 + 1;
 		when read0 =>
-			if (to_integer(unsigned(sram_address)) = 2**address_size/2-1) then
+			if (to_integer(unsigned(sram_address)) = 2**address_size-1) then
 				state_n <= stop;
 			else
 				state_n <= st_enable_tx;
@@ -267,7 +267,7 @@ end process p1;
 
 latch_d <= i_data;
 sram_di <= latch_q;
-sram_address <= rc_oq;
+sram_address <= rc_oq(address_size-1 downto 0);
 rs232_b2s(7 downto 0) <= sram_do;
 o_rs232_tx <= rs232_tx;
 
@@ -292,7 +292,7 @@ o_data=>sram_do
 );
 
 rc_entity : ripple_counter
-Generic map (N=>address_size,MAX=>2**address_size-1)
+Generic map (N=>address_size+1,MAX=>2**address_size)
 Port map (
 i_clock=>rc_clock,
 i_cpb=>rc_cpb,
