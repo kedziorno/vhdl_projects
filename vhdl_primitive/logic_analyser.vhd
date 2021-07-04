@@ -31,7 +31,8 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity logic_analyser is
 Generic (
-G_BOARD_CLOCK : integer := 50_000_000;
+G_BOARD_CLOCK : integer := 50_000_000; -- XXX osc on board
+G_BOARD_CLOCK : integer := 29_952_000; -- XXX osc on socket
 G_BAUD_RATE : integer := 9_600;
 address_size : integer := 4;
 data_size : integer := 8
@@ -137,6 +138,19 @@ component FF_D_POSITIVE_EDGE is
 port (C,D:in STD_LOGIC;Q1,Q2:inout STD_LOGIC);
 end component FF_D_POSITIVE_EDGE;
 
+component debounce is
+Generic (
+G_BOARD_CLOCK : integer := 50_000_000;
+G_SIZE : integer := 8
+);
+Port (
+i_clk : in  STD_LOGIC;
+i_reset : in  STD_LOGIC;
+i_btn : in  STD_LOGIC;
+o_db_btn : out  STD_LOGIC
+);
+end component debounce;
+
 signal latch_le,latch_oeb : std_logic;
 signal latch_d,latch_q : std_logic_vector(data_size-1 downto 0);
 signal sram_ceb,sram_web,sram_oeb : std_logic;
@@ -176,7 +190,7 @@ latch_le <= '1' when rc_clock = '0' else '0';
 latch_oeb <= '1' when rd = '1' else '0'; -- XXX todo
 sram_web <= '0' when latch_le = '0' else '1';
 sram_oeb <= '0' when rd = '1' and state_c = read0 else '1';
-rc_clock <= not i_clock when (wr = '1' and i_catch = '1') or (rd = '1' and rs232_etx = '1' and rs232_byte_sended = '1') else '0';
+rc_clock <= not i_clock when (wr = '1' and catch = '1') or (rd = '1' and rs232_etx = '1' and rs232_byte_sended = '1') else '0';
 sram_ceb <= '0' when rc_clock = '1' or rs232_etx = '0' else '1';
 --rc_mrb <= '1' when i_reset = '1' else '0';
 
@@ -194,13 +208,33 @@ sram_ceb <= '0' when rc_clock = '1' or rs232_etx = '0' else '1';
 --	end if;
 --end process p2;
 
---ff_d_catch : FF_D_POSITIVE_EDGE
+--ff_d_catch1 : FF_D_POSITIVE_EDGE
 --PORT MAP (
---	D => clock_mux1,
+--	D => i_catch,
+--	C => i_clock,
+--	Q1 => catch_tick,
+--	Q2 => open
+--);
+--
+--ff_d_catch2 : FF_D_POSITIVE_EDGE
+--PORT MAP (
+--	D => catch_tick,
 --	C => i_clock,
 --	Q1 => catch,
 --	Q2 => open
 --);
+
+uut : debounce
+Generic map (
+	G_BOARD_CLOCK => G_BOARD_CLOCK,
+	G_SIZE => 8
+)
+Port map (
+	i_clk => i_clock,
+	i_reset => i_reset,
+	i_btn => i_catch,
+	o_db_btn => catch
+);
 
 p1 : process (state_c,rs232_etx,rs232_byte_sended,sram_address) is
 constant C_W0 : integer := 10;
