@@ -171,36 +171,36 @@ begin
 	end if;
 end process p0;
 
-latch_le <= '1' when (catch = '1' and wr = '1') else '0';
+latch_le <= '1' when rc_clock = '0' else '0';
 --latch_oeb <= '0' when (i_clock = '0' and wr = '1') else '0';
 latch_oeb <= '1' when rd = '1' else '0'; -- XXX todo
-sram_web <= '0' when latch_le = '1' else '1';
+sram_web <= '0' when latch_le = '0' else '1';
 sram_oeb <= '0' when rd = '1' and state_c = read0 else '1';
-rc_clock <= not i_clock when (wr = '1' and catch = '1') or (rd = '1' and rs232_etx = '1' and rs232_byte_sended = '1') else '0';
+rc_clock <= not i_clock when (wr = '1' and i_catch = '1') or (rd = '1' and rs232_etx = '1' and rs232_byte_sended = '1') else '0';
 sram_ceb <= '0' when rc_clock = '1' or rs232_etx = '0' else '1';
 --rc_mrb <= '1' when i_reset = '1' else '0';
 
-g_catch_and : GATE_AND Generic map (WAIT_AND) Port map (A=>i_catch,B=>catch_not,C=>catch_tick);
-g_catch_not1 : GATE_NOT Generic map (WAIT_NOT) Port map (A=>i_catch,B=>catch_not1);
-g_catch_not2 : GATE_NOT Generic map (WAIT_NOT) Port map (A=>catch_not1,B=>catch_not2);
-g_catch_not3 : GATE_NOT Generic map (WAIT_NOT) Port map (A=>catch_not2,B=>catch_not);
+--g_catch_and : GATE_AND Generic map (WAIT_AND) Port map (A=>i_catch,B=>catch_not,C=>catch_tick);
+--g_catch_not1 : GATE_NOT Generic map (WAIT_NOT) Port map (A=>i_catch,B=>catch_not1);
+--g_catch_not2 : GATE_NOT Generic map (WAIT_NOT) Port map (A=>catch_not1,B=>catch_not2);
+--g_catch_not3 : GATE_NOT Generic map (WAIT_NOT) Port map (A=>catch_not2,B=>catch_not);
 
-p2 : process (i_clock,clock_mux1,catch_tick) is
-begin
-	if (i_clock='0' and catch_tick='1') then
-		clock_mux1 <= '1';
-	elsif (i_clock = '1') then
-		clock_mux1 <= '0';
-	end if;
-end process p2;
+--p2 : process (i_clock,clock_mux1,catch_tick) is
+--begin
+--	if (i_clock='0' and catch_tick='1') then
+--		clock_mux1 <= '1';
+--	elsif (i_clock = '1') then
+--		clock_mux1 <= '0';
+--	end if;
+--end process p2;
 
-ff_d_catch : FF_D_POSITIVE_EDGE
-PORT MAP (
-	D => clock_mux1,
-	C => i_clock,
-	Q1 => catch,
-	Q2 => open
-);
+--ff_d_catch : FF_D_POSITIVE_EDGE
+--PORT MAP (
+--	D => clock_mux1,
+--	C => i_clock,
+--	Q1 => catch,
+--	Q2 => open
+--);
 
 p1 : process (state_c,rs232_etx,rs232_byte_sended,sram_address) is
 constant C_W0 : integer := 10;
@@ -226,7 +226,6 @@ begin
 			if (to_integer(unsigned(sram_address)) = 2**address_size-1) then
 				state_n <= wait0;
 				wr <= '0';
-				rd <= '1';
 			else
 				state_n <= start;
 			end if;
@@ -242,6 +241,7 @@ begin
 			state_n <= wait0;
 			w0 := w0 + 1;
 		when read0 =>
+			rd <= '1';
 			if (to_integer(unsigned(sram_address)) = 2**address_size-1) then
 				state_n <= stop;
 			else
