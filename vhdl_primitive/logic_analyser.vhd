@@ -19,6 +19,8 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use WORK.p_globals.ALL;
+use WORK.p_lcd_display.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -31,7 +33,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity logic_analyser is
 Generic (
-G_BOARD_CLOCK : integer := 50_000_000; -- XXX osc on board
+--G_BOARD_CLOCK : integer := 50_000_000; -- XXX osc on board
 G_BOARD_CLOCK : integer := 29_952_000; -- XXX osc on socket
 G_BAUD_RATE : integer := 9_600;
 address_size : integer := 4;
@@ -43,7 +45,10 @@ i_reset : in std_logic; -- XXX use for catch data
 i_catch : in std_logic;
 i_data : in std_logic_vector(data_size-1 downto 0);
 o_rs232_tx : out std_logic;
-o_sended : out std_logic
+o_sended : out std_logic;
+o_seg : out std_logic_vector(G_LCDSegment-1 downto 0);
+--o_dp : out std_logic;
+o_an : out std_logic_vector(G_LCDAnode-1 downto 0)
 );
 end logic_analyser;
 
@@ -138,18 +143,53 @@ component FF_D_POSITIVE_EDGE is
 port (C,D:in STD_LOGIC;Q1,Q2:inout STD_LOGIC);
 end component FF_D_POSITIVE_EDGE;
 
-component debounce is
+--component debounce is
+--Generic (
+--G_BOARD_CLOCK : integer := 50_000_000;
+--G_SIZE : integer := 8
+--);
+--Port (
+--i_clk : in  STD_LOGIC;
+--i_reset : in  STD_LOGIC;
+--i_btn : in  STD_LOGIC;
+--o_db_btn : out  STD_LOGIC
+--);
+--end component debounce;
+
+--component debounce_button is
+--generic (g_board_clock : integer);
+--Port
+--(
+--i_button : in  STD_LOGIC;
+--i_clk : in  STD_LOGIC;
+--o_stable : out  STD_LOGIC
+--);
+--end component debounce_button;
+
+component debouncer1 is
+generic (
+	fclk : integer := 1;
+	twindow : integer := 10
+);
+port (
+	x : in std_logic;
+	clk : in std_logic;
+	rst : in std_logic;
+	y : inout std_logic
+);
+end component debouncer1;
+
+component lcd_display is
 Generic (
-G_BOARD_CLOCK : integer := 50_000_000;
-G_SIZE : integer := 8
+LCDClockDivider : integer := G_LCDClockDivider
 );
 Port (
-i_clk : in  STD_LOGIC;
-i_reset : in  STD_LOGIC;
-i_btn : in  STD_LOGIC;
-o_db_btn : out  STD_LOGIC
+i_clock : in std_logic;
+i_LCDChar : LCDHex;
+o_anode : out std_logic_vector(G_LCDAnode-1 downto 0);
+o_segment : out std_logic_vector(G_LCDSegment-1 downto 0)
 );
-end component debounce;
+end component lcd_display;
 
 signal latch_le,latch_oeb : std_logic;
 signal latch_d,latch_q : std_logic_vector(data_size-1 downto 0);
@@ -163,6 +203,7 @@ signal rs232_b2s : std_logic_vector(8 downto 0);
 signal wr,rd,a,b : std_logic;
 signal catch,catch_not,catch_not1,catch_not2,catch_tick : std_logic;
 signal clock_mux1,clock_mux2,clock_mux3 : std_logic;
+signal LCDChar : LCDHex;
 
 constant WAIT_AND : time := 3 ps;
 constant WAIT_NOT : time := 2 ps;
@@ -224,16 +265,44 @@ sram_ceb <= '0' when rc_clock = '1' or rs232_etx = '0' else '1';
 --	Q2 => open
 --);
 
-uut : debounce
-Generic map (
-	G_BOARD_CLOCK => G_BOARD_CLOCK,
-	G_SIZE => 8
+--db_entity : debounce
+--Generic map (
+--	G_BOARD_CLOCK => G_BOARD_CLOCK,
+--	G_SIZE => 8
+--)
+--Port map (
+--	i_clk => i_clock,
+--	i_reset => i_reset,
+--	i_btn => i_catch,
+--	o_db_btn => catch
+--);
+
+--db : debounce_button
+--generic map (g_board_clock => G_BOARD_CLOCK)
+--Port map (
+--i_button => i_catch,
+--i_clk => i_clock,
+--o_stable => catch
+--);
+
+db_entity : debouncer1
+generic map (
+	fclk => 100,
+	twindow => 1
 )
-Port map (
-	i_clk => i_clock,
-	i_reset => i_reset,
-	i_btn => i_catch,
-	o_db_btn => catch
+port map (
+	x => i_catch,
+	clk => i_clock,
+	rst => i_reset,
+	y => catch
+);
+
+lcddisplay_entity : lcd_display
+Port Map (
+	i_clock => i_clock,
+	i_LCDChar => LCDChar,
+	o_anode => o_an,
+	o_segment => o_seg
 );
 
 p1 : process (state_c,rs232_etx,rs232_byte_sended,sram_address) is
@@ -250,26 +319,32 @@ begin
 			rc_mrb <= '1';
 			rs232_etx <= '0';
 			o_sended <= '0';
+			LCDChar <= (x"f",x"0",x"1",x"f");
 		when start_count =>
 			state_n <= start;
 			rc_mrb <= '0';
 		when start =>
 			state_n <= check_write;
 			wr <= '1';
+			LCDChar <= (x"1",x"0",x"0",x"0");
 		when check_write =>
 			if (to_integer(unsigned(sram_address)) = 2**address_size-1) then
 				state_n <= wait0;
 				wr <= '0';
+				LCDChar <= (x"2",x"0",x"0",x"0");
 			else
 				state_n <= start;
+				LCDChar <= (x"3",x"0",x"0",x"0");
 			end if;
 		when wait0 =>
 			if (w0 = C_W0-1) then
 				state_n <= read0;
 				rc_mrb <= '0';
+				LCDChar <= (x"4",x"0",x"0",x"0");
 			else
 				state_n <= wait0_increment;
 				rc_mrb <= '1';
+				LCDChar <= (x"5",x"0",x"0",x"0");
 			end if;
 		when wait0_increment =>
 			state_n <= wait0;
@@ -277,8 +352,10 @@ begin
 		when read0 =>
 			rd <= '1';
 			if (to_integer(unsigned(sram_address)) = 2**address_size-1) then
+				LCDChar <= (x"6",x"0",x"0",x"0");
 				state_n <= stop;
 			else
+				LCDChar <= (x"7",x"0",x"0",x"0");
 				state_n <= st_enable_tx;
 			end if;
 		when st_enable_tx =>
@@ -287,15 +364,19 @@ begin
 		when st_rs232_waiting =>
 			if (rs232_byte_sended = '1') then
 				state_n <= st_disable_tx;
+				LCDChar <= (x"8",x"0",x"0",x"0");
 			else
 				state_n <= st_rs232_waiting;
+				LCDChar <= (x"9",x"0",x"0",x"0");
 			end if;
 		when st_disable_tx =>
 			state_n <= read0;
 			rs232_etx <= '0';
+			LCDChar <= (x"A",x"0",x"0",x"0");
 		when stop =>
 			state_n <= stop;
 			o_sended <= '1';
+			LCDChar <= (x"B",x"0",x"0",x"0");
 	end case;
 end process p1;
 

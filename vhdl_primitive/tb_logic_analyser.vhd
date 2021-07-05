@@ -119,10 +119,11 @@ l0 : for i in 0 to N-1 loop
 
 i_data <= std_logic_vector(to_unsigned(i,data_size));
 
+wait for 3*i_clock_period;
 i_catch <= '1';
-wait for i_clock_period;
+wait for 201*i_clock_period; -- wait for debounce
 i_catch <= '0';
-wait for i_clock_period;
+wait for 25*i_clock_period;
 
 end loop l0;
 
