@@ -88,8 +88,8 @@ B : out STD_LOGIC
 );
 end component GATE_NOT;
 
-constant RC_N : integer := 10;
-constant RC_MAX : integer := 600;
+constant RC_N : integer := 5;
+constant RC_MAX : integer := 16;
 constant WAIT_NOT : time := 1 ns;
 
 signal rc_cpb,rc_mrb,rc_ud,rc_ping : std_logic;
@@ -102,9 +102,9 @@ signal a,not1,not2 : std_logic;
 begin
 
 ffdpe_d <= i_b;
-rc_mrb <= ffdpe_q1 xnor i_b;
-ffjk_j <= ffdpe_q1;
-ffjk_k <= ffdpe_q1;
+rc_mrb <= not2 xor i_b after 1 ns;
+ffjk_j <= not2;
+ffjk_k <= not2;
 rc_ud <= '1';
 rc_cpb <= '1';
 o_db <= ffjk_q1;

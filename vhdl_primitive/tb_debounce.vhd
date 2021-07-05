@@ -241,9 +241,11 @@ BEGIN
 				when idle =>
 					state <= start;
 					reset <= '1', '0' after 10*i_clk_period;
+					reset_db <= '1';
 				when start =>
 					state <= gc_send;
 					REPORT "GRAYCODE" SEVERITY NOTE;
+					reset_db <= '0';
 				when gc_send => -- start from gc mode
 					reset_db <= '0';
 					if (o_gc_index = o_gc_max-1) then
