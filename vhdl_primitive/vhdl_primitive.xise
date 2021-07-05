@@ -21,8 +21,14 @@
     <file xil_pn:name="FULL_ADDER.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="TB_GATE_XNOR.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="TB_FF_SR.vhd" xil_pn:type="FILE_VHDL"/>
-    <file xil_pn:name="MUX_21.vhd" xil_pn:type="FILE_VHDL"/>
-    <file xil_pn:name="FF_D_DET.vhd" xil_pn:type="FILE_VHDL"/>
+    <file xil_pn:name="MUX_21.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+    </file>
+    <file xil_pn:name="FF_D_DET.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="8"/>
+    </file>
     <file xil_pn:name="gate_xnor.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="FF_D_PE.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="5"/>
@@ -41,11 +47,17 @@
       <association xil_pn:name="Implementation" xil_pn:seqID="1"/>
     </file>
     <file xil_pn:name="clock.vhd" xil_pn:type="FILE_VHDL"/>
-    <file xil_pn:name="FF_D_MS.vhd" xil_pn:type="FILE_VHDL"/>
+    <file xil_pn:name="FF_D_MS.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="15"/>
+    </file>
     <file xil_pn:name="TB_FF_D_GATED.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="HALF_ADDER.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="gate_xor.vhd" xil_pn:type="FILE_VHDL"/>
-    <file xil_pn:name="FF_D_GATED.vhd" xil_pn:type="FILE_VHDL"/>
+    <file xil_pn:name="FF_D_GATED.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="8"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="19"/>
+    </file>
     <file xil_pn:name="TB_FULL_ADDER.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="TB_HALF_ADDER.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="TB_GATE_XOR.vhd" xil_pn:type="FILE_VHDL"/>
@@ -99,15 +111,15 @@
     <file xil_pn:name="signal_generator.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="counter_ping.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="graycode.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="10"/>
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="11"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
     <file xil_pn:name="lfsr.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="9"/>
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="10"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
     <file xil_pn:name="tb_debounce.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="11"/>
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="12"/>
       <association xil_pn:name="PostMapSimulation" xil_pn:seqID="68"/>
       <association xil_pn:name="PostRouteSimulation" xil_pn:seqID="68"/>
       <association xil_pn:name="PostTranslateSimulation" xil_pn:seqID="68"/>
@@ -180,7 +192,7 @@
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
     <file xil_pn:name="new_debounce.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="8"/>
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="9"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="8"/>
     </file>
   </files>

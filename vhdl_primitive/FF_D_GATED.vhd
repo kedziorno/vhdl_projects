@@ -3,9 +3,9 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity FF_D_GATED is
 generic (
-delay_and : TIME := 0 ns;
-delay_or : TIME := 0 ns;
-delay_not : TIME := 0 ns
+delay_and : TIME := 1 ns;
+delay_or : TIME := 1 ns;
+delay_not : TIME := 1 ns
 );
 port (
 D,E : in STD_LOGIC;

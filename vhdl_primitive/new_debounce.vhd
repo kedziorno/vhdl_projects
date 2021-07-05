@@ -61,13 +61,32 @@ o_ping : out std_logic
 );
 end component ripple_counter;
 
-component FF_D_POSITIVE_EDGE is
+--component FF_D_POSITIVE_EDGE is
+--port (
+--i_reset : in std_logic;
+--C : in std_logic;
+--D : in STD_LOGIC;
+--Q1,Q2:inout STD_LOGIC);
+--end component FF_D_POSITIVE_EDGE;
+
+--component FF_D_DUAL_EDGE_TRIGGERED is
+--port (
+--D,C:in STD_LOGIC;
+--Q:out STD_LOGIC
+--);
+--end component FF_D_DUAL_EDGE_TRIGGERED;
+
+component FF_D_GATED is
+generic (
+delay_and : TIME := 1 ps;
+delay_or : TIME := 1 ps;
+delay_not : TIME := 1 ps
+);
 port (
-i_reset : in std_logic;
-C : in std_logic;
-D : in STD_LOGIC;
-Q1,Q2:inout STD_LOGIC);
-end component FF_D_POSITIVE_EDGE;
+D,E : in STD_LOGIC;
+Q1,Q2 : inout STD_LOGIC
+);
+end component FF_D_GATED;
 
 component FF_JK is
 port (
@@ -102,7 +121,7 @@ signal a,not1,not2 : std_logic;
 begin
 
 ffdpe_d <= i_b;
-rc_mrb <= not2 xor i_b after 1 ns;
+rc_mrb <= not1 xnor i_b;
 ffjk_j <= not2;
 ffjk_k <= not2;
 rc_ud <= '1';
@@ -137,11 +156,26 @@ o_q => rc_q,
 o_ping => rc_ping
 );
 
-ffdpe_entity : FF_D_POSITIVE_EDGE
-port map(
-i_reset => i_reset,
-C => i_clock,
+--ffdpe_entity : FF_D_POSITIVE_EDGE
+--port map(
+--i_reset => i_reset,
+--C => not i_clock,
+--D => ffdpe_d,
+--Q1 => ffdpe_q1,
+--Q2 => ffdpe_q2
+--);
+
+--ffdpe_entity : FF_D_DUAL_EDGE_TRIGGERED
+--port map (
+--D => ffdpe_d,
+--C => i_clock,
+--Q => ffdpe_q1
+--);
+
+ffdpe_entity : FF_D_GATED
+port map (
 D => ffdpe_d,
+E => i_clock,
 Q1 => ffdpe_q1,
 Q2 => ffdpe_q2
 );
