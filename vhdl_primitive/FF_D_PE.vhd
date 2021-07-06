@@ -50,11 +50,11 @@ begin
 --gD: GAND generic map (DELAY_AND) port map (C,Z,O);
 
 -- https://en.wikipedia.org/wiki/Flip-flop_%28electronics%29#/media/File:Edge_triggered_D_flip_flop_with_set_and_reset.svg
-g1 : Q1 <= not (Q2 and S and setd) after WAIT_NAND3;
+g1 : Q1 <= not (S and setd and Q2) after WAIT_NAND3;
 g2 : Q2 <= not (Q1 and resetu and R) after WAIT_NAND3;
-g3 : setu <= not (S and setd and resetd) after WAIT_NAND3;
+g3 : setu <= not (S and resetd and setd) after WAIT_NAND3;
 g4 : setd <= not (setu and C and R) after WAIT_NAND3;
-g5 : resetu <= not (C and resetd and setd) after WAIT_NAND3;
-g6 : resetd <= not (D and R and resetu) after WAIT_NAND3;
+g5 : resetu <= not (setd and C and resetd) after WAIT_NAND3;
+g6 : resetd <= not (resetu and D and R) after WAIT_NAND3;
 
 end architecture Behavioral_D_PE;
