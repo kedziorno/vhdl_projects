@@ -33,7 +33,8 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity lcd_display is
 Generic (
-	LCDClockDivider : integer := G_LCDClockDivider
+	G_BOARD_CLOCK : integer := 1;
+	LCDClockDivider : integer := 1
 );
 Port (
 	i_clock : in std_logic;

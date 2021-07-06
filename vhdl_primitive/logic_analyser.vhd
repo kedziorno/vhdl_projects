@@ -33,24 +33,24 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity logic_analyser is
 Generic (
---G_BOARD_CLOCK : integer := 50_000_000; -- XXX osc on board
-G_BOARD_CLOCK : integer := G_SOCKET_CLOCK; -- XXX osc on socket
+G_BOARD_CLOCK : integer := G_BOARD_CLOCK;
 G_BAUD_RATE : integer := 9_600;
 address_size : integer := 4;
 data_size : integer := 8;
-G_RC_N : integer := 10;
-G_RC_MAX : integer := 599  -- XXX 599.04 = ~50 ms
+G_RC_N : integer := 21;
+G_RC_MAX : integer := G_DEBOUNCE_MS_COUNT
 );
 Port (
 i_clock : in std_logic;
-i_reset : in std_logic; -- XXX use for catch data
+i_reset : in std_logic;
 i_catch : in std_logic;
 i_data : in std_logic_vector(data_size-1 downto 0);
 o_rs232_tx : out std_logic;
 o_sended : out std_logic;
 o_seg : out std_logic_vector(G_LCDSegment-1 downto 0);
 --o_dp : out std_logic;
-o_an : out std_logic_vector(G_LCDAnode-1 downto 0)
+o_an : out std_logic_vector(G_LCDAnode-1 downto 0);
+o_data : out std_logic_vector(G_Led-1 downto 0)
 );
 end logic_analyser;
 
@@ -145,42 +145,6 @@ component FF_D_POSITIVE_EDGE is
 port (C,D:in STD_LOGIC;Q1,Q2:inout STD_LOGIC);
 end component FF_D_POSITIVE_EDGE;
 
---component debounce is
---Generic (
---G_BOARD_CLOCK : integer := 50_000_000;
---G_SIZE : integer := 8
---);
---Port (
---i_clk : in  STD_LOGIC;
---i_reset : in  STD_LOGIC;
---i_btn : in  STD_LOGIC;
---o_db_btn : out  STD_LOGIC
---);
---end component debounce;
-
---component debounce_button is
---generic (g_board_clock : integer);
---Port
---(
---i_button : in  STD_LOGIC;
---i_clk : in  STD_LOGIC;
---o_stable : out  STD_LOGIC
---);
---end component debounce_button;
-
---component debouncer1 is
---generic (
---	fclk : integer := 1;
---	twindow : integer := 10
---);
---port (
---	x : in std_logic;
---	clk : in std_logic;
---	rst : in std_logic;
---	y : inout std_logic
---);
---end component debouncer1;
-
 component new_debounce is
 generic ( -- ripplecounter N bits (RC_N=N+1,RC_MAX=2**N)
 G_RC_N : integer := 5;
@@ -196,7 +160,8 @@ end component new_debounce;
 
 component lcd_display is
 Generic (
-LCDClockDivider : integer := G_LCDClockDivider
+G_BOARD_CLOCK : integer := 1;
+LCDClockDivider : integer := 1
 );
 Port (
 i_clock : in std_logic;
@@ -225,9 +190,10 @@ constant WAIT_AND : time := 3 ps;
 constant WAIT_NOT : time := 2 ps;
 
 type state_type is (
-idle,start,start_count,stop,check_write,wait0,wait0_increment,
+idle,start,start_count,check_catch,check_write,wait0,wait0_increment,
 read0,
-st_enable_tx,st_rs232_waiting,st_disable_tx
+st_enable_tx,st_rs232_waiting,st_disable_tx,
+stop
 );
 signal state_c,state_n : state_type;
 
@@ -242,7 +208,7 @@ begin
 	end if;
 end process p0;
 
-latch_le <= '1' when catch = '1' and rc_clock = '0' else '0';
+latch_le <= '1' when rc_clock = '0' else '0';
 --latch_oeb <= '0' when (i_clock = '0' and wr = '1') else '0';
 latch_oeb <= '1' when rd = '1' else '0'; -- XXX todo
 sram_web <= '0' when latch_le = '0' else '1';
@@ -250,68 +216,6 @@ sram_oeb <= '0' when rd = '1' and state_c = read0 else '1';
 rc_clock <= not i_clock when (wr = '1' and catch = '1') or (rd = '1' and rs232_etx = '1' and rs232_byte_sended = '1') else '0';
 sram_ceb <= '0' when rc_clock = '1' or rs232_etx = '0' else '1';
 --rc_mrb <= '1' when i_reset = '1' else '0';
-
---g_catch_and : GATE_AND Generic map (WAIT_AND) Port map (A=>i_catch,B=>catch_not,C=>catch_tick);
---g_catch_not1 : GATE_NOT Generic map (WAIT_NOT) Port map (A=>i_catch,B=>catch_not1);
---g_catch_not2 : GATE_NOT Generic map (WAIT_NOT) Port map (A=>catch_not1,B=>catch_not2);
---g_catch_not3 : GATE_NOT Generic map (WAIT_NOT) Port map (A=>catch_not2,B=>catch_not);
-
---p2 : process (i_clock,clock_mux1,catch_tick) is
---begin
---	if (i_clock='0' and catch_tick='1') then
---		clock_mux1 <= '1';
---	elsif (i_clock = '1') then
---		clock_mux1 <= '0';
---	end if;
---end process p2;
-
---ff_d_catch1 : FF_D_POSITIVE_EDGE
---PORT MAP (
---	D => i_catch,
---	C => i_clock,
---	Q1 => catch_tick,
---	Q2 => open
---);
---
---ff_d_catch2 : FF_D_POSITIVE_EDGE
---PORT MAP (
---	D => catch_tick,
---	C => i_clock,
---	Q1 => catch,
---	Q2 => open
---);
-
---db_entity : debounce
---Generic map (
---	G_BOARD_CLOCK => G_BOARD_CLOCK,
---	G_SIZE => 8
---)
---Port map (
---	i_clk => i_clock,
---	i_reset => i_reset,
---	i_btn => i_catch,
---	o_db_btn => catch
---);
-
---db : debounce_button
---generic map (g_board_clock => G_BOARD_CLOCK)
---Port map (
---i_button => i_catch,
---i_clk => i_clock,
---o_stable => catch
---);
-
---db_entity : debouncer1
---generic map (
---	fclk => 100,
---	twindow => 1
---)
---port map (
---	x => i_catch,
---	clk => i_clock,
---	rst => i_reset,
---	y => catch
---);
 
 db_entity : new_debounce
 generic map (
@@ -326,6 +230,10 @@ o_db => catch
 );
 
 lcddisplay_entity : lcd_display
+Generic Map (
+	G_BOARD_CLOCK => G_BOARD_CLOCK,
+	LCDClockDivider => G_LCDClockDivider
+)
 Port Map (
 	i_clock => i_clock,
 	i_LCDChar => LCDChar,
@@ -349,15 +257,27 @@ begin
 			o_sended <= '0';
 			LCDChar <= (x"f",x"0",x"1",x"f");
 			reset_db <= '1';
+			o_data <= "00000001";
 		when start_count =>
 			state_n <= start;
 			rc_mrb <= '0';
 			reset_db <= '0';
+			o_data <= "00000010";
 		when start =>
-			state_n <= check_write;
+			state_n <= check_catch;
 			wr <= '1';
 			LCDChar <= (x"1",x"0",x"0",x"0");
 			reset_db <= '1';
+			o_data <= "00000100";
+		when check_catch =>
+			if (catch = '1') then
+				state_n <= check_write;
+				reset_db <= '1';
+			else
+				state_n <= check_catch;
+				reset_db <= '0';
+			end if;
+			o_data <= "00001000";
 		when check_write =>
 			if (to_integer(unsigned(sram_address)) = 2**address_size-1) then
 				state_n <= wait0;
@@ -366,8 +286,8 @@ begin
 			else
 				state_n <= start;
 				LCDChar <= (x"3",x"0",x"0",x"0");
-				reset_db <= '0';
 			end if;
+			o_data <= "00010000";
 		when wait0 =>
 			if (w0 = C_W0-1) then
 				state_n <= read0;
@@ -390,6 +310,7 @@ begin
 				LCDChar <= (x"7",x"0",x"0",x"0");
 				state_n <= st_enable_tx;
 			end if;
+			o_data <= "00100000";
 		when st_enable_tx =>
 			state_n <= st_rs232_waiting;
 			rs232_etx <= '1';
@@ -401,6 +322,7 @@ begin
 				state_n <= st_rs232_waiting;
 				LCDChar <= (x"9",x"0",x"0",x"0");
 			end if;
+			o_data <= "01000000";
 		when st_disable_tx =>
 			state_n <= read0;
 			rs232_etx <= '0';
@@ -409,6 +331,7 @@ begin
 			state_n <= stop;
 			o_sended <= '1';
 			LCDChar <= (x"B",x"0",x"0",x"0");
+			o_data <= "10000000";
 	end case;
 end process p1;
 

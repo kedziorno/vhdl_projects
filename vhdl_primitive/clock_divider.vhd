@@ -32,8 +32,8 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity clock_divider is
 Generic (
-	g_board_clock : integer := G_BOARD_CLOCK;
-	g_divider : integer
+	g_board_clock : integer := 1;
+	g_divider : integer := 1
 );
 Port (
 	i_clock : in STD_LOGIC;
