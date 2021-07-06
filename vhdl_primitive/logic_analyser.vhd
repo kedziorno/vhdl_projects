@@ -278,6 +278,7 @@ begin
 				reset_db <= '0';
 			end if;
 			o_data <= "00001000";
+			LCDChar <= (x"2",x"2",x"2",x"2");
 		when check_write =>
 			if (to_integer(unsigned(sram_address)) = 2**address_size-1) then
 				state_n <= wait0;
