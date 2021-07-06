@@ -84,9 +84,9 @@ ARCHITECTURE behavior OF tb_debounce IS
 --	end component debounce;
 
 	component new_debounce is
-	generic (
-	G_BOARD_CLOCK : integer := 1;
-	stable : integer := 1
+	generic ( -- ripplecounter N bits (RC_N=N+1,RC_MAX=2**N)
+	G_RC_N : integer := 5;
+	G_RC_MAX : integer := 16
 	);
 	port (
 	i_clock : in std_logic;
@@ -133,6 +133,7 @@ ARCHITECTURE behavior OF tb_debounce IS
 
 	-- Clock period definitions
 	constant i_clk_period : time := (1_000_000_000/G_BOARD_CLOCK) * 1 ns; -- XXX 50Mhz
+--	constant i_clk_period : time := integer'value(time'image(i_clk_period_original)) * 1000*1 ns;
 
 	-- States
 	type state_type is (idle,start,
@@ -177,9 +178,7 @@ BEGIN
 --	);
 
 	uut : new_debounce
-	generic map(
-	G_BOARD_CLOCK => G_BOARD_CLOCK
-	)
+	generic map (G_RC_N => 10, G_RC_MAX => (1/50000)*G_BOARD_CLOCK) -- XXX 50 ms
 	port map (
 	i_clock => i_clk,
 	i_reset => reset_db,
@@ -234,20 +233,22 @@ BEGIN
 		variable gc_index : std_logic_vector(GRAYCODE_SIZE_BITS-1 downto 0) := (others => '0');
 
 	begin
+
 		-- insert stimulus here
 -- GRAYCODE
 		if (rising_edge(i_clk)) then
 			case (state) is
 				when idle =>
+					REPORT "CLOCK PERIOD " & time'image(i_clk_period) SEVERITY NOTE;
 					state <= start;
-					reset <= '1', '0' after 10*i_clk_period;
+					reset <= '1', '0' after 100 ns;
 					reset_db <= '1';
 				when start =>
 					state <= gc_send;
 					REPORT "GRAYCODE" SEVERITY NOTE;
 					reset_db <= '0';
 				when gc_send => -- start from gc mode
-					reset_db <= '0';
+--					reset_db <= '0';
 					if (o_gc_index = o_gc_max-1) then
 						state <= gc_increment;
 						o_gc_index := 0;
@@ -276,12 +277,12 @@ BEGIN
 					else
 						state <= gc_send;
 						wait0 := 0;
-						reset_db <= '1';
+--						reset_db <= '1';
 					end if;
 				when lfsr_enable =>
 					state <= lfsr_disable;
 					enable_lfsr <= '1';
-					reset_db <= '0';
+--					reset_db <= '0';
 				when lfsr_disable =>
 					state <= lfsr_send;
 					enable_lfsr <= '0';
@@ -304,7 +305,7 @@ BEGIN
 					if (wait0 = WAIT0_COUNT-1) then
 						state <= lfsr_enable;
 						wait0 := 0;
-						reset_db <= '1';
+--						reset_db <= '1';
 					else
 						state <= lfsr_wait0;
 						wait0 := wait0 + 1;

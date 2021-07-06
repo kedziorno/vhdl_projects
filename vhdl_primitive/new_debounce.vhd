@@ -31,9 +31,9 @@ use work.p_globals.all;
 --use UNISIM.VComponents.all;
 
 entity new_debounce is
-generic (
-G_BOARD_CLOCK : integer := 1;
-stable : integer := 1
+generic ( -- ripplecounter N bits (RC_N=N+1,RC_MAX=2**N)
+G_RC_N : integer := 5;
+G_RC_MAX : integer := 16
 );
 port (
 i_clock : in std_logic;
@@ -61,13 +61,13 @@ o_ping : out std_logic
 );
 end component ripple_counter;
 
---component FF_D_POSITIVE_EDGE is
---port (
---i_reset : in std_logic;
---C : in std_logic;
---D : in STD_LOGIC;
---Q1,Q2:inout STD_LOGIC);
---end component FF_D_POSITIVE_EDGE;
+component FF_D_POSITIVE_EDGE is
+port (
+S,R : in std_logic;
+C : in std_logic;
+D : in STD_LOGIC;
+Q1,Q2:inout STD_LOGIC);
+end component FF_D_POSITIVE_EDGE;
 
 --component FF_D_DUAL_EDGE_TRIGGERED is
 --port (
@@ -76,17 +76,12 @@ end component ripple_counter;
 --);
 --end component FF_D_DUAL_EDGE_TRIGGERED;
 
-component FF_D_GATED is
-generic (
-delay_and : TIME := 1 ps;
-delay_or : TIME := 1 ps;
-delay_not : TIME := 1 ps
-);
-port (
-D,E : in STD_LOGIC;
-Q1,Q2 : inout STD_LOGIC
-);
-end component FF_D_GATED;
+--component FF_D_GATED is
+--port (
+--D,E : in STD_LOGIC;
+--Q1,Q2 : inout STD_LOGIC
+--);
+--end component FF_D_GATED;
 
 component FF_JK is
 port (
@@ -107,23 +102,24 @@ B : out STD_LOGIC
 );
 end component GATE_NOT;
 
-constant RC_N : integer := 5;
-constant RC_MAX : integer := 16;
-constant WAIT_NOT : time := 1 ns;
+constant WAIT_NOT : time := 1 ps;
 
-signal rc_cpb,rc_mrb,rc_ud,rc_ping : std_logic;
-signal rc_q : std_logic_vector(RC_N-1 downto 0);
-signal ffdpe_d,ffdpe_q1,ffdpe_q2 : std_logic;
-signal ffjk_reset,ffjk_j,ffjk_k,ffjk_q1,ffjk_q2 : std_logic;
+constant RC_N : integer := G_RC_N;
+constant RC_MAX : integer := G_RC_MAX;
+signal rc_cpb,rc_mrb,rc_ud,rc_ping : std_logic := '0';
+signal rc_q : std_logic_vector(RC_N-1 downto 0) := (others => '0');
+signal ffdpe_d,ffdpe_q1,ffdpe_q2 : std_logic := '0';
+signal ffjk_reset,ffjk_j,ffjk_k,ffjk_q1,ffjk_q2 : std_logic := '0';
 
-signal a,not1,not2 : std_logic;
+signal a,not1 : std_logic;
+signal not2 : std_logic;
 
 begin
 
 ffdpe_d <= i_b;
-rc_mrb <= not1 xnor i_b;
-ffjk_j <= not2;
-ffjk_k <= not2;
+rc_mrb <= not2 xnor i_b;
+ffjk_j <= not1;
+ffjk_k <= not1;
 rc_ud <= '1';
 rc_cpb <= '1';
 o_db <= ffjk_q1;
@@ -156,14 +152,15 @@ o_q => rc_q,
 o_ping => rc_ping
 );
 
---ffdpe_entity : FF_D_POSITIVE_EDGE
---port map(
---i_reset => i_reset,
---C => not i_clock,
---D => ffdpe_d,
---Q1 => ffdpe_q1,
---Q2 => ffdpe_q2
---);
+ffdpe_entity : FF_D_POSITIVE_EDGE
+port map(
+S => not i_reset,
+R => not i_reset,
+C => rc_q(RC_N-1),
+D => ffdpe_d,
+Q1 => ffdpe_q1,
+Q2 => ffdpe_q2
+);
 
 --ffdpe_entity : FF_D_DUAL_EDGE_TRIGGERED
 --port map (
@@ -172,20 +169,22 @@ o_ping => rc_ping
 --Q => ffdpe_q1
 --);
 
-ffdpe_entity : FF_D_GATED
-port map (
-D => ffdpe_d,
-E => i_clock,
-Q1 => ffdpe_q1,
-Q2 => ffdpe_q2
-);
+--ffdpe_entity : FF_D_GATED
+--port map (
+--S => i_reset,
+--R => not i_reset,
+--D => ffdpe_d,
+--E => rc_q(RC_N-1),
+--Q1 => ffdpe_q1,
+--Q2 => ffdpe_q2
+--);
 
 ffjk_entity : FF_JK
 port map (
 i_r => i_reset,
 J => ffjk_j,
 K => ffjk_k,
-C => i_clock,
+C => not1,
 Q1 => ffjk_q1,
 Q2 => ffjk_q2
 );
