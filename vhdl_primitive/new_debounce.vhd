@@ -69,20 +69,6 @@ D : in STD_LOGIC;
 Q1,Q2:inout STD_LOGIC);
 end component FF_D_POSITIVE_EDGE;
 
---component FF_D_DUAL_EDGE_TRIGGERED is
---port (
---D,C:in STD_LOGIC;
---Q:out STD_LOGIC
---);
---end component FF_D_DUAL_EDGE_TRIGGERED;
-
---component FF_D_GATED is
---port (
---D,E : in STD_LOGIC;
---Q1,Q2 : inout STD_LOGIC
---);
---end component FF_D_GATED;
-
 component FF_JK is
 port (
 i_r : in STD_LOGIC;
@@ -161,23 +147,6 @@ D => ffdpe_d,
 Q1 => ffdpe_q1,
 Q2 => ffdpe_q2
 );
-
---ffdpe_entity : FF_D_DUAL_EDGE_TRIGGERED
---port map (
---D => ffdpe_d,
---C => i_clock,
---Q => ffdpe_q1
---);
-
---ffdpe_entity : FF_D_GATED
---port map (
---S => i_reset,
---R => not i_reset,
---D => ffdpe_d,
---E => rc_q(RC_N-1),
---Q1 => ffdpe_q1,
---Q2 => ffdpe_q2
---);
 
 ffjk_entity : FF_JK
 port map (

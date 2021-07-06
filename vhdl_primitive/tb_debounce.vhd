@@ -40,6 +40,8 @@ ARCHITECTURE behavior OF tb_debounce IS
 
 	-- Constant
 	constant DEBOUNCE_SIZE : integer := 8;
+	constant DEBOUNCE_RC_N : integer := 6;
+	constant DEBOUNCE_RC_MAX : integer := 32;
 	constant W0_COUNT : integer := 80;
 	constant G_BOARD_CLOCK : integer := 29_952_000;
 	constant LFSR_SIZE : integer := 32;
@@ -48,40 +50,6 @@ ARCHITECTURE behavior OF tb_debounce IS
 	constant GRAYCODE_SIZE_BITS : integer := 8;
 
 	-- Component Declaration for the Unit Under Test (UUT)
---	COMPONENT debouncer1 IS
---	GENERIC (
---		fclk : integer := 1;
---		twindow : integer := 10
---	);
---	PORT (
---		x : in std_logic;
---		clk : in std_logic;
---		y : inout std_logic
---	);
---	END COMPONENT debouncer1;
-
---	component debounce_button is
---	generic (g_board_clock : integer);
---	Port
---	(
---	i_button : in  STD_LOGIC;
---	i_clk : in  STD_LOGIC;
---	o_stable : out  STD_LOGIC
---	);
---	end component debounce_button;
-
---	component debounce is
---	Generic (
---		G_BOARD_CLOCK : integer := 50_000_000;
---		G_SIZE : integer := 8
---	);
---	Port (
---		i_clk : in  STD_LOGIC;
---		i_reset : in  STD_LOGIC;
---		i_btn : in  STD_LOGIC;
---		o_db_btn : out  STD_LOGIC
---	);
---	end component debounce;
 
 	component new_debounce is
 	generic ( -- ripplecounter N bits (RC_N=N+1,RC_MAX=2**N)
@@ -146,39 +114,9 @@ ARCHITECTURE behavior OF tb_debounce IS
 BEGIN
 
 	-- Instantiate the Unit Under Test (UUT)
---	uut : debouncer1
---	GENERIC MAP (
---		fclk => 1,
---		twindow => SIZE
---	)
---	PORT MAP (
---		x => i_btn,
---		clk => i_clk,
---		y => o_db_btn
---	);
-
---	uut : debounce_button
---	generic map (g_board_clock => G_BOARD_CLOCK)
---	port map (
---	i_button => i_btn,
---	i_clk => i_clk,
---	o_stable => o_db_btn
---	);
-
---	uut : debounce
---	Generic map (
---		G_BOARD_CLOCK => G_BOARD_CLOCK,
---		G_SIZE => DEBOUNCE_SIZE
---	)
---	Port map (
---		i_clk => i_clk,
---		i_reset => reset,
---		i_btn => i_btn,
---		o_db_btn => o_db_btn
---	);
 
 	uut : new_debounce
-	generic map (G_RC_N => 10, G_RC_MAX => (1/50000)*G_BOARD_CLOCK) -- XXX 50 ms
+	generic map (G_RC_N => DEBOUNCE_RC_N, G_RC_MAX => DEBOUNCE_RC_MAX) -- XXX 50 ms
 	port map (
 	i_clock => i_clk,
 	i_reset => reset_db,
@@ -248,7 +186,7 @@ BEGIN
 					REPORT "GRAYCODE" SEVERITY NOTE;
 					reset_db <= '0';
 				when gc_send => -- start from gc mode
---					reset_db <= '0';
+					reset_db <= '0';
 					if (o_gc_index = o_gc_max-1) then
 						state <= gc_increment;
 						o_gc_index := 0;
@@ -277,12 +215,12 @@ BEGIN
 					else
 						state <= gc_send;
 						wait0 := 0;
---						reset_db <= '1';
+						reset_db <= '1';
 					end if;
 				when lfsr_enable =>
 					state <= lfsr_disable;
 					enable_lfsr <= '1';
---					reset_db <= '0';
+					reset_db <= '0';
 				when lfsr_disable =>
 					state <= lfsr_send;
 					enable_lfsr <= '0';
@@ -305,7 +243,7 @@ BEGIN
 					if (wait0 = WAIT0_COUNT-1) then
 						state <= lfsr_enable;
 						wait0 := 0;
---						reset_db <= '1';
+						reset_db <= '1';
 					else
 						state <= lfsr_wait0;
 						wait0 := wait0 + 1;
