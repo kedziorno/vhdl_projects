@@ -12,20 +12,24 @@ end entity FF_D_POSITIVE_EDGE;
 
 -- https://en.wikipedia.org/wiki/Flip-flop_(electronics)#Classical_positive-edge-triggered_D_flip-flop
 architecture Behavioral_D_PE of FF_D_POSITIVE_EDGE is
-component GAND is
-generic (delay_and:time := 0 ns);
-port (A,B:in STD_LOGIC;C:out STD_LOGIC);
-end component GAND;
-component GN is
-generic (delay_not:time := 0 ns);
-port (A:in STD_LOGIC;B:out STD_LOGIC);
-end component GN;
-for all : GAND use entity WORK.GATE_AND(GATE_AND_BEHAVIORAL_1);
-for all : GN use entity WORK.GATE_NOT(GATE_NOT_BEHAVIORAL_1);
-signal X,Y,Z,V,W,O,sa,sb,sc,sd,se,sf:STD_LOGIC;
-constant DELAY_AND : time := 1 ps;
-constant DELAY_NOT : time := 1 ps;
+
+--component GAND is
+--generic (delay_and:time := 0 ns);
+--port (A,B:in STD_LOGIC;C:out STD_LOGIC);
+--end component GAND;
+--component GN is
+--generic (delay_not:time := 0 ns);
+--port (A:in STD_LOGIC;B:out STD_LOGIC);
+--end component GN;
+--for all : GAND use entity WORK.GATE_AND(GATE_AND_BEHAVIORAL_1);
+--for all : GN use entity WORK.GATE_NOT(GATE_NOT_BEHAVIORAL_1);
+--signal X,Y,Z,V,W,O,sa,sb,sc,sd,se,sf:STD_LOGIC;
+--constant DELAY_AND : time := 1 ps;
+--constant DELAY_NOT : time := 1 ps;
+
+constant WAIT_NAND3 : time := 1 ps;
 signal setu,setd,resetu,resetd : std_logic;
+
 begin
 
 --rst1 <= D when i_reset = '0' else '0';
@@ -46,11 +50,11 @@ begin
 --gD: GAND generic map (DELAY_AND) port map (C,Z,O);
 
 -- https://en.wikipedia.org/wiki/Flip-flop_%28electronics%29#/media/File:Edge_triggered_D_flip_flop_with_set_and_reset.svg
-g1 : Q1 <= not (Q2 and S and setd);
-g2 : Q2 <= not (Q1 and setu and R);
-g3 : setu <= not (S and setd and resetd);
-g4 : setd <= not (setu and C and R);
-g5 : resetu <= not (C and resetd and setd);
-g6 : resetd <= not (D and R and resetu);
+g1 : Q1 <= not (Q2 and S and setd) after WAIT_NAND3;
+g2 : Q2 <= not (Q1 and resetu and R) after WAIT_NAND3;
+g3 : setu <= not (S and setd and resetd) after WAIT_NAND3;
+g4 : setd <= not (setu and C and R) after WAIT_NAND3;
+g5 : resetu <= not (C and resetd and setd) after WAIT_NAND3;
+g6 : resetd <= not (D and R and resetu) after WAIT_NAND3;
 
 end architecture Behavioral_D_PE;
