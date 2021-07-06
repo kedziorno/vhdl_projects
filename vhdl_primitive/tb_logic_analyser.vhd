@@ -48,7 +48,9 @@ GENERIC(
 G_BOARD_CLOCK : integer := 50_000_000;
 G_BAUD_RATE : integer := 9_600;
 address_size : integer := 8;
-data_size : integer := 8
+data_size : integer := 8;
+G_RC_N : integer;
+G_RC_MAX : integer
 );
 PORT(
 i_clock : IN  std_logic;
@@ -83,7 +85,9 @@ GENERIC MAP (
 G_BOARD_CLOCK => G_BOARD_CLOCK,
 G_BAUD_RATE => G_BAUD_RATE,
 address_size => address_size,
-data_size => data_size
+data_size => data_size,
+G_RC_N => 10,
+G_RC_MAX => 600
 )
 PORT MAP (
 i_clock => i_clock,
@@ -121,7 +125,7 @@ i_data <= std_logic_vector(to_unsigned(i,data_size));
 
 wait for 3*i_clock_period;
 i_catch <= '1';
-wait for 201*i_clock_period; -- wait for debounce
+wait for 50 ms; -- wait for debounce
 i_catch <= '0';
 wait for 25*i_clock_period;
 

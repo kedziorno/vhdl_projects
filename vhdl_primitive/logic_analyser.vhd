@@ -34,10 +34,12 @@ use IEEE.NUMERIC_STD.ALL;
 entity logic_analyser is
 Generic (
 --G_BOARD_CLOCK : integer := 50_000_000; -- XXX osc on board
-G_BOARD_CLOCK : integer := 29_952_000; -- XXX osc on socket
+G_BOARD_CLOCK : integer := G_SOCKET_CLOCK; -- XXX osc on socket
 G_BAUD_RATE : integer := 9_600;
 address_size : integer := 4;
-data_size : integer := 8
+data_size : integer := 8;
+G_RC_N : integer := 10;
+G_RC_MAX : integer := 599  -- XXX 599.04 = ~50 ms
 );
 Port (
 i_clock : in std_logic;
@@ -166,18 +168,31 @@ end component FF_D_POSITIVE_EDGE;
 --);
 --end component debounce_button;
 
-component debouncer1 is
-generic (
-	fclk : integer := 1;
-	twindow : integer := 10
+--component debouncer1 is
+--generic (
+--	fclk : integer := 1;
+--	twindow : integer := 10
+--);
+--port (
+--	x : in std_logic;
+--	clk : in std_logic;
+--	rst : in std_logic;
+--	y : inout std_logic
+--);
+--end component debouncer1;
+
+component new_debounce is
+generic ( -- ripplecounter N bits (RC_N=N+1,RC_MAX=2**N)
+G_RC_N : integer := 5;
+G_RC_MAX : integer := 16
 );
 port (
-	x : in std_logic;
-	clk : in std_logic;
-	rst : in std_logic;
-	y : inout std_logic
+i_clock : in std_logic;
+i_reset : in std_logic;
+i_b : in std_logic;
+o_db : out std_logic
 );
-end component debouncer1;
+end component new_debounce;
 
 component lcd_display is
 Generic (
@@ -204,6 +219,7 @@ signal wr,rd,a,b : std_logic;
 signal catch,catch_not,catch_not1,catch_not2,catch_tick : std_logic;
 signal clock_mux1,clock_mux2,clock_mux3 : std_logic;
 signal LCDChar : LCDHex;
+signal reset_db : std_logic;
 
 constant WAIT_AND : time := 3 ps;
 constant WAIT_NOT : time := 2 ps;
@@ -226,7 +242,7 @@ begin
 	end if;
 end process p0;
 
-latch_le <= '1' when rc_clock = '0' else '0';
+latch_le <= '1' when catch = '1' and rc_clock = '0' else '0';
 --latch_oeb <= '0' when (i_clock = '0' and wr = '1') else '0';
 latch_oeb <= '1' when rd = '1' else '0'; -- XXX todo
 sram_web <= '0' when latch_le = '0' else '1';
@@ -285,16 +301,28 @@ sram_ceb <= '0' when rc_clock = '1' or rs232_etx = '0' else '1';
 --o_stable => catch
 --);
 
-db_entity : debouncer1
+--db_entity : debouncer1
+--generic map (
+--	fclk => 100,
+--	twindow => 1
+--)
+--port map (
+--	x => i_catch,
+--	clk => i_clock,
+--	rst => i_reset,
+--	y => catch
+--);
+
+db_entity : new_debounce
 generic map (
-	fclk => 100,
-	twindow => 1
+G_RC_N => G_RC_N,
+G_RC_MAX => G_RC_MAX
 )
 port map (
-	x => i_catch,
-	clk => i_clock,
-	rst => i_reset,
-	y => catch
+i_clock => i_clock,
+i_reset => reset_db,
+i_b => i_catch,
+o_db => catch
 );
 
 lcddisplay_entity : lcd_display
@@ -320,13 +348,16 @@ begin
 			rs232_etx <= '0';
 			o_sended <= '0';
 			LCDChar <= (x"f",x"0",x"1",x"f");
+			reset_db <= '1';
 		when start_count =>
 			state_n <= start;
 			rc_mrb <= '0';
+			reset_db <= '0';
 		when start =>
 			state_n <= check_write;
 			wr <= '1';
 			LCDChar <= (x"1",x"0",x"0",x"0");
+			reset_db <= '1';
 		when check_write =>
 			if (to_integer(unsigned(sram_address)) = 2**address_size-1) then
 				state_n <= wait0;
@@ -335,6 +366,7 @@ begin
 			else
 				state_n <= start;
 				LCDChar <= (x"3",x"0",x"0",x"0");
+				reset_db <= '0';
 			end if;
 		when wait0 =>
 			if (w0 = C_W0-1) then

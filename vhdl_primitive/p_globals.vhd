@@ -4,7 +4,8 @@ use IEEE.STD_LOGIC_1164.all;
 package p_globals is
 
 	constant G_BOARD_CLOCK : integer := 50_000_000; -- XXX osc on board
-	constant G_SOCKET_CLOCK : integer := 29_952_000; -- XXX osc on socket
+--	constant G_SOCKET_CLOCK : integer := 29_952_000; -- XXX osc on socket
+	constant G_SOCKET_CLOCK : integer := 23_961_600; -- XXX osc on socket
 	constant G_LCDSegment : integer := 7;
 	constant G_LCDAnode : integer := 4;
 	constant G_LCDClockDivider : integer := 400;
