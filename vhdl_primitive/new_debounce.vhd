@@ -142,7 +142,7 @@ ffdpe_entity : FF_D_POSITIVE_EDGE
 port map(
 S => not i_reset,
 R => not i_reset,
-C => rc_q(RC_N-1),
+C => rc_q(RC_N-3), -- XXX check RC_N-1, fix to catch anywhere
 D => ffdpe_d,
 Q1 => ffdpe_q1,
 Q2 => ffdpe_q2
