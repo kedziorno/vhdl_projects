@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity GATE_OR is
 generic (
-delay_or : TIME := 1 ns
+delay_or : TIME := 1 ps
 );
 port (
 A,B : in STD_LOGIC;

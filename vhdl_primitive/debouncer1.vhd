@@ -37,25 +37,28 @@ generic (
 port (
 	x : in std_logic;
 	clk : in std_logic;
+	rst : in std_logic;
 	y : inout std_logic
 );
 end debouncer1;
 
 --architecture Behavioral of debouncer1 is
 --	constant max : integer := fclk*twindow;
+--	signal count : integer range 0 to max-1;
 --begin
---	p0 : process (clk) is
---		variable count : integer range 0 to max-1;
+--	p0 : process (clk,rst) is
 --	begin
---		if (rising_edge(clk)) then
+--		if (rst = '1') then
+--			y <= '0';
+--		elsif (rising_edge(clk)) then
 --			if (y /= x) then
---				count := count + 1;
+--				count <= count + 1;
 --				if (count=max-1) then
---					count := 0;
+--					count <= 0;
 --					y <= x;
 --				end if;
 --			else
---				count := 0;
+--				count <= 0;
 --			end if;
 --		end if;
 --	end process p0;
@@ -74,20 +77,56 @@ architecture struct of debouncer1 is
 	end component counter_ping;
 	signal ping : std_logic;
 	signal clearb : std_logic;
-	signal d,q : std_logic := '0';
+	signal d,q : std_logic;
+	signal p : std_logic;
 	constant max : integer := fclk*twindow;
 begin
-	cp_entity : counter_ping generic map (max=>max) port map (i_clock=>clk,i_reset=>not clearb,o_ping=>ping);
-	p1 : process (x,q,ping) is
+	cp_entity : counter_ping generic map (max=>max) port map (i_clock=>clk,i_reset=>not q,o_ping=>ping);
+--	p1 : process (x,q,ping,p) is
+--	begin
+--		p <= q;
+--		if (ping = '1') then
+--			if (p = q) then
+--				y <= '1';
+--				--q <= '1';
+--			else
+--				y <= '0';
+--				--q <= '0';
+--			end if;
+----			q <= '0';
+--		else
+--			if (p /= q) then
+----				q <= '0';
+--			end if;
+----			y <= '0';
+--		end if;
+--		clearb <= x xor q when rst = '0' else '0';
+--		d <= ping xor q when rst = '0' else '1';
+--		y <=  ping xor clearb when rst = '0' else '1';
+--		clearb <= x xor q;
+--		d <= ping xor q;
+--		y <=  ping xor clearb;
+--	end process p1;
+	p2 : process (clk,rst) is
 	begin
-		clearb <= x xor q;
-		d <= ping xor q;
-		y <= q;	
-	end process p1;
-	p2 : process (clk) is
-	begin
-		if (rising_edge(clk)) then
-			q <= d;
+		if (rst = '1') then
+--			d <= '0';
+			q <= '0';
+--			ping <= '0';
+--			clearb <= '0';
+		elsif (rising_edge(clk)) then
+			if (ping = '1') then
+				p <= q;
+				if (p /= q) then
+					y <= '1';
+				else
+					y <= '0';
+				end if;
+			elsif (x = '1') then
+				q <= x;
+			else
+				q <= q;
+			end if;
 		end if;
 	end process p2;
 end architecture struct;

@@ -27,6 +27,7 @@
 --------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
+USE work.p_globals.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -37,7 +38,7 @@ END tb_logic_analyser;
 
 ARCHITECTURE behavior OF tb_logic_analyser IS 
 
-constant G_BOARD_CLOCK : integer := 50_000_000;
+constant G_BOARD_CLOCK : integer := G_BOARD_CLOCK;
 constant G_BAUD_RATE : integer := 115_200;
 constant address_size : integer := 4;
 constant data_size : integer := 8;
@@ -45,18 +46,24 @@ constant data_size : integer := 8;
 -- Component Declaration for the Unit Under Test (UUT)
 COMPONENT logic_analyser
 GENERIC(
-G_BOARD_CLOCK : integer := 50_000_000;
-G_BAUD_RATE : integer := 9_600;
-address_size : integer := 8;
-data_size : integer := 8
+G_BOARD_CLOCK : integer;
+G_BAUD_RATE : integer;
+address_size : integer;
+data_size : integer;
+G_RC_N : integer;
+G_RC_MAX : integer
 );
 PORT(
-i_clock : IN  std_logic;
-i_reset : IN  std_logic;
-i_catch : IN  std_logic;
-i_data : IN  std_logic_vector(data_size-1 downto 0);
-o_rs232_tx : OUT  std_logic;
-o_sended : OUT  std_logic
+i_clock : in std_logic;
+i_reset : in std_logic; -- XXX use for catch data
+i_catch : in std_logic;
+i_data : in std_logic_vector(data_size-1 downto 0);
+o_rs232_tx : out std_logic;
+o_sended : out std_logic;
+o_seg : out std_logic_vector(G_LCDSegment-1 downto 0);
+--o_dp : out std_logic;
+o_an : out std_logic_vector(G_LCDAnode-1 downto 0);
+o_data : out std_logic_vector(G_Led-1 downto 0)
 );
 END COMPONENT;
 
@@ -69,9 +76,13 @@ signal i_data : std_logic_vector(data_size-1 downto 0) := (others => '0');
 --Outputs
 signal o_rs232_tx : std_logic;
 signal o_sended : std_logic;
+signal o_seg : std_logic_vector(G_LCDSegment-1 downto 0);
+--signal o_dp : std_logic;
+signal o_an : std_logic_vector(G_LCDAnode-1 downto 0);
+signal o_data : std_logic_vector(G_Led-1 downto 0);
 
 -- Clock period definitions
-constant i_clock_period : time := 20 ns;
+constant i_clock_period : time := (1_000_000_000/G_BOARD_CLOCK) * 1 ns; -- XXX 50Mhz
 
 constant N : integer := 2**address_size-1;
 
@@ -83,7 +94,9 @@ GENERIC MAP (
 G_BOARD_CLOCK => G_BOARD_CLOCK,
 G_BAUD_RATE => G_BAUD_RATE,
 address_size => address_size,
-data_size => data_size
+data_size => data_size,
+G_RC_N => G_DEBOUNCE_MS_BITS,
+G_RC_MAX => G_DEBOUNCE_MS_COUNT
 )
 PORT MAP (
 i_clock => i_clock,
@@ -91,7 +104,11 @@ i_reset => i_reset,
 i_catch => i_catch,
 i_data => i_data,
 o_rs232_tx => o_rs232_tx,
-o_sended => o_sended
+o_sended => o_sended,
+o_seg => o_seg,
+--o_dp => o_dp,
+o_an => o_an,
+o_data => o_data
 );
 
 -- Clock process definitions
@@ -107,6 +124,10 @@ end process;
 write_proc : process
 begin
 
+report "CLOCK PERIOD " & time'image(i_clock_period) severity warning;
+report "DB TICKS " & integer'image(G_DEBOUNCE_MS_COUNT) severity warning;
+report "DB BITS " & integer'image(G_DEBOUNCE_MS_BITS) severity warning;
+
 i_reset <= '1';
 wait for 100 ns;
 i_reset <= '0';
@@ -119,10 +140,12 @@ l0 : for i in 0 to N-1 loop
 
 i_data <= std_logic_vector(to_unsigned(i,data_size));
 
+wait for 3*i_clock_period;
 i_catch <= '1';
-wait for i_clock_period;
+--report "catch wait " & integer'image(G_BOARD_CLOCK/G_DEBOUNCE_MS_COUNT) severity warning;
+wait for 50 ms; -- wait for debounce
 i_catch <= '0';
-wait for i_clock_period;
+wait for 25*i_clock_period;
 
 end loop l0;
 

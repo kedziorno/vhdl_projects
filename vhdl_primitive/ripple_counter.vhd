@@ -89,16 +89,18 @@ architecture Behavioral of ripple_counter is
 	);
 	end component GATE_NOT;
 
-	signal cp,mr : std_logic;
-	signal q1,q2 : std_logic_vector(N-1 downto 0);
-	signal ping,ping1 : std_logic;
-	signal ffjk_and_u,ffjk_and_d,ffjk_or : std_logic_vector(N-1 downto 0); -- XXX omit last FF JK
-	signal ud,udb : std_logic;
-	signal gated_clock : std_logic;
+	signal cp,mr : std_logic := '0';
+	signal q1,q2 : std_logic_vector(N-1 downto 0) := (others => '0');
+	signal ping,ping1 : std_logic := '0';
+	signal ffjk_and_u,ffjk_and_d,ffjk_or : std_logic_vector(N-1 downto 0) := (others => '0'); -- XXX omit last FF JK
+	signal ud,udb : std_logic := '0';
+	signal gated_clock : std_logic := '0';
+	signal a : std_logic_vector(N-1 downto 0) := std_logic_vector(to_unsigned(MAX,N));
+	signal b : std_logic_vector(N-1 downto 0) := std_logic_vector(to_unsigned(0,N));
 
-	constant WAIT_AND : time := 2 ps;
-	constant WAIT_OR : time := 2 ps;
-	constant WAIT_NOT : time := 1 ps;
+	constant WAIT_AND : time := 0 ps;
+	constant WAIT_OR : time := 0 ps;
+	constant WAIT_NOT : time := 0 ps;
 
 	attribute keep : string; -- XXX when unconnected signal in g0_and_d
 	attribute keep of ud : signal is "true";
@@ -111,8 +113,8 @@ begin
 	ud <= i_ud;
 	o_q <= q1;
 	cp <= i_cpb;
-	mr <= '1' when o_q = std_logic_vector(to_unsigned(MAX,N)) else i_mrb;
-	ping <= '1' when o_q = std_logic_vector(to_unsigned(0,N)) else '0';
+	mr <= '1' when o_q = a else i_mrb;
+	ping <= '1' when o_q = b else '0';
 
 	inst1 : FF_D_POSITIVE_EDGE
 	PORT MAP (

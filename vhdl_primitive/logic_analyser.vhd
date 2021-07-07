@@ -19,6 +19,8 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use WORK.p_globals.ALL;
+use WORK.p_lcd_display.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -31,18 +33,24 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity logic_analyser is
 Generic (
-G_BOARD_CLOCK : integer := 50_000_000;
+G_BOARD_CLOCK : integer := G_BOARD_CLOCK;
 G_BAUD_RATE : integer := 9_600;
 address_size : integer := 4;
-data_size : integer := 8
+data_size : integer := 8;
+G_RC_N : integer := G_DEBOUNCE_MS_BITS;
+G_RC_MAX : integer := G_DEBOUNCE_MS_COUNT
 );
 Port (
 i_clock : in std_logic;
-i_reset : in std_logic; -- XXX use for catch data
+i_reset : in std_logic;
 i_catch : in std_logic;
 i_data : in std_logic_vector(data_size-1 downto 0);
 o_rs232_tx : out std_logic;
-o_sended : out std_logic
+o_sended : out std_logic;
+o_seg : out std_logic_vector(G_LCDSegment-1 downto 0);
+--o_dp : out std_logic;
+o_an : out std_logic_vector(G_LCDAnode-1 downto 0);
+o_data : out std_logic_vector(G_Led-1 downto 0)
 );
 end logic_analyser;
 
@@ -66,12 +74,12 @@ address_size : integer := 8;
 data_size : integer := 8
 );
 Port (
-i_ceb : in  STD_LOGIC;
-i_web : in  STD_LOGIC;
-i_oeb : in  STD_LOGIC;
-i_address : in  STD_LOGIC_VECTOR (address_size-1 downto 0);
-i_data : in  STD_LOGIC_VECTOR (data_size-1 downto 0);
-o_data : out  STD_LOGIC_VECTOR (data_size-1 downto 0)
+i_ceb : in  STD_LOGIC := '0';
+i_web : in  STD_LOGIC := '0';
+i_oeb : in  STD_LOGIC := '0';
+i_address : in  STD_LOGIC_VECTOR (address_size-1 downto 0) := (others => '0');
+i_data : in  STD_LOGIC_VECTOR (data_size-1 downto 0) := (others => '0');
+o_data : out  STD_LOGIC_VECTOR (data_size-1 downto 0) := (others => '0')
 );
 end component sram_62256;
 
@@ -137,26 +145,55 @@ component FF_D_POSITIVE_EDGE is
 port (C,D:in STD_LOGIC;Q1,Q2:inout STD_LOGIC);
 end component FF_D_POSITIVE_EDGE;
 
+component new_debounce is
+generic ( -- ripplecounter N bits (RC_N=N+1,RC_MAX=2**N)
+G_RC_N : integer := 5;
+G_RC_MAX : integer := 16
+);
+port (
+i_clock : in std_logic;
+i_reset : in std_logic;
+i_b : in std_logic;
+o_db : out std_logic
+);
+end component new_debounce;
+
+component lcd_display is
+Generic (
+G_BOARD_CLOCK : integer := 1;
+LCDClockDivider : integer := 1
+);
+Port (
+i_clock : in std_logic;
+i_LCDChar : LCDHex;
+o_anode : out std_logic_vector(G_LCDAnode-1 downto 0);
+o_segment : out std_logic_vector(G_LCDSegment-1 downto 0)
+);
+end component lcd_display;
+
 signal latch_le,latch_oeb : std_logic;
 signal latch_d,latch_q : std_logic_vector(data_size-1 downto 0);
-signal sram_ceb,sram_web,sram_oeb : std_logic;
-signal sram_address : std_logic_vector(address_size-1 downto 0);
-signal sram_di,sram_do : std_logic_vector(data_size-1 downto 0);
+signal sram_ceb,sram_web,sram_oeb : std_logic := '0';
+signal sram_address : std_logic_vector(address_size-1 downto 0) := (others => '0');
+signal sram_di,sram_do : std_logic_vector(data_size-1 downto 0) := (others => '0');
 signal rc_clock,rc_cpb,rc_mrb,rc_ud,rc_ping : std_logic;
-signal rc_oq : std_logic_vector(address_size-1 downto 0);
+signal rc_oq : std_logic_vector(address_size downto 0);
 signal rs232_clock,rs232_reset,rs232_etx,rs232_tx,rs232_rx,rs232_busy,rs232_ready,rs232_byte_sended : std_logic;
 signal rs232_b2s : std_logic_vector(8 downto 0);
 signal wr,rd,a,b : std_logic;
 signal catch,catch_not,catch_not1,catch_not2,catch_tick : std_logic;
 signal clock_mux1,clock_mux2,clock_mux3 : std_logic;
+signal LCDChar : LCDHex;
+signal reset_db : std_logic;
 
 constant WAIT_AND : time := 3 ps;
 constant WAIT_NOT : time := 2 ps;
 
 type state_type is (
-idle,start,start_count,stop,check_write,wait0,wait0_increment,
+idle,start,start_count,check_catch,check_write,wait0,wait0_increment,
 read0,
-st_enable_tx,st_rs232_waiting,st_disable_tx
+st_enable_tx,st_rs232_waiting,st_disable_tx,
+stop
 );
 signal state_c,state_n : state_type;
 
@@ -171,35 +208,37 @@ begin
 	end if;
 end process p0;
 
-latch_le <= '1' when (catch = '1' and wr = '1') else '0';
+latch_le <= '1' when rc_clock = '0' else '0';
 --latch_oeb <= '0' when (i_clock = '0' and wr = '1') else '0';
 latch_oeb <= '1' when rd = '1' else '0'; -- XXX todo
-sram_web <= '0' when latch_le = '1' else '1';
+sram_web <= '0' when latch_le = '0' else '1';
 sram_oeb <= '0' when rd = '1' and state_c = read0 else '1';
 rc_clock <= not i_clock when (wr = '1' and catch = '1') or (rd = '1' and rs232_etx = '1' and rs232_byte_sended = '1') else '0';
 sram_ceb <= '0' when rc_clock = '1' or rs232_etx = '0' else '1';
 --rc_mrb <= '1' when i_reset = '1' else '0';
 
-g_catch_and : GATE_AND Generic map (WAIT_AND) Port map (A=>i_catch,B=>catch_not,C=>catch_tick);
-g_catch_not1 : GATE_NOT Generic map (WAIT_NOT) Port map (A=>i_catch,B=>catch_not1);
-g_catch_not2 : GATE_NOT Generic map (WAIT_NOT) Port map (A=>catch_not1,B=>catch_not2);
-g_catch_not3 : GATE_NOT Generic map (WAIT_NOT) Port map (A=>catch_not2,B=>catch_not);
+db_entity : new_debounce
+generic map (
+G_RC_N => G_RC_N,
+G_RC_MAX => G_RC_MAX
+)
+port map (
+i_clock => i_clock,
+i_reset => reset_db,
+i_b => i_catch,
+o_db => catch
+);
 
-p2 : process (i_clock,clock_mux1,catch_tick) is
-begin
-	if (i_clock='0' and catch_tick='1') then
-		clock_mux1 <= '1';
-	elsif (i_clock = '1') then
-		clock_mux1 <= '0';
-	end if;
-end process p2;
-
-ff_d_catch : FF_D_POSITIVE_EDGE
-PORT MAP (
-	D => clock_mux1,
-	C => i_clock,
-	Q1 => catch,
-	Q2 => open
+lcddisplay_entity : lcd_display
+Generic Map (
+	G_BOARD_CLOCK => G_BOARD_CLOCK,
+	LCDClockDivider => G_LCDClockDivider
+)
+Port Map (
+	i_clock => i_clock,
+	i_LCDChar => LCDChar,
+	o_anode => o_an,
+	o_segment => o_seg
 );
 
 p1 : process (state_c,rs232_etx,rs232_byte_sended,sram_address) is
@@ -216,58 +255,90 @@ begin
 			rc_mrb <= '1';
 			rs232_etx <= '0';
 			o_sended <= '0';
+			LCDChar <= (x"f",x"0",x"1",x"f");
+			reset_db <= '1';
+			o_data <= "00000001";
 		when start_count =>
 			state_n <= start;
 			rc_mrb <= '0';
+			reset_db <= '0';
+			o_data <= "00000010";
 		when start =>
-			state_n <= check_write;
+			state_n <= check_catch;
 			wr <= '1';
+			LCDChar <= (x"1",x"0",x"0",x"0");
+			reset_db <= '1';
+			o_data <= "00000100";
+		when check_catch =>
+			if (catch = '1') then
+				state_n <= check_write;
+				reset_db <= '1';
+			else
+				state_n <= check_catch;
+				reset_db <= '0';
+			end if;
+			o_data <= "00001000";
+			LCDChar <= (x"2",x"2",x"2",x"2");
 		when check_write =>
-			if (to_integer(unsigned(sram_address)) = 2**address_size/2-1) then
+			if (to_integer(unsigned(sram_address)) = 2**address_size-1) then
 				state_n <= wait0;
 				wr <= '0';
-				rd <= '1';
+				LCDChar <= (x"2",x"0",x"0",x"0");
 			else
 				state_n <= start;
+				LCDChar <= (x"3",x"0",x"0",x"0");
 			end if;
+			o_data <= "00010000";
 		when wait0 =>
 			if (w0 = C_W0-1) then
 				state_n <= read0;
 				rc_mrb <= '0';
+				LCDChar <= (x"4",x"0",x"0",x"0");
 			else
 				state_n <= wait0_increment;
 				rc_mrb <= '1';
+				LCDChar <= (x"5",x"0",x"0",x"0");
 			end if;
 		when wait0_increment =>
 			state_n <= wait0;
 			w0 := w0 + 1;
 		when read0 =>
-			if (to_integer(unsigned(sram_address)) = 2**address_size/2-1) then
+			rd <= '1';
+			if (to_integer(unsigned(sram_address)) = 2**address_size-1) then
+				LCDChar <= (x"6",x"0",x"0",x"0");
 				state_n <= stop;
 			else
+				LCDChar <= (x"7",x"0",x"0",x"0");
 				state_n <= st_enable_tx;
 			end if;
+			o_data <= "00100000";
 		when st_enable_tx =>
 			state_n <= st_rs232_waiting;
 			rs232_etx <= '1';
 		when st_rs232_waiting =>
 			if (rs232_byte_sended = '1') then
 				state_n <= st_disable_tx;
+				LCDChar <= (x"8",x"0",x"0",x"0");
 			else
 				state_n <= st_rs232_waiting;
+				LCDChar <= (x"9",x"0",x"0",x"0");
 			end if;
+			o_data <= "01000000";
 		when st_disable_tx =>
 			state_n <= read0;
 			rs232_etx <= '0';
+			LCDChar <= (x"A",x"0",x"0",x"0");
 		when stop =>
 			state_n <= stop;
 			o_sended <= '1';
+			LCDChar <= (x"B",x"0",x"0",x"0");
+			o_data <= "10000000";
 	end case;
 end process p1;
 
 latch_d <= i_data;
 sram_di <= latch_q;
-sram_address <= rc_oq;
+sram_address <= rc_oq(address_size-1 downto 0);
 rs232_b2s(7 downto 0) <= sram_do;
 o_rs232_tx <= rs232_tx;
 
@@ -292,7 +363,7 @@ o_data=>sram_do
 );
 
 rc_entity : ripple_counter
-Generic map (N=>address_size,MAX=>2**address_size-1)
+Generic map (N=>address_size+1,MAX=>2**address_size)
 Port map (
 i_clock=>rc_clock,
 i_cpb=>rc_cpb,

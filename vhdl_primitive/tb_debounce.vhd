@@ -27,6 +27,7 @@
 --------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
+USE work.p_globals.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -38,21 +39,30 @@ END tb_debounce;
 ARCHITECTURE behavior OF tb_debounce IS
 
 	-- Constant
-	constant SIZE : integer := 8;
-	constant G_BOARD_CLOCK : integer := 50_000_000;
+	constant DEBOUNCE_SIZE : integer := 8;
+	constant DEBOUNCE_RC_N : integer := 6;
+	constant DEBOUNCE_RC_MAX : integer := 32;
+	constant W0_COUNT : integer := 80;
+	constant G_BOARD_CLOCK : integer := 29_952_000;
+	constant LFSR_SIZE : integer := 32;
+	constant LFSR_SIZE_BITS : integer := 32;
+	constant GRAYCODE_SIZE : integer := 8;
+	constant GRAYCODE_SIZE_BITS : integer := 8;
 
 	-- Component Declaration for the Unit Under Test (UUT)
-	COMPONENT debouncer1 IS
-	GENERIC (
-		fclk : integer := 1;
-		twindow : integer := 10
+
+	component new_debounce is
+	generic ( -- ripplecounter N bits (RC_N=N+1,RC_MAX=2**N)
+	G_RC_N : integer := 5;
+	G_RC_MAX : integer := 16
 	);
-	PORT (
-		x : in std_logic;
-		clk : in std_logic;
-		y : inout std_logic
+	port (
+	i_clock : in std_logic;
+	i_reset : in std_logic;
+	i_b : in std_logic;
+	o_db : out std_logic
 	);
-	END COMPONENT debouncer1;
+	end component new_debounce;
 
 	COMPONENT lfsr1 IS
 	GENERIC (G_SIZE : integer);
@@ -79,39 +89,43 @@ ARCHITECTURE behavior OF tb_debounce IS
 	signal i_clk : std_logic := '0';
 	signal i_btn : std_logic := '0';
 	signal reset : std_logic := '0';
+	signal reset_db : std_logic := '0';
 	signal enable_gc : std_logic := '0';
 	signal enable_lfsr : std_logic := '0';
-	signal i_int : std_logic_vector (SIZE-1 downto 0) := (others => '0');
+	signal i_int : std_logic_vector (GRAYCODE_SIZE_BITS-1 downto 0) := (others => '0');
 
 	--Outputs
 	signal o_db_btn : std_logic;
-	signal o_gc : std_logic_vector (SIZE-1 downto 0);
-	signal o_lfsr : std_logic_vector (SIZE-1 downto 0);
+	signal o_gc : std_logic_vector (GRAYCODE_SIZE_BITS-1 downto 0);
+	signal o_lfsr : std_logic_vector (LFSR_SIZE_BITS-1 downto 0);
 
 	-- Clock period definitions
 	constant i_clk_period : time := (1_000_000_000/G_BOARD_CLOCK) * 1 ns; -- XXX 50Mhz
+--	constant i_clk_period : time := integer'value(time'image(i_clk_period_original)) * 1000*1 ns;
 
 	-- States
-	type state_type is (idle,start,lfsr_enable,lfsr_disable,lfsr_send,lfsr_increment,lfsr_wait0,gc_send,gc_increment,gc_wait0,stop);
+	type state_type is (idle,start,
+	lfsr_enable,lfsr_disable,lfsr_send,lfsr_increment,lfsr_wait0,
+	gc_send,gc_increment,gc_wait0,
+	stop);
 	signal state : state_type := idle;
 	signal simulation_finish : std_logic := '0';
 
 BEGIN
 
 	-- Instantiate the Unit Under Test (UUT)
-	uut : debouncer1
-	GENERIC MAP (
-		fclk => 1,
-		twindow => SIZE
-	)
-	PORT MAP (
-		x => i_btn,
-		clk => i_clk,
-		y => o_db_btn
+
+	uut : new_debounce
+	generic map (G_RC_N => DEBOUNCE_RC_N, G_RC_MAX => DEBOUNCE_RC_MAX) -- XXX 50 ms
+	port map (
+	i_clock => i_clk,
+	i_reset => reset_db,
+	i_b => i_btn,
+	o_db => o_db_btn
 	);
 
 	uut_lfsr: lfsr1
-	GENERIC MAP (G_SIZE => SIZE)
+	GENERIC MAP (G_SIZE => LFSR_SIZE_BITS)
 	PORT MAP (
 		reset => reset,
 		clk => i_clk,
@@ -120,7 +134,7 @@ BEGIN
 	);
 
 	uut_graycode: graycode
-	GENERIC MAP (G_SIZE => SIZE)
+	GENERIC MAP (G_SIZE => GRAYCODE_SIZE_BITS)
 	PORT MAP (
 		reset => reset,
 		clk => i_clk,
@@ -144,30 +158,35 @@ BEGIN
 	-- Stimulus process
 	stim_proc: process (i_clk) is
 
-		constant WAIT0_COUNT : integer := SIZE;
+		constant WAIT0_COUNT : integer := W0_COUNT;
 		variable wait0 : integer range 0 to WAIT0_COUNT-1 := 0;
 -- LFSR
-		variable index : integer range 0 to SIZE-1 := 0;
+		variable index : integer range 0 to LFSR_SIZE-1 := 0;
 		constant send_the_same : integer := 1;
 		variable send_the_same_index : integer range 0 to send_the_same-1 := 0;
 -- GRAYCODE
-		constant o_gc_max : integer := SIZE;
+		constant o_gc_max : integer := GRAYCODE_SIZE;
 		variable o_gc_index : integer range 0 to o_gc_max-1 := 0;
-		constant gc_max : std_logic_vector(SIZE-1 downto 0) := (others => '1');
-		variable gc_index : std_logic_vector(SIZE-1 downto 0) := (others => '0');
+		constant gc_max : std_logic_vector(GRAYCODE_SIZE_BITS-1 downto 0) := (others => '1');
+		variable gc_index : std_logic_vector(GRAYCODE_SIZE_BITS-1 downto 0) := (others => '0');
 
 	begin
+
 		-- insert stimulus here
 -- GRAYCODE
 		if (rising_edge(i_clk)) then
 			case (state) is
 				when idle =>
+					REPORT "CLOCK PERIOD " & time'image(i_clk_period) SEVERITY NOTE;
 					state <= start;
-					reset <= '1', '0' after 10*i_clk_period;
+					reset <= '1', '0' after 100 ns;
+					reset_db <= '1';
 				when start =>
 					state <= gc_send;
 					REPORT "GRAYCODE" SEVERITY NOTE;
+					reset_db <= '0';
 				when gc_send => -- start from gc mode
+					reset_db <= '0';
 					if (o_gc_index = o_gc_max-1) then
 						state <= gc_increment;
 						o_gc_index := 0;
@@ -182,10 +201,10 @@ BEGIN
 					if (to_integer(unsigned(gc_index)) = to_integer(unsigned(gc_max))-1) then
 						state <= lfsr_enable; -- jump to lfsr mode
 						REPORT "LFSR" SEVERITY NOTE;
-						gc_index := std_logic_vector(to_unsigned(0,SIZE));
+						gc_index := std_logic_vector(to_unsigned(0,GRAYCODE_SIZE_BITS));
 					else
 						state <= gc_wait0;
-						gc_index := std_logic_vector(to_unsigned(to_integer(unsigned(gc_index) + 1),SIZE));
+						gc_index := std_logic_vector(to_unsigned(to_integer(unsigned(gc_index) + 1),GRAYCODE_SIZE_BITS));
 						i_int <= gc_index;
 					end if;
 				when gc_wait0 =>
@@ -196,15 +215,17 @@ BEGIN
 					else
 						state <= gc_send;
 						wait0 := 0;
+						reset_db <= '1';
 					end if;
 				when lfsr_enable =>
 					state <= lfsr_disable;
 					enable_lfsr <= '1';
+					reset_db <= '0';
 				when lfsr_disable =>
 					state <= lfsr_send;
 					enable_lfsr <= '0';
 				when lfsr_send =>
-					if (index = SIZE-1) then
+					if (index = LFSR_SIZE-1) then
 						state <= lfsr_increment;
 						index := 0;
 					else
@@ -213,7 +234,7 @@ BEGIN
 						index := index + 1;
 					end if;
 				when lfsr_increment =>
-					if (o_lfsr = std_logic_vector(to_unsigned(0,SIZE))) then
+					if (o_lfsr = std_logic_vector(to_unsigned(0,LFSR_SIZE_BITS))) then
 						state <= stop;
 					else
 						state <= lfsr_wait0;
@@ -222,6 +243,7 @@ BEGIN
 					if (wait0 = WAIT0_COUNT-1) then
 						state <= lfsr_enable;
 						wait0 := 0;
+						reset_db <= '1';
 					else
 						state <= lfsr_wait0;
 						wait0 := wait0 + 1;
