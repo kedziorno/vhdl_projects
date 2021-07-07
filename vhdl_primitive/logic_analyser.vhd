@@ -241,12 +241,14 @@ Port Map (
 	o_segment => o_seg
 );
 
-p1 : process (state_c,rs232_etx,rs232_byte_sended,sram_address) is
+p1 : process (state_c,rs232_etx,rs232_byte_sended,sram_address,catch) is
 constant C_W0 : integer := 10;
 variable w0 : integer range 0 to C_W0-1 := 0;
 begin
+	reset_db <= '0';
 	case (state_c) is
 		when idle =>
+			reset_db <= '1';
 			state_n <= start_count;
 			rd <= '0';
 			wr <= '0';
@@ -256,30 +258,27 @@ begin
 			rs232_etx <= '0';
 			o_sended <= '0';
 			LCDChar <= (x"f",x"0",x"1",x"f");
-			reset_db <= '1';
 			o_data <= "00000001";
 		when start_count =>
 			state_n <= start;
 			rc_mrb <= '0';
-			reset_db <= '0';
 			o_data <= "00000010";
 		when start =>
+			reset_db <= '1';
 			state_n <= check_catch;
 			wr <= '1';
 			LCDChar <= (x"1",x"0",x"0",x"0");
-			reset_db <= '1';
 			o_data <= "00000100";
 		when check_catch =>
 			if (catch = '1') then
 				state_n <= check_write;
-				reset_db <= '1';
 			else
 				state_n <= check_catch;
-				reset_db <= '0';
 			end if;
 			o_data <= "00001000";
 			LCDChar <= (x"2",x"2",x"2",x"2");
 		when check_write =>
+			reset_db <= '1';
 			if (to_integer(unsigned(sram_address)) = 2**address_size-1) then
 				state_n <= wait0;
 				wr <= '0';
