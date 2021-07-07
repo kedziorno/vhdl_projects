@@ -95,7 +95,7 @@ G_BOARD_CLOCK => G_BOARD_CLOCK,
 G_BAUD_RATE => G_BAUD_RATE,
 address_size => address_size,
 data_size => data_size,
-G_RC_N => 21,
+G_RC_N => G_DEBOUNCE_MS_BITS,
 G_RC_MAX => G_DEBOUNCE_MS_COUNT
 )
 PORT MAP (
@@ -125,6 +125,8 @@ write_proc : process
 begin
 
 report "CLOCK PERIOD " & time'image(i_clock_period) severity warning;
+report "DB TICKS " & integer'image(G_DEBOUNCE_MS_COUNT) severity warning;
+report "DB BITS " & integer'image(G_DEBOUNCE_MS_BITS) severity warning;
 
 i_reset <= '1';
 wait for 100 ns;
@@ -140,7 +142,8 @@ i_data <= std_logic_vector(to_unsigned(i,data_size));
 
 wait for 3*i_clock_period;
 i_catch <= '1';
-wait for 50.5 ms; -- wait for debounce
+--report "catch wait " & integer'image(G_BOARD_CLOCK/G_DEBOUNCE_MS_COUNT) severity warning;
+wait for 50 ms; -- wait for debounce
 i_catch <= '0';
 wait for 25*i_clock_period;
 

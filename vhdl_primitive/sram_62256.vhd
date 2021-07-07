@@ -35,12 +35,12 @@ address_size : integer := 8;
 data_size : integer := 8
 );
 Port (
-i_ceb : in  STD_LOGIC;
-i_web : in  STD_LOGIC;
-i_oeb : in  STD_LOGIC;
-i_address : in  STD_LOGIC_VECTOR (address_size-1 downto 0);
-i_data : in  STD_LOGIC_VECTOR (data_size-1 downto 0);
-o_data : out  STD_LOGIC_VECTOR (data_size-1 downto 0)
+i_ceb : in  STD_LOGIC := '0';
+i_web : in  STD_LOGIC := '0';
+i_oeb : in  STD_LOGIC := '0';
+i_address : in  STD_LOGIC_VECTOR (address_size-1 downto 0) := (others => '0');
+i_data : in  STD_LOGIC_VECTOR (data_size-1 downto 0) := (others => '0');
+o_data : out  STD_LOGIC_VECTOR (data_size-1 downto 0) := (others => '0')
 );
 end sram_62256;
 
@@ -66,13 +66,13 @@ architecture Behavioral of sram_62256 is
 		N : integer := 4
 	);
 	Port (
-		i_ce : in std_logic;
-		i_we : in std_logic;
-		i_oe : in std_logic;
-		i_address_row : in std_logic_vector(N-1 downto 0);
-		i_address_col : in std_logic_vector(N-1 downto 0);
-		i_bit : in std_logic;
-		o_bit : out std_logic
+		i_ce : in std_logic := '0';
+		i_we : in std_logic := '0';
+		i_oe : in std_logic := '0';
+		i_address_row : in std_logic_vector(N-1 downto 0) := (others => '0');
+		i_address_col : in std_logic_vector(N-1 downto 0) := (others => '0');
+		i_bit : in std_logic := '0';
+		o_bit : out std_logic := '0'
 	);
 	end component sram_cell;
 
@@ -82,11 +82,11 @@ architecture Behavioral of sram_62256 is
 	constant memory_cols : integer := 2**memory_bits_cols;
 	constant memory_cols_bits : integer := memory_cols*data_size;
 
-	signal ceb,web,oeb,tristate_input,tristate_output : std_logic;
-	signal data_in,data_out : std_logic_vector(data_size-1 downto 0);
+	signal ceb,web,oeb,tristate_input,tristate_output : std_logic := '0';
+	signal data_in,data_out : std_logic_vector(data_size-1 downto 0) := (others => '0');
 
-	signal decoder_row_input : std_logic_vector(memory_bits_rows-1 downto 0);
-	signal decoder_col_input : std_logic_vector(memory_bits_cols-1 downto 0);
+	signal decoder_row_input : std_logic_vector(memory_bits_rows-1 downto 0) := (others => '0');
+	signal decoder_col_input : std_logic_vector(memory_bits_cols-1 downto 0) := (others => '0');
 
 --	signal decoder_row_output : std_logic_vector(memory_rows-1 downto 0);
 --	signal decoder_col_output : std_logic_vector(memory_cols-1 downto 0);
@@ -119,9 +119,9 @@ architecture Behavioral of sram_62256 is
 		return r;
 	end function one_position;
 
-	signal bufi1,bufi2 : std_logic;
-	signal bufo1,bufo2 : std_logic;
-	signal a3,b3 : std_logic;
+	signal bufi1,bufi2 : std_logic := '0';
+	signal bufo1,bufo2 : std_logic := '0';
+	signal a3,b3 : std_logic := '0';
 
 begin
 

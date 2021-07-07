@@ -34,20 +34,20 @@ Generic (
 	N : integer := 4
 );
 Port (
-	i_we : in std_logic;
-	i_oe : in std_logic;
-	i_address_col : in std_logic_vector(N-1 downto 0);
-	i_bit : in std_logic;
-	o_bit : out std_logic
+	i_we : in std_logic := '0';
+	i_oe : in std_logic := '0';
+	i_address_col : in std_logic_vector(N-1 downto 0) := (others => '0');
+	i_bit : in std_logic := '0';
+	o_bit : out std_logic := '0'
 );
 end sram_row;
 
 architecture Behavioral of sram_row is
-	signal sram_column : std_logic_vector(2**N-1 downto 0);
-	signal address_col : std_logic_vector(N-1 downto 0);
+	signal sram_column : std_logic_vector(2**N-1 downto 0) := (others => '0');
+	signal address_col : std_logic_vector(N-1 downto 0) := (others => '0');
 
 --	signal bufi,bufo : std_logic;
-	signal we,oe,ibit : std_logic;
+	signal we,oe,ibit : std_logic := '0';
 --	attribute keep : string;
 --	attribute keep of sram_column : signal is "true";
 

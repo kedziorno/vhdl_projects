@@ -37,7 +37,7 @@ G_BOARD_CLOCK : integer := G_BOARD_CLOCK;
 G_BAUD_RATE : integer := 9_600;
 address_size : integer := 4;
 data_size : integer := 8;
-G_RC_N : integer := 21;
+G_RC_N : integer := G_DEBOUNCE_MS_BITS;
 G_RC_MAX : integer := G_DEBOUNCE_MS_COUNT
 );
 Port (
@@ -74,12 +74,12 @@ address_size : integer := 8;
 data_size : integer := 8
 );
 Port (
-i_ceb : in  STD_LOGIC;
-i_web : in  STD_LOGIC;
-i_oeb : in  STD_LOGIC;
-i_address : in  STD_LOGIC_VECTOR (address_size-1 downto 0);
-i_data : in  STD_LOGIC_VECTOR (data_size-1 downto 0);
-o_data : out  STD_LOGIC_VECTOR (data_size-1 downto 0)
+i_ceb : in  STD_LOGIC := '0';
+i_web : in  STD_LOGIC := '0';
+i_oeb : in  STD_LOGIC := '0';
+i_address : in  STD_LOGIC_VECTOR (address_size-1 downto 0) := (others => '0');
+i_data : in  STD_LOGIC_VECTOR (data_size-1 downto 0) := (others => '0');
+o_data : out  STD_LOGIC_VECTOR (data_size-1 downto 0) := (others => '0')
 );
 end component sram_62256;
 
@@ -173,9 +173,9 @@ end component lcd_display;
 
 signal latch_le,latch_oeb : std_logic;
 signal latch_d,latch_q : std_logic_vector(data_size-1 downto 0);
-signal sram_ceb,sram_web,sram_oeb : std_logic;
-signal sram_address : std_logic_vector(address_size-1 downto 0);
-signal sram_di,sram_do : std_logic_vector(data_size-1 downto 0);
+signal sram_ceb,sram_web,sram_oeb : std_logic := '0';
+signal sram_address : std_logic_vector(address_size-1 downto 0) := (others => '0');
+signal sram_di,sram_do : std_logic_vector(data_size-1 downto 0) := (others => '0');
 signal rc_clock,rc_cpb,rc_mrb,rc_ud,rc_ping : std_logic;
 signal rc_oq : std_logic_vector(address_size downto 0);
 signal rs232_clock,rs232_reset,rs232_etx,rs232_tx,rs232_rx,rs232_busy,rs232_ready,rs232_byte_sended : std_logic;
