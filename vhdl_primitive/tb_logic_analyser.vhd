@@ -122,6 +122,7 @@ end process;
 
 -- Stimulus process
 write_proc : process
+constant W : time := G_DEBOUNCE_MS/G_DEBOUNCE_DIV * 1 ms;
 begin
 
 report "CLOCK PERIOD " & time'image(i_clock_period) severity warning;
@@ -143,7 +144,8 @@ i_data <= std_logic_vector(to_unsigned(i,data_size));
 wait for 3*i_clock_period;
 i_catch <= '1';
 --report "catch wait " & integer'image(G_BOARD_CLOCK/G_DEBOUNCE_MS_COUNT) severity warning;
-wait for 50 ms; -- wait for debounce
+--wait for W; -- wait for debounce
+wait for G_DEBOUNCE_MS * 1 ms; -- wait for debounce
 i_catch <= '0';
 wait for 25*i_clock_period;
 

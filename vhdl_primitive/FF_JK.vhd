@@ -21,8 +21,8 @@ architecture structural of FF_JK is
 	constant W_K : time := 0 ns;
 
 	signal sa,sb,sc,sd : std_logic := '0';
-	signal se,sf,sg : std_logic := '0';
-	signal sh,si,sj : std_logic := '0';
+	signal se,sg : std_logic := '0';
+	signal sh,sj : std_logic := '0';
 	signal sk,sn : std_logic := '0';
 	signal so,sp : std_logic := '0';
 	signal sr,ss : std_logic := '0';

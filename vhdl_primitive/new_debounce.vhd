@@ -92,12 +92,12 @@ constant WAIT_NOT : time := 1 ps;
 
 constant RC_N : integer := G_RC_N;
 constant RC_MAX : integer := G_RC_MAX;
-signal rc_cpb,rc_mrb,rc_ud,rc_ping : std_logic := '0';
-signal rc_q : std_logic_vector(RC_N-1 downto 0) := (others => '0');
-signal ffdpe_d,ffdpe_q1,ffdpe_q2 : std_logic := '0';
-signal ffjk_reset,ffjk_j,ffjk_k,ffjk_q1,ffjk_q2 : std_logic := '0';
+signal rc_cpb,rc_mrb,rc_ud,rc_ping : std_logic;
+signal rc_q : std_logic_vector(RC_N-1 downto 0);
+signal ffdpe_d,ffdpe_q1,ffdpe_q2 : std_logic;
+signal ffjk_j,ffjk_k,ffjk_q1,ffjk_q2 : std_logic;
 
-signal a,not1 : std_logic;
+signal not1 : std_logic;
 signal not2 : std_logic;
 
 begin
@@ -109,6 +109,7 @@ ffjk_k <= not1;
 rc_ud <= '1';
 rc_cpb <= '1';
 o_db <= ffjk_q1;
+rc_ping <= '0';
 
 gnot1 : GATE_NOT
 GENERIC MAP (WAIT_NOT)

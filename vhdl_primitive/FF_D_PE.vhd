@@ -3,8 +3,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity FF_D_POSITIVE_EDGE is
 port (
-S : in std_logic := '0';
-R : in std_logic := '0';
+S : in std_logic;
+R : in std_logic;
 C : in std_logic;
 D : in STD_LOGIC;
 Q1,Q2:inout STD_LOGIC);
