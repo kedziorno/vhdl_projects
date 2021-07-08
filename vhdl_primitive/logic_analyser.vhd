@@ -189,7 +189,8 @@ constant WAIT_AND : time := 3 ps;
 constant WAIT_NOT : time := 2 ps;
 
 type state_type is (
-idle,start,start_count,check_catch,check_write,wait0,wait1,wait_catch,
+idle,start,start_count,check_catch,check_write,wait0,wait1,
+--wait_catch,
 read0,
 st_enable_tx,st_rs232_waiting,st_disable_tx,
 stop
@@ -254,6 +255,7 @@ begin
 --	LCDChar <= (x"0",x"0",x"0",x"0");
 	case (state_c) is
 		when idle =>
+			rs232_etx <= '0';
 			reset_db <= '1';
 			state_n <= start_count;
 			rd <= '0';
@@ -266,16 +268,30 @@ begin
 			LCDChar <= (x"f",x"0",x"1",x"f");
 			o_data <= "00000001";
 		when start_count =>
+			wr <= '0';
+			rd <= '0';
+			o_sended <= '0';
+			rs232_etx <= '0';
 			state_n <= start;
 			rc_mrb <= '0';
+			LCDChar <= (x"0",x"0",x"0",x"0");
 			o_data <= "00000010";
 		when start =>
+			rc_mrb <= '0';
+			rd <= '0';
+			o_sended <= '0';
+			rs232_etx <= '0';
 			reset_db <= '1';
 			state_n <= check_catch;
 			wr <= '1';
 			LCDChar <= (x"1",x"0",x"0",x"0");
 			o_data <= "00000100";
 		when check_catch =>
+			rc_mrb <= '0';
+			wr <= '1';
+			rd <= '0';
+			o_sended <= '0';
+			rs232_etx <= '0';
 			if (catch = '1') then
 				state_n <= check_write;
 			else
@@ -284,6 +300,11 @@ begin
 			o_data <= "00001000";
 			LCDChar <= (x"2",x"2",x"2",x"2");
 		when check_write =>
+			rc_mrb <= '0';
+			wr <= '1';
+			rd <= '0';
+			o_sended <= '0';
+			rs232_etx <= '0';
 			reset_db <= '1';
 			if (to_integer(unsigned(sram_address)) = 2**address_size-1) then
 				state_n <= wait0;
@@ -298,13 +319,29 @@ begin
 --			state_n <= start;
 --			reset_db <= '1';
 		when wait0 =>
+			wr <= '0';
+			rd <= '0';
+			o_sended <= '0';
 			state_n <= wait1;
+			rs232_etx <= '0';
 			rc_mrb <= '1';
+			o_data <= (others => '0');
+			LCDChar <= (x"0",x"0",x"0",x"0");
 		when wait1 =>
+			wr <= '0';
+			rd <= '0';
+			o_sended <= '0';
 			state_n <= read0;
+			rs232_etx <= '0';
 			rc_mrb <= '0';
+			o_data <= (others => '0');
+			LCDChar <= (x"0",x"0",x"0",x"0");
 		when read0 =>
+			rc_mrb <= '0';
+			wr <= '0';
+			o_sended <= '0';
 			rd <= '1';
+			rs232_etx <= '0';
 			if (to_integer(unsigned(sram_address)) = 2**address_size-1) then
 				LCDChar <= (x"6",x"0",x"0",x"0");
 				state_n <= stop;
@@ -314,9 +351,20 @@ begin
 			end if;
 			o_data <= "00100000";
 		when st_enable_tx =>
+			rc_mrb <= '0';
+			wr <= '0';
+			rd <= '1';
+			o_sended <= '0';
 			state_n <= st_rs232_waiting;
 			rs232_etx <= '1';
+			o_data <= (others => '0');
+			LCDChar <= (x"0",x"0",x"0",x"0");
 		when st_rs232_waiting =>
+			rc_mrb <= '0';
+			wr <= '0';
+			rd <= '1';
+			o_sended <= '0';
+			rs232_etx <= '1';
 			if (rs232_byte_sended = '1') then
 				state_n <= st_disable_tx;
 				LCDChar <= (x"8",x"0",x"0",x"0");
@@ -326,23 +374,30 @@ begin
 			end if;
 			o_data <= "01000000";
 		when st_disable_tx =>
+			rc_mrb <= '0';
+			wr <= '0';
+			rd <= '1';
+			o_sended <= '0';
 			state_n <= read0;
 			rs232_etx <= '0';
+			o_data <= (others => '0');
 			LCDChar <= (x"A",x"0",x"0",x"0");
 		when stop =>
+			rc_mrb <= '0';
+			wr <= '0';
+			rd <= '1';
 			state_n <= idle;
 			o_sended <= '1';
+			rs232_etx <= '0';
 			LCDChar <= (x"B",x"0",x"0",x"0");
 			o_data <= "10000000";
-		when others =>
-			null;
 	end case;
 end process p1;
 
 latch_d <= i_data;
 sram_di <= latch_q;
 sram_address <= rc_oq(address_size-1 downto 0);
-rs232_b2s(7 downto 0) <= sram_do;
+rs232_b2s <= sram_do;
 o_rs232_tx <= rs232_tx;
 
 latch_entity : nxp_74hc573
