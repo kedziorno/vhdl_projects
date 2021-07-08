@@ -74,12 +74,12 @@ address_size : integer := 8;
 data_size : integer := 8
 );
 Port (
-i_ceb : in  STD_LOGIC := '0';
-i_web : in  STD_LOGIC := '0';
-i_oeb : in  STD_LOGIC := '0';
-i_address : in  STD_LOGIC_VECTOR (address_size-1 downto 0) := (others => '0');
-i_data : in  STD_LOGIC_VECTOR (data_size-1 downto 0) := (others => '0');
-o_data : out  STD_LOGIC_VECTOR (data_size-1 downto 0) := (others => '0')
+i_ceb : in  STD_LOGIC;
+i_web : in  STD_LOGIC;
+i_oeb : in  STD_LOGIC;
+i_address : in  STD_LOGIC_VECTOR (address_size-1 downto 0);
+i_data : in  STD_LOGIC_VECTOR (data_size-1 downto 0);
+o_data : out  STD_LOGIC_VECTOR (data_size-1 downto 0)
 );
 end component sram_62256;
 
@@ -107,17 +107,17 @@ Port(
 clk : in  STD_LOGIC;
 rst : in  STD_LOGIC;
 enable_tx : in  STD_LOGIC;
-enable_rx : in  STD_LOGIC;
-byte_to_send : in  STD_LOGIC_VECTOR (8 downto 0);
-byte_received : out  STD_LOGIC_VECTOR (7 downto 0);
-parity_tx : out  STD_LOGIC;
-parity_rx : out  STD_LOGIC;
+--enable_rx : in  STD_LOGIC;
+byte_to_send : in  STD_LOGIC_VECTOR (7 downto 0);
+--byte_received : out  STD_LOGIC_VECTOR (7 downto 0);
+--parity_tx : out  STD_LOGIC;
+--parity_rx : out  STD_LOGIC;
 busy : out  STD_LOGIC;
 ready : out  STD_LOGIC;
-is_byte_received : out STD_LOGIC;
+--is_byte_received : out STD_LOGIC;
 is_byte_sended : out STD_LOGIC;
-RsTx : out  STD_LOGIC;
-RsRx : in  STD_LOGIC
+RsTx : out  STD_LOGIC
+--RsRx : in  STD_LOGIC
 );
 end component rs232;
 
@@ -173,16 +173,15 @@ end component lcd_display;
 
 signal latch_le,latch_oeb : std_logic;
 signal latch_d,latch_q : std_logic_vector(data_size-1 downto 0);
-signal sram_ceb,sram_web,sram_oeb : std_logic := '0';
-signal sram_address : std_logic_vector(address_size-1 downto 0) := (others => '0');
-signal sram_di,sram_do : std_logic_vector(data_size-1 downto 0) := (others => '0');
+signal sram_ceb,sram_web,sram_oeb : std_logic;
+signal sram_address : std_logic_vector(address_size-1 downto 0);
+signal sram_di,sram_do : std_logic_vector(data_size-1 downto 0);
 signal rc_clock,rc_cpb,rc_mrb,rc_ud,rc_ping : std_logic;
 signal rc_oq : std_logic_vector(address_size downto 0);
-signal rs232_clock,rs232_reset,rs232_etx,rs232_tx,rs232_rx,rs232_busy,rs232_ready,rs232_byte_sended : std_logic;
-signal rs232_b2s : std_logic_vector(8 downto 0);
+signal rs232_etx,rs232_tx,rs232_byte_sended,rs232_busy,rs232_ready : std_logic;
+signal rs232_b2s : std_logic_vector(7 downto 0);
 signal wr,rd,a,b : std_logic;
-signal catch,catch_not,catch_not1,catch_not2,catch_tick : std_logic;
-signal clock_mux1,clock_mux2,clock_mux3 : std_logic;
+signal catch : std_logic;
 signal LCDChar : LCDHex;
 signal reset_db : std_logic;
 
@@ -190,7 +189,7 @@ constant WAIT_AND : time := 3 ps;
 constant WAIT_NOT : time := 2 ps;
 
 type state_type is (
-idle,start,start_count,check_catch,check_write,wait0,wait0_increment,
+idle,start,start_count,check_catch,check_write,wait0,wait1,wait_catch,
 read0,
 st_enable_tx,st_rs232_waiting,st_disable_tx,
 stop
@@ -216,6 +215,7 @@ sram_oeb <= '0' when rd = '1' and state_c = read0 else '1';
 rc_clock <= not i_clock when (wr = '1' and catch = '1') or (rd = '1' and rs232_etx = '1' and rs232_byte_sended = '1') else '0';
 sram_ceb <= '0' when rc_clock = '1' or rs232_etx = '0' else '1';
 --rc_mrb <= '1' when i_reset = '1' else '0';
+rc_ping <= '0';
 
 db_entity : new_debounce
 generic map (
@@ -242,10 +242,16 @@ Port Map (
 );
 
 p1 : process (state_c,rs232_etx,rs232_byte_sended,sram_address,catch) is
-constant C_W0 : integer := 10;
-variable w0 : integer range 0 to C_W0-1 := 0;
 begin
+--	state_n <= state_c;
 	reset_db <= '0';
+--	o_data <= (others => '0');
+--	o_sended <= '0';
+--	rd <= '1';
+--	wr <= '1';
+--	rc_mrb <= '0';
+--	rs232_etx <= '0';
+--	LCDChar <= (x"0",x"0",x"0",x"0");
 	case (state_c) is
 		when idle =>
 			reset_db <= '1';
@@ -281,26 +287,22 @@ begin
 			reset_db <= '1';
 			if (to_integer(unsigned(sram_address)) = 2**address_size-1) then
 				state_n <= wait0;
-				wr <= '0';
 				LCDChar <= (x"2",x"0",x"0",x"0");
 			else
+--				state_n <= wait_catch;
 				state_n <= start;
 				LCDChar <= (x"3",x"0",x"0",x"0");
 			end if;
 			o_data <= "00010000";
+--		when wait_catch =>
+--			state_n <= start;
+--			reset_db <= '1';
 		when wait0 =>
-			if (w0 = C_W0-1) then
-				state_n <= read0;
-				rc_mrb <= '0';
-				LCDChar <= (x"4",x"0",x"0",x"0");
-			else
-				state_n <= wait0_increment;
-				rc_mrb <= '1';
-				LCDChar <= (x"5",x"0",x"0",x"0");
-			end if;
-		when wait0_increment =>
-			state_n <= wait0;
-			w0 := w0 + 1;
+			state_n <= wait1;
+			rc_mrb <= '1';
+		when wait1 =>
+			state_n <= read0;
+			rc_mrb <= '0';
 		when read0 =>
 			rd <= '1';
 			if (to_integer(unsigned(sram_address)) = 2**address_size-1) then
@@ -328,10 +330,12 @@ begin
 			rs232_etx <= '0';
 			LCDChar <= (x"A",x"0",x"0",x"0");
 		when stop =>
-			state_n <= stop;
+			state_n <= idle;
 			o_sended <= '1';
 			LCDChar <= (x"B",x"0",x"0",x"0");
 			o_data <= "10000000";
+		when others =>
+			null;
 	end case;
 end process p1;
 
@@ -378,17 +382,17 @@ Port map (
 clk=>i_clock,
 rst=>i_reset,
 enable_tx=>rs232_etx,
-enable_rx=>'0',
+--enable_rx=>'0',
 byte_to_send=>rs232_b2s,
-byte_received=>open,
-parity_tx=>open,
-parity_rx=>open,
+--byte_received=>open,
+--parity_tx=>open,
+--parity_rx=>open,
 busy=>rs232_busy,
 ready=>rs232_ready,
-is_byte_received=>open,
+----is_byte_received=>open,
 is_byte_sended=>rs232_byte_sended,
-RsTx=>rs232_tx,
-RsRx=>rs232_rx
+RsTx=>rs232_tx
+--RsRx=>rs232_rx
 );
 
 end Behavioral;

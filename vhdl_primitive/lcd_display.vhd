@@ -88,10 +88,10 @@ begin
 				when others =>
 					o_anode(G_LCDAnode-1 downto 0) <= "1111";
 			end case;
-			if (count < G_LCDAnode-1) then
-				count := count + 1;
-			else
+			if (count = G_LCDAnode-1) then
 				count := 0;
+			else
+				count := count + 1;
 			end if;
 		end if;
 	end process p0;
@@ -119,10 +119,10 @@ begin
 				when 15 => o_segment <= "0001110"; -- f
 				when others => null;
 			end case;
-			if (count < G_LCDAnode-1) then
-				count := count + 1;
-			else
+			if (count = G_LCDAnode-1) then
 				count := 0;
+			else
+				count := count + 1;
 			end if;
 		end if;
 	end process p1;

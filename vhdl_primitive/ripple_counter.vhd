@@ -56,7 +56,7 @@ architecture Behavioral of ripple_counter is
 	end component FF_JK;
 
 	component FF_D_POSITIVE_EDGE is
-	port (C,D:in STD_LOGIC;Q1,Q2:inout STD_LOGIC);
+	port (S,R,C,D:in STD_LOGIC;Q1,Q2:inout STD_LOGIC);
 	end component FF_D_POSITIVE_EDGE;
 
 	component GATE_AND is
@@ -89,12 +89,12 @@ architecture Behavioral of ripple_counter is
 	);
 	end component GATE_NOT;
 
-	signal cp,mr : std_logic := '0';
-	signal q1,q2 : std_logic_vector(N-1 downto 0) := (others => '0');
-	signal ping,ping1 : std_logic := '0';
-	signal ffjk_and_u,ffjk_and_d,ffjk_or : std_logic_vector(N-1 downto 0) := (others => '0'); -- XXX omit last FF JK
-	signal ud,udb : std_logic := '0';
-	signal gated_clock : std_logic := '0';
+	signal cp,mr : std_logic;
+	signal q1,q2 : std_logic_vector(N-1 downto 0);
+	signal ping,ping1,ping2 : std_logic;
+	signal ffjk_and_u,ffjk_and_d,ffjk_or : std_logic_vector(N-1 downto 0); -- XXX omit last FF JK
+	signal ud,udb : std_logic;
+	signal gated_clock : std_logic;
 	signal a : std_logic_vector(N-1 downto 0) := std_logic_vector(to_unsigned(MAX,N));
 	signal b : std_logic_vector(N-1 downto 0) := std_logic_vector(to_unsigned(0,N));
 
@@ -102,13 +102,14 @@ architecture Behavioral of ripple_counter is
 	constant WAIT_OR : time := 0 ps;
 	constant WAIT_NOT : time := 0 ps;
 
-	attribute keep : string; -- XXX when unconnected signal in g0_and_d
-	attribute keep of ud : signal is "true";
-	attribute keep of udb : signal is "true";
-	attribute keep of ffjk_and_d : signal is "true";
+--	attribute keep : string; -- XXX when unconnected signal in g0_and_d
+--	attribute keep of ud : signal is "true";
+--	attribute keep of udb : signal is "true";
+--	attribute keep of ffjk_and_d : signal is "true";
 
 begin
 
+	ffjk_or(N-1) <= '0';
 	gated_clock <= i_clock and cp;
 	ud <= i_ud;
 	o_q <= q1;
@@ -118,10 +119,12 @@ begin
 
 	inst1 : FF_D_POSITIVE_EDGE
 	PORT MAP (
+	S => not mr,
+	R => not mr,
 	D => ping,
 	C => i_clock,
 	Q1 => ping1,
-	Q2 => open
+	Q2 => ping2
 	);
 	o_ping <= ping1;
 

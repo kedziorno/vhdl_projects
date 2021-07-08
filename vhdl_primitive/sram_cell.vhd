@@ -34,13 +34,13 @@ Generic (
 	N : integer := 4
 );
 Port (
-	i_ce : in std_logic := '0';
-	i_we : in std_logic := '0';
-	i_oe : in std_logic := '0';
-	i_address_row : in std_logic_vector(N-1 downto 0) := (others => '0');
-	i_address_col : in std_logic_vector(N-1 downto 0) := (others => '0');
-	i_bit : in std_logic := '0';
-	o_bit : out std_logic := '0'
+	i_ce : in std_logic;
+	i_we : in std_logic;
+	i_oe : in std_logic;
+	i_address_row : in std_logic_vector(N-1 downto 0);
+	i_address_col : in std_logic_vector(N-1 downto 0);
+	i_bit : in std_logic;
+	o_bit : out std_logic
 );
 end sram_cell;
 
@@ -51,22 +51,22 @@ architecture Behavioral of sram_cell is
 		N : integer
 	);
 	Port (
-		i_we : in std_logic := '0';
-		i_oe : in std_logic := '0';
-		i_address_col : in std_logic_vector(N-1 downto 0) := (others => '0');
-		i_bit : in std_logic := '0';
-		o_bit : out std_logic := '0'
+		i_we : in std_logic;
+		i_oe : in std_logic;
+		i_address_col : in std_logic_vector(N-1 downto 0);
+		i_bit : in std_logic;
+		o_bit : out std_logic
 	);
 	end component sram_row;
 
 --	signal tristate_input,tristate_output : std_logic_vector(15 downto 0);
-	signal ibit,obit : std_logic_vector(2**N-1 downto 0) := (others => '0');
+	signal ibit,obit : std_logic_vector(2**N-1 downto 0);
 
-	signal bufi1,bufi2 : std_logic := '0';
-	signal bufo1,bufo2 : std_logic := '0';
+--	signal bufi1,bufi2 : std_logic := '0';
+--	signal bufo1,bufo2 : std_logic := '0';
 	
-	signal we,oe : std_logic_vector(2**N-1 downto 0) := (others => '0');
-	signal a : integer range 0 to 2**N-1 := 0;
+	signal we,oe : std_logic_vector(2**N-1 downto 0);
+	signal a : integer range 0 to 2**N-1;
 
 begin
 
