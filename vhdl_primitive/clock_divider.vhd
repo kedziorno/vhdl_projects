@@ -37,24 +37,28 @@ Generic (
 );
 Port (
 	i_clock : in STD_LOGIC;
+	i_reset : in STD_LOGIC;
 	o_clock : out STD_LOGIC
 );
 end clock_divider;
 
 architecture Behavioral of clock_divider is
 	constant clock_divider : integer := g_board_clock / g_divider;
+	signal clock_out : std_logic;
 begin
 
-p0 : process (i_clock) is
-	variable clock_out : std_logic;
+p0 : process (i_clock,i_reset,clock_out) is
 	variable counter : integer := 0;
 begin
-	if (rising_edge(i_clock)) then
+	if (i_reset = '1') then
+		clock_out <= '0';
+		counter := 0;
+	elsif (rising_edge(i_clock)) then
 		if (counter = clock_divider-1) then
-			clock_out := '1';
+			clock_out <= '1';
 			counter := 0;
 		else
-			clock_out := '0';
+			clock_out <= '0';
 			counter := counter + 1;
 		end if;
 	end if;

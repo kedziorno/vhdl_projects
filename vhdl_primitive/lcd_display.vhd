@@ -38,6 +38,7 @@ Generic (
 );
 Port (
 	i_clock : in std_logic;
+	i_reset : in std_logic;
 	i_LCDChar : LCDHex;
 	o_anode : out std_logic_vector(G_LCDAnode-1 downto 0);
 	o_segment : out std_logic_vector(G_LCDSegment-1 downto 0)
@@ -53,6 +54,7 @@ architecture Behavioral of lcd_display is
 	);
 	Port(
 		i_clock : in STD_LOGIC;
+		i_reset : in STD_LOGIC;
 		o_clock : out STD_LOGIC
 	);
 	end component clock_divider;
@@ -69,6 +71,7 @@ begin
 	)
 	Port Map (
 		i_clock => i_clock,
+		i_reset => i_reset,
 		o_clock => clock_divider_1
 	);
 
