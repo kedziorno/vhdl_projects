@@ -165,6 +165,7 @@ LCDClockDivider : integer := 1
 );
 Port (
 i_clock : in std_logic;
+i_reset : in std_logic;
 i_LCDChar : LCDHex;
 o_anode : out std_logic_vector(G_LCDAnode-1 downto 0);
 o_segment : out std_logic_vector(G_LCDSegment-1 downto 0)
@@ -237,6 +238,7 @@ Generic Map (
 )
 Port Map (
 	i_clock => i_clock,
+	i_reset => i_reset,
 	i_LCDChar => LCDChar,
 	o_anode => o_an,
 	o_segment => o_seg
