@@ -35,13 +35,13 @@ use UNISIM.VComponents.all;
 entity st7735r_gof is
 generic(
 INPUT_CLOCK : integer := 50_000_000;
-DIVIDER_CLOCK : integer := 1_000
+DIVIDER_CLOCK : integer := 10_000
 );
 port(
 clk : in std_logic;
 btn_1 : in std_logic;
-btn_2 : in std_logic;
-btn_3 : in std_logic;
+--btn_2 : in std_logic;
+--btn_3 : in std_logic;
 o_cs : out std_logic;
 o_do : out std_logic;
 o_ck : out std_logic;
@@ -80,6 +80,28 @@ o_rs : out std_logic;
 o_cs : out std_logic
 );
 end component st7735r_initialize;
+
+component draw_box is
+port (
+i_clock : in std_logic;
+i_reset : in std_logic;
+i_run : in std_logic;
+i_sended : in std_logic;
+i_color : in COLOR_TYPE;
+i_raxs : in BYTE_TYPE;
+i_raxe : in BYTE_TYPE;
+i_rays : in BYTE_TYPE;
+i_raye : in BYTE_TYPE;
+i_caxs : in BYTE_TYPE;
+i_caxe : in BYTE_TYPE;
+i_cays : in BYTE_TYPE;
+i_caye : in BYTE_TYPE;
+o_data : out BYTE_TYPE;
+o_enable : out std_logic;
+o_rs : out std_logic;
+o_initialized : out std_logic
+);
+end component draw_box;
 
 component BUFG
 port (I : in std_logic;
@@ -156,6 +178,7 @@ signal DATA_OUT : std_logic_vector(3 downto 0);
 type state is (
 idle,
 display_is_initialize,
+draw_box_state0,
 memory_enable_byte,
 waitone,
 update_row,
@@ -209,6 +232,10 @@ signal initialize_run,initialize_sended : std_logic;
 signal initialize_initialized,initialize_enable,initialize_reset,initialize_rs,initialize_cs : std_logic;
 signal initialize_color : COLOR_TYPE;
 signal initialize_data_byte : BYTE_TYPE;
+signal drawbox_sended,drawbox_enable,drawbox_rs,drawbox_run,drawbox_initialized : std_logic;
+signal drawbox_raxs,drawbox_raxe,drawbox_rays,drawbox_raye,drawbox_caxs,drawbox_caxe,drawbox_cays,drawbox_caye : BYTE_TYPE;
+signal drawbox_data : BYTE_TYPE;
+signal drawbox_color : COLOR_TYPE;
 
 function To_Std_Logic(x_vot : BOOLEAN) return std_ulogic is
 begin
@@ -225,7 +252,11 @@ o_cs <= spi_cs; -- TODO use initialize_cs mux
 o_do <= spi_do;
 o_ck <= spi_ck;
 o_reset <= initialize_reset when initialize_run = '1' else '1';
-o_rs <= initialize_rs when initialize_run = '1' else '1';
+o_rs <= initialize_rs when initialize_run = '1' else drawbox_rs when drawbox_run = '1' else '1';
+spi_data_byte <= initialize_data_byte when initialize_run = '1' else drawbox_data when drawbox_run = '1' else (others => '0');
+spi_enable <= initialize_enable when initialize_run = '1' else drawbox_enable when drawbox_run = '1' else '0';
+initialize_sended <= spi_sended when initialize_run = '1' else '0';
+drawbox_sended <= spi_sended when drawbox_run = '1' else '0';
 
 myspi_entity : my_spi
 port map (
@@ -252,6 +283,27 @@ o_reset => initialize_reset,
 o_rs => initialize_rs,
 o_enable => initialize_enable,
 o_data_byte => initialize_data_byte
+);
+
+st7735rdrawbox_entity : draw_box
+port map (
+i_clock => CLK_BUFG,
+i_reset => i_reset,
+i_run => drawbox_run,
+i_sended => drawbox_sended,
+i_color => drawbox_color,
+i_raxs => drawbox_raxs,
+i_raxe => drawbox_raxe,
+i_rays => drawbox_rays,
+i_raye => drawbox_raye,
+i_caxs => drawbox_caxs,
+i_caxe => drawbox_caxe,
+i_cays => drawbox_cays,
+i_caye => drawbox_caye,
+o_data => drawbox_data,
+o_enable => drawbox_enable,
+o_rs => drawbox_rs,
+o_initialized => drawbox_initialized
 );
 
 U_BUFG: BUFG 
@@ -317,23 +369,37 @@ begin
 		vppYb := 0;
 		vppYp := 0;
 		cstate <= idle;
+		initialize_run <= '0';
 	elsif (rising_edge(clk_1s)) then
 		case cstate is
 			-- draw
-			when idle =>
-				if (display_initialize = '1') then
-					cstate <= display_is_initialize;
-				else
-					cstate <= idle;
-				end if;
+			when idle => cstate <= display_is_initialize;
+				CD <= INPUT_CLOCK;
+				initialize_run <= '1';
+				initialize_color <= SCREEN_BLACK;
 				all_pixels <= '0';
 			when display_is_initialize =>
-				cstate <= memory_enable_byte;
+				if (initialize_initialized = '1') then
+					cstate <= draw_box_state0;
+				else
+					cstate <= display_is_initialize;
+				end if;
 				vppX := 0;
 				vppYb := 0;
 				vppYp := 0;
+			when draw_box_state0 => cstate <= memory_enable_byte;
+				drawbox_color <= x"FFFF";
+				drawbox_raxs <= std_logic_vector(to_unsigned(vppX,BYTE_SIZE));
+				drawbox_raxe <= std_logic_vector(to_unsigned(vppX,BYTE_SIZE));
+				drawbox_rays <= std_logic_vector(to_unsigned(vppYp,BYTE_SIZE));
+				drawbox_raye <= std_logic_vector(to_unsigned(vppYp,BYTE_SIZE));
+				drawbox_caxs <= std_logic_vector(to_unsigned(vppX,BYTE_SIZE));
+				drawbox_caxe <= std_logic_vector(to_unsigned(vppX,BYTE_SIZE));
+				drawbox_cays <= std_logic_vector(to_unsigned(vppYp,BYTE_SIZE));
+				drawbox_caye <= std_logic_vector(to_unsigned(vppYp,BYTE_SIZE));
 			when memory_enable_byte =>
 				cstate <= waitone;
+				initialize_run <= '0';
 				i_mem_e_byte <= '1';
 				waiting := W-1;
 				CD <= CD_DISPLAY;
@@ -346,22 +412,22 @@ begin
 				row <= ppX;
 				col_block <= ppYb;
 			when update_row =>
-				if (vppX < ROWS-1) then
+				if (vppX = ROWS-1) then
+					cstate <= update_col;
+				else
 					vppX := vppX + 1;
 					cstate <= waitone;
 					waiting := W-1;
-				else
-					cstate <= update_col;
 				end if;
 			when update_col =>
-				if (vppYb < COLS_BLOCK-1) then
+				if (vppYb = COLS_BLOCK-1) then
+					cstate <= set_cd_calculate;
+					vppYb := 0;					
+				else
 					vppYb := vppYb + 1;
 					cstate <= waitone;
 					waiting := W-1;
 					vppX := 0;
-				else
-					cstate <= set_cd_calculate;
-					vppYb := 0;
 				end if;
 			when set_cd_calculate =>
 				cstate <= memory_disable_byte;
@@ -512,20 +578,20 @@ begin
 			when update_row1 =>
 			     ENABLE <= '0';
 			     WRITE_EN <= '0';
-				if (vppX < ROWS-1) then
+				if (vppX = ROWS-1) then
+					cstate <= update_col1;
+				else
 					vppX := vppX + 1;
 					cstate <= check_coordinations;
-				else
-					cstate <= update_col1;
 				end if;
 			when update_col1 =>
-				if (vppYp < COLS_PIXEL-1) then
+				if (vppYp = COLS_PIXEL-1) then
+					cstate <= reset_counters1;
+					vppYp := 0;
+				else
 					vppYp := vppYp + 1;
 					cstate <= check_coordinations;
 					vppX := 0;
-				else
-					cstate <= reset_counters1;
-					vppYp := 0;
 				end if;
 			-- store bits in memory
 			when reset_counters1 =>
@@ -575,21 +641,21 @@ begin
 				i_mem_write_bit <= '0';
 				i_bit <= '0';
 			when update_row2 =>
-				if (vppX < ROWS-1) then
+				if (vppX = ROWS-1) then
+					cstate <= update_col2;					
+				else
 					vppX := vppX + 1;
 					cstate <= get_alive;
-				else
-					cstate <= update_col2;
 				end if;
 			when update_col2 =>
-				if (vppYp < COLS_PIXEL-1) then
-					vppYp := vppYp + 1;
-					cstate <= get_alive;
-					vppX := 0;
-				else
+				if (vppYp = COLS_PIXEL-1) then
 					cstate <= disable_memory;
 					vppYp := 0;
 					vppYb := 0;
+				else
+					vppYp := vppYp + 1;
+					cstate <= get_alive;
+					vppX := 0;
 				end if;
 			when disable_memory =>
 				cstate <= stop;
@@ -597,7 +663,7 @@ begin
 				i_bit <= '0';
 			-- end
 			when stop =>
-				cstate <= idle;
+				cstate <= draw_box_state0;
 			when others => null;
 		end case;		
 	end if;

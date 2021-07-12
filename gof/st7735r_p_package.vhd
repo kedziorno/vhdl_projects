@@ -17,8 +17,8 @@ package st7735r_p_package is
 	constant ABOUT_1coma31_MS: integer := 2**16; --XXX ~1.31ms on 50mhz
 --	constant C_CLOCK_COUNTER : integer := 2**16; -- XXX slow
 --	constant C_CLOCK_COUNTER : integer := 2**8; -- XXX fast
-	constant C_CLOCK_COUNTER : integer := 2**4; -- XXX very fast
---	constant C_CLOCK_COUNTER : integer := 2**3; -- XXX extreme fast
+--	constant C_CLOCK_COUNTER : integer := 2**4; -- XXX very fast
+	constant C_CLOCK_COUNTER : integer := 2**3; -- XXX extreme fast
 --	constant C_CLOCK_COUNTER : integer := 2**2; -- XXX monster fast,not work
 
 end st7735r_p_package;

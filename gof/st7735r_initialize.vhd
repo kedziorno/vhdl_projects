@@ -24,7 +24,7 @@ use WORK.st7735r_p_screen.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
@@ -68,6 +68,8 @@ architecture Behavioral of st7735r_initialize is
 	signal enable,cs,reset,rs,initialized : std_logic;
 	signal data_index : integer range 0 to 2**16;
 
+	signal slv_di : std_logic_vector(15 downto 0);
+
 begin
 
 	o_enable <= enable;
@@ -86,6 +88,7 @@ begin
 		constant C_CLOCK_COUNTER_10 : integer := C_CLOCK_COUNTER * 10;
 		constant C_CLOCK_COUNTER_100 : integer := C_CLOCK_COUNTER * 100;
 	begin
+		slv_di <= std_logic_vector(to_unsigned(data_index,16));
 		if (i_reset = '1') then
 			state <= idle;
 			w0_index := 0;
