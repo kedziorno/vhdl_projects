@@ -32,10 +32,10 @@ USE ieee.std_logic_1164.ALL;
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
  
-ENTITY tb_top IS
-END tb_top;
+ENTITY ssd1306_tb_top IS
+END ssd1306_tb_top;
  
-ARCHITECTURE behavior OF tb_top IS 
+ARCHITECTURE behavior OF ssd1306_tb_top IS 
 
 	constant IC : integer := 1_000_000;
 	constant BC : integer := 100_000;
@@ -43,7 +43,7 @@ ARCHITECTURE behavior OF tb_top IS
 
     -- Component Declaration for the Unit Under Test (UUT)
 
-    COMPONENT top
+    COMPONENT ssd1306_gof
 	 GENERIC(
 			INPUT_CLOCK : integer;
 			BUS_CLOCK : integer;
@@ -76,7 +76,7 @@ ARCHITECTURE behavior OF tb_top IS
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
-   uut: top 
+   uut: ssd1306_gof 
 	GENERIC MAP (
 		INPUT_CLOCK => IC,
 		BUS_CLOCK => BC,

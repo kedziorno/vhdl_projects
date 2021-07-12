@@ -3,7 +3,7 @@
    <wave_state>
    </wave_state>
    <db_ref_list>
-      <db_ref path="./tb_clock_divider_isim.beh.wdb" id="1" type="auto">
+      <db_ref path="/home/user/workspace/vhdl_projects/gof/tb_clock_divider_isim_beh.wdb" id="1" type="auto">
          <top_modules>
             <top_module name="numeric_std" />
             <top_module name="std_logic_1164" />
@@ -11,36 +11,49 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="7" />
-   <wvobject fp_name="/tb_clock_divider/uut/i_clk" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">i_clk</obj_property>
-      <obj_property name="ObjectShortName">i_clk</obj_property>
+   <WVObjectSize size="2" />
+   <wvobject fp_name="group6" type="group">
+      <obj_property name="label">tb</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_clock_divider/bc" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">bc</obj_property>
+         <obj_property name="ObjectShortName">bc</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_clock_divider/i_clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clk</obj_property>
+         <obj_property name="ObjectShortName">i_clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_clock_divider/o_clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_clk</obj_property>
+         <obj_property name="ObjectShortName">o_clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_clock_divider/cd" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">cd</obj_property>
+         <obj_property name="ObjectShortName">cd</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_clock_divider/i_clk_period" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clk_period</obj_property>
+         <obj_property name="ObjectShortName">i_clk_period</obj_property>
+      </wvobject>
    </wvobject>
-   <wvobject fp_name="/tb_clock_divider/uut/i_board_clock" type="other" db_ref_id="1">
-      <obj_property name="ElementShortName">i_board_clock</obj_property>
-      <obj_property name="ObjectShortName">i_board_clock</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb_clock_divider/uut/i_divider" type="other" db_ref_id="1">
-      <obj_property name="ElementShortName">i_divider</obj_property>
-      <obj_property name="ObjectShortName">i_divider</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb_clock_divider/uut/o_clk" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">o_clk</obj_property>
-      <obj_property name="ObjectShortName">o_clk</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb_clock_divider/uut/debug_counter" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">debug_counter[31:0]</obj_property>
-      <obj_property name="ObjectShortName">debug_counter[31:0]</obj_property>
-      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb_clock_divider/uut/dt1" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">dt1[31:0]</obj_property>
-      <obj_property name="ObjectShortName">dt1[31:0]</obj_property>
-      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb_clock_divider/uut/dt2" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">dt2[31:0]</obj_property>
-      <obj_property name="ObjectShortName">dt2[31:0]</obj_property>
-      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   <wvobject fp_name="group11" type="group">
+      <obj_property name="label">uut</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/tb_clock_divider/uut/i_clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clk</obj_property>
+         <obj_property name="ObjectShortName">i_clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_clock_divider/uut/i_board_clock" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">i_board_clock</obj_property>
+         <obj_property name="ObjectShortName">i_board_clock</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_clock_divider/uut/i_divider" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">i_divider</obj_property>
+         <obj_property name="ObjectShortName">i_divider</obj_property>
+      </wvobject>
+      <wvobject fp_name="/tb_clock_divider/uut/o_clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_clk</obj_property>
+         <obj_property name="ObjectShortName">o_clk</obj_property>
+      </wvobject>
    </wvobject>
 </wave_config>
