@@ -31,7 +31,10 @@ use IEEE.NUMERIC_STD.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity draw_box is
+entity st7735r_draw_box is
+generic (
+	C_CLOCK_COUNTER : integer
+);
 port (
 	i_clock : in std_logic;
 	i_reset : in std_logic;
@@ -51,9 +54,9 @@ port (
 	o_rs : out std_logic;
 	o_initialized : out std_logic
 );
-end draw_box;
+end st7735r_draw_box;
 
-architecture Behavioral of draw_box is
+architecture Behavioral of st7735r_draw_box is
 
 	signal rs,enable,sended,initialized : std_logic;
 	signal send_data,send_command : BYTE_TYPE;

@@ -27,6 +27,7 @@
 --------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
+USE WORK.st7735r_p_package.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -39,19 +40,21 @@ ARCHITECTURE behavior OF st7735r_tb_top IS
 
 constant IC : integer := 1_000_000;
 constant DC : integer := 1_000;
+constant SPISPEED : integer := C_CLOCK_COUNTER_MF;
 
 -- Component Declaration for the Unit Under Test (UUT)
 
 COMPONENT st7735r_gof
 GENERIC(
 INPUT_CLOCK : integer;
-DIVIDER_CLOCK : integer
+DIVIDER_CLOCK : integer;
+SPI_SPEED_MODE : integer
 );
 PORT(
 clk : in std_logic;
 btn_1 : in std_logic;
-btn_2 : in std_logic;
-btn_3 : in std_logic;
+--btn_2 : in std_logic;
+--btn_3 : in std_logic;
 o_cs : out std_logic;
 o_do : out std_logic;
 o_ck : out std_logic;
@@ -82,13 +85,14 @@ BEGIN
 uut: st7735r_gof 
 GENERIC MAP (
 INPUT_CLOCK => IC,
-DIVIDER_CLOCK => DC
+DIVIDER_CLOCK => DC,
+SPI_SPEED_MODE => SPISPEED
 )
 PORT MAP (
 clk => clk,
 btn_1 => btn_1,
-btn_2 => btn_2,
-btn_3 => btn_3,
+--btn_2 => btn_2,
+--btn_3 => btn_3,
 o_cs => o_cs,
 o_do => o_do,
 o_ck => o_ck,

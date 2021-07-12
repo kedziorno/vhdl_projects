@@ -31,6 +31,9 @@ use WORK.st7735r_p_package.ALL;
 --use UNISIM.VComponents.all;
 
 entity my_spi is
+generic (
+	C_CLOCK_COUNTER : integer
+);
 port (
 	i_clock : in std_logic;
 	i_reset : in std_logic;

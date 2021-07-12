@@ -35,7 +35,8 @@ use UNISIM.VComponents.all;
 entity st7735r_gof is
 generic(
 INPUT_CLOCK : integer := 50_000_000;
-DIVIDER_CLOCK : integer := 10_000
+DIVIDER_CLOCK : integer := 1_000;
+SPI_SPEED_MODE : integer := C_CLOCK_COUNTER_EF
 );
 port(
 clk : in std_logic;
@@ -53,6 +54,9 @@ end entity st7735r_gof;
 architecture Behavioral of st7735r_gof is
 
 component my_spi is
+generic (
+C_CLOCK_COUNTER : integer
+);
 port (
 i_clock : in std_logic;
 i_reset : in std_logic;
@@ -66,6 +70,9 @@ o_sended : out std_logic
 end component my_spi;
 
 component st7735r_initialize is
+generic (
+C_CLOCK_COUNTER : integer
+);
 port (
 i_clock : in std_logic;
 i_reset : in std_logic;
@@ -81,7 +88,10 @@ o_cs : out std_logic
 );
 end component st7735r_initialize;
 
-component draw_box is
+component st7735r_draw_box is
+generic (
+C_CLOCK_COUNTER : integer
+);
 port (
 i_clock : in std_logic;
 i_reset : in std_logic;
@@ -101,7 +111,7 @@ o_enable : out std_logic;
 o_rs : out std_logic;
 o_initialized : out std_logic
 );
-end component draw_box;
+end component st7735r_draw_box;
 
 component BUFG
 port (I : in std_logic;
@@ -259,6 +269,9 @@ initialize_sended <= spi_sended when initialize_run = '1' else '0';
 drawbox_sended <= spi_sended when drawbox_run = '1' else '0';
 
 myspi_entity : my_spi
+generic map (
+C_CLOCK_COUNTER => SPI_SPEED_MODE
+)
 port map (
 i_clock => CLK_BUFG,
 i_reset => i_reset,
@@ -271,6 +284,9 @@ o_sended => spi_sended
 );
 
 st7735rinit_entity : st7735r_initialize
+generic map (
+C_CLOCK_COUNTER => SPI_SPEED_MODE
+)
 port map (
 i_clock => CLK_BUFG,
 i_reset => i_reset,
@@ -285,7 +301,10 @@ o_enable => initialize_enable,
 o_data_byte => initialize_data_byte
 );
 
-st7735rdrawbox_entity : draw_box
+st7735rdrawbox_entity : st7735r_draw_box
+generic map (
+C_CLOCK_COUNTER => SPI_SPEED_MODE
+)
 port map (
 i_clock => CLK_BUFG,
 i_reset => i_reset,

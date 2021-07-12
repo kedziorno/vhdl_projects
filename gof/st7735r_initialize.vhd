@@ -32,6 +32,9 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity st7735r_initialize is
+generic (
+	C_CLOCK_COUNTER : integer
+);
 port (
 	i_clock : in std_logic;
 	i_reset : in std_logic;
