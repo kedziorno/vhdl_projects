@@ -447,7 +447,11 @@ begin
 				cstate <= draw_box_state1;
 				initialize_run <= '0';
 				drawbox_run <= '1';
-				drawbox_color <= x"FFFF";
+				if (o_bit = '1') then
+					drawbox_color <= x"FFFF";
+				else
+					drawbox_color <= x"0000";
+				end if;
 			when draw_box_state1 =>
 				cstate <= draw_box_state2;
 				drawbox_raxs <= std_logic_vector(to_unsigned(vppX,BYTE_SIZE));
@@ -481,7 +485,7 @@ begin
 				end if;
 			when memory_enable_byte =>
 				cstate <= waitone;
-				i_mem_e_byte <= '1';
+				i_mem_e_bit <= '1';
 				waiting := W-1;
 			when waitone =>
 				if (waiting = 0) then
@@ -489,6 +493,8 @@ begin
 				else
 					waiting := waiting - 1;
 				end if;
+				row <= ppX;
+				col_pixel <= ppYp;
 			when update_row =>
 				if (vppX = ROWS-1) then
 					cstate <= update_col;
@@ -512,7 +518,7 @@ begin
 				CD <= CD_CALCULATE;
 			when memory_disable_byte =>
 				cstate <= reset_counters_1;
-				i_mem_e_byte <= '0';
+				i_mem_e_bit <= '0';
 			-- calculate cells
 			when reset_counters_1 =>
 				cstate <= check_coordinations;
