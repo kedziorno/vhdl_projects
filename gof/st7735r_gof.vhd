@@ -296,23 +296,23 @@ begin
 --jd(7) <= io_MemDB(15) when io_MemOE = '1' else 'Z';
 -- 0-15 bits
 -- up
-jc(0) <= io_MemDB(0);
-jc(1) <= io_MemDB(1);
-jc(2) <= io_MemDB(2);
-jc(3) <= io_MemDB(3);
-jd(0) <= io_MemDB(4);
-jd(1) <= io_MemDB(5);
-jd(2) <= io_MemDB(6);
-jd(3) <= io_MemDB(7);
+jc(0) <= io_MemDB(0) when io_MemOE = '1' else 'Z';
+jc(1) <= io_MemDB(1) when io_MemOE = '1' else 'Z';
+jc(2) <= io_MemDB(2) when io_MemOE = '1' else 'Z';
+jc(3) <= io_MemDB(3) when io_MemOE = '1' else 'Z';
+jd(0) <= io_MemDB(4) when io_MemOE = '1' else 'Z';
+jd(1) <= io_MemDB(5) when io_MemOE = '1' else 'Z';
+jd(2) <= io_MemDB(6) when io_MemOE = '1' else 'Z';
+jd(3) <= io_MemDB(7) when io_MemOE = '1' else 'Z';
 --down
-jc(4) <= io_MemDB(8);
-jc(5) <= io_MemDB(9);
-jc(6) <= io_MemDB(10);
-jc(7) <= io_MemDB(11);
-jd(4) <= io_MemDB(12);
-jd(5) <= io_MemDB(13);
-jd(6) <= io_MemDB(14);
-jd(7) <= io_MemDB(15);
+jc(4) <= io_MemDB(8) when io_MemOE = '1' else 'Z';
+jc(5) <= io_MemDB(9) when io_MemOE = '1' else 'Z';
+jc(6) <= io_MemDB(10) when io_MemOE = '1' else 'Z';
+jc(7) <= io_MemDB(11) when io_MemOE = '1' else 'Z';
+jd(4) <= io_MemDB(12) when io_MemOE = '1' else 'Z';
+jd(5) <= io_MemDB(13) when io_MemOE = '1' else 'Z';
+jd(6) <= io_MemDB(14) when io_MemOE = '1' else 'Z';
+jd(7) <= io_MemDB(15) when io_MemOE = '1' else 'Z';
 
 i_reset <= btn_1;
 
@@ -479,9 +479,9 @@ gof_logic : process (CLK_BUFG,i_reset) is
 	variable o_Mem1 : MemoryDataByte;
 	variable o_Mem2 : MemoryDataByte;
 	variable COL : WORD;
-	constant i_max : integer range 0 to 15 := (COLS_PIXEL/G_MemoryData);
-	variable i : integer range 0 to 15;
-	variable k : integer range 0 to 15;
+	constant i_max : integer range 0 to 255 := (COLS_PIXEL/G_MemoryData);
+	variable i : integer range 0 to 255;
+	variable k : integer range 0 to 255;
 begin
 	if (i_reset = '1') then
 --		all_pixels <= '0';
