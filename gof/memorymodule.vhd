@@ -167,7 +167,8 @@ begin
 					--else
 						--t := (others => '0');
 					--end if;
-					w := 15024;
+--					w := 15024;
+					w := cw;
 				when wait2 =>
 					if (w = 0) then
 						cstate <= stop;

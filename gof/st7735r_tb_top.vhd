@@ -65,10 +65,17 @@ io_MemOE : inout std_logic;
 io_MemWR : inout std_logic;
 io_RamAdv : inout std_logic;
 io_RamCS : inout std_logic;
+io_RamCRE : inout std_logic;
 io_RamLB : inout std_logic;
 io_RamUB : inout std_logic;
+i_RamWait : in std_logic;
+io_RamClk : inout std_logic;
 io_MemAdr : inout MemoryAddress;
-io_MemDB : inout MemoryDataByte
+io_MemDB : inout MemoryDataByte;
+io_FlashCS : inout std_logic;
+-- for debug
+jc : inout std_logic_vector(7 downto 0);
+jd : inout std_logic_vector(7 downto 0)
 );
 END COMPONENT;
 
@@ -84,7 +91,7 @@ signal o_do : std_logic;
 signal o_ck : std_logic;
 signal o_reset : std_logic;
 signal o_rs : std_logic;
-signal io_MemOE,io_MemWR,io_RamAdv,io_RamCS,io_RamLB,io_RamUB : std_logic;
+signal io_MemOE,io_MemWR,io_RamAdv,io_RamCS,io_RamLB,io_RamUB,io_RamCRE,i_RamWait,io_RamClk,io_FlashCS : std_logic;
 signal io_MemAdr : MemoryAddress;
 signal io_MemDB : MemoryDataByte;
 
@@ -114,10 +121,14 @@ io_MemOE => io_MemOE,
 io_MemWR => io_MemWR,
 io_RamAdv => io_RamAdv,
 io_RamCS => io_RamCS,
+io_RamCRE => io_RamCRE,
 io_RamLB => io_RamLB,
 io_RamUB => io_RamUB,
+i_RamWait => i_RamWait,
+io_RamClk => io_RamClk,
 io_MemAdr => io_MemAdr,
-io_MemDB => io_MemDB
+io_MemDB => io_MemDB,
+io_FlashCS => io_FlashCS
 );
 
 -- Clock process definitions

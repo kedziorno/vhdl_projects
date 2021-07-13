@@ -34,7 +34,7 @@ use UNISIM.VComponents.all;
 
 entity st7735r_gof is
 generic(
-INPUT_CLOCK : integer := 50_000_000;
+INPUT_CLOCK : integer := 29_952_000;
 DIVIDER_CLOCK : integer := 1_000;
 SPI_SPEED_MODE : integer := C_CLOCK_COUNTER_EF
 );
@@ -52,10 +52,17 @@ io_MemOE : inout std_logic;
 io_MemWR : inout std_logic;
 io_RamAdv : inout std_logic;
 io_RamCS : inout std_logic;
+io_RamCRE : inout std_logic;
 io_RamLB : inout std_logic;
 io_RamUB : inout std_logic;
+i_RamWait : in std_logic;
+io_RamClk : inout std_logic;
 io_MemAdr : inout MemoryAddress;
-io_MemDB : inout MemoryDataByte
+io_MemDB : inout MemoryDataByte;
+io_FlashCS : inout std_logic;
+-- for debug
+jc : inout std_logic_vector(7 downto 0);
+jd : inout std_logic_vector(7 downto 0)
 );
 end entity st7735r_gof;
 
@@ -181,7 +188,7 @@ signal CLK_BUFG : std_logic;
 --signal DATA_OUT : std_logic_vector(3 downto 0);
 
 type state is (
-incrementk,check_rowindex,set_color,
+incrementk,check_rowindex,set_color,check_ranges_write1,check_ranges_write2,check_i,
 set_cd_memorycopy,enable_memory_module,enable_write_fh,
 copy_first_halfword,disable_write_fh,memory_wait_fh,enable_write_sh,
 copy_second_halfword,disable_write_sh,memory_wait_sh,disable_memory_module,
@@ -268,6 +275,44 @@ begin
 end function To_Std_Logic;
 
 begin
+
+-- for debug
+-- all 0-15 bits
+--jc(0) <= io_MemDB(0) when io_MemOE = '1' else 'Z';
+--jc(1) <= io_MemDB(1) when io_MemOE = '1' else 'Z';
+--jc(2) <= io_MemDB(2) when io_MemOE = '1' else 'Z';
+--jc(3) <= io_MemDB(3) when io_MemOE = '1' else 'Z';
+--jc(4) <= io_MemDB(4) when io_MemOE = '1' else 'Z';
+--jc(5) <= io_MemDB(5) when io_MemOE = '1' else 'Z';
+--jc(6) <= io_MemDB(6) when io_MemOE = '1' else 'Z';
+--jc(7) <= io_MemDB(7) when io_MemOE = '1' else 'Z';
+--jd(0) <= io_MemDB(8) when io_MemOE = '1' else 'Z';
+--jd(1) <= io_MemDB(9) when io_MemOE = '1' else 'Z';
+--jd(2) <= io_MemDB(10) when io_MemOE = '1' else 'Z';
+--jd(3) <= io_MemDB(11) when io_MemOE = '1' else 'Z';
+--jd(4) <= io_MemDB(12) when io_MemOE = '1' else 'Z';
+--jd(5) <= io_MemDB(13) when io_MemOE = '1' else 'Z';
+--jd(6) <= io_MemDB(14) when io_MemOE = '1' else 'Z';
+--jd(7) <= io_MemDB(15) when io_MemOE = '1' else 'Z';
+-- 0-15 bits
+-- up
+jc(0) <= io_MemDB(0);
+jc(1) <= io_MemDB(1);
+jc(2) <= io_MemDB(2);
+jc(3) <= io_MemDB(3);
+jd(0) <= io_MemDB(4);
+jd(1) <= io_MemDB(5);
+jd(2) <= io_MemDB(6);
+jd(3) <= io_MemDB(7);
+--down
+jc(4) <= io_MemDB(8);
+jc(5) <= io_MemDB(9);
+jc(6) <= io_MemDB(10);
+jc(7) <= io_MemDB(11);
+jd(4) <= io_MemDB(12);
+jd(5) <= io_MemDB(13);
+jd(6) <= io_MemDB(14);
+jd(7) <= io_MemDB(15);
 
 i_reset <= btn_1;
 
@@ -403,6 +448,14 @@ io_MemAdr => io_MemAdr,
 io_MemDB => io_MemDB
 );
 
+--io_RamLB <= '0';
+--io_RamUB <= '0';
+io_RamCRE <= '0';
+--io_RamAdv <= '0';
+io_RamClk <= '0';
+
+io_FlashCS <= '1'; -- flash is always off
+
 gof_logic : process (CLK_BUFG,i_reset) is
 	constant W : integer := 1;
 	variable waiting : integer range W-1 downto 0 := 0;
@@ -415,19 +468,20 @@ gof_logic : process (CLK_BUFG,i_reset) is
 	variable vppYp1 : integer range 0 to COLS_PIXEL;
 	variable vcountAlive : integer range 0 to 15;
 	variable vCellAlive : boolean;
-	variable wi : integer := 0;
+	variable wi : integer range 0 to 255 := 0;
 --	constant W : integer := 10;
 --	variable waiting : integer range W downto 0 := W;
-	variable m1 : MEMORY := memory_content;
-	variable startAddress : integer := 0;
-	variable copyWords : integer := (ROWS*(COLS_PIXEL/G_MemoryData));
-	variable copyWordsIndex : integer := copyWords - 1;
-	variable rowIndex : integer := ROWS-1;
+--	variable m1 : MEMORY := memory_content;
+	variable startAddress : integer range 0 to 16384 := 0;
+--	variable copyWords : integer := (ROWS*(COLS_PIXEL/G_MemoryData));
+--	variable copyWordsIndex : integer := copyWords - 1;
+	variable rowIndex : integer range 0 to 255 := 0;
 	variable o_Mem1 : MemoryDataByte;
 	variable o_Mem2 : MemoryDataByte;
-	constant i_max : integer := (COLS_PIXEL/G_MemoryData);
-	variable i : integer;
-	variable k : integer;
+	variable COL : WORD;
+	constant i_max : integer range 0 to 15 := (COLS_PIXEL/G_MemoryData);
+	variable i : integer range 0 to 15;
+	variable k : integer range 0 to 15;
 begin
 	if (i_reset = '1') then
 --		all_pixels <= '0';
@@ -439,6 +493,7 @@ begin
 --		cstate <= idle;
 		cstate <= set_cd_memorycopy;
 		initialize_run <= '0';
+		COL := (others => '0');
 	elsif (rising_edge(CLK_BUFG)) then
 		case cstate is
 			-- copy memory content
@@ -452,10 +507,11 @@ begin
 			when enable_write_fh =>
 				cstate <= copy_first_halfword;
 				mm_i_write <= '1';
+				COL := memory_content(rowIndex);
 			when copy_first_halfword =>
 				cstate <= disable_write_fh;
-				mm_i_MemAdr <= std_logic_vector(to_unsigned(startAddress + rowIndex + i,G_MemoryAddress));
-				mm_i_MemDB <= m1(rowIndex)(i*G_MemoryData+(G_MemoryData-1) downto i*G_MemoryData+0);
+				mm_i_MemAdr <= std_logic_vector(to_unsigned(startAddress + rowIndex*(i_max-1) + i,G_MemoryAddress));
+				mm_i_MemDB(G_MemoryData-1 downto 0) <= COL(i*G_MemoryData+(G_MemoryData-1) downto i*G_MemoryData+0);
 			when disable_write_fh =>
 				cstate <= memory_wait_fh;
 				mm_i_write <= '0';
@@ -466,19 +522,26 @@ begin
 					cstate <= disable_memory_module;
 				end if;
 			when disable_memory_module =>
-				cstate <= check_ranges_write;
+				cstate <= check_ranges_write1;
 				mm_i_enable <= '0';
-			when check_ranges_write =>
-				if (i_max-1 > i) then
-					i := i + 1;
-					if (rowIndex > 0) then
-						rowIndex := rowIndex - 1;
-					end if;
-					cstate <= enable_memory_module;
+			when check_ranges_write1 =>
+				if (i = i_max-1) then
+					cstate <= check_ranges_write2;
+					i := 0;
 				else
-					cstate <= idle;
+					i := i + 1;
+					cstate <= enable_memory_module;
 				end if;
-				
+			when check_ranges_write2 =>
+				if (rowIndex = ROWS-1) then
+					rowIndex := 0;
+					cstate <= idle;
+				else
+					rowIndex := rowIndex + 1;
+					cstate <= enable_memory_module;
+				end if;
+
+
 			when idle =>
 				cstate <= display_is_initialize;
 				initialize_run <= '1';
@@ -497,7 +560,7 @@ begin
 				vppYp := 0;
 --				all_pixels <= '0';
 				startAddress := 0;
-				rowIndex := ROWS-1;
+				rowIndex := 0;
 				i := 0;
 			
 			
@@ -512,7 +575,9 @@ begin
 				mm_i_read <= '1';
 			when read_fh =>
 				cstate <= store_fh;
-				mm_i_MemAdr <= std_logic_vector(to_unsigned(startAddress + rowIndex + i,G_MemoryAddress));
+				report "rowIndex= " & integer'image(rowIndex);
+				report "i= " & integer'image(i);
+				mm_i_MemAdr <= std_logic_vector(to_unsigned(startAddress + rowIndex*(i_max-1) + i,G_MemoryAddress));
 			when store_fh =>
 				cstate <= disable_read_memory_fh;
 				o_Mem1 := mm_o_MemDB;
@@ -520,68 +585,81 @@ begin
 				cstate <= disable_memory_module_read_fh;
 				mm_i_read <= '0';
 			when disable_memory_module_read_fh =>
-				cstate <= draw_box_state0;
+				cstate <= set_color;
 				mm_i_enable <= '0';
 			
-			
+
+			when set_color =>
+				cstate <= draw_box_state0;
+--				report "k= " & integer'image(k);
+				if (o_Mem1(k) = '1') then
+						drawbox_color <= x"FFFF";
+					else
+						drawbox_color <= x"0000";
+					end if;			
 			when draw_box_state0 =>
 				cstate <= draw_box_state1;
 				drawbox_run <= '1';
 --				k := 0;
 			when draw_box_state1 =>
 				cstate <= draw_box_state2;
-				drawbox_raxs <= std_logic_vector(to_unsigned(rowIndex,BYTE_SIZE));
+--				drawbox_raxs <= std_logic_vector(to_unsigned(rowIndex,BYTE_SIZE));
+				drawbox_raxs <= x"00";
 			when draw_box_state2 =>
 				cstate <= draw_box_state3;
 				drawbox_raxe <= std_logic_vector(to_unsigned(rowIndex,BYTE_SIZE));
 			when draw_box_state3 =>
 				cstate <= draw_box_state4;
-				drawbox_rays <= std_logic_vector(to_unsigned(i*G_MemoryAddress+k,BYTE_SIZE));
+--				drawbox_rays <= std_logic_vector(to_unsigned(i*G_MemoryAddress+k,BYTE_SIZE));
+				drawbox_rays <= x"00";
 			when draw_box_state4 =>
 				cstate <= draw_box_state5;
-				drawbox_raye <= std_logic_vector(to_unsigned(i*G_MemoryAddress+k,BYTE_SIZE));
+				drawbox_raye <= std_logic_vector(to_unsigned(i*(i_max-1)+k,BYTE_SIZE));
 			when draw_box_state5 =>
 				cstate <= draw_box_state6;
-				drawbox_caxs <= std_logic_vector(to_unsigned(rowIndex,BYTE_SIZE));
+--				drawbox_caxs <= std_logic_vector(to_unsigned(rowIndex,BYTE_SIZE));
+				drawbox_caxs <= x"00";
 			when draw_box_state6 =>
 				cstate <= draw_box_state7;
 				drawbox_caxe <= std_logic_vector(to_unsigned(rowIndex,BYTE_SIZE));
 			when draw_box_state7 =>
 				cstate <= draw_box_state8;
-				drawbox_cays <= std_logic_vector(to_unsigned(i*G_MemoryAddress+k,BYTE_SIZE));
+--				drawbox_cays <= std_logic_vector(to_unsigned(i*G_MemoryAddress+k,BYTE_SIZE));
+				drawbox_cays <= x"00";
 			when draw_box_state8 =>
 				cstate <= draw_box_state9;
-				drawbox_caye <= std_logic_vector(to_unsigned(i*G_MemoryAddress+k,BYTE_SIZE));
+				drawbox_caye <= std_logic_vector(to_unsigned(i*(i_max-1)+k,BYTE_SIZE));
 			when draw_box_state9 =>
 				if (drawbox_initialized = '1') then
-					cstate <= set_color;
+					cstate <= incrementk;
 					drawbox_run <= '0';
 				else
 					cstate <= draw_box_state9;
 				end if;
-			when set_color =>
-				cstate <= incrementk;
---				report "k= " & integer'image(k);
-				if (o_Mem1(k) = '1') then
-						drawbox_color <= x"FFFF";
-					else
-						drawbox_color <= x"0000";
-					end if;
+				
 			when incrementk =>
 				if (k = G_MemoryData-1) then
-					cstate <= check_rowindex;
+					cstate <= check_i;
 					k := 0;
 				else
-					cstate <= draw_box_state0;
+					cstate <= set_color;
 					k := k + 1;
 				end if;
-			when check_rowindex =>
-				if (rowIndex > 0) then
-					cstate <= enable_memory_module_read_fh;
-					rowIndex := rowIndex - 1;
+			when check_i =>
+				if (i = i_max-1) then
+					cstate <= check_rowindex;
+					i := 0;
 				else
+					cstate <= enable_memory_module_read_fh;
+					i := i + 1;
+				end if;
+			when check_rowindex =>
+				if (rowIndex = ROWS-1) then
 					cstate <= stop;
-					rowIndex := ROWS-1;
+					rowIndex := 0;
+				else
+					cstate <= enable_memory_module_read_fh;
+					rowIndex := rowIndex + 1;
 				end if;
 			when others => null;	
 				
