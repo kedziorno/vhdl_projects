@@ -28,6 +28,7 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE WORK.st7735r_p_package.ALL;
+USE WORK.p_memory_content.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -59,7 +60,15 @@ o_cs : out std_logic;
 o_do : out std_logic;
 o_ck : out std_logic;
 o_reset : out std_logic;
-o_rs : out std_logic
+o_rs : out std_logic;
+io_MemOE : inout std_logic;
+io_MemWR : inout std_logic;
+io_RamAdv : inout std_logic;
+io_RamCS : inout std_logic;
+io_RamLB : inout std_logic;
+io_RamUB : inout std_logic;
+io_MemAdr : inout MemoryAddress;
+io_MemDB : inout MemoryDataByte
 );
 END COMPONENT;
 
@@ -75,6 +84,9 @@ signal o_do : std_logic;
 signal o_ck : std_logic;
 signal o_reset : std_logic;
 signal o_rs : std_logic;
+signal io_MemOE,io_MemWR,io_RamAdv,io_RamCS,io_RamLB,io_RamUB : std_logic;
+signal io_MemAdr : MemoryAddress;
+signal io_MemDB : MemoryDataByte;
 
 -- Clock period definitions 
 constant clk_period : time := (1_000_000_000 / IC) * 1 ns;
@@ -97,7 +109,15 @@ o_cs => o_cs,
 o_do => o_do,
 o_ck => o_ck,
 o_reset => o_reset,
-o_rs => o_rs
+o_rs => o_rs,
+io_MemOE => io_MemOE,
+io_MemWR => io_MemWR,
+io_RamAdv => io_RamAdv,
+io_RamCS => io_RamCS,
+io_RamLB => io_RamLB,
+io_RamUB => io_RamUB,
+io_MemAdr => io_MemAdr,
+io_MemDB => io_MemDB
 );
 
 -- Clock process definitions

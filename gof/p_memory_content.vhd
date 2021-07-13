@@ -21,7 +21,11 @@ package p_memory_content is
 	constant WORD_BITS : integer := COLS_BLOCK*BYTE_BITS;
 	constant PARITY_BITS : integer := 4;
 	constant BRAM_ADDRESS_BITS : integer := 9;
-	
+	constant G_MemoryAddress : integer := 24;
+	constant G_MemoryData : integer := 16;
+	subtype MemoryAddress is std_logic_vector(G_MemoryAddress-1 downto 0);
+	subtype MemoryDataByte is std_logic_vector(G_MemoryData-1 downto 0);
+
 	subtype WORD is std_logic_vector(WORD_BITS-1 downto 0);
 	type MEMORY is array(ROWS-1 downto 0) of WORD;
 
