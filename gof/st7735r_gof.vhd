@@ -561,7 +561,7 @@ begin
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
-					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
+--					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 				end if;
 			when set_c2 =>
 				cstate <= c2;
@@ -573,7 +573,7 @@ begin
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
-					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
+--					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 				end if;
 			when set_c3 =>
 				cstate <= c3;
@@ -585,7 +585,7 @@ begin
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
-					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
+--					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 				end if;
 			when set_c4 =>
 				cstate <= c4;
@@ -597,7 +597,7 @@ begin
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
-					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
+--					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 				end if;
 			when set_c5 =>
 				cstate <= c5;
@@ -609,7 +609,7 @@ begin
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
-					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
+--					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 				end if;
 			when set_c6 =>
 				cstate <= c6;
@@ -621,7 +621,7 @@ begin
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
-					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
+--					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 				end if;
 			when set_c7 =>
 				cstate <= c7;
@@ -633,7 +633,7 @@ begin
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
-					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
+--					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 				end if;
 			when set_c8 =>
 				cstate <= c8;
@@ -645,11 +645,14 @@ begin
 					if (o_bit = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
-					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
+--					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 				end if;
 			when waitfor =>
 				cstate <= memory_disable_bit;
 				countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
+				assert (vcountALive = 0)
+				report "AROUND (X,Y) = (" & integer'image(vppX) & "," & integer'image(vppYp) & ") countalive = " & integer'image(vcountALive)
+				severity warning;
 			when memory_disable_bit =>
 				cstate <= store_count_alive;
 				i_mem_e_bit <= '0';
@@ -657,11 +660,11 @@ begin
 				cstate <= update_row1;
 				ENABLE <= '1';
 				WRITE_EN <= '1';
-				ADDRESS <= std_logic_vector(to_unsigned(vppX+vppYp*WORD_BITS,12));
+				ADDRESS <= std_logic_vector(to_unsigned(vppX+vppYp*COLS_PIXEL,12));
 				DATA_IN <= countAlive;
 			when update_row1 =>
-			     ENABLE <= '0';
-			     WRITE_EN <= '0';
+			     ENABLE <= '1';
+			     WRITE_EN <= '1';
 				if (vppX = ROWS-1) then
 					cstate <= update_col1;
 				else
@@ -702,7 +705,7 @@ begin
 				i_mem_write_bit <= '1';
 			     ENABLE <= '1';
 			     WRITE_EN <= '0';
-			     ADDRESS <= std_logic_vector(to_unsigned(vppX+vppYp*WORD_BITS,12));
+			     ADDRESS <= std_logic_vector(to_unsigned(vppX+vppYp*COLS_PIXEL,12));
 			when write_count_alive =>
 				cstate <= disable_write_to_memory;
 				if (vCellAlive = true) then
