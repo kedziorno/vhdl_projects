@@ -611,7 +611,7 @@ begin
 				mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + rowIndex*i_max + i,G_MemoryAddress-1));
 			when store_fh =>
 				cstate <= disable_read_memory_fh;
-				o_Mem1 := mm_o_MemDB;
+--				o_Mem1 := mm_o_MemDB;
 			when disable_read_memory_fh =>
 				cstate <= disable_memory_module_read_fh;
 				mm_i_read <= '0';
@@ -628,7 +628,7 @@ begin
 			when set_color =>
 				cstate <= draw_box_state0;
 --				report "k= " & integer'image(k);
-				if (o_Mem1(k) = '1') then
+				if (io_MemDB(k) = '1') then
 						drawbox_color <= x"FFFF";
 					else
 						drawbox_color <= x"0000";
