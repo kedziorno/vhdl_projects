@@ -48,21 +48,22 @@ o_do : out std_logic;
 o_ck : out std_logic;
 o_reset : out std_logic;
 o_rs : out std_logic;
-io_MemOE : inout std_logic;
-io_MemWR : inout std_logic;
-io_RamAdv : inout std_logic;
-io_RamCS : inout std_logic;
-io_RamCRE : inout std_logic;
-io_RamLB : inout std_logic;
-io_RamUB : inout std_logic;
+Led7 : out std_logic;
+o_MemOE : out std_logic;
+o_MemWR : out std_logic;
+o_RamAdv : out std_logic;
+o_RamCS : out std_logic;
+o_RamCRE : out std_logic;
+o_RamLB : out std_logic;
+o_RamUB : out std_logic;
 i_RamWait : in std_logic;
-io_RamClk : inout std_logic;
-io_MemAdr : inout MemoryAddress;
+o_RamClk : out std_logic;
+o_MemAdr : out MemoryAddress;
 io_MemDB : inout MemoryDataByte;
-io_FlashCS : inout std_logic;
+o_FlashCS : out std_logic;
 -- for debug
-jc : inout std_logic_vector(7 downto 0);
-jd : inout std_logic_vector(7 downto 0)
+jc : out std_logic_vector(7 downto 0);
+jd : out std_logic_vector(7 downto 0)
 );
 end entity st7735r_gof;
 
@@ -152,13 +153,16 @@ o_busy : out std_logic;
 i_MemAdr : in MemoryAddress;
 i_MemDB : in MemoryDataByte;
 o_MemDB : out MemoryDataByte;
-io_MemOE : inout std_logic;
-io_MemWR : inout std_logic;
-io_RamAdv : inout std_logic;
-io_RamCS : inout std_logic;
-io_RamLB : inout std_logic;
-io_RamUB : inout std_logic;
-io_MemAdr : inout MemoryAddress;
+o_MemOE : out std_logic;
+o_MemWR : out std_logic;
+o_RamAdv : out std_logic;
+o_RamCS : out std_logic;
+o_RamCRE : out std_logic;
+o_RamLB : out std_logic;
+o_RamUB : out std_logic;
+i_RamWait : in std_logic;
+o_RamClk : out std_logic;
+o_MemAdr : out MemoryAddress;
 io_MemDB : inout MemoryDataByte
 );
 end component memorymodule;
@@ -188,7 +192,7 @@ signal CLK_BUFG : std_logic;
 --signal DATA_OUT : std_logic_vector(3 downto 0);
 
 type state is (
-incrementk,check_rowindex,set_color,check_ranges_write1,check_ranges_write2,check_i,
+incrementk,check_rowindex,set_color,check_ranges_write1,check_ranges_write2,check_i,memory_busy,
 set_cd_memorycopy,enable_memory_module,enable_write_fh,
 copy_first_halfword,disable_write_fh,memory_wait_fh,enable_write_sh,
 copy_second_halfword,disable_write_sh,memory_wait_sh,disable_memory_module,
@@ -274,10 +278,35 @@ begin
 	end if;
 end function To_Std_Logic;
 
+signal MemOE : std_logic;
+signal MemWR : std_logic;
+signal RamAdv : std_logic;
+signal RamCS : std_logic;
+signal RamCRE : std_logic;
+signal RamLB : std_logic;
+signal RamUB : std_logic;
+signal RamWait : std_logic;
+signal RamClk : std_logic;
+signal MemAdr : MemoryAddress;
+signal MemDB : MemoryDataByte;
+signal FlashCS : std_logic;
+
 begin
 
+o_MemOE <= MemOE;
+o_MemWR <= MemWR;
+o_RamAdv <= RamAdv;
+o_RamCS <= RamCS;
+o_RamCRE <= RamCRE;
+o_RamLB <= RamLB;
+o_RamUB <= RamUB;
+o_RamClk <= RamClk;
+o_MemAdr <= MemAdr;
+io_MemDB <= MemDB;
+o_FlashCS <= FlashCS;
+
 -- for debug
--- all 0-15 bits
+-- all 0-15 bits, #OE
 --jc(0) <= io_MemDB(0) when io_MemOE = '1' else 'Z';
 --jc(1) <= io_MemDB(1) when io_MemOE = '1' else 'Z';
 --jc(2) <= io_MemDB(2) when io_MemOE = '1' else 'Z';
@@ -296,25 +325,27 @@ begin
 --jd(7) <= io_MemDB(15) when io_MemOE = '1' else 'Z';
 -- 0-15 bits
 -- up
-jc(0) <= io_MemDB(0) when io_MemOE = '1' else 'Z';
-jc(1) <= io_MemDB(1) when io_MemOE = '1' else 'Z';
-jc(2) <= io_MemDB(2) when io_MemOE = '1' else 'Z';
-jc(3) <= io_MemDB(3) when io_MemOE = '1' else 'Z';
-jd(0) <= io_MemDB(4) when io_MemOE = '1' else 'Z';
-jd(1) <= io_MemDB(5) when io_MemOE = '1' else 'Z';
-jd(2) <= io_MemDB(6) when io_MemOE = '1' else 'Z';
-jd(3) <= io_MemDB(7) when io_MemOE = '1' else 'Z';
+jc(0) <= io_MemDB(0) when MemOE = '0' else 'Z';
+jc(1) <= io_MemDB(1) when MemOE = '0' else 'Z';
+jc(2) <= io_MemDB(2) when MemOE = '0' else 'Z';
+jc(3) <= io_MemDB(3) when MemOE = '0' else 'Z';
+jd(0) <= io_MemDB(4) when MemOE = '0' else 'Z';
+jd(1) <= io_MemDB(5) when MemOE = '0' else 'Z';
+jd(2) <= io_MemDB(6) when MemOE = '0' else 'Z';
+jd(3) <= io_MemDB(7) when MemOE = '0' else 'Z';
 --down
-jc(4) <= io_MemDB(8) when io_MemOE = '1' else 'Z';
-jc(5) <= io_MemDB(9) when io_MemOE = '1' else 'Z';
-jc(6) <= io_MemDB(10) when io_MemOE = '1' else 'Z';
-jc(7) <= io_MemDB(11) when io_MemOE = '1' else 'Z';
-jd(4) <= io_MemDB(12) when io_MemOE = '1' else 'Z';
-jd(5) <= io_MemDB(13) when io_MemOE = '1' else 'Z';
-jd(6) <= io_MemDB(14) when io_MemOE = '1' else 'Z';
-jd(7) <= io_MemDB(15) when io_MemOE = '1' else 'Z';
+jc(4) <= io_MemDB(8) when MemOE = '0' else 'Z';
+jc(5) <= io_MemDB(9) when MemOE = '0' else 'Z';
+jc(6) <= io_MemDB(10) when MemOE = '0' else 'Z';
+jc(7) <= io_MemDB(11) when MemOE = '0' else 'Z';
+jd(4) <= io_MemDB(12) when MemOE = '0' else 'Z';
+jd(5) <= io_MemDB(13) when MemOE = '0' else 'Z';
+jd(6) <= io_MemDB(14) when MemOE = '0' else 'Z';
+jd(7) <= io_MemDB(15) when MemOE = '0' else 'Z';
 
 i_reset <= btn_1;
+Led7 <= i_RamWait;
+FlashCS <= '1'; -- flash is always off
 
 o_cs <= spi_cs; -- TODO use initialize_cs mux
 o_do <= spi_do;
@@ -438,23 +469,18 @@ o_busy => mm_o_busy,
 i_MemAdr => mm_i_MemAdr,
 i_MemDB => mm_i_MemDB,
 o_MemDB => mm_o_MemDB,
-io_MemOE => io_MemOE,
-io_MemWR => io_MemWR,
-io_RamAdv => io_RamAdv,
-io_RamCS => io_RamCS,
-io_RamLB => io_RamLB,
-io_RamUB => io_RamUB,
-io_MemAdr => io_MemAdr,
-io_MemDB => io_MemDB
+o_MemOE => MemOE,
+o_MemWR => MemWR,
+o_RamAdv => RamAdv,
+o_RamCS => RamCS,
+o_RamCRE => RamCRE,
+o_RamLB => RamLB,
+o_RamUB => RamUB,
+i_RamWait => RamWait,
+o_RamClk => RamClk,
+o_MemAdr => MemAdr,
+io_MemDB => MemDB
 );
-
---io_RamLB <= '0';
---io_RamUB <= '0';
-io_RamCRE <= '0';
---io_RamAdv <= '0';
-io_RamClk <= '0';
-
-io_FlashCS <= '1'; -- flash is always off
 
 gof_logic : process (CLK_BUFG,i_reset) is
 	constant W : integer := 1;
@@ -498,8 +524,13 @@ begin
 		case cstate is
 			-- copy memory content
 			when set_cd_memorycopy =>
-				cstate <= enable_memory_module;
 				i := 0;
+				cstate <= enable_memory_module;
+--				if (i_RamWait = '1') then -- XXX use only in synch transactions
+--					cstate <= set_cd_memorycopy;
+--				else
+--					cstate <= enable_memory_module;
+--				end if;
 --				CD <= CD_CALCULATE;
 			when enable_memory_module =>
 				cstate <= enable_write_fh;
@@ -510,20 +541,20 @@ begin
 				COL := memory_content(rowIndex);
 			when copy_first_halfword =>
 				cstate <= disable_write_fh;
-				mm_i_MemAdr <= std_logic_vector(to_unsigned(startAddress + rowIndex*(i_max-1) + i,G_MemoryAddress));
+				mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + rowIndex*i_max + i,G_MemoryAddress-1));
 				mm_i_MemDB(G_MemoryData-1 downto 0) <= COL(i*G_MemoryData+(G_MemoryData-1) downto i*G_MemoryData+0);
 			when disable_write_fh =>
-				cstate <= memory_wait_fh;
+				cstate <= disable_memory_module;
 				mm_i_write <= '0';
+			when disable_memory_module =>
+				cstate <= memory_wait_fh;
+				mm_i_enable <= '0';
 			when memory_wait_fh =>
 				if (mm_o_busy = '1') then
 					cstate <= memory_wait_fh;
 				else
-					cstate <= disable_memory_module;
+					cstate <= check_ranges_write1;
 				end if;
-			when disable_memory_module =>
-				cstate <= check_ranges_write1;
-				mm_i_enable <= '0';
 			when check_ranges_write1 =>
 				if (i = i_max-1) then
 					cstate <= check_ranges_write2;
@@ -577,7 +608,7 @@ begin
 				cstate <= store_fh;
 				report "rowIndex= " & integer'image(rowIndex);
 				report "i= " & integer'image(i);
-				mm_i_MemAdr <= std_logic_vector(to_unsigned(startAddress + rowIndex*(i_max-1) + i,G_MemoryAddress));
+				mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + rowIndex*i_max + i,G_MemoryAddress-1));
 			when store_fh =>
 				cstate <= disable_read_memory_fh;
 				o_Mem1 := mm_o_MemDB;
@@ -585,9 +616,14 @@ begin
 				cstate <= disable_memory_module_read_fh;
 				mm_i_read <= '0';
 			when disable_memory_module_read_fh =>
-				cstate <= set_color;
+				cstate <= memory_busy;
 				mm_i_enable <= '0';
-			
+			when memory_busy =>
+				if (mm_o_busy = '1') then
+					cstate <= memory_busy;
+				else
+					cstate <= set_color;
+				end if;
 
 			when set_color =>
 				cstate <= draw_box_state0;

@@ -61,21 +61,21 @@ o_do : out std_logic;
 o_ck : out std_logic;
 o_reset : out std_logic;
 o_rs : out std_logic;
-io_MemOE : inout std_logic;
-io_MemWR : inout std_logic;
-io_RamAdv : inout std_logic;
-io_RamCS : inout std_logic;
-io_RamCRE : inout std_logic;
-io_RamLB : inout std_logic;
-io_RamUB : inout std_logic;
+o_MemOE : out std_logic;
+o_MemWR : out std_logic;
+o_RamAdv : out std_logic;
+o_RamCS : out std_logic;
+o_RamCRE : out std_logic;
+o_RamLB : out std_logic;
+o_RamUB : out std_logic;
 i_RamWait : in std_logic;
-io_RamClk : inout std_logic;
-io_MemAdr : inout MemoryAddress;
+o_RamClk : out std_logic;
+o_MemAdr : out MemoryAddress;
 io_MemDB : inout MemoryDataByte;
-io_FlashCS : inout std_logic;
+o_FlashCS : out std_logic;
 -- for debug
-jc : inout std_logic_vector(7 downto 0);
-jd : inout std_logic_vector(7 downto 0)
+jc : out std_logic_vector(7 downto 0);
+jd : out std_logic_vector(7 downto 0)
 );
 END COMPONENT;
 
@@ -91,8 +91,8 @@ signal o_do : std_logic;
 signal o_ck : std_logic;
 signal o_reset : std_logic;
 signal o_rs : std_logic;
-signal io_MemOE,io_MemWR,io_RamAdv,io_RamCS,io_RamLB,io_RamUB,io_RamCRE,i_RamWait,io_RamClk,io_FlashCS : std_logic;
-signal io_MemAdr : MemoryAddress;
+signal o_MemOE,o_MemWR,o_RamAdv,o_RamCS,o_RamLB,o_RamUB,o_RamCRE,i_RamWait,o_RamClk,o_FlashCS : std_logic;
+signal o_MemAdr : MemoryAddress;
 signal io_MemDB : MemoryDataByte;
 
 -- Clock period definitions 
@@ -117,18 +117,18 @@ o_do => o_do,
 o_ck => o_ck,
 o_reset => o_reset,
 o_rs => o_rs,
-io_MemOE => io_MemOE,
-io_MemWR => io_MemWR,
-io_RamAdv => io_RamAdv,
-io_RamCS => io_RamCS,
-io_RamCRE => io_RamCRE,
-io_RamLB => io_RamLB,
-io_RamUB => io_RamUB,
+o_MemOE => o_MemOE,
+o_MemWR => o_MemWR,
+o_RamAdv => o_RamAdv,
+o_RamCS => o_RamCS,
+o_RamCRE => o_RamCRE,
+o_RamLB => o_RamLB,
+o_RamUB => o_RamUB,
 i_RamWait => i_RamWait,
-io_RamClk => io_RamClk,
-io_MemAdr => io_MemAdr,
+o_RamClk => o_RamClk,
+o_MemAdr => o_MemAdr,
 io_MemDB => io_MemDB,
-io_FlashCS => io_FlashCS
+o_FlashCS => o_FlashCS
 );
 
 -- Clock process definitions
