@@ -39,9 +39,9 @@ END st7735r_tb_top;
 
 ARCHITECTURE behavior OF st7735r_tb_top IS 
 
-constant IC : integer := 1_000_000;
+constant IC : integer := 1_000_000; --29_952_000; --1_000_000;
 constant DC : integer := 1_000;
-constant SPISPEED : integer := C_CLOCK_COUNTER_MF;
+constant SPISPEED : integer := C_CLOCK_COUNTER_MF; --C_CLOCK_COUNTER_EF; --C_CLOCK_COUNTER_MF;
 
 -- Component Declaration for the Unit Under Test (UUT)
 

@@ -34,7 +34,7 @@ use UNISIM.VComponents.all;
 
 entity st7735r_gof is
 generic(
-INPUT_CLOCK : integer := 29_952_000;
+INPUT_CLOCK : integer := 50_000_000; --29_952_000;
 DIVIDER_CLOCK : integer := 1_000;
 SPI_SPEED_MODE : integer := C_CLOCK_COUNTER_EF
 );
@@ -650,7 +650,7 @@ begin
 				drawbox_rays <= x"00";
 			when draw_box_state4 =>
 				cstate <= draw_box_state5;
-				drawbox_raye <= std_logic_vector(to_unsigned(i*(i_max-1)+k,BYTE_SIZE));
+				drawbox_raye <= std_logic_vector(to_unsigned(i*(G_MemoryData-1)+k,BYTE_SIZE));
 			when draw_box_state5 =>
 				cstate <= draw_box_state6;
 --				drawbox_caxs <= std_logic_vector(to_unsigned(rowIndex,BYTE_SIZE));
@@ -664,7 +664,7 @@ begin
 				drawbox_cays <= x"00";
 			when draw_box_state8 =>
 				cstate <= draw_box_state9;
-				drawbox_caye <= std_logic_vector(to_unsigned(i*(i_max-1)+k,BYTE_SIZE));
+				drawbox_caye <= std_logic_vector(to_unsigned(i*(G_MemoryData-1)+k,BYTE_SIZE));
 			when draw_box_state9 =>
 				if (drawbox_initialized = '1') then
 					cstate <= incrementk;
