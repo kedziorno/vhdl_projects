@@ -12,9 +12,9 @@ use IEEE.STD_LOGIC_1164.all;
 
 package p_memory_content is
 	constant ROWS : integer := 16; --16; --128;
---	constant ROWS_BITS : integer := 7; --7;
+	constant ROWS_BITS : integer := 4; --7;
 	constant COLS_PIXEL : integer := 32; --32; --160;
---	constant COLS_PIXEL_BITS : integer := 9; --5;
+	constant COLS_PIXEL_BITS : integer := 5; --5;
 --	constant COLS_BLOCK : integer := 4;
 --	constant COLS_BLOCK_BITS : integer := 2;
 	constant BYTE_BITS : integer := 8;

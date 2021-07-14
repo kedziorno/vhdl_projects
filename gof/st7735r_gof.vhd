@@ -48,6 +48,7 @@ o_do : out std_logic;
 o_ck : out std_logic;
 o_reset : out std_logic;
 o_rs : out std_logic;
+Led6 : out std_logic;
 Led7 : out std_logic;
 o_MemOE : out std_logic;
 o_MemWR : out std_logic;
@@ -167,74 +168,13 @@ io_MemDB : inout MemoryDataByte
 );
 end component memorymodule;
 
---signal row : std_logic_vector(ROWS_BITS-1 downto 0) := (others => '0');
---signal col_pixel : std_logic_vector(COLS_PIXEL_BITS-1 downto 0) := (others => '0');
---signal col_block : std_logic_vector(COLS_BLOCK_BITS-1 downto 0) := (others => '0');
---signal rst : std_logic;
---signal all_pixels : std_logic;
---signal clk_1s : std_logic;
---signal display_byte : std_logic_vector(BYTE_BITS-1 downto 0);
---signal display_initialize : std_logic;
---signal o_bit : std_logic;
-signal i_reset : std_logic;
-
---signal i_mem_e_byte : std_logic;
---signal i_mem_e_bit : std_logic;
---signal i_mem_write_bit : std_logic;
---signal i_bit : std_logic;
-
-signal CLK_BUFG : std_logic;
-
---signal DATA_IN : std_logic_vector(3 downto 0);
---signal ADDRESS : std_logic_vector(11 downto 0);
---signal ENABLE : std_logic;
---signal WRITE_EN : std_logic;
---signal DATA_OUT : std_logic_vector(3 downto 0);
-
 type state is (
-incrementk,check_rowindex,set_color,check_ranges_write1,check_ranges_write2,check_i,memory_busy,
-set_cd_memorycopy,enable_memory_module,enable_write_fh,
-copy_first_halfword,disable_write_fh,memory_wait_fh,enable_write_sh,
-copy_second_halfword,disable_write_sh,memory_wait_sh,disable_memory_module,
-check_ranges_write,
-idle,
-display_is_initialize,
-enable_memory_module_read_fh,enable_read_memory_fh,read_fh,store_fh,disable_read_memory_fh,disable_memory_module_read_fh,
-send_fh1,send_fh1_waitdisplay,send_fh2,send_fh2_waitdisplay,
-enable_memory_module_read_sh,enable_read_memory_sh,read_sh,store_sh,disable_read_memory_sh,disable_memory_module_read_sh,
-send_sh1,send_sh1_waitdisplay,send_sh2,send_sh2_waitdisplay,
-wait_two_reads,
-check_ranges_read,
-reset_counters,
-draw_box_state0,draw_box_state1,draw_box_state2,draw_box_state3,draw_box_state4,
-draw_box_state5,draw_box_state6,draw_box_state7,draw_box_state8,draw_box_state9,
-memory_enable_byte,
-waitone,
-update_row,
-update_col,
-set_cd_calculate,
-memory_disable_byte,
-reset_counters_1,
-check_coordinations,
-reset_count_alive,
-memory_enable_bit,
-set_c1,set_c2,set_c3,set_c4,set_c5,set_c6,set_c7,set_c8,
-waitfor,
-memory_disable_bit,
-store_count_alive,
-update_row1,
-update_col1,
-reset_counters1,
-memory_enable_bit1,
-get_alive,
-get_alive1,
-enable_write_to_memory,
-set_coords_to_write,
-write_count_alive,
-disable_write_to_memory,
-update_row2,
-update_col2,
-disable_memory,
+set_cd_memorycopy,enable_memory_module,enable_write_fh,copy_first_halfword,disable_write_fh,disable_memory_module,memory_wait_fh,
+check_ranges_write1,check_ranges_write2,idle,display_is_initialize,reset_counters,enable_memory_module_read_fh,
+enable_read_memory_fh,read_fh,store_fh,disable_read_memory_fh,disable_memory_module_read_fh,memory_busy,set_color,
+draw_box_state0,draw_box_state1,draw_box_state2,draw_box_state3,draw_box_state4,draw_box_state5,draw_box_state6,draw_box_state7,draw_box_state8,draw_box_state9,
+incrementk,check_i,check_rowindex,reset_counters_1,
+check_coordinations,reset_count_alive,
 c1_m_e,c1_m_r_e,c1_s_a,c1_m_r_d,c1_m_d,c1,
 c2_m_e,c2_m_r_e,c2_s_a,c2_m_r_d,c2_m_d,c2,
 c3_m_e,c3_m_r_e,c3_s_a,c3_m_r_d,c3_m_d,c3,
@@ -242,27 +182,28 @@ c4_m_e,c4_m_r_e,c4_s_a,c4_m_r_d,c4_m_d,c4,
 c5_m_e,c5_m_r_e,c5_s_a,c5_m_r_d,c5_m_d,c5,
 c6_m_e,c6_m_r_e,c6_s_a,c6_m_r_d,c6_m_d,c6,
 c7_m_e,c7_m_r_e,c7_s_a,c7_m_r_d,c7_m_d,c7,
-c8_m_e,c8_m_r_e,c8_s_a,c8_m_r_d,c8_m_d,c8,cellalive_check_i,
-memory_enable_bit11,enable_write_to_memory2,enable_write_to_memory3,write_count_alive1,write_count_alive2,write_count_alive3,write_count_alive4,
+c8_m_e,c8_m_r_e,c8_s_a,c8_m_r_d,c8_m_d,c8,
+waitfor,memory_disable_bit,store_count_alive,update_row1,update_col1,reset_counters1,memory_enable_bit11,
+memory_enable_bit1,get_alive,get_alive1,enable_write_to_memory,enable_write_to_memory2,enable_write_to_memory3,write_count_alive,
+write_count_alive1,write_count_alive2,write_count_alive3,cellalive_check_i,update_row2,update_col2,
 stop);
 signal cstate : state;
 
 constant W : integer := 1;
 signal waiting : integer range W-1 downto 0 := 0;
---signal ppX : std_logic_vector(ROWS_BITS-1 downto 0);
---signal ppYb : std_logic_vector(COLS_BLOCK_BITS-1 downto 0);
---signal ppYp : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
---signal ppXm1 : std_logic_vector(ROWS_BITS-1 downto 0);
-----signal ppXp1 : std_logic_vector(ROWS_BITS-1 downto 0);
---signal ppYm1 : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
---signal ppYp1 : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
---signal oppX : std_logic_vector(ROWS_BITS-1 downto 0);
---signal oppY : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
+signal ppX : std_logic_vector(ROWS_BITS-1 downto 0);
+signal ppYp : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
+signal ppXm1 : std_logic_vector(ROWS_BITS-1 downto 0);
+signal ppXp1 : std_logic_vector(ROWS_BITS-1 downto 0);
+signal ppYm1 : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
+signal ppYp1 : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
 signal countAlive : std_logic_vector(3 downto 0);
 signal CellAlive : std_logic;
 signal CD : integer := DIVIDER_CLOCK;
 signal CD_DISPLAY : integer := DIVIDER_CLOCK*1; -- XXX
 signal CD_CALCULATE : integer := DIVIDER_CLOCK*10000; -- XXX
+signal i_reset : std_logic;
+signal CLK_BUFG : std_logic;
 
 signal spi_enable,spi_cs,spi_do,spi_ck,spi_sended : std_logic;
 signal spi_data_byte : BYTE_TYPE;
@@ -274,8 +215,8 @@ signal drawbox_sended,drawbox_enable,drawbox_rs,drawbox_run,drawbox_initialized 
 signal drawbox_raxs,drawbox_raxe,drawbox_rays,drawbox_raye,drawbox_caxs,drawbox_caxe,drawbox_cays,drawbox_caye : BYTE_TYPE;
 signal drawbox_data_byte : BYTE_TYPE;
 signal drawbox_color : COLOR_TYPE;
-signal mm_MemAdr,mm_i_MemAdr : MemoryAddress;
-signal mm_MemDB_i,mm_MemDB_o,mm_i_MemDB,mm_o_MemDB : MemoryDataByte;
+signal mm_i_MemAdr : MemoryAddress;
+signal mm_i_MemDB,mm_o_MemDB : MemoryDataByte;
 signal mm_i_enable,mm_i_write,mm_i_read,mm_o_busy : std_logic;
 
 function To_Std_Logic(x_vot : BOOLEAN) return std_ulogic is
@@ -335,7 +276,6 @@ jd(6) <= io_MemDB(14) when MemOE = '0' else 'Z';
 jd(7) <= io_MemDB(15) when MemOE = '0' else 'Z';
 
 i_reset <= btn_1;
-Led7 <= i_RamWait;
 FlashCS <= '1'; -- flash is always off
 
 o_cs <= spi_cs; -- TODO use initialize_cs mux
@@ -653,6 +593,8 @@ begin
 				vppX := 0;
 				vppYp := 0;
 				i := 0;
+				Led6 <= '1';
+				Led7 <= '0';
 			when check_coordinations =>
 				cstate <= reset_count_alive;
 				vppXm1 := vppX-1;
@@ -698,7 +640,11 @@ begin
 			when c1 =>
 				cstate <= c2_m_e;
 				if (vppYp /= 0) then
-					if (vppYm1 = -1) then
+					if (vppYm1 > G_MemoryData) then
+						if (io_MemDB(vppYm1 - G_MemoryData) = '1') then
+							vcountAlive := vcountAlive + 1;
+						end if;
+					elsif (vppYm1 = G_MemoryData) then
 						if (io_MemDB(G_MemoryData-1) = '1') then
 							vcountAlive := vcountAlive + 1;
 						end if;
@@ -731,8 +677,8 @@ begin
 			when c2 =>
 				cstate <= c3_m_e;
 				if (vppYp /= COLS_PIXEL-1) then
-					if (vppYp1 = G_MemoryData) then
-						if (io_MemDB(0) = '1') then
+					if (vppYp1 > G_MemoryData-1) then
+						if (io_MemDB(vppYp1-G_MemoryData) = '1') then
 							vcountAlive := vcountAlive + 1;
 						end if;
 					else
@@ -764,8 +710,14 @@ begin
 			when c3 =>
 				cstate <= c4_m_e;
 				if (vppX /= ROWS-1) then
-					if (io_MemDB(vppYp) = '1') then
-						vcountAlive := vcountAlive + 1;
+					if (vppYp > G_MemoryData-1) then
+						if (io_MemDB(vppYp-G_MemoryData) = '1') then
+							vcountAlive := vcountAlive + 1;
+						end if;
+					else
+						if (io_MemDB(vppYp) = '1') then
+							vcountAlive := vcountAlive + 1;
+						end if;				
 					end if;
 				end if;
 			-- XXX ppXm1,ppYp
@@ -791,8 +743,18 @@ begin
 			when c4 =>
 				cstate <= c5_m_e;
 				if (vppX /= 0) then
-					if (io_MemDB(vppYp) = '1') then
-						vcountAlive := vcountAlive + 1;
+					if (vppYp > G_MemoryData) then
+						if (io_MemDB(vppYp-G_MemoryData) = '1') then
+							vcountAlive := vcountAlive + 1;
+						end if;
+					elsif(vppYp = G_MemoryData) then
+						if (io_MemDB(G_MemoryData-1) = '1') then
+							vcountAlive := vcountAlive + 1;
+						end if;
+					else
+						if (io_MemDB(vppYp) = '1') then
+							vcountAlive := vcountAlive + 1;
+						end if;
 					end if;
 				end if;
 			-- XXX ppXm1,ppYm1
@@ -818,7 +780,11 @@ begin
 			when c5 =>
 				cstate <= c6_m_e;
 				if ((vppX /= 0) and (vppYp /= 0)) then
-					if (vppYm1 = -1) then
+					if (vppYm1 > G_MemoryData) then
+						if (io_MemDB(vppYm1-G_MemoryData) = '1') then
+							vcountAlive := vcountAlive + 1;
+						end if;
+					elsif (vppYm1 = G_MemoryData) then
 						if (io_MemDB(G_MemoryData-1) = '1') then
 							vcountAlive := vcountAlive + 1;
 						end if;
@@ -851,7 +817,11 @@ begin
 			when c6 =>
 				cstate <= c7_m_e;
 				if ((vppX /= ROWS-1) and (vppYp /= 0)) then
-					if (vppYm1 = -1) then
+					if (vppYm1 > G_MemoryData) then
+						if (io_MemDB(vppYm1 - G_MemoryData) = '1') then
+							vcountAlive := vcountAlive + 1;
+						end if;
+					elsif (vppYm1 = G_MemoryData) then
 						if (io_MemDB(G_MemoryData-1) = '1') then
 							vcountAlive := vcountAlive + 1;
 						end if;
@@ -884,14 +854,18 @@ begin
 			when c7 =>
 				cstate <= c8_m_e;
 				if ((vppX /= 0) and (vppYp /= COLS_PIXEL-1)) then
-					if (vppYp1 = ROWS) then
-						if (io_MemDB(0) = '1') then
+					if (vppYp1 > G_MemoryData) then
+						if (io_MemDB(vppYp1-G_MemoryData) = '1') then
+							vcountAlive := vcountAlive + 1;
+						end if;
+					elsif (vppYp1 = G_MemoryData) then
+						if (io_MemDB(G_MemoryData-1) = '1') then
 							vcountAlive := vcountAlive + 1;
 						end if;
 					else
 						if (io_MemDB(vppYp1) = '1') then
 							vcountAlive := vcountAlive + 1;
-						end if;				
+						end if;
 					end if;
 				end if;
 			-- XXX ppXp1,ppYp1
@@ -916,8 +890,8 @@ begin
 			when c8 =>
 				cstate <= waitfor;
 				if ((vppX /= ROWS-1) and (vppYp /= COLS_PIXEL-1)) then
-					if (vppYp1 = G_MemoryData) then
-						if (io_MemDB(0) = '1') then
+					if (vppYp1 > G_MemoryData-1) then
+						if (io_MemDB(vppYp1-G_memoryData) = '1') then
 							vcountAlive := vcountAlive + 1;
 						end if;
 					else
@@ -938,7 +912,7 @@ begin
 				mm_i_write <= '1';
 			when store_count_alive =>
 				cstate <= update_row1;
-				mm_i_MemAdr <= std_logic_vector(to_unsigned(storeAddress + vppX*i_max + i,G_MemoryAddress));
+				mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(storeAddress + vppX*i_max + i,G_MemoryAddress-1));
 				mm_i_MemDB <= std_logic_vector(to_unsigned(vcountALive,G_MemoryData));
 			when update_row1 =>
 				mm_i_enable <= '0';
@@ -963,23 +937,39 @@ begin
 				cstate <= memory_enable_bit11;
 				vppX := 0;
 				vppYp := 0;
+				Led6 <= '0';
+				Led7 <= '1';
 			when memory_enable_bit11 =>
 				cstate <= memory_enable_bit1;
 				mm_i_enable <= '1';
 				mm_i_read <= '1';
-			when memory_enable_bit1 =>
-				cstate <= get_alive;
-				mm_i_MemAdr <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress));
+			when memory_enable_bit1 =>			
+			cstate <= get_alive;
+				mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
 			when get_alive =>
 				cstate <= get_alive1;
 				mm_i_enable <= '0';
 				mm_i_read <= '0';
 			when get_alive1 =>
 				cstate <= enable_write_to_memory;
-				if (io_MemDB(vppYp) = '1') then
-					vCellAlive := true;
+				if (vppYp > G_MemoryData) then
+					if (io_MemDB(vppYp-G_MemoryData) = '1') then
+						vCellAlive := true;
+					else
+						vCellAlive := false;
+					end if;
+				elsif (vppYp = G_MemoryData) then
+					if (io_MemDB(G_MemoryData-1) = '1') then
+						vCellAlive := true;
+					else
+						vCellAlive := false;
+					end if;
 				else
-					vCellAlive := false;
+					if (io_MemDB(vppYp) = '1') then
+						vCellAlive := true;
+					else
+						vCellAlive := false;
+					end if;
 				end if;
 			when enable_write_to_memory =>
 				cstate <= enable_write_to_memory2;
@@ -987,7 +977,7 @@ begin
 				mm_i_read <= '1';
 			when enable_write_to_memory2 =>
 				cstate <= enable_write_to_memory3;
-				mm_i_MemAdr <= std_logic_vector(to_unsigned(storeAddress + vppX*i_max + i,G_MemoryAddress));
+				mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(storeAddress + vppX*i_max + i,G_MemoryAddress-1));
 			when enable_write_to_memory3 =>
 				cstate <= write_count_alive;
 				mm_i_enable <= '0';
@@ -995,13 +985,13 @@ begin
 			when write_count_alive =>
 				cstate <= write_count_alive1;
 				if (vCellAlive = true) then
-					if ((to_integer(unsigned(io_MemDB)) = 2) or (to_integer(unsigned(io_MemDB)) = 3)) then
+					if ((io_MemDB = x"0002") or (io_MemDB = x"0003")) then
 						vCellAlive2 := true;
 					else
 						vCellAlive2 := false;
 					end if;
 				elsif (vCellAlive = false) then
-					if (to_integer(unsigned(io_MemDB)) = 3) then
+					if (io_MemDB = x"0003") then
 						vCellAlive2 := true;
 					else
 						vCellAlive2 := false;
@@ -1011,12 +1001,12 @@ begin
 				cstate <= write_count_alive2;
 				mm_i_enable <= '1';
 				mm_i_write <= '1';
-			when write_count_alive2 =>
+			when write_count_alive2 => -- XXX sim stopped on this
 				cstate <= write_count_alive3;
-				mm_i_MemAdr <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress));
-				if (vCellAlive = true) then
+				mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
+				if (vCellAlive2 = true) then
 					mm_i_MemDB(vppYp) <= '1';
-				elsif (vCellAlive = false) then
+				elsif (vCellAlive2 = false) then
 					mm_i_MemDB(vppYp) <= '0';
 				end if;
 			when write_count_alive3 =>
@@ -1028,7 +1018,7 @@ begin
 					cstate <= update_row2;
 					i := 0;
 				else
-					cstate <= check_coordinations;
+					cstate <= memory_enable_bit11;--check_coordinations;
 					i := i + 1;
 				end if;
 			when update_row2 =>
@@ -1054,13 +1044,12 @@ begin
 		end case;		
 	end if;
 	CellAlive <= To_Std_Logic(vCellAlive);
---	ppX <= std_logic_vector(to_unsigned(vppX,ROWS_BITS));
---	ppYp <= std_logic_vector(to_unsigned(vppYp,COLS_PIXEL_BITS));
---	ppYb <= std_logic_vector(to_unsigned(vppYb,COLS_BLOCK_BITS));
---	ppXm1 <= std_logic_vector(to_unsigned(vppXm1,ROWS_BITS));
---	ppXp1 <= std_logic_vector(to_unsigned(vppXp1,ROWS_BITS));
---	ppYm1 <= std_logic_vector(to_unsigned(vppYm1,COLS_PIXEL_BITS));
---	ppYp1 <= std_logic_vector(to_unsigned(vppYp1,COLS_PIXEL_BITS));
+	ppX <= std_logic_vector(to_unsigned(vppX,ROWS_BITS));
+	ppYp <= std_logic_vector(to_unsigned(vppYp,COLS_PIXEL_BITS));
+	ppXm1 <= std_logic_vector(to_unsigned(vppXm1,ROWS_BITS));
+	ppXp1 <= std_logic_vector(to_unsigned(vppXp1,ROWS_BITS));
+	ppYm1 <= std_logic_vector(to_unsigned(vppYm1,COLS_PIXEL_BITS));
+	ppYp1 <= std_logic_vector(to_unsigned(vppYp1,COLS_PIXEL_BITS));
 end process gof_logic;
 
 end architecture Behavioral;
