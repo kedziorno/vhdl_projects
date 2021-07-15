@@ -407,25 +407,25 @@ io_MemDB => MemDB
 
 gof_logic : process (CLK_BUFG,i_reset) is
 	constant W : integer := 1; --10
-	variable waiting : integer range W-1 downto 0 := 0;
-	variable vppX : integer range 0 to ROWS-1;
-	variable vppYp : integer range 0 to COLS_PIXEL-1;
-	variable vppXm1 : integer range -1 to ROWS-1;
-	variable vppXp1 : integer range 0 to ROWS;
-	variable vppYm1 : integer range -1 to COLS_PIXEL-1;
-	variable vppYp1 : integer range 0 to COLS_PIXEL;
-	variable vcountAlive : integer range 0 to 15;
-	variable vCellAlive,vCellAlive2 : boolean;
-	variable wi : integer range 0 to 255 := 0;
-	variable startAddress : integer range 0 to 16384 := 0;
-	variable storeAddress : integer range 0 to 2*16384 := 16384+1;
-	variable rowIndex : integer range 0 to 255 := 0;
-	variable o_Mem1 : MemoryDataByte;
-	variable o_Mem2 : MemoryDataByte;
-	variable COL : WORD;
-	constant i_max : integer range 0 to 255 := (COLS_PIXEL/G_MemoryData);
-	variable i : integer range 0 to 255;
-	variable k : integer range 0 to 255;
+	variable waiting : integer := 0;
+	variable vppX : integer := 0;
+	variable vppYp : integer := 0;
+	variable vppXm1 : integer := 0;
+	variable vppXp1 : integer := 0;
+	variable vppYm1 : integer := 0;
+	variable vppYp1 : integer := 0;
+	variable vcountAlive : integer := 0;
+	variable vCellAlive,vCellAlive2 : boolean := false;
+	variable wi : integer := 0;
+	variable startAddress : integer := 0;
+	variable storeAddress : integer := 16384+1;
+	variable rowIndex : integer := 0;
+	variable o_Mem1 : MemoryDataByte := (others => '0');
+	variable o_Mem2 : MemoryDataByte := (others => '0');
+	variable COL : WORD := (others => '0');
+	constant i_max : integer := (COLS_PIXEL/G_MemoryData);
+	variable i : integer := 0;
+	variable k : integer := 0;
 begin
 	if (i_reset = '1') then
 		vppX := 0;
@@ -1005,9 +1005,17 @@ begin
 				cstate <= write_count_alive3;
 				mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
 				if (vCellAlive2 = true) then
-					mm_i_MemDB(vppYp) <= '1';
+					if (vppYp > G_MemoryData-1) then
+						mm_i_MemDB(vppYp-G_MemoryData) <= '1';
+					else
+						mm_i_MemDB(vppYp) <= '1';
+					end if;
 				elsif (vCellAlive2 = false) then
-					mm_i_MemDB(vppYp) <= '0';
+					if (vppYp > G_MemoryData-1) then
+						mm_i_MemDB(vppYp-G_MemoryData) <= '0';
+					else
+						mm_i_MemDB(vppYp) <= '0';
+					end if;
 				end if;
 			when write_count_alive3 =>
 				cstate <= cellalive_check_i;

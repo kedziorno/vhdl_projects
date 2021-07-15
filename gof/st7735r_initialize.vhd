@@ -69,7 +69,7 @@ architecture Behavioral of st7735r_initialize is
 	);
 	signal state : states;
 	signal enable,cs,reset,rs,initialized : std_logic;
-	signal data_index : integer range 0 to 2**16;
+	signal data_index : integer range 0 to 2**16-1;
 
 --	signal slv_di : std_logic_vector(15 downto 0);
 
