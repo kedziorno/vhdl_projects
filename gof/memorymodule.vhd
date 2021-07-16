@@ -37,18 +37,19 @@ i_enable : in std_logic;
 i_write : in std_logic;
 i_read : in std_logic;
 o_busy : out std_logic;
-i_MemAdr : in MemoryAddressALL;
+i_MemAdr : in MemoryAddress;
 i_MemDB : in MemoryDataByte;
 o_MemDB : out MemoryDataByte;
-io_MemOE : out std_logic;
-io_MemWR : out std_logic;
-io_RamAdv : out std_logic;
-io_RamCS : out std_logic;
-io_RamLB : out std_logic;
-io_RamCRE : out std_logic;
-io_RamUB : out std_logic;
-io_RamClk : out std_logic;
-io_MemAdr : out MemoryAddressALL;
+o_MemOE : out std_logic;
+o_MemWR : out std_logic;
+o_RamAdv : out std_logic;
+o_RamCS : out std_logic;
+o_RamCRE : out std_logic;
+o_RamLB : out std_logic;
+o_RamUB : out std_logic;
+i_RamWait : in std_logic;
+o_RamClk : out std_logic;
+o_MemAdr : out MemoryAddress;
 io_MemDB : inout MemoryDataByte
 );
 end memorymodule;
@@ -77,20 +78,20 @@ architecture Behavioral of memorymodule is
 	signal RamCRE : std_logic;
 	signal RamUB : std_logic;
 	signal RamClk : std_logic;
-	signal MemAdr : MemoryAddressALL;
+	signal MemAdr : MemoryAddress;
 	signal MemDB : MemoryDataByte;
 
 begin
 
-	io_MemOE <= MemOE;
-	io_MemWR <= MemWR;
-	io_RamAdv <= RamAdv;
-	io_RamCS <= RamCS;
-	io_RamLB <= RamLB;
-	io_RamCRE <= RamCRE;
-	io_RamUB <= RamUB;
-	io_RamClk <= RamClk;
-	io_MemAdr <= MemAdr;
+	o_MemOE <= MemOE;
+	o_MemWR <= MemWR;
+	o_RamAdv <= RamAdv;
+	o_RamCS <= RamCS;
+	o_RamCRE <= RamCRE;
+	o_RamLB <= RamLB;
+	o_RamUB <= RamUB;
+	o_RamClk <= RamClk;
+	o_MemAdr <= MemAdr;
 
 	RamLB <= '0';
 	RamUB <= '0';
