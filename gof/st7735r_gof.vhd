@@ -217,14 +217,11 @@ signal mm_i_MemAdr : MemoryAddress;
 signal mm_i_MemDB,mm_o_MemDB : MemoryDataByte;
 signal mm_i_enable,mm_i_write,mm_i_read,mm_o_busy : std_logic;
 
-function To_Std_Logic(x_vot : BOOLEAN) return std_ulogic is
-begin
-	if x_vot then
-		return('1');
-	else
-		return('0');
-	end if;
-end function To_Std_Logic;
+signal slv_startAddress : std_logic_vector(8 downto 0);
+signal slv_storeAddress : std_logic_vector(8 downto 0);
+signal slv_i : std_logic_vector(7 downto 0);
+signal slv_k : std_logic_vector(7 downto 0);
+signal slv_address_cc,slv_address_disp,slv_address_c1,slv_address_c2,slv_address_c3,slv_address_c4,slv_address_c5,slv_address_c6,slv_address_c7,slv_address_c8,slv_address_sca,slv_address_ga,slv_address_ewm,slv_address_wca : std_logic_vector(G_MemoryAddress - 1 downto 1);
 
 signal MemOE : std_logic;
 signal MemWR : std_logic;
@@ -426,42 +423,40 @@ gof_logic : process (CLK_BUFG,i_reset) is
 	variable i : integer range 0 to i_max - 1; -- blocks in WORD slv
 	variable k : integer range 0 to G_MemoryData - 1; -- read bits in set_color and xy coords
 	variable drawbox_ikindex : integer range 0 to 255;
+	variable address_cc,address_disp,address_c1,address_c2,address_c3,address_c4,address_c5,address_c6,address_c7,address_c8,address_sca,address_ga,address_ewm,address_wca : std_logic_vector(G_MemoryAddress - 1 downto 1);
 begin
 	if (i_reset = '1') then
-		vppX := 0;
-		vppYp := 0;
-		vppXm1 := 0;
-		vppXp1 := 0;
-		vppYm1 := 0;
-		vppYp1 := 0;
-		i := 0;
-		k := 0;
 		cstate <= set_cd_memorycopy;
-		initialize_run <= '0';
-		COL := (others => '0');
-		COL_UP := 0;
-		COL_DOWN := 0;
-		COL_DIFF := 0;
-		vCellAlive := false;
-		vCellAlive2 := false;
-		vcountAlive := 0;
-		startAddress := 0;
-		storeAddress := ALL_PIXELS;
-		rowIndex := 0;
-		o_Mem1 := (others => '0');
-		o_Mem2 := (others => '0');
-		COL := (others => '0');
-		COL_UP := 0;
-		COL_DOWN := 0;
-		i := 0;
-		k := 0;
-		drawbox_ikindex := 0;
 	elsif (rising_edge(CLK_BUFG)) then
 		case cstate is
 			-- copy memory content
 			when set_cd_memorycopy =>
 				cstate <= enable_memory_module;
+				vppX := 0;
+				vppYp := 0;
+				vppXm1 := 0;
+				vppXp1 := 0;
+				vppYm1 := 0;
+				vppYp1 := 0;
+				initialize_run <= '0';
+				COL := (others => '0');
+				COL_UP := 0;
+				COL_DOWN := 0;
+				COL_DIFF := 0;
+				vCellAlive := false;
+				vCellAlive2 := false;
+				vcountAlive := 0;
+				startAddress := 0;
+				storeAddress := ALL_PIXELS;
+				rowIndex := 0;
+				o_Mem1 := (others => '0');
+				o_Mem2 := (others => '0');
+				COL := (others => '0');
+				COL_UP := 0;
+				COL_DOWN := 0;
 				i := 0;
+				k := 0;
+				drawbox_ikindex := 0;
 			when enable_memory_module =>
 				cstate <= enable_write_fh;
 				mm_i_enable <= '1';
@@ -476,8 +471,10 @@ begin
 				COL_DIFF := COL_UP - COL_DOWN;
 --				report "COL_UP,COL_DOWN = " & integer'image(COL_UP) & "," & integer'image(COL_DOWN) & " -> " & integer'image(COL_DIFF);
 				assert (G_MemoryData - 1 = COL_DIFF) report "diff ranges";
-				mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + rowIndex*i_max + i,G_MemoryAddress-1));
+				address_cc := std_logic_vector(to_unsigned(startAddress + rowIndex*i_max + i,G_MemoryAddress-1));
+				mm_i_MemAdr(23 downto 1) <= address_cc;
 				mm_i_MemDB(G_MemoryData-1 downto 0) <= COL(COL_UP downto COL_DOWN);
+				slv_address_cc <= address_cc;
 			when disable_write_fh =>
 				cstate <= disable_memory_module;
 				mm_i_write <= '0';
@@ -533,7 +530,9 @@ begin
 				mm_i_read <= '1';
 			when read_fh =>
 				cstate <= store_fh;
-				mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + rowIndex*i_max + i,G_MemoryAddress-1));
+				address_disp := std_logic_vector(to_unsigned(startAddress + rowIndex*i_max + i,G_MemoryAddress-1));
+				mm_i_MemAdr(23 downto 1) <= address_disp;
+				slv_address_disp <= address_disp;
 			when store_fh =>
 				cstate <= disable_read_memory_fh;
 			when disable_read_memory_fh =>
@@ -655,10 +654,12 @@ begin
 			when c1_s_a =>
 				cstate <= c1_m_r_d;
 				if (vppYp > G_MemoryData - 1) then
-					mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + (i+1),G_MemoryAddress-1));
+					address_c1 := std_logic_vector(to_unsigned(startAddress + vppX*i_max + (i+1),G_MemoryAddress-1));
 				else
-					mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
+					address_c1 := std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
 				end if;
+				mm_i_MemAdr(23 downto 1) <= address_c1;
+				slv_address_c1 <= address_c1;
 			when c1_m_r_d =>
 				cstate <= c1_m_d;
 				mm_i_read <= '0';
@@ -690,10 +691,12 @@ begin
 			when c2_s_a =>
 				cstate <= c2_m_r_d;
 				if (vppYp > G_MemoryData - 1) then
-					mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + (i+1),G_MemoryAddress-1));
+					address_c2 := std_logic_vector(to_unsigned(startAddress + vppX*i_max + (i+1),G_MemoryAddress-1));
 				else
-					mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
+					address_c2 := std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
 				end if;
+				mm_i_MemAdr(23 downto 1) <= address_c2;
+				slv_address_c2 <= address_c2;
 			when c2_m_r_d =>
 				cstate <= c2_m_d;
 				mm_i_read <= '0';
@@ -725,10 +728,12 @@ begin
 			when c3_s_a =>
 				cstate <= c3_m_r_d;
 				if (vppYp > G_MemoryData - 1) then
-					mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + (i+1),G_MemoryAddress-1));
+					address_c3 := std_logic_vector(to_unsigned(startAddress + vppX*i_max + (i+1),G_MemoryAddress-1));
 				else
-					mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
+					address_c3 := std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
 				end if;
+				mm_i_MemAdr(23 downto 1) <= address_c3;
+				slv_address_c3 <= address_c3;
 			when c3_m_r_d =>
 				cstate <= c3_m_d;
 				mm_i_read <= '0';
@@ -760,10 +765,12 @@ begin
 			when c4_s_a =>
 				cstate <= c4_m_r_d;
 				if (vppYp > G_MemoryData - 1) then
-					mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + (i+1),G_MemoryAddress-1));
+					address_c4 := std_logic_vector(to_unsigned(startAddress + vppX*i_max + (i+1),G_MemoryAddress-1));
 				else
-					mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
+					address_c4 := std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
 				end if;
+				mm_i_MemAdr(23 downto 1) <= address_c4;
+				slv_address_c4 <= address_c4;
 			when c4_m_r_d =>
 				cstate <= c4_m_d;
 				mm_i_read <= '0';
@@ -795,10 +802,12 @@ begin
 			when c5_s_a =>
 				cstate <= c5_m_r_d;
 				if (vppYp > G_MemoryData - 1) then
-					mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + (i+1),G_MemoryAddress-1));
+					address_c5 := std_logic_vector(to_unsigned(startAddress + vppX*i_max + (i+1),G_MemoryAddress-1));
 				else
-					mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
+					address_c5 := std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
 				end if;
+				mm_i_MemAdr(23 downto 1) <= address_c5;
+				slv_address_c5 <= address_c5;
 			when c5_m_r_d =>
 				cstate <= c5_m_d;
 				mm_i_read <= '0';
@@ -830,10 +839,12 @@ begin
 			when c6_s_a =>
 				cstate <= c6_m_r_d;
 				if (vppYp > G_MemoryData - 1) then
-					mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + (i+1),G_MemoryAddress-1));
+					address_c6 := std_logic_vector(to_unsigned(startAddress + vppX*i_max + (i+1),G_MemoryAddress-1));
 				else
-					mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
+					address_c6 := std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
 				end if;
+				mm_i_MemAdr(23 downto 1) <= address_c6;
+				slv_address_c6 <= address_c6;
 			when c6_m_r_d =>
 				cstate <= c6_m_d;
 				mm_i_read <= '0';
@@ -865,10 +876,12 @@ begin
 			when c7_s_a =>
 				cstate <= c7_m_r_d;
 				if (vppYp > G_MemoryData - 1) then
-					mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + (i+1),G_MemoryAddress-1));
+					address_c7 := std_logic_vector(to_unsigned(startAddress + vppX*i_max + (i+1),G_MemoryAddress-1));
 				else
-					mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
+					address_c7 := std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
 				end if;
+				mm_i_MemAdr(23 downto 1) <= address_c7;
+				slv_address_c7 <= address_c7;
 			when c7_m_r_d =>
 				cstate <= c7_m_d;
 				mm_i_read <= '0';
@@ -900,10 +913,12 @@ begin
 			when c8_s_a =>
 				cstate <= c8_m_r_d;
 				if (vppYp > G_MemoryData - 1) then
-					mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + (i+1),G_MemoryAddress-1));
+					address_c8 := std_logic_vector(to_unsigned(startAddress + vppX*i_max + (i+1),G_MemoryAddress-1));
 				else
-					mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
+					address_c8 := std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
 				end if;
+				mm_i_MemAdr(23 downto 1) <= address_c8;
+				slv_address_c8 <= address_c8;
 			when c8_m_r_d =>
 				cstate <= c8_m_d;
 			when c8_m_d =>
@@ -938,7 +953,9 @@ begin
 				mm_i_write <= '1';
 			when store_count_alive2 =>
 				cstate <= store_count_alive3;
-				mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(storeAddress + vppX*i_max + i,G_MemoryAddress-1));
+				address_sca := std_logic_vector(to_unsigned(storeAddress + vppX*i_max + i,G_MemoryAddress-1));
+				mm_i_MemAdr(23 downto 1) <= address_sca;
+				slv_address_sca <= address_sca;
 				mm_i_MemDB <= std_logic_vector(to_unsigned(vcountALive,G_MemoryData));
 			when store_count_alive3 =>
 				cstate <= store_count_alive4;
@@ -983,7 +1000,9 @@ begin
 				mm_i_read <= '1';
 			when get_alive3 =>
 				cstate <= get_alive4;
-				mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
+				address_ga := std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
+				mm_i_MemAdr(23 downto 1) <= address_ga;
+				slv_address_ga <= address_ga;
 			when get_alive4 =>
 				cstate <= get_alive5;
 				mm_i_read <= '0';
@@ -1026,7 +1045,9 @@ begin
 				mm_i_read <= '1';
 			when enable_write_to_memory3 =>
 				cstate <= enable_write_to_memory4;
-				mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(storeAddress + vppX*i_max + i,G_MemoryAddress-1));
+				address_ewm := std_logic_vector(to_unsigned(storeAddress + vppX*i_max + i,G_MemoryAddress-1));
+				mm_i_MemAdr(23 downto 1) <= address_ewm;
+				slv_address_ewm <= address_ewm;
 			when enable_write_to_memory4 =>
 				cstate <= enable_write_to_memory5;
 				mm_i_read <= '0';
@@ -1062,7 +1083,9 @@ begin
 				mm_i_write <= '1';
 			when write_count_alive3 =>
 				cstate <= write_count_alive4;
-				mm_i_MemAdr(23 downto 1) <= std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
+				address_wca := std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
+				mm_i_MemAdr(23 downto 1) <= address_wca;
+				slv_address_wca <= address_wca;
 			when write_count_alive4 =>
 				cstate <= write_count_alive5;
 				if (vCellAlive2 = true) then
@@ -1124,13 +1147,17 @@ begin
 			when others => null;
 		end case;		
 	end if;
-	CellAlive <= To_Std_Logic(vCellAlive);
+--	CellAlive <= To_Std_Logic(vCellAlive);
 	ppX <= std_logic_vector(to_unsigned(vppX,ROWS_BITS));
 	ppYp <= std_logic_vector(to_unsigned(vppYp,COLS_PIXEL_BITS));
 	ppXm1 <= std_logic_vector(to_unsigned(vppXm1,ROWS_BITS));
 	ppXp1 <= std_logic_vector(to_unsigned(vppXp1,ROWS_BITS));
 	ppYm1 <= std_logic_vector(to_unsigned(vppYm1,COLS_PIXEL_BITS));
 	ppYp1 <= std_logic_vector(to_unsigned(vppYp1,COLS_PIXEL_BITS));
+	slv_startAddress <= std_logic_vector(to_unsigned(startAddress,9));
+	slv_storeAddress <= std_logic_vector(to_unsigned(storeAddress,9));
+	slv_i <= std_logic_vector(to_unsigned(i,8));
+	slv_k <= std_logic_vector(to_unsigned(k,8));
 end process gof_logic;
 
 end architecture Behavioral;
