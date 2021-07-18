@@ -188,7 +188,7 @@ store_count_alive1,store_count_alive2,store_count_alive3,store_count_alive4,stor
 get_alive1,get_alive2,get_alive3,get_alive4,get_alive5,get_alive6,get_alive7,
 enable_write_to_memory1,enable_write_to_memory2,enable_write_to_memory3,enable_write_to_memory4,enable_write_to_memory5,enable_write_to_memory6,enable_write_to_memory7,
 write_count_alive1,write_count_alive2,write_count_alive3,write_count_alive4,write_count_alive5,write_count_alive6,write_count_alive7,
-cellalive_check_i,update_row2,update_col2,
+cellalive_check_k,cellalive_check_i,update_row2,update_col2,
 stop);
 signal cstate : state;
 
@@ -1028,6 +1028,8 @@ begin
 				vppYp := 0;
 				Led6 <= '0';
 				Led7 <= '1';
+				i := 0;
+				k := 0;
 			when get_alive1 =>
 				cstate <= get_alive2;
 				mm_i_enable <= '1';
@@ -1054,23 +1056,30 @@ begin
 				end if;
 			when get_alive7 =>
 				cstate <= enable_write_to_memory1;
-				if (vppYp > G_MemoryData - 1) then
-					if (io_MemDB(vppYp - G_MemoryData) = '1') then
-						vCellAlive := true;
-						report "get_alive cell at (X,Y)(" & integer'image(vppX) & "," & integer'image(vppYp) & ") = 1 , upper memory data" severity note;
-					else
-						vCellAlive := false;
---						report "get_alive cell at (X,Y)(" & integer'image(vppX) & "," & integer'image(vppYp) & ") = 0 , upper memory data" severity note;
-					end if;
+				if (io_MemDB(k) = '1') then
+					vCellAlive := true;
+					report "get_alive cell at (X,Y)(" & integer'image(vppX) & "," & integer'image(vppYp) & ") = 1 , upper memory data" severity note;
 				else
-					if (io_MemDB(vppYp) = '1') then
-						vCellAlive := true;
-						report "get_alive cell at (X,Y)(" & integer'image(vppX) & "," & integer'image(vppYp) & ") = 1 , lower memory data" severity note;
-					else
-						vCellAlive := false;
---						report "get_alive cell at (X,Y)(" & integer'image(vppX) & "," & integer'image(vppYp) & ") = 0 , lower memory data" severity note;
-					end if;
+					vCellAlive := false;
+--						report "get_alive cell at (X,Y)(" & integer'image(vppX) & "," & integer'image(vppYp) & ") = 0 , upper memory data" severity note;
 				end if;
+--				if (vppYp > G_MemoryData - 1) then
+--					if (io_MemDB(vppYp - G_MemoryData) = '1') then
+--						vCellAlive := true;
+--						report "get_alive cell at (X,Y)(" & integer'image(vppX) & "," & integer'image(vppYp) & ") = 1 , upper memory data" severity note;
+--					else
+--						vCellAlive := false;
+----						report "get_alive cell at (X,Y)(" & integer'image(vppX) & "," & integer'image(vppYp) & ") = 0 , upper memory data" severity note;
+--					end if;
+--				else
+--					if (io_MemDB(vppYp) = '1') then
+--						vCellAlive := true;
+--						report "get_alive cell at (X,Y)(" & integer'image(vppX) & "," & integer'image(vppYp) & ") = 1 , lower memory data" severity note;
+--					else
+--						vCellAlive := false;
+----						report "get_alive cell at (X,Y)(" & integer'image(vppX) & "," & integer'image(vppYp) & ") = 0 , lower memory data" severity note;
+--					end if;
+--				end if;
 			when enable_write_to_memory1 =>
 				cstate <= enable_write_to_memory2;
 				mm_i_enable <= '1';
@@ -1153,7 +1162,15 @@ begin
 				if (mm_o_busy = '1') then
 					cstate <= write_count_alive7;
 				else
+					cstate <= cellalive_check_k;
+				end if;
+			when cellalive_check_k =>
+				if (k = G_MemoryData-1) then
 					cstate <= cellalive_check_i;
+					k := 0;
+				else
+					cstate <= get_alive1;
+					k := k + 1;
 				end if;
 			when cellalive_check_i =>
 				if (i = i_max-1) then
