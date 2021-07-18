@@ -48,6 +48,7 @@ o_do : out std_logic;
 o_ck : out std_logic;
 o_reset : out std_logic;
 o_rs : out std_logic;
+Led5 : out std_logic;
 Led6 : out std_logic;
 Led7 : out std_logic;
 o_MemOE : out std_logic;
@@ -189,7 +190,7 @@ get_alive1,get_alive2,get_alive3,get_alive4,get_alive5,get_alive6,get_alive7,
 enable_write_to_memory1,enable_write_to_memory2,enable_write_to_memory3,enable_write_to_memory4,enable_write_to_memory5,enable_write_to_memory6,enable_write_to_memory7,
 write_count_alive1,write_count_alive2,write_count_alive3,write_count_alive4,write_count_alive5,write_count_alive6,write_count_alive7,
 cellalive_check_k,cellalive_check_i,update_row2,update_col2,
-stop);
+waiting,stop);
 signal cstate : state;
 
 signal ppX : std_logic_vector(ROWS_BITS-1 downto 0);
@@ -199,7 +200,7 @@ signal ppXp1 : std_logic_vector(ROWS_BITS-1 downto 0);
 signal ppYm1 : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
 signal ppYp1 : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
 signal countAlive : std_logic_vector(3 downto 0);
-signal CellAlive : std_logic;
+signal CellAlive,CellAlive2 : std_logic;
 signal i_reset : std_logic;
 signal CLK_BUFG : std_logic;
 
@@ -418,6 +419,7 @@ gof_logic : process (CLK_BUFG,i_reset) is
 	variable k : integer range 0 to G_MemoryData - 1; -- read bits in set_color and xy coords
 	variable drawbox_ikindex : integer range 0 to 255;
 	variable address_cc,address_disp,address_c1,address_c2,address_c3,address_c4,address_c5,address_c6,address_c7,address_c8,address_sca,address_ga,address_ewm,address_wca : std_logic_vector(G_MemoryAddress - 1 downto 1);
+	variable w : integer range 0 to INPUT_CLOCK - 1;
 begin
 	if (i_reset = '1') then
 		cstate <= set_cd_memorycopy;
@@ -465,8 +467,10 @@ begin
 				address_ga := (others => '0');
 				address_ewm := (others => '0');
 				address_wca := (others => '0');
+				Led5 <= '1';
 				Led6 <= '1';
 				Led7 <= '1';
+				w := 0;
 --				report "i_max = " & integer'image(i_max);
 			when enable_memory_module =>
 				cstate <= enable_write_fh;
@@ -530,12 +534,16 @@ begin
 				vppX := 0;
 				vppYp := 0;
 				startAddress := 0;
+				storeAddress := ALL_PIXELS;
 				rowIndex := 0;
 				i := 0;
 			when enable_memory_module_read_fh =>
 				cstate <= enable_read_memory_fh;
 				mm_i_enable <= '1';
 				k := 0;
+				Led5 <= '1';
+				Led6 <= '0';
+				Led7 <= '0';
 			when enable_read_memory_fh =>
 				cstate <= read_fh;
 				mm_i_read <= '1';
@@ -633,6 +641,7 @@ begin
 				vppX := 0;
 				vppYp := 0;
 				i := 0;
+				Led5 <= '0';
 				Led6 <= '1';
 				Led7 <= '0';
 			when check_coordinations =>
@@ -696,7 +705,7 @@ begin
 						vcountAlive := vcountAlive + 1;
 					end if;				
 				end if;
-				countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
+--				countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 			-- XXX ppX,ppYp1
 			when c2_m_e =>
 				cstate <= c2_m_r_e;
@@ -736,7 +745,7 @@ begin
 						vcountAlive := vcountAlive + 1;
 					end if;
 				end if;
-				countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
+--				countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 			-- XXX ppXp1,ppYp
 			when c3_m_e =>
 				cstate <= c3_m_r_e;
@@ -776,7 +785,7 @@ begin
 						vcountAlive := vcountAlive + 1;
 					end if;				
 				end if;
-				countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
+--				countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 			-- XXX ppXm1,ppYp
 			when c4_m_e =>
 				cstate <= c4_m_r_e;
@@ -816,7 +825,7 @@ begin
 						vcountAlive := vcountAlive + 1;
 					end if;
 				end if;
-				countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
+--				countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 			-- XXX ppXm1,ppYm1
 			when c5_m_e =>
 				cstate <= c5_m_r_e;
@@ -856,7 +865,7 @@ begin
 						vcountAlive := vcountAlive + 1;
 					end if;				
 				end if;
-				countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
+--				countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 			-- XXX ppXp1,ppYm1
 			when c6_m_e =>
 				cstate <= c6_m_r_e;
@@ -896,7 +905,7 @@ begin
 						vcountAlive := vcountAlive + 1;
 					end if;				
 				end if;
-				countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
+--				countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 			-- XXX ppXm1,ppYp1
 			when c7_m_e =>
 				cstate <= c7_m_r_e;
@@ -936,7 +945,7 @@ begin
 						vcountAlive := vcountAlive + 1;
 					end if;
 				end if;
-				countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
+--				countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 			-- XXX ppXp1,ppYp1
 			when c8_m_e =>
 				cstate <= c8_m_r_e;
@@ -976,7 +985,7 @@ begin
 						vcountAlive := vcountAlive + 1;
 					end if;				
 				end if;
-				countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
+--				countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 			when waitfor =>
 				cstate <= memory_disable_bit;
 				countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
@@ -1026,6 +1035,7 @@ begin
 				cstate <= get_alive1;
 				vppX := 0;
 				vppYp := 0;
+				Led5 <= '0';
 				Led6 <= '0';
 				Led7 <= '1';
 				i := 0;
@@ -1130,7 +1140,7 @@ begin
 				mm_i_write <= '1';
 			when write_count_alive3 =>
 				cstate <= write_count_alive4;
-				address_wca := std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
+				address_wca := std_logic_vector(to_unsigned(startAddress + vppX*COLS_PIXEL + vppYp,G_MemoryAddress-1));
 				mm_i_MemAdr(23 downto 1) <= address_wca;
 				slv_address_wca <= address_wca;
 			when write_count_alive4 =>
@@ -1159,6 +1169,7 @@ begin
 				cstate <= write_count_alive7;
 				mm_i_enable <= '0';
 			when write_count_alive7 =>
+				vCellAlive2 := false;
 				if (mm_o_busy = '1') then
 					cstate <= write_count_alive7;
 				else
@@ -1189,20 +1200,30 @@ begin
 				end if;
 			when update_col2 =>
 				if (vppYp = COLS_PIXEL-1) then
-					cstate <= stop;
+					cstate <= waiting;
 					vppYp := 0;
 				else
 					cstate <= get_alive1;
 					vppYp := vppYp + 1;
 					vppX := 0;
 				end if;
+			when waiting =>
+--				if (w = INPUT_CLOCK - 1) then
+				if (w = 1) then
+					cstate <= stop;
+					w := 0;
+				else
+					cstate <= waiting;
+					w := w + 1;
+				end if;
 			-- end
 			when stop =>
-				cstate <= reset_counters;
+				cstate <= enable_memory_module_read_fh; --reset_counters;
 			when others => null;
 		end case;		
 	end if;
 	CellAlive <= To_Std_Logic(vCellAlive);
+	CellAlive2 <= To_Std_Logic(vCellAlive2);
 	ppX <= std_logic_vector(to_unsigned(vppX,ROWS_BITS));
 	ppYp <= std_logic_vector(to_unsigned(vppYp,COLS_PIXEL_BITS));
 	ppXm1 <= std_logic_vector(to_unsigned(vppXm1,ROWS_BITS));
