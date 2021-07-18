@@ -74,8 +74,8 @@
       <association xil_pn:name="Implementation" xil_pn:seqID="2"/>
     </file>
     <file xil_pn:name="st7735r_gof.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="8"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="8"/>
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="9"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="9"/>
     </file>
     <file xil_pn:name="ssd1306_gof.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
@@ -96,7 +96,7 @@
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
     <file xil_pn:name="st7735r_tb_top.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="9"/>
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="10"/>
       <association xil_pn:name="PostMapSimulation" xil_pn:seqID="111"/>
       <association xil_pn:name="PostRouteSimulation" xil_pn:seqID="111"/>
       <association xil_pn:name="PostTranslateSimulation" xil_pn:seqID="111"/>
@@ -122,6 +122,74 @@
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
     <file xil_pn:name="memorymodule.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+    </file>
+    <file xil_pn:name="../../../.local/Xilinx/14.7/ISE_DS/ISE/vhdl/src/ieee/std_logic_1164.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+      <library xil_pn:name="my_ieee"/>
+    </file>
+    <file xil_pn:name="../../../.local/Xilinx/14.7/ISE_DS/ISE/vhdl/src/ieee/fixed_float_types_c.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+      <library xil_pn:name="my_ieee"/>
+    </file>
+    <file xil_pn:name="../../../.local/Xilinx/14.7/ISE_DS/ISE/vhdl/src/ieee/std_logic_misc.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+      <library xil_pn:name="my_ieee"/>
+    </file>
+    <file xil_pn:name="../../../.local/Xilinx/14.7/ISE_DS/ISE/vhdl/src/ieee/std_logic_arith.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+      <library xil_pn:name="my_ieee"/>
+    </file>
+    <file xil_pn:name="../../../.local/Xilinx/14.7/ISE_DS/ISE/vhdl/src/ieee/math_complex.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+      <library xil_pn:name="my_ieee"/>
+    </file>
+    <file xil_pn:name="../../../.local/Xilinx/14.7/ISE_DS/ISE/vhdl/src/ieee/float_pkg_c.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+      <library xil_pn:name="my_ieee"/>
+    </file>
+    <file xil_pn:name="../../../.local/Xilinx/14.7/ISE_DS/ISE/vhdl/src/ieee/numeric_std.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="8"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="8"/>
+    </file>
+    <file xil_pn:name="../../../.local/Xilinx/14.7/ISE_DS/ISE/vhdl/src/ieee/numeric_bit.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+      <library xil_pn:name="my_ieee"/>
+    </file>
+    <file xil_pn:name="../../../.local/Xilinx/14.7/ISE_DS/ISE/vhdl/src/ieee/std_logic_unsigned.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+      <library xil_pn:name="my_ieee"/>
+    </file>
+    <file xil_pn:name="../../../.local/Xilinx/14.7/ISE_DS/ISE/vhdl/src/ieee/std_logic_signed.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+      <library xil_pn:name="my_ieee"/>
+    </file>
+    <file xil_pn:name="../../../.local/Xilinx/14.7/ISE_DS/ISE/vhdl/src/ieee/math_real.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+      <library xil_pn:name="my_ieee"/>
+    </file>
+    <file xil_pn:name="../../../.local/Xilinx/14.7/ISE_DS/ISE/vhdl/src/ieee/std_logic_textio.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+      <library xil_pn:name="my_ieee"/>
+    </file>
+    <file xil_pn:name="../../../.local/Xilinx/14.7/ISE_DS/ISE/vhdl/src/ieee/fixed_pkg_c.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+      <library xil_pn:name="my_ieee"/>
+    </file>
+    <file xil_pn:name="memorymodule_bram.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="7"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="7"/>
     </file>
@@ -469,7 +537,9 @@
     <binding xil_pn:location="/ssd1306_gof" xil_pn:name="ssd1306_gof.ucf"/>
   </bindings>
 
-  <libraries/>
+  <libraries>
+    <library xil_pn:name="my_ieee"/>
+  </libraries>
 
   <autoManagedFiles>
     <!-- The following files are identified by `include statements in verilog -->
