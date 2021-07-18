@@ -36,7 +36,8 @@ entity st7735r_gof is
 generic(
 INPUT_CLOCK : integer := 50_000_000; --29_952_000;
 DIVIDER_CLOCK : integer := 1_000;
-SPI_SPEED_MODE : integer := C_CLOCK_COUNTER_EF
+SPI_SPEED_MODE : integer := C_CLOCK_COUNTER_EF;
+SIMULATE : std_logic := '0'
 );
 port(
 clk : in std_logic;
@@ -323,24 +324,24 @@ o_ck => spi_ck,
 o_sended => spi_sended
 );
 
---st7735rinit_entity : st7735r_initialize
---generic map (
---C_CLOCK_COUNTER => SPI_SPEED_MODE
---)
---port map (
---i_clock => CLK_BUFG,
---i_reset => i_reset,
---i_run => initialize_run,
---i_color => initialize_color,
---i_sended => initialize_sended,
---o_initialized => initialize_initialized,
---o_cs => initialize_cs,
---o_reset => initialize_reset,
---o_rs => initialize_rs,
---o_enable => initialize_enable,
---o_data_byte => initialize_data_byte
---);
-initialize_initialized <= '1'; -- XXX omit initialize in simulation
+st7735rinit_entity : st7735r_initialize
+generic map (
+C_CLOCK_COUNTER => SPI_SPEED_MODE
+)
+port map (
+i_clock => CLK_BUFG,
+i_reset => i_reset,
+i_run => initialize_run,
+i_color => initialize_color,
+i_sended => initialize_sended,
+o_initialized => initialize_initialized,
+o_cs => initialize_cs,
+o_reset => initialize_reset,
+o_rs => initialize_rs,
+o_enable => initialize_enable,
+o_data_byte => initialize_data_byte
+);
+--initialize_initialized <= '1'; -- XXX omit initialize in simulation
 
 st7735rdrawbox_entity : st7735r_draw_box
 generic map (
@@ -519,9 +520,13 @@ begin
 					cstate <= enable_memory_module;
 				end if;
 			when idle =>
-				cstate <= display_is_initialize;
-				initialize_run <= '1';
-				initialize_color <= SCREEN_BLACK;
+				if (SIMULATE = '1') then
+					cstate <= reset_counters;
+				elsif (SIMULATE = '0') then
+					cstate <= display_is_initialize;
+					initialize_run <= '1';
+					initialize_color <= SCREEN_BLACK;
+				end if;
 			when display_is_initialize =>
 				if (initialize_initialized = '1') then
 					cstate <= reset_counters;
@@ -537,6 +542,7 @@ begin
 				storeAddress := ALL_PIXELS;
 				rowIndex := 0;
 				i := 0;
+				k := 0;
 			when enable_memory_module_read_fh =>
 				cstate <= enable_read_memory_fh;
 				mm_i_enable <= '1';
@@ -1208,17 +1214,26 @@ begin
 					vppX := 0;
 				end if;
 			when waiting =>
---				if (w = INPUT_CLOCK - 1) then
-				if (w = 1) then
-					cstate <= stop;
-					w := 0;
-				else
-					cstate <= waiting;
-					w := w + 1;
+				if (SIMULATE = '1') then
+					if (w = 1) then
+						cstate <= stop;
+						w := 0;
+					else
+						cstate <= waiting;
+						w := w + 1;
+					end if;
+				elsif (SIMULATE = '0') then
+					if (w = INPUT_CLOCK - 1) then
+						cstate <= stop;
+						w := 0;
+					else
+						cstate <= waiting;
+						w := w + 1;
+					end if;
 				end if;
 			-- end
 			when stop =>
-				cstate <= enable_memory_module_read_fh; --reset_counters;
+				cstate <= reset_counters; --enable_memory_module_read_fh; --reset_counters;
 			when others => null;
 		end case;		
 	end if;
