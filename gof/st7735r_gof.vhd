@@ -1146,27 +1146,29 @@ begin
 				mm_i_write <= '1';
 			when write_count_alive3 =>
 				cstate <= write_count_alive4;
-				address_wca := std_logic_vector(to_unsigned(startAddress + vppX*COLS_PIXEL + vppYp,G_MemoryAddress-1));
+				address_wca := std_logic_vector(to_unsigned(startAddress + vppX*i_max + i,G_MemoryAddress-1));
 				mm_i_MemAdr(23 downto 1) <= address_wca;
 				slv_address_wca <= address_wca;
 			when write_count_alive4 =>
 				cstate <= write_count_alive5;
 				if (vCellAlive2 = true) then
-					if (vppYp > G_MemoryData - 1) then
-						mm_i_MemDB(vppYp - G_MemoryData) <= '1';
-						report "new cell 1,store new cell at (X,Y)(" & integer'image(vppX) & "," & integer'image(vppYp) & ") = 1 , upper memory data" severity note;
-					else
-						mm_i_MemDB(vppYp) <= '1';
-						report "new cell 1,store new cell at (X,Y)(" & integer'image(vppX) & "," & integer'image(vppYp) & ") = 1 , lower memory data" severity note;
-					end if;
+					mm_i_MemDB(k) <= '1';
+--					if (vppYp > G_MemoryData - 1) then
+--						mm_i_MemDB(vppYp - G_MemoryData) <= '1';
+--						report "new cell 1,store new cell at (X,Y)(" & integer'image(vppX) & "," & integer'image(vppYp) & ") = 1 , upper memory data" severity note;
+--					else
+--						mm_i_MemDB(vppYp) <= '1';
+--						report "new cell 1,store new cell at (X,Y)(" & integer'image(vppX) & "," & integer'image(vppYp) & ") = 1 , lower memory data" severity note;
+--					end if;
 				elsif (vCellAlive2 = false) then
-					if (vppYp > G_MemoryData - 1) then
-						mm_i_MemDB(vppYp - G_MemoryData) <= '0';
---						report "new cell 0,store new cell at (X,Y)(" & integer'image(vppX) & "," & integer'image(vppYp) & ") = 0 , upper memory data" severity note;
-					else
-						mm_i_MemDB(vppYp) <= '0';
---						report "new cell 0,store new cell at (X,Y)(" & integer'image(vppX) & "," & integer'image(vppYp) & ") = 0 , lower memory data" severity note;
-					end if;
+					mm_i_MemDB(k) <= '0';
+--					if (vppYp > G_MemoryData - 1) then
+--						mm_i_MemDB(vppYp - G_MemoryData) <= '0';
+----						report "new cell 0,store new cell at (X,Y)(" & integer'image(vppX) & "," & integer'image(vppYp) & ") = 0 , upper memory data" severity note;
+--					else
+--						mm_i_MemDB(vppYp) <= '0';
+----						report "new cell 0,store new cell at (X,Y)(" & integer'image(vppX) & "," & integer'image(vppYp) & ") = 0 , lower memory data" severity note;
+--					end if;
 				end if;
 			when write_count_alive5 =>
 				cstate <= write_count_alive6;
