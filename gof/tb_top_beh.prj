@@ -1,7 +1,0 @@
-vhdl work "p_memory_content.vhd"
-vhdl work "i2c.vhd"
-vhdl work "oled_display.vhd"
-vhdl work "memory1.vhd"
-vhdl work "clock_divider.vhd"
-vhdl work "top.vhd"
-vhdl work "tb_top.vhd"
