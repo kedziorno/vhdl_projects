@@ -49,7 +49,8 @@ COMPONENT st7735r_gof
 GENERIC(
 INPUT_CLOCK : integer;
 DIVIDER_CLOCK : integer;
-SPI_SPEED_MODE : integer
+SPI_SPEED_MODE : integer;
+SIMULATE : std_logic
 );
 PORT(
 clk : in std_logic;
@@ -105,7 +106,8 @@ uut: st7735r_gof
 GENERIC MAP (
 INPUT_CLOCK => IC,
 DIVIDER_CLOCK => DC,
-SPI_SPEED_MODE => SPISPEED
+SPI_SPEED_MODE => SPISPEED,
+SIMULATE => '1'
 )
 PORT MAP (
 clk => clk,
