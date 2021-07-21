@@ -17,20 +17,33 @@ package st7735r_p_store_image_data is
 	constant F_EDGE : std_logic := '0';
 	subtype byte is std_logic_vector(0 to BYTE_SIZE-1);
 	constant Xs : std_logic_vector(0 to BYTE_SIZE - 1) := (others => 'U');
+	
+	type states1 is (idle,start_cs,ck_event,ck_event_increment,stop_cs);
+	shared variable state1 : states1;
+	type states2 is (idle,pattern1,pattern2,pattern3,start,stop);
+	shared variable state2 : states2;
+
+	shared variable data_temp_index : integer;
+
+	shared variable do_temp : byte;
+
+	shared variable done : std_logic;
+	shared variable do_data : byte;
 
 	function vec2str(vec: std_logic_vector) return string;
 
 	procedure spi_get_byte (
+		signal i_clock : in std_logic;
 		signal i_reset : in std_logic;
 		signal cs : in std_logic;
 		signal do : in std_logic;
 		signal ck : in std_logic;
-		variable do_data : out byte
+		variable done : out std_logic;
+		variable do_data : inout byte
 	);
 
-	type states is (idle,pattern1,pattern2,pattern3,start,stop);
-
 	procedure st7735r_store_image_fsm (
+		signal i_clock : in std_logic;
 		signal i_reset : in std_logic;
 		signal cs : in std_logic;
 		signal do : in std_logic;
@@ -40,6 +53,115 @@ package st7735r_p_store_image_data is
 end st7735r_p_store_image_data;
 
 package body st7735r_p_store_image_data is
+
+	procedure spi_get_byte (
+		signal i_clock : in std_logic;
+		signal i_reset : in std_logic;
+		signal cs : in std_logic;
+		signal do : in std_logic;
+		signal ck : in std_logic;
+		variable done : out std_logic;
+		variable do_data : inout byte -- XXX default out, inout for report
+	) is
+	begin
+		if (i_reset = '1') then
+			state1 := idle;
+			data_temp_index := 0;
+			do_temp := (others => '0');
+			done := '0';
+		elsif (rising_edge(i_clock)) then
+			case (state1) is
+				when idle =>
+					state1 := start_cs;
+					data_temp_index := 0;
+					do_temp := (others => '0');
+					done := '0';
+				when start_cs =>
+					if (cs = '0') then
+						state1 := ck_event;
+--						report "spi_get_byte cs = '0'" severity note;
+					else
+						state1 := start_cs;
+					end if;
+				when ck_event =>
+					if (ck = R_EDGE) then
+						state1 := ck_event_increment;
+						do_temp(data_temp_index) := do;
+					else
+						state1 := ck_event;
+					end if;
+				when ck_event_increment =>
+					if (data_temp_index = BYTE_SIZE - 1) then
+						state1 := stop_cs;
+					else
+						state1 := ck_event;
+						data_temp_index := data_temp_index + 1;
+					end if;
+				when stop_cs =>
+					if (cs = '1') then
+						state1 := idle;
+						do_data := do_temp;
+						done := '1';
+--						report "spi_get_byte cs = '1'" severity note;
+						report "spi_get_byte do_data = " & vec2str(do_data) severity note;
+					elsif (cs = '0') then
+						state1 := stop_cs;
+					end if;
+			end case;
+		end if;
+	end procedure spi_get_byte;
+
+	procedure st7735r_store_image_fsm (
+		signal i_clock : in std_logic;
+		signal i_reset : in std_logic;
+		signal cs : in std_logic;
+		signal do : in std_logic;
+		signal ck : in std_logic
+	) is
+--		variable do_data : byte;
+--		variable state : states; -- XXX must stay variable, "Signal declaration is not allowed in a subprogram"
+--		variable done : std_logic;
+	begin
+		if (i_reset = '1') then
+			state2 := idle;
+--			do_data <= (others => 'U');
+--			spi_get_byte(i_clock,i_reset,cs,do,ck,do_data,done);
+		elsif (rising_edge(i_clock)) then
+			case (state2) is
+				when idle =>
+					if (cs = '1') then
+						state2 := idle;
+					else
+						state2 := pattern1;
+					end if;
+				when pattern1 =>
+					if (do_data = x"2b") then
+						state2 := pattern2;
+					else
+						state2 := pattern1;
+					end if;
+				when pattern2 =>
+					if (do_data = x"2a") then
+						state2 := pattern3;
+					else
+						state2 := pattern2;
+					end if;
+				when pattern3 =>
+					if (do_data = x"2c") then
+						state2 := start;
+					else
+						state2 := pattern3;
+					end if;
+				when start =>
+					state2 := stop;
+					report "asd" severity note;
+				when stop =>
+					state2 := idle;
+			end case;
+		end if;
+					spi_get_byte(i_clock,i_reset,cs,do,ck,done,do_data);
+
+	end procedure st7735r_store_image_fsm;
 
 	function vec2str(vec: std_logic_vector) return string is
 		variable result: string(0 to vec'right);
@@ -60,26 +182,6 @@ package body st7735r_p_store_image_data is
 		return result;
 	end;
 
-	procedure spi_get_byte (
-		signal i_reset : in std_logic;
-		signal cs : in std_logic;
-		signal do : in std_logic;
-		signal ck : in std_logic;
-		variable do_data : out byte
-	) is
-		variable data_temp_index : integer := 0;
-	begin
-		if (i_reset = '1') then
-			data_temp_index := 0;
-		elsif ((ck'event and ck = R_EDGE) and cs = '0') then -- XXX on cs = '0'
-			do_data(data_temp_index) := do;
-			if (data_temp_index = BYTE_SIZE - 1) then
-				data_temp_index := 0;
-			else
-				data_temp_index := data_temp_index + 1;
-			end if;
-		elsif (cs'event and cs = R_EDGE) then -- XXX at cs = '1', do have byte
-
 --			assert (data_rom(data_rom_index) = data_temp) report "FAIL : (" & integer'image(data_rom_index) & ") " & vec2str(data_temp) & " expect " & vec2str(data_rom(data_rom_index)) severity note;
 --			assert (data_rom(data_rom_index) /= data_temp) report "OK   : (" & integer'image(data_rom_index) & ") " & vec2str(data_temp) & " equals " & vec2str(data_rom(data_rom_index)) severity note;
 --			data_temp_index := 0;
@@ -91,52 +193,5 @@ package body st7735r_p_store_image_data is
 --					data_rom_index := data_rom_index + 1;
 --				end if;
 --			end if;
-
-		end if;
-	end procedure spi_get_byte;
-
-	procedure st7735r_store_image_fsm (
-		signal i_reset : in std_logic;
-		signal cs : in std_logic;
-		signal do : in std_logic;
-		signal ck : in std_logic
-	) is
-		variable do_data : byte;
-		variable state : states;
-	begin
-		if (i_reset = '1') then
-			state := idle;
-			do_data := (others => 'U');
-		else
-			case (state) is
-				when idle =>
-					state := pattern1;
-				when pattern1 =>
-					if (do_data = x"2b") then
-						state := pattern1;
-					else
-						state := pattern2;
-					end if;
-				when pattern2 =>
-					if (do_data = x"2a") then
-						state := pattern2;
-					else
-						state := pattern3;
-					end if;
-				when pattern3 =>
-					if (do_data = x"2c") then
-						state := pattern3;
-					else
-						state := start;
-					end if;
-				when start =>
-					state := stop;
-					report "asd" severity note;
-				when stop =>
-					state := idle;
-			end case;
-			spi_get_byte(i_reset,cs,do,ck,do_data);
-		end if;
-	end procedure st7735r_store_image_fsm;
 
 end st7735r_p_store_image_data;

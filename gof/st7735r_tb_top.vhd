@@ -155,6 +155,16 @@ wait for clk_period*10;
 wait;
 end process;
 
-st7735r_store_image_fsm (btn_1,o_cs,o_do,o_ck);
+st7735r_store_image_fsm(clk,btn_1,o_cs,o_do,o_ck);
+
+--p0 : process (clk,btn_1) is
+--begin
+--st7735r_store_image_fsm(clk,btn_1,o_cs,o_do,o_ck);
+--end process p0;
+--
+--p1 : process (clk,btn_1) is
+--begin
+--spi_get_byte(clk,btn_1,o_cs,o_do,o_ck,done,do_data);
+--end process p1;
 
 END;
