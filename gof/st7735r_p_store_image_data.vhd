@@ -10,6 +10,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use WORK.st7735r_p_package.ALL;
+use STD.textio.ALL;
 
 package st7735r_p_store_image_data is
 
@@ -20,7 +21,7 @@ package st7735r_p_store_image_data is
 	
 	type states1 is (idle,start_cs,ck_event,ck_event_increment,stop_cs);
 	shared variable state1 : states1;
-	type states2 is (idle,pattern1,pattern2,pattern3,start,stop);
+	type states2 is (idle,pattern1,pattern2,pattern3,start,open_file,write_file,close_file,stop);
 	shared variable state2 : states2;
 
 	shared variable data_temp_index : integer;
@@ -29,6 +30,11 @@ package st7735r_p_store_image_data is
 
 	shared variable done : std_logic;
 	shared variable do_data : byte;
+
+	constant C_FILE_NAME : string  := "DataOut.txt";
+	shared variable fstatus : file_open_status;
+	shared variable file_line : line;
+	file fptr : text;
 
 	function vec2str(vec: std_logic_vector) return string;
 
@@ -79,7 +85,6 @@ package body st7735r_p_store_image_data is
 				when start_cs =>
 					if (cs = '0') then
 						state1 := ck_event;
---						report "spi_get_byte cs = '0'" severity note;
 					else
 						state1 := start_cs;
 					end if;
@@ -102,8 +107,7 @@ package body st7735r_p_store_image_data is
 						state1 := idle;
 						do_data := do_temp;
 						done := '1';
---						report "spi_get_byte cs = '1'" severity note;
-						report "spi_get_byte do_data = " & vec2str(do_data) severity note;
+--						report "spi_get_byte do_data = " & vec2str(do_data) severity note; -- XXX ok, bin pattern
 					elsif (cs = '0') then
 						state1 := stop_cs;
 					end if;
@@ -118,14 +122,9 @@ package body st7735r_p_store_image_data is
 		signal do : in std_logic;
 		signal ck : in std_logic
 	) is
---		variable do_data : byte;
---		variable state : states; -- XXX must stay variable, "Signal declaration is not allowed in a subprogram"
---		variable done : std_logic;
 	begin
 		if (i_reset = '1') then
 			state2 := idle;
---			do_data <= (others => 'U');
---			spi_get_byte(i_clock,i_reset,cs,do,ck,do_data,done);
 		elsif (rising_edge(i_clock)) then
 			case (state2) is
 				when idle =>
@@ -153,14 +152,27 @@ package body st7735r_p_store_image_data is
 						state2 := pattern3;
 					end if;
 				when start =>
+					state2 := open_file;
+				when open_file =>
+					state2 := write_file;
+					file_open(fstatus, fptr, C_FILE_NAME, write_mode);
+				when write_file =>
+					state2 := close_file;
+					if (do_data = x"ff") then
+						write(file_line, '*');
+						writeline(fptr, file_line);
+					else
+						write(file_line, '.');
+						writeline(fptr, file_line);
+					end if;
+				when close_file =>
 					state2 := stop;
-					report "asd" severity note;
+					writeline(fptr, file_line);
 				when stop =>
 					state2 := idle;
 			end case;
 		end if;
-					spi_get_byte(i_clock,i_reset,cs,do,ck,done,do_data);
-
+		spi_get_byte(i_clock,i_reset,cs,do,ck,done,do_data);
 	end procedure st7735r_store_image_fsm;
 
 	function vec2str(vec: std_logic_vector) return string is
