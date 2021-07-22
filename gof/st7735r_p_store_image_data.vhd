@@ -10,6 +10,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use WORK.st7735r_p_package.ALL;
+use WORK.p_memory_content.ALL;
 use STD.textio.ALL;
 
 package st7735r_p_store_image_data is
@@ -21,7 +22,7 @@ package st7735r_p_store_image_data is
 	
 	type states1 is (idle,start_cs,ck_event,ck_event_increment,stop_cs);
 	shared variable state1 : states1;
-	type states2 is (idle,pattern1,pattern2,pattern3,start,open_file,write_file,close_file,stop);
+	type states2 is (idle,pattern1,pattern2,pattern3,start,open_file,write_line,check_index,write_file,close_file,stop);
 	shared variable state2 : states2;
 
 	shared variable data_temp_index : integer;
@@ -35,6 +36,9 @@ package st7735r_p_store_image_data is
 	shared variable fstatus : file_open_status;
 	shared variable file_line : line;
 	file fptr : text;
+
+	constant SCREEN_AREA : integer := ROWS * COLS_PIXEL;
+	shared variable index : integer;
 
 	function vec2str(vec: std_logic_vector) return string;
 
@@ -125,6 +129,7 @@ package body st7735r_p_store_image_data is
 	begin
 		if (i_reset = '1') then
 			state2 := idle;
+			index := 0;
 		elsif (rising_edge(i_clock)) then
 			case (state2) is
 				when idle =>
@@ -154,20 +159,34 @@ package body st7735r_p_store_image_data is
 				when start =>
 					state2 := open_file;
 				when open_file =>
-					state2 := write_file;
+					state2 := write_line;
 					file_open(fstatus, fptr, C_FILE_NAME, write_mode);
-				when write_file =>
-					state2 := close_file;
+				when write_line =>
+					state2 := check_index;
+--					report "index = " & integer'image(index);
 					if (do_data = x"ff") then
 						write(file_line, '*');
-						writeline(fptr, file_line);
 					else
 						write(file_line, '.');
-						writeline(fptr, file_line);
 					end if;
+				when check_index =>
+					if (done = '1') then
+						if (index = SCREEN_AREA - 1) then
+							state2 := write_file;
+							index := 0;
+						else
+							state2 := write_line;
+							index := index + 1;
+							writeline(fptr, file_line);
+						end if;
+					else
+						state2 := check_index;
+					end if;
+				when write_file =>
+					state2 := close_file;
 				when close_file =>
 					state2 := stop;
-					writeline(fptr, file_line);
+					file_close(fptr);
 				when stop =>
 					state2 := idle;
 			end case;
