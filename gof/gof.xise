@@ -118,7 +118,7 @@
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
     <file xil_pn:name="memorymodule.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="7"/>
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="7"/>
     </file>
     <file xil_pn:name="../../../.local/Xilinx/14.7/ISE_DS/ISE/vhdl/src/ieee/std_logic_1164.vhd" xil_pn:type="FILE_VHDL">
@@ -186,7 +186,7 @@
       <library xil_pn:name="my_ieee"/>
     </file>
     <file xil_pn:name="memorymodule_bram.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="7"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
     <file xil_pn:name="../../../.local/Xilinx/14.7/ISE_DS/ISE/vhdl/src/unisims/primitive/BUFG.vhd" xil_pn:type="FILE_VHDL">
@@ -195,7 +195,7 @@
     </file>
     <file xil_pn:name="st7735r_p_store_image_data.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="10"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="102"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
   </files>
 

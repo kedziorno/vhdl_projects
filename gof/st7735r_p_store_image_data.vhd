@@ -26,7 +26,7 @@ package st7735r_p_store_image_data is
 	pattern1,pattern2,pattern3,
 	omit1,omit2,omit3,
 	start,
-	open_file,write_line,check_index_rows,check_index_cols,write_file,close_file,
+	open_file,write_line,check_index_rows,check_index_cols,write_file,write_empty_line,close_file,
 	stop);
 	shared variable state2 : states2;
 
@@ -44,6 +44,7 @@ package st7735r_p_store_image_data is
 
 	shared variable index_rows,index_cols : integer;
 	shared variable pattern : string(1 to COLS_PIXEL);
+	constant empty_line : string(1 to COLS_PIXEL) := (others => ' ');
 	function vec2str(vec: std_logic_vector) return string;
 
 	procedure spi_get_byte (
@@ -132,12 +133,14 @@ package body st7735r_p_store_image_data is
 	) is
 	begin
 		if (i_reset = '1') then
-			state2 := idle;
+			state2 := open_file;
 			index_rows := 0;
 			index_cols := 0;
-			file_open(fstatus, fptr, C_FILE_NAME, append_mode);
 		elsif (rising_edge(i_clock)) then
 			case (state2) is
+				when open_file =>
+					state2 := idle;
+					file_open(fstatus, fptr, C_FILE_NAME, append_mode);
 				when idle =>
 					if (cs = '1') then
 						state2 := idle;
@@ -227,20 +230,25 @@ package body st7735r_p_store_image_data is
 					end if;
 				when write_file =>
 					state2 := check_index_rows;
+					write(file_line, empty_line);
 					writeline(fptr, file_line);
 				when check_index_rows =>
 					if (index_rows = ROWS - 1) then
-						state2 := close_file;
+						state2 := write_empty_line;
 						index_rows := 0;
 					else
 						state2 := idle;
 						index_rows := index_rows + 1;
 					end if;
+				when write_empty_line =>
+					state2 := close_file;
+					write(file_line, empty_line);
+					writeline(fptr, file_line);
 				when close_file =>
 					state2 := stop;
 					file_close(fptr);
 				when stop =>
-					state2 := idle;
+					state2 := open_file;
 				when others => null;
 			end case;
 		end if;
