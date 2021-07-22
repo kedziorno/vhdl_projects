@@ -22,7 +22,7 @@ package st7735r_p_store_image_data is
 	
 	type states1 is (idle,start_cs,ck_event,ck_event_increment,stop_cs);
 	shared variable state1 : states1;
-	type states2 is (idle,pattern1,pattern2,pattern3,start,open_file,write_line,check_index,write_file,close_file,stop);
+	type states2 is (idle,pattern1,pattern2,pattern3,start,open_file,write_line,check_index_rows,check_index_cols,write_file,close_file,stop);
 	shared variable state2 : states2;
 
 	shared variable data_temp_index : integer;
@@ -37,9 +37,8 @@ package st7735r_p_store_image_data is
 	shared variable file_line : line;
 	file fptr : text;
 
-	constant SCREEN_AREA : integer := ROWS * COLS_PIXEL;
-	shared variable index : integer;
-
+	shared variable index_rows,index_cols : integer;
+	shared variable pattern : string(1 to COLS_PIXEL);
 	function vec2str(vec: std_logic_vector) return string;
 
 	procedure spi_get_byte (
@@ -129,7 +128,8 @@ package body st7735r_p_store_image_data is
 	begin
 		if (i_reset = '1') then
 			state2 := idle;
-			index := 0;
+			index_rows := 0;
+			index_cols := 0;
 		elsif (rising_edge(i_clock)) then
 			case (state2) is
 				when idle =>
@@ -160,30 +160,35 @@ package body st7735r_p_store_image_data is
 					state2 := open_file;
 				when open_file =>
 					state2 := write_line;
-					file_open(fstatus, fptr, C_FILE_NAME, write_mode);
+					file_open(fstatus, fptr, C_FILE_NAME, append_mode);
 				when write_line =>
-					state2 := check_index;
+					state2 := check_index_cols;
 --					report "index = " & integer'image(index);
 					if (do_data = x"ff") then
-						write(file_line, '*');
-					else
-						write(file_line, '.');
+						pattern(index_cols + 1) := '*';
+					elsif (do_data = x"00") then
+						pattern(index_cols + 1) := '.';
 					end if;
-				when check_index =>
-					if (done = '1') then
-						if (index = SCREEN_AREA - 1) then
-							state2 := write_file;
-							index := 0;
-						else
-							state2 := write_line;
-							index := index + 1;
-							writeline(fptr, file_line);
-						end if;
+				when check_index_cols =>
+					if (index_cols = COLS_PIXEL - 1) then
+						state2 := write_file;
+						index_cols := 0;
+						write(file_line, pattern);
 					else
-						state2 := check_index;
+						state2 := write_line;
+						index_cols := index_cols + 1;
 					end if;
 				when write_file =>
-					state2 := close_file;
+					state2 := check_index_rows;
+					writeline(fptr, file_line);
+				when check_index_rows =>
+					if (index_rows = ROWS - 1) then
+						state2 := close_file;
+						index_rows := 0;
+					else
+						state2 := write_line;
+						index_rows := index_rows + 1;
+					end if;
 				when close_file =>
 					state2 := stop;
 					file_close(fptr);
