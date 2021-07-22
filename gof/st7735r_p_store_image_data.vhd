@@ -22,7 +22,12 @@ package st7735r_p_store_image_data is
 	
 	type states1 is (idle,start_cs,ck_event,ck_event_increment,stop_cs);
 	shared variable state1 : states1;
-	type states2 is (idle,pattern1,pattern2,pattern3,start,open_file,write_line,check_index_rows,check_index_cols,write_file,close_file,stop);
+	type states2 is (idle,
+	pattern1,pattern2,pattern3,
+	omit1,omit2,omit3,
+	start,
+	open_file,write_line,check_index_rows,check_index_cols,write_file,close_file,
+	stop);
 	shared variable state2 : states2;
 
 	shared variable data_temp_index : integer;
@@ -130,6 +135,7 @@ package body st7735r_p_store_image_data is
 			state2 := idle;
 			index_rows := 0;
 			index_cols := 0;
+			file_open(fstatus, fptr, C_FILE_NAME, append_mode);
 		elsif (rising_edge(i_clock)) then
 			case (state2) is
 				when idle =>
@@ -139,35 +145,76 @@ package body st7735r_p_store_image_data is
 						state2 := pattern1;
 					end if;
 				when pattern1 =>
-					if (do_data = x"2b") then
-						state2 := pattern2;
-					else
-						state2 := pattern1;
-					end if;
+--					if (done = '1') then
+						if (do_data = x"2b") then
+							state2 := pattern2;
+						else
+							state2 := pattern1;
+						end if;
+--					else
+--						state2 := pattern1;
+--					end if;
 				when pattern2 =>
-					if (do_data = x"2a") then
-						state2 := pattern3;
-					else
-						state2 := pattern2;
-					end if;
+--					if (done = '1') then
+						if (do_data = x"2a") then
+							state2 := pattern3;
+						else
+							state2 := pattern2;
+						end if;
+--					else
+--						state2 := pattern2;
+--					end if;
 				when pattern3 =>
-					if (do_data = x"2c") then
-						state2 := start;
-					else
-						state2 := pattern3;
-					end if;
-				when start =>
-					state2 := open_file;
-				when open_file =>
-					state2 := write_line;
-					file_open(fstatus, fptr, C_FILE_NAME, append_mode);
+--					if (done = '1') then
+						if (do_data = x"2c") then
+							state2 := write_line;
+						else
+							state2 := pattern3;
+						end if;
+--					else
+--						state2 := pattern3;
+--					end if;
+--				when omit1 =>
+--					if (done = '1') then
+--						if (do_data = x"00" or do_data = x"ff") then
+--							state2 := omit2;
+--						else
+--							state2 := omit1;
+--						end if;
+--					else
+--						state2 := omit1;
+--					end if;
+--				when omit2 =>
+--					if (done = '1') then
+--						if (do_data = x"00" or do_data = x"ff") then
+--							state2 := omit3;
+--						else
+--							state2 := omit2;
+--						end if;
+--					else
+--						state2 := omit2;
+--					end if;
+--				when omit3 =>
+--					if (done = '1') then
+--						if (do_data = x"00" or do_data = x"ff") then
+--							state2 := start;
+--						else
+--							state2 := omit3;
+--						end if;
+--					else
+--						state2 := omit3;
+--					end if;
 				when write_line =>
 					state2 := check_index_cols;
 --					report "index = " & integer'image(index);
-					if (do_data = x"ff") then
-						pattern(index_cols + 1) := '*';
-					elsif (do_data = x"00") then
-						pattern(index_cols + 1) := '.';
+					if (done = '1') then
+						if (do_data = x"ff") then
+							pattern(index_cols + 1) := '*';
+						elsif (do_data = x"00") then
+							pattern(index_cols + 1) := '.';
+						end if;
+					else
+						state2 := write_line;
 					end if;
 				when check_index_cols =>
 					if (index_cols = COLS_PIXEL - 1) then
@@ -175,7 +222,7 @@ package body st7735r_p_store_image_data is
 						index_cols := 0;
 						write(file_line, pattern);
 					else
-						state2 := write_line;
+						state2 := idle;
 						index_cols := index_cols + 1;
 					end if;
 				when write_file =>
@@ -186,7 +233,7 @@ package body st7735r_p_store_image_data is
 						state2 := close_file;
 						index_rows := 0;
 					else
-						state2 := write_line;
+						state2 := idle;
 						index_rows := index_rows + 1;
 					end if;
 				when close_file =>
@@ -194,6 +241,7 @@ package body st7735r_p_store_image_data is
 					file_close(fptr);
 				when stop =>
 					state2 := idle;
+				when others => null;
 			end case;
 		end if;
 		spi_get_byte(i_clock,i_reset,cs,do,ck,done,do_data);
