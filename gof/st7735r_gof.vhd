@@ -146,7 +146,7 @@ o_clk : out STD_LOGIC
 );
 end component clock_divider;
 
-component memorymodule_bram is
+component memorymodule is
 Port (
 i_clock : in std_logic;
 i_enable : in std_logic;
@@ -168,7 +168,7 @@ o_RamClk : out std_logic;
 o_MemAdr : out MemoryAddress;
 io_MemDB : inout MemoryDataByte
 );
-end component memorymodule_bram;
+end component memorymodule;
 
 type state is (
 set_cd_memorycopy,enable_memory_module,enable_write_fh,copy_first_halfword,disable_write_fh,disable_memory_module,memory_wait_fh,
@@ -374,7 +374,7 @@ I => clk,
 O => CLK_BUFG
 );
 
-mm1 : memorymodule_bram
+mm1 : memorymodule
 Port map (
 i_clock => CLK_BUFG,
 i_enable => mm_i_enable,
