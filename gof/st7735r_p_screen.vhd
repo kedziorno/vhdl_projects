@@ -18,7 +18,8 @@ package st7735r_p_screen is
 
 	constant SCREEN_WIDTH : integer := 128;
 	constant SCREEN_HEIGHT : integer := 160;
-	constant SCREEN_FILL : integer := 2 * SCREEN_WIDTH * SCREEN_HEIGHT;
+	constant SCREEN_AREA : integer := SCREEN_WIDTH * SCREEN_HEIGHT;
+	constant SCREEN_FILL : integer := 2 * SCREEN_AREA;
 
 	subtype COLOR_TYPE is std_logic_vector(15 downto 0);
 	constant SCREEN_BLACK : COLOR_TYPE := x"0000";

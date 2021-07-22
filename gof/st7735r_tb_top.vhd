@@ -29,6 +29,7 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE WORK.st7735r_p_package.ALL;
 USE WORK.p_memory_content.ALL;
+USE WORK.st7735r_p_store_image_data.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -153,5 +154,17 @@ wait for clk_period*10;
 -- insert stimulus here
 wait;
 end process;
+
+st7735r_store_image_fsm(clk,btn_1,o_cs,o_do,o_ck);
+
+--p0 : process (clk,btn_1) is
+--begin
+--st7735r_store_image_fsm(clk,btn_1,o_cs,o_do,o_ck);
+--end process p0;
+--
+--p1 : process (clk,btn_1) is
+--begin
+--spi_get_byte(clk,btn_1,o_cs,o_do,o_ck,done,do_data);
+--end process p1;
 
 END;
