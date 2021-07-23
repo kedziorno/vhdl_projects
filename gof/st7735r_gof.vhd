@@ -104,30 +104,30 @@ o_cs : out std_logic
 );
 end component st7735r_initialize;
 
-component st7735r_draw_box is
-generic (
-C_CLOCK_COUNTER : integer
-);
-port (
-i_clock : in std_logic;
-i_reset : in std_logic;
-i_run : in std_logic;
-i_sended : in std_logic;
-i_color : in COLOR_TYPE;
-i_raxs : in BYTE_TYPE;
-i_raxe : in BYTE_TYPE;
-i_rays : in BYTE_TYPE;
-i_raye : in BYTE_TYPE;
-i_caxs : in BYTE_TYPE;
-i_caxe : in BYTE_TYPE;
-i_cays : in BYTE_TYPE;
-i_caye : in BYTE_TYPE;
-o_data : out BYTE_TYPE;
-o_enable : out std_logic;
-o_rs : out std_logic;
-o_initialized : out std_logic
-);
-end component st7735r_draw_box;
+--component st7735r_draw_box is
+--generic (
+--C_CLOCK_COUNTER : integer
+--);
+--port (
+--i_clock : in std_logic;
+--i_reset : in std_logic;
+--i_run : in std_logic;
+--i_sended : in std_logic;
+--i_color : in COLOR_TYPE;
+--i_raxs : in BYTE_TYPE;
+--i_raxe : in BYTE_TYPE;
+--i_rays : in BYTE_TYPE;
+--i_raye : in BYTE_TYPE;
+--i_caxs : in BYTE_TYPE;
+--i_caxe : in BYTE_TYPE;
+--i_cays : in BYTE_TYPE;
+--i_caye : in BYTE_TYPE;
+--o_data : out BYTE_TYPE;
+--o_enable : out std_logic;
+--o_rs : out std_logic;
+--o_initialized : out std_logic
+--);
+--end component st7735r_draw_box;
 
 component BUFG
 port (I : in std_logic;
@@ -169,9 +169,13 @@ end component memorymodule;
 type state is (
 set_cd_memorycopy,enable_memory_module,enable_write_fh,copy_first_halfword,disable_write_fh,disable_memory_module,memory_wait_fh,
 check_ranges_write1,check_ranges_write2,idle,display_is_initialize,reset_counters,enable_memory_module_read_fh,
-enable_read_memory_fh,read_fh,store_fh,disable_read_memory_fh,disable_memory_module_read_fh,memory_busy,set_color,
-draw_box_state0,draw_box_state1,draw_box_state2,draw_box_state3,draw_box_state4,draw_box_state5,draw_box_state6,draw_box_state7,draw_box_state8,draw_box_state9,
-incrementk,check_rowindex,reset_counters_1,
+enable_read_memory_fh,read_fh,store_fh,disable_read_memory_fh,disable_memory_module_read_fh,memory_busy,
+set_color1,set_color2,set_color3,set_color4,set_color5,set_color6,set_color7,set_color8,set_color9,
+draw_box_state0,
+draw_box_state1,draw_box_state2,draw_box_state3,draw_box_state4,draw_box_state5,draw_box_state6,draw_box_state7,draw_box_state8,draw_box_state9,
+draw_box_state10,draw_box_state11,draw_box_state12,draw_box_state13,draw_box_state14,draw_box_state15,draw_box_state16,draw_box_state17,draw_box_state18,draw_box_state19,
+draw_box_state20,draw_box_state21,draw_box_state22,draw_box_state23,draw_box_state24,draw_box_state25,draw_box_state26,draw_box_state27,draw_box_state28,draw_box_state29,
+check_colindex,check_rowindex,reset_counters_1,
 check_coordinations,reset_count_alive,
 c1_m_e,c1_m_r_e,c1_s_a,c1_m_r_d,c1_m_d,c1_busy,c1,
 c2_m_e,c2_m_r_e,c2_s_a,c2_m_r_d,c2_m_d,c2_busy,c2,
@@ -301,7 +305,7 @@ o_ck => spi_ck,
 o_sended => spi_sended
 );
 
-st7735rinit_entity : st7735r_initialize
+st7735r_initialize_entity : st7735r_initialize
 generic map (
 C_CLOCK_COUNTER => SPI_SPEED_MODE
 )
@@ -320,29 +324,29 @@ o_data_byte => initialize_data_byte
 );
 --initialize_initialized <= '1'; -- XXX omit initialize in simulation
 
-st7735rdrawbox_entity : st7735r_draw_box
-generic map (
-C_CLOCK_COUNTER => SPI_SPEED_MODE
-)
-port map (
-i_clock => CLK_BUFG,
-i_reset => i_reset,
-i_run => drawbox_run,
-i_sended => drawbox_sended, -- XXX SPI
-i_color => drawbox_color,
-i_raxs => drawbox_raxs,
-i_raxe => drawbox_raxe,
-i_rays => drawbox_rays,
-i_raye => drawbox_raye,
-i_caxs => drawbox_caxs,
-i_caxe => drawbox_caxe,
-i_cays => drawbox_cays,
-i_caye => drawbox_caye,
-o_data => drawbox_data_byte,
-o_enable => drawbox_enable, -- XXX SPI
-o_rs => drawbox_rs,
-o_initialized => drawbox_initialized
-);
+--st7735r_draw_box_entity : st7735r_draw_box
+--generic map (
+--C_CLOCK_COUNTER => SPI_SPEED_MODE
+--)
+--port map (
+--i_clock => CLK_BUFG,
+--i_reset => i_reset,
+--i_run => drawbox_run,
+--i_sended => drawbox_sended, -- XXX SPI
+--i_color => drawbox_color,
+--i_raxs => drawbox_raxs,
+--i_raxe => drawbox_raxe,
+--i_rays => drawbox_rays,
+--i_raye => drawbox_raye,
+--i_caxs => drawbox_caxs,
+--i_caxe => drawbox_caxe,
+--i_cays => drawbox_cays,
+--i_caye => drawbox_caye,
+--o_data => drawbox_data_byte,
+--o_enable => drawbox_enable, -- XXX SPI
+--o_rs => drawbox_rs,
+--o_initialized => drawbox_initialized
+--);
 
 U_BUFG: BUFG 
 port map (
@@ -390,6 +394,7 @@ gof_logic : process (CLK_BUFG,i_reset) is
 	variable colIndex : integer range 0 to COLS_PIXEL - 1;
 	variable COL : WORD;
 	variable address_cc,address_disp,address_c1,address_c2,address_c3,address_c4,address_c5,address_c6,address_c7,address_c8,address_sca,address_ga,address_ewm,address_wca : std_logic_vector(G_MemoryAddress - 1 downto 1);
+	variable w0_index : integer range 0 to SPI_SPEED_MODE - 1;
 begin
 	if (i_reset = '1') then
 		cstate <= set_cd_memorycopy;
@@ -430,6 +435,7 @@ begin
 				Led5 <= '1';
 				Led6 <= '1';
 				Led7 <= '1';
+				w0_index := 0;
 			when enable_memory_module =>
 				cstate <= enable_write_fh;
 				mm_i_enable <= '1';
@@ -493,19 +499,314 @@ begin
 					cstate <= display_is_initialize;
 				end if;
 			when reset_counters =>
+				cstate <= draw_box_state0;
 				initialize_run <= '0';
-				cstate <= enable_memory_module_read_fh;
+				drawbox_run <= '1';
 				vppX := 0;
 				vppYp := 0;
 				vstartAddress := 0;
 				vstoreAddress := ALL_PIXELS - 1;
 				rowIndex := 0;
-			when enable_memory_module_read_fh =>
-				cstate <= enable_read_memory_fh;
-				mm_i_enable <= '1';
+				colIndex := 0;
+			
+
+					
+			when draw_box_state0 =>
 				Led5 <= '1';
 				Led6 <= '0';
 				Led7 <= '0';
+				drawbox_data_byte <= x"2b"; --RASET
+				drawbox_rs <= '0';
+				drawbox_enable <= '1';
+				if (spi_sended = '1') then
+					cstate <= draw_box_state1;
+				else
+					cstate <= draw_box_state0;
+				end if;
+			when draw_box_state1 =>
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= draw_box_state2;
+					w0_index := 0;
+					drawbox_enable <= '0';
+				else
+					cstate <= draw_box_state1;
+					w0_index := w0_index + 1;
+				end if;
+			when draw_box_state2 =>
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= draw_box_state3;
+					w0_index := 0;
+				else
+					cstate <= draw_box_state2;
+					w0_index := w0_index + 1;
+				end if;
+			when draw_box_state3 =>
+				drawbox_rs <= '1';
+				drawbox_data_byte <= x"00";
+				drawbox_enable <= '1';
+				if (spi_sended = '1') then
+					cstate <= draw_box_state4;
+				else
+					cstate <= draw_box_state3;
+				end if;
+			when draw_box_state4 =>
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= draw_box_state5;
+					w0_index := 0;
+					drawbox_enable <= '0';
+				else
+					cstate <= draw_box_state4;
+					w0_index := w0_index + 1;
+				end if;
+			when draw_box_state5 =>
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= draw_box_state6;
+					w0_index := 0;
+				else
+					cstate <= draw_box_state5;
+					w0_index := w0_index + 1;
+				end if;
+			when draw_box_state6 =>
+				drawbox_rs <= '1';
+				drawbox_data_byte <= x"00";
+				drawbox_enable <= '1';
+				if (spi_sended = '1') then
+					cstate <= draw_box_state7;
+				else
+					cstate <= draw_box_state6;
+				end if;
+			when draw_box_state7 =>
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= draw_box_state8;
+					w0_index := 0;
+					drawbox_enable <= '0';
+				else
+					cstate <= draw_box_state7;
+					w0_index := w0_index + 1;
+				end if;
+			when draw_box_state8 =>
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= draw_box_state9;
+					w0_index := 0;
+				else
+					cstate <= draw_box_state8;
+					w0_index := w0_index + 1;
+				end if;
+			when draw_box_state9 =>
+				drawbox_rs <= '1';
+				drawbox_data_byte <= x"00";
+				drawbox_enable <= '1';
+				if (spi_sended = '1') then
+					cstate <= draw_box_state10;
+				else
+					cstate <= draw_box_state9;
+				end if;
+			when draw_box_state10 =>
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= draw_box_state11;
+					w0_index := 0;
+					drawbox_enable <= '0';
+				else
+					cstate <= draw_box_state10;
+					w0_index := w0_index + 1;
+				end if;
+			when draw_box_state11 =>	
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= draw_box_state12;
+					w0_index := 0;
+				else
+					cstate <= draw_box_state11;
+					w0_index := w0_index + 1;
+				end if;
+			when draw_box_state12 =>	
+				drawbox_rs <= '1';
+				drawbox_data_byte <= std_logic_vector(to_unsigned(ROWS-1,BYTE_SIZE));
+				drawbox_enable <= '1';
+				if (spi_sended = '1') then
+					cstate <= draw_box_state13;
+				else
+					cstate <= draw_box_state12;
+				end if;
+			when draw_box_state13 =>	
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= draw_box_state14;
+					w0_index := 0;
+					drawbox_enable <= '0';
+				else
+					cstate <= draw_box_state13;
+					w0_index := w0_index + 1;
+				end if;
+			when draw_box_state14 =>	
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= draw_box_state15;
+					w0_index := 0;
+				else
+					cstate <= draw_box_state14;
+					w0_index := w0_index + 1;
+				end if;
+			when draw_box_state15 =>
+				drawbox_data_byte <= x"2a"; --CASET
+				drawbox_rs <= '0';
+				drawbox_enable <= '1';
+				if (spi_sended = '1') then
+					cstate <= draw_box_state16;
+				else
+					cstate <= draw_box_state15;
+				end if;
+			when draw_box_state16 =>
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= draw_box_state17;
+					w0_index := 0;
+					drawbox_enable <= '0';
+				else
+					cstate <= draw_box_state16;
+					w0_index := w0_index + 1;
+				end if;
+			when draw_box_state17 =>
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= draw_box_state18;
+					w0_index := 0;
+				else
+					cstate <= draw_box_state17;
+					w0_index := w0_index + 1;
+				end if;
+			when draw_box_state18 =>
+				drawbox_rs <= '1';
+				drawbox_data_byte <= x"00";
+				drawbox_enable <= '1';
+				if (spi_sended = '1') then
+					cstate <= draw_box_state19;
+				else
+					cstate <= draw_box_state18;
+				end if;
+			when draw_box_state19 =>
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= draw_box_state20;
+					w0_index := 0;
+					drawbox_enable <= '0';
+				else
+					cstate <= draw_box_state19;
+					w0_index := w0_index + 1;
+				end if;
+			when draw_box_state20 =>
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= draw_box_state21;
+					w0_index := 0;
+				else
+					cstate <= draw_box_state20;
+					w0_index := w0_index + 1;
+				end if;
+			when draw_box_state21 =>
+				drawbox_rs <= '1';
+				drawbox_data_byte <= x"00";
+				drawbox_enable <= '1';
+				if (spi_sended = '1') then
+					cstate <= draw_box_state22;
+				else
+					cstate <= draw_box_state21;
+				end if;
+			when draw_box_state22 =>
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= draw_box_state23;
+					w0_index := 0;
+					drawbox_enable <= '0';
+				else
+					cstate <= draw_box_state22;
+					w0_index := w0_index + 1;
+				end if;
+			when draw_box_state23 =>
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= draw_box_state24;
+					w0_index := 0;
+				else
+					cstate <= draw_box_state23;
+					w0_index := w0_index + 1;
+				end if;
+			when draw_box_state24 =>
+				drawbox_rs <= '1';
+				drawbox_data_byte <= x"00";
+				drawbox_enable <= '1';
+				if (spi_sended = '1') then
+					cstate <= draw_box_state25;
+				else
+					cstate <= draw_box_state24;
+				end if;
+			when draw_box_state25 =>
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= draw_box_state26;
+					w0_index := 0;
+					drawbox_enable <= '0';
+				else
+					cstate <= draw_box_state25;
+					w0_index := w0_index + 1;
+				end if;
+			when draw_box_state26 =>	
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= draw_box_state27;
+					w0_index := 0;
+				else
+					cstate <= draw_box_state26;
+					w0_index := w0_index + 1;
+				end if;
+			when draw_box_state27 =>	
+				drawbox_rs <= '1';
+				drawbox_data_byte <= std_logic_vector(to_unsigned(COLS_PIXEL-1,BYTE_SIZE));
+				drawbox_enable <= '1';
+				if (spi_sended = '1') then
+					cstate <= draw_box_state28;
+				else
+					cstate <= draw_box_state27;
+				end if;
+			when draw_box_state28 =>	
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= draw_box_state29;
+					w0_index := 0;
+					drawbox_enable <= '0';
+				else
+					cstate <= draw_box_state28;
+					w0_index := w0_index + 1;
+				end if;
+			when draw_box_state29 =>	
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= set_color1;
+					w0_index := 0;
+				else
+					cstate <= draw_box_state29;
+					w0_index := w0_index + 1;
+				end if;
+				
+				
+			when set_color1 =>
+				drawbox_rs <= '0';
+				drawbox_data_byte <= x"2c"; --RAMWR
+				drawbox_enable <= '1';
+				if (spi_sended = '1') then
+					cstate <= set_color2;
+				else
+					cstate <= set_color1;
+				end if;
+			when set_color2 =>
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= set_color3;
+					w0_index := 0;
+					drawbox_enable <= '0';
+				else
+					cstate <= set_color2;
+					w0_index := w0_index + 1;
+				end if;
+			when set_color3 =>
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= enable_memory_module_read_fh;
+					w0_index := 0;
+				else
+					cstate <= set_color3;
+					w0_index := w0_index + 1;
+				end if;
+				
+				
+			when enable_memory_module_read_fh =>
+				cstate <= enable_read_memory_fh;
+				mm_i_enable <= '1';	
 			when enable_read_memory_fh =>
 				cstate <= read_fh;
 				mm_i_read <= '1';
@@ -526,50 +827,72 @@ begin
 				if (mm_o_busy = '1') then
 					cstate <= memory_busy;
 				else
-					cstate <= set_color;
+					cstate <= set_color4;
 				end if;
-			when set_color =>
-				cstate <= draw_box_state0;
+			
+			when set_color4 =>
 				if (io_MemDB = x"0001") then
-						drawbox_color <= x"FFFF";
-					else
-						drawbox_color <= x"0000";
-					end if;			
-			when draw_box_state0 =>
-				cstate <= draw_box_state1;
-				drawbox_run <= '1';
-			when draw_box_state1 =>
-				cstate <= draw_box_state2;
-				drawbox_raxs <= x"00";
-			when draw_box_state2 =>
-				cstate <= draw_box_state3;
-				drawbox_raxe <= std_logic_vector(to_unsigned(rowIndex,BYTE_SIZE));
-			when draw_box_state3 =>
-				cstate <= draw_box_state4;
-				drawbox_rays <= x"00";
-			when draw_box_state4 =>
-				cstate <= draw_box_state5;
-				drawbox_raye <= std_logic_vector(to_unsigned(colIndex,BYTE_SIZE));
-			when draw_box_state5 =>
-				cstate <= draw_box_state6;
-				drawbox_caxs <= x"00";
-			when draw_box_state6 =>
-				cstate <= draw_box_state7;
-				drawbox_caxe <= std_logic_vector(to_unsigned(rowIndex,BYTE_SIZE));
-			when draw_box_state7 =>
-				cstate <= draw_box_state8;
-				drawbox_cays <= x"00";
-			when draw_box_state8 =>
-				cstate <= draw_box_state9;
-				drawbox_caye <= std_logic_vector(to_unsigned(colIndex,BYTE_SIZE));
-			when draw_box_state9 =>
-				if (drawbox_initialized = '1') then
-					cstate <= incrementk;
-					drawbox_run <= '0';
+					drawbox_data_byte <= x"ff";
 				else
-					cstate <= draw_box_state9;
+					drawbox_data_byte <= x"00";
 				end if;
-			when incrementk =>
+				drawbox_rs <= '1';
+				drawbox_enable <= '1';
+				if (spi_sended = '1') then
+					cstate <= set_color5;
+				else
+					cstate <= set_color4;
+				end if;
+			when set_color5 =>
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= set_color6;
+					w0_index := 0;
+					drawbox_enable <= '0';
+				else
+					cstate <= set_color5;
+					w0_index := w0_index + 1;
+				end if;
+			when set_color6 =>
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= set_color7;
+					w0_index := 0;
+				else
+					cstate <= set_color6;
+					w0_index := w0_index + 1;
+				end if;
+			when set_color7 =>
+				if (io_MemDB = x"0001") then
+					drawbox_data_byte <= x"ff";
+				else
+					drawbox_data_byte <= x"00";
+				end if;
+				drawbox_rs <= '1';
+				drawbox_enable <= '1';
+				if (spi_sended = '1') then
+					cstate <= set_color8;
+				else
+					cstate <= set_color7;
+				end if;
+			when set_color8 =>
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= set_color9;
+					w0_index := 0;
+					drawbox_enable <= '0';
+				else
+					cstate <= set_color8;
+					w0_index := w0_index + 1;
+				end if;
+			when set_color9 =>
+				if (w0_index = SPI_SPEED_MODE - 1) then
+					cstate <= check_colindex;
+					w0_index := 0;
+				else
+					cstate <= set_color9;
+					w0_index := w0_index + 1;
+				end if;
+				
+				
+			when check_colindex =>
 				if (colIndex = COLS_PIXEL - 1) then
 					cstate <= check_rowindex;
 					colIndex := 0;
@@ -589,6 +912,7 @@ begin
 			when reset_counters_1 =>
 --				cstate <= reset_counters_1; -- XXX stay after show memory content
 				cstate <= check_coordinations;
+				drawbox_run <= '0';
 				vppX := 0;
 				vppYp := 0;
 				Led5 <= '0';
