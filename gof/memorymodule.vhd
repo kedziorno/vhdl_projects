@@ -108,9 +108,14 @@ begin
 		variable t : std_logic_vector(G_MemoryData-1 downto 0);
 	begin
 		if (rising_edge(i_clock)) then
-			if (w > 0) then
+			if (w > 0) then -- XXX 40 ns
 				w := w - 1;
 			end if;
+--			if (w = 0) then -- XXX 60 ns
+--				w := cw - 1;
+--			else
+--				w := w - 1;
+--			end if;
 			case cstate is
 				when idle =>
 					if (i_enable = '1') then

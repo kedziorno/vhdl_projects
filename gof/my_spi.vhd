@@ -53,7 +53,7 @@ architecture Behavioral of my_spi is
 begin
 	o_cs <= '0' when i_enable = '1' else '1';
 	o_do <= i_data_byte(BYTE_SIZE - 1 - data_index) when i_enable = '1' else '0';
-	o_sended <= '1' when data_index = BYTE_SIZE - 1 and i_enable = '1' else '0';
+	o_sended <= '1' when (data_index = BYTE_SIZE - 1 and i_enable = '1') else '0';
 
 	p0 : process (i_clock,i_reset) is
 		variable clock_counter : integer range 0 to C_CLOCK_COUNTER - 1 := 0;
@@ -67,6 +67,7 @@ begin
 					clock_divider <= not clock_divider;
 					clock_counter := 0;
 				else
+					clock_divider <= clock_divider;
 					clock_counter := clock_counter + 1;
 				end if;
 			else
@@ -76,7 +77,7 @@ begin
 		end if;
 	end process p0;
 
-	p1 : process (clock_divider,i_reset,i_enable) is
+	p1 : process (clock_divider,i_reset) is
 	begin
 		if (i_reset = '1') then
 			ck <= '0';
@@ -90,7 +91,7 @@ begin
 	end process p1;
 	o_ck <= ck;
 
-	p2 : process (clock_data,i_reset,i_enable) is
+	p2 : process (clock_data,i_reset) is
 	begin
 		if (i_reset = '1') then
 			data_index <= 0;
@@ -107,7 +108,7 @@ begin
 		end if;
 	end process p2;
 
-	p3 : process (clock_divider,i_reset,i_enable) is
+	p3 : process (clock_divider,i_reset) is
 		constant cd : integer := 2;
 		variable d : integer range 0 to cd - 1;
 	begin
@@ -125,6 +126,7 @@ begin
 				end if;
 			else
 				clock_data <= '0';
+				d := 0;
 			end if;
 		end if;
 	end process p3;
