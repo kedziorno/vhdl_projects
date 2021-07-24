@@ -762,7 +762,7 @@ begin
 				end if;
 			
 			when set_color4 =>
-				if (io_MemDB(0) = '1') then
+				if (mm_o_MemDB(0) = '1') then
 					drawbox_data_byte <= x"ff";
 				else
 					drawbox_data_byte <= x"00";
@@ -792,7 +792,7 @@ begin
 					w0_index := w0_index + 1;
 				end if;
 			when set_color7 =>
-				if (io_MemDB(0) = '1') then
+				if (mm_o_MemDB(0) = '1') then
 					drawbox_data_byte <= x"ff";
 				else
 					drawbox_data_byte <= x"00";
@@ -895,7 +895,7 @@ begin
 				end if;
 			when c1 =>
 				cstate <= c2_m_e;
-				if (io_MemDB(0) = '1') then -- XXX *i ?
+				if (mm_o_MemDB(0) = '1') then -- XXX *i ?
 					vcountAlive := vcountAlive + 1;
 				end if;
 			-- XXX ppX,ppYp1
@@ -923,7 +923,7 @@ begin
 				end if;
 			when c2 =>
 				cstate <= c3_m_e;
-				if (io_MemDB(0) = '1') then
+				if (mm_o_MemDB(0) = '1') then
 					vcountAlive := vcountAlive + 1;
 				end if;
 			-- XXX ppXp1,ppYp
@@ -951,7 +951,7 @@ begin
 				end if;
 			when c3 =>
 				cstate <= c4_m_e;
-				if (io_MemDB(0) = '1') then
+				if (mm_o_MemDB(0) = '1') then
 					vcountAlive := vcountAlive + 1;
 				end if;
 			-- XXX ppXm1,ppYp
@@ -979,7 +979,7 @@ begin
 				end if;
 			when c4 =>
 				cstate <= c5_m_e;
-				if (io_MemDB(0) = '1') then
+				if (mm_o_MemDB(0) = '1') then
 					vcountAlive := vcountAlive + 1;
 				end if;
 			-- XXX ppXm1,ppYm1
@@ -1007,7 +1007,7 @@ begin
 				end if;
 			when c5 =>
 				cstate <= c6_m_e;
-				if (io_MemDB(0) = '1') then
+				if (mm_o_MemDB(0) = '1') then
 					vcountAlive := vcountAlive + 1;
 				end if;
 			-- XXX ppXp1,ppYm1
@@ -1035,7 +1035,7 @@ begin
 				end if;
 			when c6 =>
 				cstate <= c7_m_e;
-				if (io_MemDB(0) = '1') then
+				if (mm_o_MemDB(0) = '1') then
 					vcountAlive := vcountAlive + 1;
 				end if;
 			-- XXX ppXm1,ppYp1
@@ -1063,7 +1063,7 @@ begin
 				end if;
 			when c7 =>
 				cstate <= c8_m_e;
-				if (io_MemDB(0) = '1') then
+				if (mm_o_MemDB(0) = '1') then
 					vcountAlive := vcountAlive + 1;
 				end if;
 			-- XXX ppXp1,ppYp1
@@ -1091,7 +1091,7 @@ begin
 				end if;
 			when c8 =>
 				cstate <= store_neighborhood1;
-				if (io_MemDB(0) = '1') then
+				if (mm_o_MemDB(0) = '1') then
 					vcountAlive := vcountAlive + 1;
 				end if;
 			when store_neighborhood1 =>
@@ -1165,7 +1165,7 @@ begin
 				end if;
 			when check_cell_alive7 =>
 				cstate <= get_stored_neighborhood1;
-				if (io_MemDB(0) = '1') then
+				if (mm_o_MemDB(0) = '1') then
 					vCellAlive := true;
 --					report "get_alive cell at (X,Y)(" & integer'image(vppX) & "," & integer'image(vppYp) & ") = 1 , lower memory data" severity note;
 				else
@@ -1197,7 +1197,7 @@ begin
 			when get_stored_neighborhood7 =>
 				cstate <= write_new_cellalive1;
 				if (vCellAlive = true) then
-					if ((io_MemDB(G_MemoryData - 1 downto 0) = "010") or (io_MemDB(G_MemoryData - 1 downto 0) = "011")) then
+					if ((mm_o_MemDB(G_MemoryData - 1 downto 0) = "010") or (mm_o_MemDB(G_MemoryData - 1 downto 0) = "011")) then
 						vCellAlive2 := true;
 --						report "previous cell 1,read stored cell at (X,Y)(" & integer'image(vppX) & "," & integer'image(vppYp) & ") = 1 , 2/3" severity note;
 					else
@@ -1205,7 +1205,7 @@ begin
 --						report "previous cell 1,read stored cell at (X,Y)(" & integer'image(vppX) & "," & integer'image(vppYp) & ") = 0 , not 2/3" severity note;
 					end if;
 				elsif (vCellAlive = false) then
-					if (io_MemDB(G_MemoryData - 1 downto 0) = "011") then
+					if (mm_o_MemDB(G_MemoryData - 1 downto 0) = "011") then
 						vCellAlive2 := true;
 --						report "previous cell 0,read stored cell at (X,Y)(" & integer'image(vppX) & "," & integer'image(vppYp) & ") = 1 , 3" severity note;
 					else
