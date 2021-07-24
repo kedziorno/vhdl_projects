@@ -40,8 +40,7 @@ END st7735r_tb_top;
 
 ARCHITECTURE behavior OF st7735r_tb_top IS 
 
-constant IC : integer := 1_000_000; --29_952_000; --1_000_000;
-constant DC : integer := 1_000;
+constant IC : integer := 50_000_000; --29_952_000; --1_000_000;
 constant SPISPEED : integer := C_CLOCK_COUNTER_MF; --C_CLOCK_COUNTER_EF; --C_CLOCK_COUNTER_MF;
 
 -- Component Declaration for the Unit Under Test (UUT)
@@ -49,15 +48,11 @@ constant SPISPEED : integer := C_CLOCK_COUNTER_MF; --C_CLOCK_COUNTER_EF; --C_CLO
 COMPONENT st7735r_gof
 GENERIC(
 INPUT_CLOCK : integer;
-DIVIDER_CLOCK : integer;
-SPI_SPEED_MODE : integer;
-SIMULATE : std_logic
+SPI_SPEED_MODE : integer
 );
 PORT(
 clk : in std_logic;
 btn_1 : in std_logic;
---btn_2 : in std_logic;
---btn_3 : in std_logic;
 o_cs : out std_logic;
 o_do : out std_logic;
 o_ck : out std_logic;
@@ -70,22 +65,17 @@ o_RamCS : out std_logic;
 o_RamCRE : out std_logic;
 o_RamLB : out std_logic;
 o_RamUB : out std_logic;
-i_RamWait : in std_logic;
+--i_RamWait : in std_logic;
 o_RamClk : out std_logic;
 o_MemAdr : out MemoryAddress;
 io_MemDB : inout MemoryDataByte;
-o_FlashCS : out std_logic;
--- for debug
-jc : out std_logic_vector(7 downto 0);
-jd : out std_logic_vector(7 downto 0)
+o_FlashCS : out std_logic
 );
 END COMPONENT;
 
 --Inputs
 signal clk : std_logic := '0';
 signal btn_1 : std_logic := '0';
-signal btn_2 : std_logic := '0';
-signal btn_3 : std_logic := '0';
 
 --Outputs
 signal o_cs : std_logic;
@@ -106,15 +96,11 @@ BEGIN
 uut: st7735r_gof 
 GENERIC MAP (
 INPUT_CLOCK => IC,
-DIVIDER_CLOCK => DC,
-SPI_SPEED_MODE => SPISPEED,
-SIMULATE => '1'
+SPI_SPEED_MODE => SPISPEED
 )
 PORT MAP (
 clk => clk,
 btn_1 => btn_1,
---btn_2 => btn_2,
---btn_3 => btn_3,
 o_cs => o_cs,
 o_do => o_do,
 o_ck => o_ck,
@@ -127,7 +113,7 @@ o_RamCS => o_RamCS,
 o_RamCRE => o_RamCRE,
 o_RamLB => o_RamLB,
 o_RamUB => o_RamUB,
-i_RamWait => i_RamWait,
+--i_RamWait => i_RamWait,
 o_RamClk => o_RamClk,
 o_MemAdr => o_MemAdr,
 io_MemDB => io_MemDB,
@@ -155,16 +141,6 @@ wait for clk_period*10;
 wait;
 end process;
 
-st7735r_store_image_fsm(clk,btn_1,o_cs,o_do,o_ck);
-
---p0 : process (clk,btn_1) is
---begin
---st7735r_store_image_fsm(clk,btn_1,o_cs,o_do,o_ck);
---end process p0;
---
---p1 : process (clk,btn_1) is
---begin
---spi_get_byte(clk,btn_1,o_cs,o_do,o_ck,done,do_data);
---end process p1;
+--st7735r_store_image_fsm(clk,btn_1,o_cs,o_do,o_ck); -- XXX for store image in file from st7735r spi
 
 END;

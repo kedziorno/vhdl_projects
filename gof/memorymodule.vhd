@@ -47,7 +47,7 @@ o_RamCS : out std_logic;
 o_RamCRE : out std_logic;
 o_RamLB : out std_logic;
 o_RamUB : out std_logic;
-i_RamWait : in std_logic;
+--i_RamWait : in std_logic;
 o_RamClk : out std_logic;
 o_MemAdr : out MemoryAddress;
 io_MemDB : inout MemoryDataByte
@@ -79,7 +79,6 @@ architecture Behavioral of memorymodule is
 	signal RamUB : std_logic;
 	signal RamClk : std_logic;
 	signal MemAdr : MemoryAddress;
-	signal MemDB : MemoryDataByte;
 
 begin
 
@@ -100,19 +99,23 @@ begin
 	RamClk <= '0';
 
 	MemAdr <= i_MemAdr when (RamCS = '0' and (MemWR = '0' or MemOE = '0')) else (others => 'Z');
-	o_MemDB <= io_MemDB when (cstate = idle) else (others => 'Z');
+	o_MemDB <= io_MemDB;
 	io_MemDB <= i_MemDB when (RamCS = '0' and MemWR = '0') else (others => 'Z');
 
 	p0 : process (i_clock) is
-		constant cw : integer := 2; -- XXX 2 is minimum for properly mem waiting operations
-		variable w : integer range 0 to cw := 0;
+		constant cw : integer := 3; -- XXX 3 is lowlest for properly mm working
+		variable w : integer range 0 to cw - 1 := 0;
 		variable t : std_logic_vector(G_MemoryData-1 downto 0);
-		variable tz : std_logic_vector(G_MemoryData-1 downto 0) := (others => 'Z');
 	begin
 		if (rising_edge(i_clock)) then
-			if (w > 0) then
+			if (w > 0) then -- XXX 40 ns
 				w := w - 1;
 			end if;
+--			if (w = 0) then -- XXX 60 ns
+--				w := cw - 1;
+--			else
+--				w := w - 1;
+--			end if;
 			case cstate is
 				when idle =>
 					if (i_enable = '1') then
@@ -143,7 +146,7 @@ begin
 					cstate <= wait1;
 					MemWR <= '0';
 					RamCS <= '0';
-					w := cw;
+					w := cw - 1;
 				when wait1 =>
 					if (w = 0) then
 						cstate <= write_disable;
@@ -165,7 +168,7 @@ begin
 					end if;
 				when read1 =>
 					cstate <= wait2;
-					w := cw;
+					w := cw - 1;
 				when wait2 =>
 					if (w = 0) then
 						cstate <= stop;

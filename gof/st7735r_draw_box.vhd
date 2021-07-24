@@ -465,7 +465,7 @@ begin
 					end if;
 				when fillarenaindex =>
 --					if (index = (x*y) - 1) then -- XXX TODO x*y - 1 drop last pixel
-					if (index = 1) then -- XXX one pixel
+					if (index = 0) then -- XXX one pixel
 						state <= stop;
 						index := 0;
 						enable <= '0';
