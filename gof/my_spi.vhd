@@ -48,14 +48,19 @@ end my_spi;
 
 architecture Behavioral of my_spi is
 	signal clock_divider,clock_data : std_logic;
-	signal data_index : integer range BYTE_SIZE - 1 downto 0;
-	signal ck : std_logic;
+	signal data_index : integer range 0 to BYTE_SIZE;
+	signal cs,do,ck,sended : std_logic;
 begin
-	o_cs <= '0' when i_enable = '1' else '1';
-	o_do <= i_data_byte(BYTE_SIZE - 1 - data_index) when i_enable = '1' else '0';
-	o_sended <= '1' when (data_index = BYTE_SIZE - 1 and i_enable = '1') else '0';
-
-	p0 : process (i_clock,i_reset) is
+	o_cs <= cs;
+	o_do <= do;
+--	o_ck <= ck;
+	o_sended <= sended;
+	cs <= '0' when i_enable = '1' and sended = '0' else '1';
+	do <= i_data_byte(BYTE_SIZE - 1 - data_index) when i_enable = '1' and (data_index < BYTE_SIZE) else '0';
+	o_ck <= ck when cs = '0' else '0';
+	sended <= '1' when (data_index = BYTE_SIZE) else '0';
+	
+	p0 : process (i_clock,i_reset,i_enable) is
 		variable clock_counter : integer range 0 to C_CLOCK_COUNTER - 1 := 0;
 	begin
 		if (i_reset = '1') then
@@ -63,11 +68,11 @@ begin
 			clock_divider <= '0';
 		elsif (rising_edge(i_clock)) then
 			if (i_enable = '1') then
-				if (clock_counter = C_CLOCK_COUNTER/4 - 1) then
-					clock_divider <= not clock_divider;
+				if (clock_counter = C_CLOCK_COUNTER - 1) then -- XXX C_CLOCK_COUNTER=8 is the min for properly syn
+					clock_divider <= '1';
 					clock_counter := 0;
 				else
-					clock_divider <= clock_divider;
+					clock_divider <= '0';
 					clock_counter := clock_counter + 1;
 				end if;
 			else
@@ -77,7 +82,7 @@ begin
 		end if;
 	end process p0;
 
-	p1 : process (clock_divider,i_reset) is
+	p1 : process (clock_divider,i_reset,i_enable) is
 	begin
 		if (i_reset = '1') then
 			ck <= '0';
@@ -89,15 +94,14 @@ begin
 			end if;
 		end if;
 	end process p1;
-	o_ck <= ck;
 
-	p2 : process (clock_data,i_reset) is
+	p2 : process (clock_data,i_reset,i_enable) is
 	begin
 		if (i_reset = '1') then
 			data_index <= 0;
 		elsif (rising_edge(clock_data)) then
 			if (i_enable = '1') then
-				if (data_index = BYTE_SIZE - 1) then
+				if (data_index = BYTE_SIZE) then
 					data_index <= 0;
 				else
 					data_index <= data_index + 1;
@@ -108,7 +112,7 @@ begin
 		end if;
 	end process p2;
 
-	p3 : process (clock_divider,i_reset) is
+	p3 : process (clock_divider,i_reset,i_enable) is
 		constant cd : integer := 2;
 		variable d : integer range 0 to cd - 1;
 	begin
