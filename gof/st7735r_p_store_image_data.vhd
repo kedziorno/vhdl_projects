@@ -25,9 +25,8 @@ package st7735r_p_store_image_data is
 	shared variable state1 : states1;
 	type states2 is (idle,
 	pattern1,pattern2,pattern3,
-	omit1,omit2,omit3,
 	start,
-	open_file,write_line,check_index_rows,check_index_cols,write_file,write_empty_line,close_file,
+	open_file,write_line,wait_done,check_index_rows,check_index_cols,write_file,write_empty_line,close_file,
 	stop);
 	shared variable state2 : states2;
 
@@ -149,69 +148,39 @@ package body st7735r_p_store_image_data is
 						state2 := pattern1;
 					end if;
 				when pattern1 =>
---					if (done = '1') then
+					if (done = '1') then
 						if (do_data = x"2b") then
 							state2 := pattern2;
 						else
 							state2 := pattern1;
 						end if;
---					else
---						state2 := pattern1;
---					end if;
+					else
+						state2 := pattern1;
+					end if;
 				when pattern2 =>
---					if (done = '1') then
+					if (done = '1') then
 						if (do_data = x"2a") then
 							state2 := pattern3;
 						else
 							state2 := pattern2;
 						end if;
---					else
---						state2 := pattern2;
---					end if;
+					else
+						state2 := pattern2;
+					end if;
 				when pattern3 =>
---					if (done = '1') then
+					if (done = '1') then
 						if (do_data = x"2c") then
 							state2 := write_line;
 						else
 							state2 := pattern3;
 						end if;
---					else
---						state2 := pattern3;
---					end if;
---				when omit1 =>
---					if (done = '1') then
---						if (do_data = x"00" or do_data = x"ff") then
---							state2 := omit2;
---						else
---							state2 := omit1;
---						end if;
---					else
---						state2 := omit1;
---					end if;
---				when omit2 =>
---					if (done = '1') then
---						if (do_data = x"00" or do_data = x"ff") then
---							state2 := omit3;
---						else
---							state2 := omit2;
---						end if;
---					else
---						state2 := omit2;
---					end if;
---				when omit3 =>
---					if (done = '1') then
---						if (do_data = x"00" or do_data = x"ff") then
---							state2 := start;
---						else
---							state2 := omit3;
---						end if;
---					else
---						state2 := omit3;
---					end if;
+					else
+						state2 := pattern3;
+					end if;
 				when write_line =>
-					state2 := check_index_cols;
 --					report "index = " & integer'image(index);
 					if (done = '1') then
+						state2 := wait_done;
 						if (do_data = x"ff") then
 							pattern(index_cols + 1) := '*';
 						elsif (do_data = x"00") then
@@ -220,26 +189,33 @@ package body st7735r_p_store_image_data is
 					else
 						state2 := write_line;
 					end if;
+				when wait_done =>
+					if (done = '1') then
+						state2 := wait_done;
+					else
+						state2 := check_index_cols;
+					end if;
 				when check_index_cols =>
 					if (index_cols = COLS_PIXEL - 1) then
 						state2 := write_file;
 						index_cols := 0;
-						write(file_line, pattern);
 					else
 						state2 := write_line;
 						index_cols := index_cols + 1;
 					end if;
 				when write_file =>
 					state2 := check_index_rows;
-					write(file_line, empty_line);
+					write(file_line, pattern);
 					writeline(fptr, file_line);
 				when check_index_rows =>
 					if (index_rows = ROWS - 1) then
 						state2 := write_empty_line;
+						index_cols := 0;
 						index_rows := 0;
 					else
 						state2 := write_line;
 						index_rows := index_rows + 1;
+						index_cols := 0;
 					end if;
 				when write_empty_line =>
 					state2 := close_file;
