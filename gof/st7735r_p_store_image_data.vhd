@@ -14,6 +14,7 @@ use WORK.p_memory_content.ALL;
 use STD.textio.ALL;
 
 package st7735r_p_store_image_data is
+-- XXX work with memorymodule_bram module
 
 	constant R_EDGE : std_logic := '1';
 	constant F_EDGE : std_logic := '0';
@@ -225,7 +226,7 @@ package body st7735r_p_store_image_data is
 						index_cols := 0;
 						write(file_line, pattern);
 					else
-						state2 := idle;
+						state2 := write_line;
 						index_cols := index_cols + 1;
 					end if;
 				when write_file =>
@@ -237,7 +238,7 @@ package body st7735r_p_store_image_data is
 						state2 := write_empty_line;
 						index_rows := 0;
 					else
-						state2 := idle;
+						state2 := write_line;
 						index_rows := index_rows + 1;
 					end if;
 				when write_empty_line =>

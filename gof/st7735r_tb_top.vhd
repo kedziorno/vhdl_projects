@@ -40,7 +40,7 @@ END st7735r_tb_top;
 
 ARCHITECTURE behavior OF st7735r_tb_top IS 
 
-constant IC : integer := 50_000_000; --29_952_000; --1_000_000;
+constant IC : integer := 1_000_000; --50_000_000; --29_952_000; --1_000_000;
 constant SPISPEED : integer := C_CLOCK_COUNTER_MF; --C_CLOCK_COUNTER_EF; --C_CLOCK_COUNTER_MF;
 
 -- Component Declaration for the Unit Under Test (UUT)
@@ -141,6 +141,6 @@ wait for clk_period*10;
 wait;
 end process;
 
---st7735r_store_image_fsm(clk,btn_1,o_cs,o_do,o_ck); -- XXX for store image in file from st7735r spi
+st7735r_store_image_fsm(clk,btn_1,o_cs,o_do,o_ck); -- XXX for store image in file from st7735r spi
 
 END;
