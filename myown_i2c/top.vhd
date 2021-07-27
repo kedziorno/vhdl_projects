@@ -43,8 +43,11 @@ architecture Behavioral of top is
 component power_on is 
 port
 (
-	signal i_clk,i_reset : in std_logic;
-	signal o_sda,o_scl : out std_logic
+	i_clock : in std_logic;
+	i_reset : in std_logic;
+	i_button : in std_logic;
+	o_sda : out std_logic;
+	o_scl : out std_logic
 );
 end component power_on;
 for all : power_on use entity WORK.power_on(Behavioral);
@@ -54,8 +57,9 @@ begin
 c0 : power_on
 port map
 (
-	i_clk => clk,
+	i_clock => clk,
 	i_reset => btn_1,
+	i_button => not btn_1,
 	o_sda => sda,
 	o_scl => scl
 );

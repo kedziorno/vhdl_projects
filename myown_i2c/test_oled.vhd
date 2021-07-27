@@ -20,12 +20,12 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-use WORK.p_pkg1.ALL;
+use WORK.p_constants1.ALL;
 
 entity test_oled is
 generic (
-g_board_clock : integer;
-g_bus_clock : integer
+g_board_clock : integer := G_BOARD_CLOCK;
+g_bus_clock : integer := G_BUS_CLOCK
 );
 port
 (
