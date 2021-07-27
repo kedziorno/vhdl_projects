@@ -59,7 +59,8 @@ signal set_coordination : A_SET_COORDINATION := (x"21",x"00",std_logic_vector(to
 SIGNAL i2c_ena     : STD_LOGIC;                     --i2c enable signal
 SIGNAL i2c_addr    : STD_LOGIC_VECTOR(6 DOWNTO 0);  --i2c address signal
 SIGNAL i2c_rw      : STD_LOGIC;                     --i2c read/write command signal
-SIGNAL i2c_data_wr : STD_LOGIC_VECTOR(7 DOWNTO 0);  --i2c write data
+--SIGNAL i2c_data_wr : STD_LOGIC_VECTOR(7 DOWNTO 0);  --i2c write data
+SIGNAL i2c_data_wr : ARRAY_BYTE_SEQUENCE;
 SIGNAL i2c_busy    : STD_LOGIC;                     --i2c busy signal
 SIGNAL i2c_reset   : STD_LOGIC;                     --i2c busy signal
 SIGNAL busy_prev   : STD_LOGIC;                     --previous value of i2c busy signal
@@ -78,26 +79,42 @@ end component glcdfont;
 
 for all : glcdfont use entity WORK.glcdfont(behavioral_glcdfont);
 
-COMPONENT i2c IS
-GENERIC(
-	input_clk : INTEGER := GCLK; --input clock speed from user logic in Hz
-	bus_clk   : INTEGER := BCLK  --speed the i2c bus (scl) will run at in Hz
-);
-PORT(
-	clk       : IN     STD_LOGIC;                    --system clock
-	reset_n   : IN     STD_LOGIC;                    --active low reset
-	ena       : IN     STD_LOGIC;                    --latch in command
-	addr      : IN     STD_LOGIC_VECTOR(6 DOWNTO 0); --address of target slave
-	rw        : IN     STD_LOGIC;                    --'0' is write, '1' is read
-	data_wr   : IN     STD_LOGIC_VECTOR(7 DOWNTO 0); --data to write to slave
-	busy      : OUT    STD_LOGIC;                    --indicates transaction in progress
-	data_rd   : OUT    STD_LOGIC_VECTOR(7 DOWNTO 0); --data read from slave
-	ack_error : BUFFER STD_LOGIC;                    --flag if improper acknowledge from slave
-	sda       : INOUT  STD_LOGIC;                    --serial data output of i2c bus
-	scl       : INOUT  STD_LOGIC);                   --serial clock output of i2c bus
-END component i2c;
+--COMPONENT i2c IS
+--GENERIC(
+--	input_clk : INTEGER := GCLK; --input clock speed from user logic in Hz
+--	bus_clk   : INTEGER := BCLK  --speed the i2c bus (scl) will run at in Hz
+--);
+--PORT(
+--	clk       : IN     STD_LOGIC;                    --system clock
+--	reset_n   : IN     STD_LOGIC;                    --active low reset
+--	ena       : IN     STD_LOGIC;                    --latch in command
+--	addr      : IN     STD_LOGIC_VECTOR(6 DOWNTO 0); --address of target slave
+--	rw        : IN     STD_LOGIC;                    --'0' is write, '1' is read
+--	data_wr   : IN     STD_LOGIC_VECTOR(7 DOWNTO 0); --data to write to slave
+--	busy      : OUT    STD_LOGIC;                    --indicates transaction in progress
+--	data_rd   : OUT    STD_LOGIC_VECTOR(7 DOWNTO 0); --data read from slave
+--	ack_error : BUFFER STD_LOGIC;                    --flag if improper acknowledge from slave
+--	sda       : INOUT  STD_LOGIC;                    --serial data output of i2c bus
+--	scl       : INOUT  STD_LOGIC);                   --serial clock output of i2c bus
+--END component i2c;
+--for all : i2c use entity WORK.i2c_master(logic);
 
-for all : i2c use entity WORK.i2c_master(logic);
+COMPONENT my_i2c IS
+GENERIC (
+	BOARD_CLOCK : INTEGER := G_BOARD_CLOCK;
+	BUS_CLOCK : INTEGER := G_BUS_CLOCK
+);
+PORT (
+	i_clock : in std_logic;
+	i_reset : in std_logic;
+	i_slave_address : std_logic_vector(0 to G_SLAVE_ADDRESS_SIZE-1);
+	i_bytes_to_send : in ARRAY_BYTE_SEQUENCE;
+	i_enable : in std_logic;
+	o_busy : out std_logic;
+	o_sda : out std_logic;
+	o_scl : out std_logic
+);
+END COMPONENT my_i2c;
 
 type state is 
 (
@@ -125,25 +142,41 @@ port map
 	o_character => glcdfont_character
 );
 
-c1 : i2c
-GENERIC MAP
-(
-	input_clk => GCLK,
-	bus_clk => BCLK
+--c1 : i2c
+--GENERIC MAP
+--(
+--	input_clk => GCLK,
+--	bus_clk => BCLK
+--)
+--PORT MAP
+--(
+--	clk => i_clk,
+--	reset_n => i2c_reset,
+--	ena => i2c_ena,
+--	addr => i2c_addr,
+--	rw => i2c_rw,
+--	data_wr => i2c_data_wr,
+--	busy => i2c_busy,
+--	data_rd => open,
+--	ack_error => open,
+--	sda => io_sda,
+--	scl => io_scl
+--);
+
+c1 : my_i2c
+GENERIC MAP (
+	BOARD_CLOCK => GCLK,
+	BUS_CLOCK => BCLK
 )
-PORT MAP
-(
-	clk => i_clk,
-	reset_n => i2c_reset,
-	ena => i2c_ena,
-	addr => i2c_addr,
-	rw => i2c_rw,
-	data_wr => i2c_data_wr,
-	busy => i2c_busy,
-	data_rd => open,
-	ack_error => open,
-	sda => io_sda,
-	scl => io_scl
+PORT MAP (
+	i_clock => i_clk,
+	i_reset => i_rst,
+	i_slave_address => i2c_addr,
+	i_bytes_to_send => i2c_data_wr,
+	i_enable => '1', --i2c_ena,
+	o_busy => i2c_busy,
+	o_sda => io_sda,
+	o_scl => io_scl
 );
 
 p0 : process (i_clk,i_rst) is
@@ -171,9 +204,9 @@ begin
 							i2c_ena <= '1'; -- we are busy
 							i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 							i2c_rw <= '0';
-							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,8));
+							i2c_data_wr(0) <= std_logic_vector(to_unsigned(OLED_COMMAND,8));
 						when 1 to NI_INIT =>
-							i2c_data_wr <= init_display(busy_cnt-1); -- command
+							i2c_data_wr(0) <= init_display(busy_cnt-1); -- command
 						when NI_INIT+1 =>
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
@@ -192,9 +225,9 @@ begin
 							i2c_ena <= '1'; -- we are busy
 							i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 							i2c_rw <= '0';
-							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,8));
+							i2c_data_wr(0) <= std_logic_vector(to_unsigned(OLED_COMMAND,8));
 						when 1 to NI_SET_COORDINATION =>
-							i2c_data_wr <= set_coordination(busy_cnt-1); -- command
+							i2c_data_wr(0) <= set_coordination(busy_cnt-1); -- command
 						when NI_SET_COORDINATION+1 =>
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
@@ -213,11 +246,11 @@ begin
 							i2c_ena <= '1'; -- we are busy
 							i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 							i2c_rw <= '0';
-							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,8));
+							i2c_data_wr(0) <= std_logic_vector(to_unsigned(OLED_COMMAND,8));
 						when 1 to OLED_PAGES_ALL =>
-							i2c_data_wr <= x"00"; -- command - FF/allpixels,00/blank,F0/zebra
+							i2c_data_wr(0) <= x"00"; -- command - FF/allpixels,00/blank,F0/zebra
 						when OLED_PAGES_ALL+1 =>
-							i2c_data_wr <= x"AF"; -- display on
+							i2c_data_wr(0) <= x"AF"; -- display on
 						when OLED_PAGES_ALL+2 =>
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
@@ -236,9 +269,9 @@ begin
 							i2c_ena <= '1'; -- we are busy
 							i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 							i2c_rw <= '0';
-							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,8));
+							i2c_data_wr(0) <= std_logic_vector(to_unsigned(OLED_COMMAND,8));
 						when 1 to NI_SET_COORDINATION =>
-							i2c_data_wr <= set_coordination(busy_cnt-1); -- command
+							i2c_data_wr(0) <= set_coordination(busy_cnt-1); -- command
 						when NI_SET_COORDINATION+1 =>
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
@@ -257,25 +290,25 @@ begin
 							i2c_ena <= '1'; -- we are busy
 							i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 							i2c_rw <= '0';
-							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_DATA,8));
+							i2c_data_wr(0) <= std_logic_vector(to_unsigned(OLED_DATA,8));
 							current_character <= i_char(index_character);
 						when 1 =>
 							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+0,glcdfont_index'length));
-							i2c_data_wr <= glcdfont_character;
+							i2c_data_wr(0) <= glcdfont_character;
 						when 2 =>
 							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+1,glcdfont_index'length));
-							i2c_data_wr <= glcdfont_character;
+							i2c_data_wr(0) <= glcdfont_character;
 						when 3 =>
 							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+2,glcdfont_index'length));
-							i2c_data_wr <= glcdfont_character;
+							i2c_data_wr(0) <= glcdfont_character;
 						when 4 =>
 							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+3,glcdfont_index'length));
-							i2c_data_wr <= glcdfont_character;
+							i2c_data_wr(0) <= glcdfont_character;
 						when 5 =>
 							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+4,glcdfont_index'length));
-							i2c_data_wr <= glcdfont_character;
+							i2c_data_wr(0) <= glcdfont_character;
 						when 6 =>
-							i2c_data_wr <= x"00"; -- to space between characters / optional
+							i2c_data_wr(0) <= x"00"; -- to space between characters / optional
 						when 7 =>
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then
@@ -296,7 +329,7 @@ begin
 								index_character <= index_character + 1;
 							end if;
 						when 1 =>
-							i2c_data_wr <= x"00";
+							i2c_data_wr(0) <= x"00";
 							if (i2c_busy = '1') then
 								if (index_character > i_char'length-1) then -- we gain end array
 									i2c_ena <= '0';
@@ -322,9 +355,9 @@ begin
 							i2c_ena <= '1'; -- we are busy
 							i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 							i2c_rw <= '0';
-							i2c_data_wr <= std_logic_vector(to_unsigned(OLED_COMMAND,8));
+							i2c_data_wr(0) <= std_logic_vector(to_unsigned(OLED_COMMAND,8));
 						when 1 to (OLED_PAGES_ALL-(i_char'length*6)) =>
-							i2c_data_wr <= x"00"; -- command - FF/allpixels,00/blank,F0/zebra
+							i2c_data_wr(0) <= x"00"; -- command - FF/allpixels,00/blank,F0/zebra
 						when (OLED_PAGES_ALL-(i_char'length*6))+1 =>
 							i2c_ena <= '0';
 							if (i2c_busy = '0') then

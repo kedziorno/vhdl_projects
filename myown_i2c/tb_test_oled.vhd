@@ -87,6 +87,8 @@ BEGIN
 		wait for clk_period/2;
 	end process;
  
+rst <= '1','0' after clk_period;
+
 	-- Stimulus process
 	stim_proc: process
 	begin
