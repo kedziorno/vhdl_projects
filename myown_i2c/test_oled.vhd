@@ -20,19 +20,19 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-use WORK.p_pkg1.ALL;
+use WORK.p_constants1.ALL;
 
 entity test_oled is
 generic (
-g_board_clock : integer;
-g_bus_clock : integer
+g_board_clock : integer := 50_000_000;
+g_bus_clock : integer := 100_000
 );
 port
 (
 signal i_clk : in std_logic;
 signal i_rst : in std_logic;
 signal i_refresh : in std_logic;
-signal i_char : in array1;
+signal i_char : in array1(0 to 5) := (x"30",x"31",x"32",x"33",x"34",x"35");
 signal io_sda,io_scl : inout std_logic
 );
 end test_oled;
@@ -75,32 +75,28 @@ port(
 	o_character : out std_logic_vector(7 downto 0)
 );
 end component glcdfont;
-
 for all : glcdfont use entity WORK.glcdfont(behavioral_glcdfont);
 
-COMPONENT i2c IS
-GENERIC(
-	input_clk : INTEGER := GCLK; --input clock speed from user logic in Hz
-	bus_clk   : INTEGER := BCLK  --speed the i2c bus (scl) will run at in Hz
+component my_i2c is
+generic(
+BOARD_CLOCK : INTEGER := G_BOARD_CLOCK;
+BUS_CLOCK : INTEGER := G_BUS_CLOCK
 );
-PORT(
-	clk       : IN     STD_LOGIC;                    --system clock
-	reset_n   : IN     STD_LOGIC;                    --active low reset
-	ena       : IN     STD_LOGIC;                    --latch in command
-	addr      : IN     STD_LOGIC_VECTOR(6 DOWNTO 0); --address of target slave
-	rw        : IN     STD_LOGIC;                    --'0' is write, '1' is read
-	data_wr   : IN     STD_LOGIC_VECTOR(7 DOWNTO 0); --data to write to slave
-	busy      : OUT    STD_LOGIC;                    --indicates transaction in progress
-	data_rd   : OUT    STD_LOGIC_VECTOR(7 DOWNTO 0); --data read from slave
-	ack_error : BUFFER STD_LOGIC;                    --flag if improper acknowledge from slave
-	sda       : INOUT  STD_LOGIC;                    --serial data output of i2c bus
-	scl       : INOUT  STD_LOGIC);                   --serial clock output of i2c bus
-END component i2c;
-
-for all : i2c use entity WORK.i2c_master(logic);
+port(
+i_clock : in std_logic;
+i_reset : in std_logic;
+i_slave_address : in std_logic_vector(0 to G_SLAVE_ADDRESS_SIZE-1);
+i_bytes_to_send : in std_logic_vector(0 to G_BYTE_SIZE-1);
+i_enable : in std_logic;
+o_busy : out std_logic;
+o_sda : out std_logic;
+o_scl : out std_logic
+);
+end component my_i2c;
 
 type state is 
 (
+	idle, -- reset i2c
 	start, -- initialize oled
 	set_address_1, -- set begin point 0,0
 	clear_display_state_1, -- clear display and power on
@@ -125,25 +121,22 @@ port map
 	o_character => glcdfont_character
 );
 
-c1 : i2c
+c1 : my_i2c
 GENERIC MAP
 (
-	input_clk => GCLK,
-	bus_clk => BCLK
+	BOARD_CLOCK => GCLK,
+	BUS_CLOCK => BCLK
 )
 PORT MAP
 (
-	clk => i_clk,
-	reset_n => i2c_reset,
-	ena => i2c_ena,
-	addr => i2c_addr,
-	rw => i2c_rw,
-	data_wr => i2c_data_wr,
-	busy => i2c_busy,
-	data_rd => open,
-	ack_error => open,
-	sda => io_sda,
-	scl => io_scl
+	i_clock => i_clk,
+	i_reset => i2c_reset,
+	i_enable => i2c_ena,
+	i_slave_address => i2c_addr,
+	i_bytes_to_send => i2c_data_wr,
+	o_busy => i2c_busy,
+	o_sda => io_sda,
+	o_scl => io_scl
 );
 
 p0 : process (i_clk,i_rst) is
@@ -160,6 +153,9 @@ begin
 		else
 			c_state <= n_state;
 			case c_state is
+				when idle =>
+					n_state <= start;
+					i2c_reset <= '1';
 				when start =>
 					busy_prev <= i2c_busy;
 					if (busy_prev = '0' and i2c_busy = '1') then
@@ -167,7 +163,6 @@ begin
 					end if;
 					case busy_cnt is
 						when 0 =>
-							i2c_reset <= '1';
 							i2c_ena <= '1'; -- we are busy
 							i2c_addr <= "0111100"; -- address 3C 3D 78 ; 0111100 0111101 1111000
 							i2c_rw <= '0';

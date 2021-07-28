@@ -27,7 +27,7 @@
 --------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
-USE WORK.p_pkg1.ALL;
+USE WORK.p_constants1.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -86,7 +86,9 @@ BEGIN
 		clk <= '1';
 		wait for clk_period/2;
 	end process;
- 
+
+rst <= '1','0' after clk_period;
+
 	-- Stimulus process
 	stim_proc: process
 	begin
