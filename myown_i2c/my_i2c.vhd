@@ -127,7 +127,7 @@ begin
 					n_state <= start;
 					o_busy <= '1';
 				when start =>
-					temp_sda <= '1';
+					temp_sda <= '0';
 					n_state <= slave_address;
 				when slave_address =>
 					if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
@@ -207,12 +207,19 @@ begin
 						end if;
 					end if;
 				when get_instruction =>
-					if (instruction_index = 1) then
-						n_state <= stop;
-					else
+--					if (instruction_index = 1) then
+--						n_state <= stop;
+--					else
+--						n_state <= data;
+--					end if;
+					if (i_enable = '1') then
 						n_state <= data;
+						o_busy <= '0';
+					else
+						n_state <= stop;
 					end if;
 				when data =>
+					o_busy <= '1';
 					if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
 						temp_sck <= '0';
 					end if;
