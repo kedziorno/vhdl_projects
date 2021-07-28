@@ -10,7 +10,7 @@ architecture behavioral_glcdfont of glcdfont is
 
 constant NUMBER_GLCDFONTC : natural := 1275;
 type ARRAY_GLCDFONTC is array (0 to NUMBER_GLCDFONTC-1) of std_logic_vector(7 downto 0);
-signal GLCDFONTC : ARRAY_GLCDFONTC :=
+constant GLCDFONTC : ARRAY_GLCDFONTC :=
 (
 
 	 -- 0:    0x00, 0x00, 0x00, 0x00, 0x00,   

@@ -32,6 +32,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity top is
 Port(
 clk : in STD_LOGIC;
+rst : in STD_LOGIC;
 btn_1 : in STD_LOGIC;
 sda : out STD_LOGIC;
 scl : out STD_LOGIC
@@ -58,8 +59,8 @@ c0 : power_on
 port map
 (
 	i_clock => clk,
-	i_reset => btn_1,
-	i_button => not btn_1,
+	i_reset => rst,
+	i_button => btn_1,
 	o_sda => sda,
 	o_scl => scl
 );
