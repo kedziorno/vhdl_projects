@@ -1807,15 +1807,15 @@ constant GLCDFONTC : ARRAY_GLCDFONTC :=
 begin
 
 -- XXX to long par
---p0 : process (i_clk,i_reset) is
---begin
---	if (i_reset = '1') then
---		o_character <= (others => '0');
---	elsif (rising_edge(i_clk)) then
---		o_character <= GLCDFONTC(to_integer(unsigned(i_index)));
---	end if;
---end  process p0;
+p0 : process (i_clk,i_reset) is
+begin
+	if (i_reset = '1') then
+		o_character <= (others => '0');
+	elsif (rising_edge(i_clk)) then
+		o_character <= GLCDFONTC(to_integer(unsigned(i_index)));
+	end if;
+end  process p0;
 
-o_character <= GLCDFONTC(to_integer(unsigned(i_index)));
+--o_character <= GLCDFONTC(to_integer(unsigned(i_index)));
 
 end architecture behavioral_glcdfont;

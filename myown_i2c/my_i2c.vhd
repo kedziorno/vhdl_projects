@@ -115,6 +115,7 @@ begin
 			end case;
 			case c_state is
 				when idle =>
+					o_busy <= '0';
 					if (i_enable = '1') then
 						n_state <= sda_start;
 					else
@@ -207,9 +208,9 @@ begin
 						end if;
 					end if;
 				when get_instruction =>
+					o_busy <= '0';
 					if (i_enable = '1') then
 						n_state <= data;
-						o_busy <= '0';
 					else
 						n_state <= stop;
 					end if;
