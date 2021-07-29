@@ -32,12 +32,13 @@ port
 signal i_clk : in std_logic;
 signal i_rst : in std_logic;
 signal i_refresh : in std_logic;
-signal i_char : in array1(0 to 5) := (x"30",x"31",x"32",x"33",x"34",x"35");
 signal io_sda,io_scl : inout std_logic
 );
 end test_oled;
 
 architecture Behavioral of test_oled is
+
+constant i_char : array1(0 to 5) := (x"30",x"31",x"32",x"33",x"34",x"35");
 
 constant GCLK : integer := g_board_clock;
 constant BCLK : integer := g_bus_clock;
@@ -149,7 +150,8 @@ begin
 	end if;
 end process p1;
 
-p0 : process (c_state,i2c_busy,glcdfont_character) is
+
+p0 : process (c_state,i2c_busy) is
 begin
 	n_state <= c_state;
 	case c_state is

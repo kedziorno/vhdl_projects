@@ -45,7 +45,6 @@ ARCHITECTURE behavior OF tb_test_oled IS
          i_clk : IN  std_logic;
          i_rst : IN  std_logic;
          i_refresh : IN  std_logic;
-         i_char : in array1;
          io_sda : INOUT  std_logic;
          io_scl : INOUT  std_logic
         );
@@ -56,8 +55,6 @@ ARCHITECTURE behavior OF tb_test_oled IS
    signal clk : std_logic := '0';
    signal rst : std_logic := '0';
    signal refresh : std_logic := '0';
-
-   signal text : array1(0 to 6-1) := (x"30",x"31",x"32",x"33",x"34",x"35"); -- 012345
 
 	--BiDirs
    signal sda : std_logic;
@@ -73,7 +70,6 @@ BEGIN
 		i_clk => clk,
 		i_rst => rst,
 		i_refresh => refresh,
-		i_char => text,
 		io_sda => sda,
 		io_scl => scl
 	);
