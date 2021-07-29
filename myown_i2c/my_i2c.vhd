@@ -207,11 +207,6 @@ begin
 						end if;
 					end if;
 				when get_instruction =>
---					if (instruction_index = 1) then
---						n_state <= stop;
---					else
---						n_state <= data;
---					end if;
 					if (i_enable = '1') then
 						n_state <= data;
 						o_busy <= '0';
