@@ -20,6 +20,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
+use WORK.p_constants1.ALL;
 
 entity oled_display is
 generic
@@ -83,25 +84,22 @@ signal set_coordination_00 : A_SET_COORDINATION :=
 (x"21",x"00",std_logic_vector(to_unsigned(WIDTH-1,BYTE_SIZE))
 ,x"22",x"00",std_logic_vector(to_unsigned(HEIGHT-1,BYTE_SIZE)));
 
-COMPONENT i2c IS
-GENERIC(
-	input_clk : INTEGER; --input clock speed from user logic in Hz
-	bus_clk   : INTEGER  --speed the i2c bus (scl) will run at in Hz
+component my_i2c is
+generic(
+BOARD_CLOCK : INTEGER := GLOBAL_CLK;
+BUS_CLOCK : INTEGER := I2C_CLK
 );
-PORT(
-	clk       : IN     STD_LOGIC;                    --system clock
-	reset_n   : IN     STD_LOGIC;                    --active low reset
-	ena       : IN     STD_LOGIC;                    --latch in command
-	addr      : IN     STD_LOGIC_VECTOR(6 DOWNTO 0); --address of target slave
-	rw        : IN     STD_LOGIC;                    --'0' is write, '1' is read
-	data_wr   : IN     STD_LOGIC_VECTOR(7 DOWNTO 0); --data to write to slave
-	busy      : OUT    STD_LOGIC;                    --indicates transaction in progress
-	data_rd   : OUT    STD_LOGIC_VECTOR(7 DOWNTO 0); --data read from slave
-	ack_error : BUFFER STD_LOGIC;                    --flag if improper acknowledge from slave
-	sda       : INOUT  STD_LOGIC;                    --serial data output of i2c bus
-	scl       : INOUT  STD_LOGIC);                   --serial clock output of i2c bus
-END component i2c;
-for all : i2c use entity WORK.i2c_master(logic);
+port(
+i_clock : in std_logic;
+i_reset : in std_logic;
+i_slave_address : in std_logic_vector(0 to G_SLAVE_ADDRESS_SIZE-1);
+i_bytes_to_send : in std_logic_vector(0 to G_BYTE_SIZE-1);
+i_enable : in std_logic;
+o_busy : out std_logic;
+o_sda : out std_logic;
+o_scl : out std_logic
+);
+end component my_i2c;
 
 type state is 
 (
@@ -134,25 +132,22 @@ signal coord_prev_y : std_logic_vector(H_BITS-1 downto 0) := (others => '0');
 
 begin
 
-c0 : i2c
+c0 : my_i2c
 GENERIC MAP
 (
-	input_clk => GLOBAL_CLK,
-	bus_clk => I2C_CLK
+	BOARD_CLOCK => GLOBAL_CLK,
+	BUS_CLOCK => I2C_CLK
 )
 PORT MAP
 (
-	clk => i_clk,
-	reset_n => i2c_reset,
-	ena => i2c_ena,
-	addr => i2c_addr,
-	rw => i2c_rw,
-	data_wr => i2c_data_wr,
-	busy => i2c_busy,
-	data_rd => open,
-	ack_error => open,
-	sda => io_sda,
-	scl => io_scl
+	i_clock => i_clk,
+	i_reset => i2c_reset,
+	i_enable => i2c_ena,
+	i_slave_address => i2c_addr,
+	i_bytes_to_send => i2c_data_wr,
+	o_busy => i2c_busy,
+	o_sda => io_sda,
+	o_scl => io_scl
 );
 
 p0 : process (i_clk,i_rst) is
