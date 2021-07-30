@@ -55,7 +55,7 @@ architecture Behavioral of my_i2c is
 	signal clock : std_logic;
 	signal temp_sda : std_logic;
 	signal temp_sck : std_logic;
-	signal instruction_index : integer range 0 to ARRAY_BYTE_SEQUENCE'length-1 := 0;
+	signal instruction_index : integer range 0 to 1;
 
 	type state is (idle,sda_start,start,slave_address,slave_address_lastbit,slave_rw,slave_ack,get_instruction,data,data_lastbit,data_ack,stop,sda_stop);
 	signal c_state,n_state : state;
