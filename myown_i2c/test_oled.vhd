@@ -151,7 +151,7 @@ begin
 end process p1;
 
 
-p0 : process (c_state,i2c_busy) is
+p0 : process (c_state,i2c_busy,glcdfont_character) is
 begin
 	n_state <= c_state;
 	case c_state is
