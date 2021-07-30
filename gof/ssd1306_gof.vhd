@@ -33,7 +33,7 @@ use UNISIM.VComponents.all;
 entity ssd1306_gof is
 generic(
 INPUT_CLOCK : integer := 50_000_000;
-BUS_CLOCK : integer := 100_000; -- increase for speed i2c
+BUS_CLOCK : integer := 6_000_000; -- increase for speed i2c --XXX scl period=1.28us,start=0.96us,stop=0.16us
 DIVIDER_CLOCK : integer := 1_000
 );
 port(
