@@ -99,6 +99,7 @@ begin
 	
 	p1 : process (c_cmode) is
 	begin
+		n_cmode <= c_cmode;
 		case c_cmode is
 			when c0 =>
 				n_cmode <= c1;
@@ -123,6 +124,7 @@ begin
 	i2c_send_sequence_fsm : process (c_state,c_cmode,i_enable,slave_index,i_slave_address,
 	data_index,i_bytes_to_send) is
 	begin
+		n_state <= c_state;
 		case c_state is
 			when idle =>
 				o_busy <= '0';
@@ -147,8 +149,10 @@ begin
 				temp_sda <= '0';
 				n_state <= slave_address;
 				data_index <= 0;
+				o_busy <= '1';
 			when slave_address =>
 				data_index <= 0;
+				o_busy <= '1';
 				if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
 					temp_sck <= '0';
 				end if;
@@ -176,6 +180,7 @@ begin
 				end if;
 			when slave_address_lastbit =>
 				data_index <= 0;
+				o_busy <= '1';
 				if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
 					temp_sck <= '0';
 				end if;
@@ -194,6 +199,7 @@ begin
 				end if;
 			when slave_rw =>
 				data_index <= 0;
+				o_busy <= '1';
 				if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
 					temp_sck <= '0';
 				end if;
@@ -212,6 +218,7 @@ begin
 				end if;
 			when slave_ack =>
 				data_index <= 0;
+				o_busy <= '1';
 				if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
 					temp_sck <= '0';
 				end if;
@@ -230,6 +237,7 @@ begin
 				end if;
 			when get_instruction =>
 				data_index <= 0;
+				o_busy <= '1';
 				o_busy <= '0';
 				if (i_enable = '1') then
 					n_state <= data;
@@ -238,6 +246,8 @@ begin
 				end if;
 			when data =>
 				o_busy <= '1';
+				o_busy <= '1';
+				data_index <= data_index;
 				if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
 					temp_sck <= '0';
 				end if;
@@ -252,7 +262,7 @@ begin
 					if (c_cmode = c0) then
 						temp_sda <= i_bytes_to_send(data_index);
 						if (sda_width = SDA_WIDTH_MAX-1) then
-							data_index <= data_index + 1;
+							data_index <= data_index;
 							sda_width <= 0;
 							n_state <= data;
 						else
@@ -260,10 +270,14 @@ begin
 							n_state <= data;
 							data_index <= data_index;
 						end if;
+						data_index <= data_index + 1;
+					else
+						data_index <= data_index;
 					end if;
 				end if;
 			when data_lastbit =>
 				data_index <= 0;
+				o_busy <= '1';
 				if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
 					temp_sck <= '0';
 				end if;
@@ -282,6 +296,7 @@ begin
 				end if;
 			when data_ack =>
 				data_index <= 0;
+				o_busy <= '1';
 				if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
 					temp_sck <= '0';
 				end if;
@@ -301,6 +316,7 @@ begin
 				end if;
 			when stop =>
 				data_index <= 0;
+				o_busy <= '1';
 				if (c_cmode /= c1 and c_cmode /= c2 and (c_cmode = c0 or c_cmode = c3)) then
 					temp_sck <= '0';
 				end if;
@@ -323,10 +339,8 @@ begin
 				data_index <= 0;
 				slave_index <= 0;
 				sda_width <= 0;
-				o_busy <= '0';
+				o_busy <= '1';
 				n_state <= idle;
-			when others =>
-				data_index <= 0;
 		end case;
 	end process i2c_send_sequence_fsm;
 
