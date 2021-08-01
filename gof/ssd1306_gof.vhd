@@ -324,16 +324,11 @@ begin
 				row <= ppX;
 				col_block <= ppYb;
 			when waitone1 =>
---				if (waiting = 0) then
-					if (display_busy = '1') then
-						cstate <= waitone1;
-					else
-						cstate <= update_row;
-					end if;
---				else
---					cstate <= waitone;
---					waiting := waiting - 1;
---				end if;
+				if (display_busy = '1') then
+					cstate <= waitone1;
+				else
+					cstate <= update_row;
+				end if;
 			when update_row =>
 				if (vppX = ROWS - 1) then
 					cstate <= update_col;
@@ -354,9 +349,8 @@ begin
 					vppX := 0;
 				end if;
 			when set_cd_calculate =>
-				cstate <= set_cd_calculate;--memory_disable_byte;
+				cstate <= memory_disable_byte;
 				CD <= CD_CALCULATE;
-				all_pixels <= '1';
 			when memory_disable_byte =>
 				cstate <= reset_counters_1;
 				i_mem_e_byte <= '0';
@@ -500,6 +494,7 @@ begin
 				WRITE_EN <= '1';
 				ADDRESS <= std_logic_vector(to_unsigned(vppX+vppYp*WORD_BITS,12));
 				DATA_IN <= countAlive;
+				report "store_count_alive " & integer'image(to_integer(unsigned(ppX))) & "," & integer'image(to_integer(unsigned(ppYp)));
 			when update_row1 =>
 			  ENABLE <= '0';
 			  WRITE_EN <= '0';
@@ -531,7 +526,6 @@ begin
 				cstate <= get_alive1;
 				row <= ppX;
 				col_pixel <= ppYp;
-				report "get_alive " & integer'image(to_integer(unsigned(ppX))) & "," & integer'image(to_integer(unsigned(ppYp)));
 			when get_alive1 =>
 				cstate <= enable_write_to_memory;
 				if (o_bit = '1') then
@@ -545,6 +539,7 @@ begin
 			  ENABLE <= '1';
 			  WRITE_EN <= '0';
 			  ADDRESS <= std_logic_vector(to_unsigned(vppX+vppYp*WORD_BITS,12));
+				report "enable_write_to_memory " & integer'image(to_integer(unsigned(ppX))) & "," & integer'image(to_integer(unsigned(ppYp)));
 			when write_count_alive =>
 				cstate <= disable_write_to_memory;
 				if (vCellAlive = true) then

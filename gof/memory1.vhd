@@ -58,12 +58,10 @@ O : out std_logic);
 end component;
 
 component RAMB16_S36
--- pragma translate_off
 generic (
 WRITE_MODE : string := "NO_CHANGE" ; -- WRITE_FIRST(default)/ READ_FIRST/NO_CHANGE
 INIT : bit_vector(35 downto 0) := X"000000000";
 SRVAL : bit_vector(35 downto 0) := X"012345678");
--- pragma translate_on
 port (
 DI    : in std_logic_vector (31 downto 0);
 DIP   : in std_logic_vector (3 downto 0);
@@ -82,7 +80,7 @@ attribute INIT: string;
 attribute SRVAL: string;
 attribute WRITE_MODE of U_RAMB16_S36: label is "WRITE_FIRST";
 attribute INIT of U_RAMB16_S36: label is "000000000";
-attribute SRVAL of U_RAMB16_S36: label is "012345678";
+attribute SRVAL of U_RAMB16_S36: label is "000000000";
 
 signal CLK_BUFG: std_logic;
 signal INV_SET_RESET : std_logic;
@@ -204,7 +202,10 @@ begin
 											o_bit <= DATA_OUT(to_integer(unsigned(i_col_pixel)));
 									
 								end if;
-					when others => null;
+					when others =>
+--					null;
+					o_bit <= '0';
+					o_byte <= (others => '0');
         end case;
     end if;
 end process pc;

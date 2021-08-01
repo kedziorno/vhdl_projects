@@ -357,7 +357,9 @@ begin
 				end case;
 			when stop =>
 				i2c_ena <= '0';
-				c_state <= idle;
+				c_state <= wait0;--idle;
+				busy_cnt <= 0;
+				i2c_reset <= '0';
 			when others => null;
 		end case;
 	end if;
