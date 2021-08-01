@@ -76,13 +76,6 @@ DOP   : out std_logic_vector (3 downto 0)
 );
 end component;
 
---attribute WRITE_MODE : string;
---attribute INIT: string;
---attribute SRVAL: string;
---attribute WRITE_MODE of U_RAMB16_S36: label is "WRITE_FIRST";
---attribute INIT of U_RAMB16_S36: label is "000000000";
---attribute SRVAL of U_RAMB16_S36: label is "000000000";
-
 signal CLK_BUFG: std_logic;
 signal INV_SET_RESET : std_logic;
 
@@ -99,10 +92,6 @@ signal st : state;
 
 signal copy_content : std_logic;
 signal index : integer;
-
---	shared variable m1 : MEMORY := memory_content;
---	signal obyte : std_logic_vector(BYTE_BITS-1 downto 0);
---	signal obit : std_logic;
 
 begin
 
@@ -133,11 +122,13 @@ DOP => DATA_OUTP
 pc : process(CLK_BUFG,i_reset) is
 begin
     if (i_reset = '1') then
-        st <= idle;
-        copy_content <= '0';
-        index <= 0;
-        DATA_IN <= (others => '0');
-        ADDRESS <= (others => '0');
+			st <= idle;
+			copy_content <= '0';
+			index <= 0;
+			DATA_IN <= (others => '0');
+			ADDRESS <= (others => '0');
+			o_bit <= '0';
+			o_byte <= (others => '0');
     elsif (rising_edge(CLK_BUFG)) then
         case (st) is
             when idle =>
@@ -163,53 +154,50 @@ begin
 							ENABLE <= '0';
 							WRITE_EN <= '0';
             when check =>
-                st <= disable_mem1;
-								ENABLE <= '1';
+							st <= disable_mem1;
+							ENABLE <= '1';
+							ADDRESS(ROWS_BITS-1 downto 0) <= i_row;
+							if (i_enable_byte = '1') then
+								if (i_write_byte = '1') then
+									WRITE_EN <= '1';
+									case (to_integer(unsigned(i_col_block))) is
+										when 0 =>
+											DATA_IN <= DATA_IN(31 downto 8) & i_byte;
+										when 1 =>
+											DATA_IN <= DATA_IN(31 downto 16) & i_byte & DATA_IN(7 downto 0);
+										when 2 =>
+											DATA_IN <= DATA_IN(31 downto 24) & i_byte & DATA_IN(15 downto 0);
+										when 3 =>
+											DATA_IN <= i_byte & DATA_IN(23 downto 0);
+										when others => null;
+									end case;
+								else
+									WRITE_EN <= '0';
+									case (to_integer(unsigned(i_col_block))) is
+										when 0 =>
+											o_byte <= DATA_OUT(7 downto 0);
+										when 1 =>
+											o_byte <= DATA_OUT(15 downto 8);
+										when 2 =>
+											o_byte <= DATA_OUT(23 downto 16);
+										when 3 =>
+											o_byte <= DATA_OUT(31 downto 24);
+										when others => null;
+									end case;
+								end if;
+							end if;
+							if (i_enable_bit = '1') then
+								if (i_write_bit = '1') then
+									WRITE_EN <= '1';
+									ADDRESS(ROWS_BITS-1 downto 0) <= i_row;
+									DATA_IN(to_integer(unsigned(i_col_pixel))) <= i_bit;
+								end if;
+								WRITE_EN <= '0';
 								ADDRESS(ROWS_BITS-1 downto 0) <= i_row;
-                if (i_enable_byte = '1') then
-									if (i_write_byte = '1') then
-                    WRITE_EN <= '1';
-                    case (to_integer(unsigned(i_col_block))) is
-                        when 0 =>
-                            DATA_IN <= DATA_IN(31 downto 8) & i_byte;
-                        when 1 =>
-                            DATA_IN <= DATA_IN(31 downto 16) & i_byte & DATA_IN(7 downto 0);
-                        when 2 =>
-                            DATA_IN <= DATA_IN(31 downto 24) & i_byte & DATA_IN(15 downto 0);
-                        when 3 =>
-                            DATA_IN <= i_byte & DATA_IN(23 downto 0);
-                        when others => null;
-                    end case;
-									else
-										WRITE_EN <= '0';
-											case (to_integer(unsigned(i_col_block))) is
-													when 0 =>
-															o_byte <= DATA_OUT(7 downto 0);
-													when 1 =>
-															o_byte <= DATA_OUT(15 downto 8);
-													when 2 =>
-															o_byte <= DATA_OUT(23 downto 16);
-													when 3 =>
-															o_byte <= DATA_OUT(31 downto 24);
-													when others => null;
-											end case;
-									end if;
-								end if;
-								if (i_enable_bit = '1') then
-									if (i_write_bit = '1') then
-                    WRITE_EN <= '1';
-                    ADDRESS(ROWS_BITS-1 downto 0) <= i_row;
-                    DATA_IN(to_integer(unsigned(i_col_pixel))) <= i_bit;
-									end if;
-										WRITE_EN <= '0';
-										ADDRESS(ROWS_BITS-1 downto 0) <= i_row;
-										o_bit <= DATA_OUT(to_integer(unsigned(i_col_pixel)));
-									
-								end if;
-					when others =>
-					null;
---					o_bit <= '0';
---					o_byte <= (others => '0');
+								o_bit <= DATA_OUT(to_integer(unsigned(i_col_pixel)));
+							end if;
+						when others =>
+						null;
         end case;
     end if;
 end process pc;

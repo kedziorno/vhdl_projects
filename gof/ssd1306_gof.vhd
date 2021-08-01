@@ -33,7 +33,8 @@ use UNISIM.VComponents.all;
 entity ssd1306_gof is
 generic(
 INPUT_CLOCK : integer := 50_000_000;
-BUS_CLOCK : integer := 6_000_000; -- increase for speed i2c --XXX scl period=1.28us,start=0.96us,stop=0.16us
+--BUS_CLOCK : integer := 6_000_000; -- increase for speed i2c --XXX scl period=1.28us,start=0.96us,stop=0.16us
+BUS_CLOCK : integer := 100_000; --original
 DIVIDER_CLOCK : integer := 1
 );
 port(
@@ -277,22 +278,28 @@ port map (
 gof_logic : process (CLK_BUFG,i_reset) is
 	constant W : integer := 10;
 	variable waiting : integer range W-1 downto 0 := 0;
-	variable vppX : integer range 0 to ROWS-1;
-	variable vppYb : integer range 0 to COLS_BLOCK-1;
-	variable vppYp : integer range 0 to COLS_PIXEL-1;
-	variable vppXm1 : integer range -1 to ROWS-1;
-	variable vppXp1 : integer range 0 to ROWS;
-	variable vppYm1 : integer range -1 to COLS_PIXEL-1;
-	variable vppYp1 : integer range 0 to COLS_PIXEL;
-	variable vcountAlive : integer range 0 to 15;
+	variable vppX : integer;-- range 0 to ROWS-1;
+	variable vppYb : integer;-- range 0 to COLS_BLOCK-1;
+	variable vppYp : integer;-- range 0 to COLS_PIXEL-1;
+	variable vppXm1 : integer;-- range -1 to ROWS-1;
+	variable vppXp1 : integer;-- range 0 to ROWS;
+	variable vppYm1 : integer;-- range -1 to COLS_PIXEL-1;
+	variable vppYp1 : integer;-- range 0 to COLS_PIXEL;
+	variable vcountAlive : integer range 0 to 7;
 	variable vCellAlive : boolean;
 begin
 	if (i_reset = '1') then
 		all_pixels <= '0';
+		cstate <= idle;
+		vCellAlive := false;
+		vcountAlive := 0;
 		vppX := 0;
 		vppYb := 0;
 		vppYp := 0;
-		cstate <= idle;
+		vppXm1 := 0;
+		vppXp1 := 0;
+		vppYm1 := 0;
+		vppYp1 := 0;
 	elsif (rising_edge(CLK_BUFG)) then
 		case cstate is
 			-- draw
@@ -541,6 +548,7 @@ begin
 				i_mem_write_bit <= '1';
 			  ADDRESS <= std_logic_vector(to_unsigned(vppX*WORD_BITS+vppYp,12));
 				report "enable_write_to_memory " & integer'image(to_integer(unsigned(ppX))) & "," & integer'image(to_integer(unsigned(ppYp)));
+				i_bit <= '0';
 			when write_count_alive =>
 				cstate <= disable_write_to_memory;
 				if (vCellAlive = true) then
