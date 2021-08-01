@@ -20,7 +20,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="4" />
+   <WVObjectSize size="6" />
    <wvobject fp_name="group21" type="group">
       <obj_property name="label">tb</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -72,17 +72,9 @@
          <obj_property name="ElementShortName">clk</obj_property>
          <obj_property name="ObjectShortName">clk</obj_property>
       </wvobject>
-      <wvobject fp_name="/ssd1306_tb_top/uut/btn_1" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">btn_1</obj_property>
-         <obj_property name="ObjectShortName">btn_1</obj_property>
-      </wvobject>
-      <wvobject fp_name="/ssd1306_tb_top/uut/btn_2" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">btn_2</obj_property>
-         <obj_property name="ObjectShortName">btn_2</obj_property>
-      </wvobject>
-      <wvobject fp_name="/ssd1306_tb_top/uut/btn_3" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">btn_3</obj_property>
-         <obj_property name="ObjectShortName">btn_3</obj_property>
+      <wvobject fp_name="/ssd1306_tb_top/uut/cstate" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">cstate</obj_property>
+         <obj_property name="ObjectShortName">cstate</obj_property>
       </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/sda" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">sda</obj_property>
@@ -95,26 +87,21 @@
       <wvobject fp_name="/ssd1306_tb_top/uut/row" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">row[3:0]</obj_property>
          <obj_property name="ObjectShortName">row[3:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/ssd1306_tb_top/uut/col_pixel" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">col_pixel[4:0]</obj_property>
-         <obj_property name="ObjectShortName">col_pixel[4:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/col_block" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">col_block[1:0]</obj_property>
          <obj_property name="ObjectShortName">col_block[1:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
-      <wvobject fp_name="/ssd1306_tb_top/uut/rst" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">rst</obj_property>
-         <obj_property name="ObjectShortName">rst</obj_property>
+      <wvobject fp_name="/ssd1306_tb_top/uut/col_pixel" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">col_pixel[4:0]</obj_property>
+         <obj_property name="ObjectShortName">col_pixel[4:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/all_pixels" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">all_pixels</obj_property>
          <obj_property name="ObjectShortName">all_pixels</obj_property>
-      </wvobject>
-      <wvobject fp_name="/ssd1306_tb_top/uut/clk_1s" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">clk_1s</obj_property>
-         <obj_property name="ObjectShortName">clk_1s</obj_property>
       </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/display_byte" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">display_byte[7:0]</obj_property>
@@ -127,10 +114,6 @@
       <wvobject fp_name="/ssd1306_tb_top/uut/o_bit" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">o_bit</obj_property>
          <obj_property name="ObjectShortName">o_bit</obj_property>
-      </wvobject>
-      <wvobject fp_name="/ssd1306_tb_top/uut/i_reset" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">i_reset</obj_property>
-         <obj_property name="ObjectShortName">i_reset</obj_property>
       </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/i_mem_e_byte" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">i_mem_e_byte</obj_property>
@@ -148,10 +131,6 @@
          <obj_property name="ElementShortName">i_bit</obj_property>
          <obj_property name="ObjectShortName">i_bit</obj_property>
       </wvobject>
-      <wvobject fp_name="/ssd1306_tb_top/uut/clk_bufg" type="logic" db_ref_id="1">
-         <obj_property name="ElementShortName">clk_bufg</obj_property>
-         <obj_property name="ObjectShortName">clk_bufg</obj_property>
-      </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/data_in" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">data_in[3:0]</obj_property>
          <obj_property name="ObjectShortName">data_in[3:0]</obj_property>
@@ -159,6 +138,10 @@
       <wvobject fp_name="/ssd1306_tb_top/uut/address" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">address[11:0]</obj_property>
          <obj_property name="ObjectShortName">address[11:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/clk_1s" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">clk_1s</obj_property>
+         <obj_property name="ObjectShortName">clk_1s</obj_property>
       </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/enable" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">enable</obj_property>
@@ -172,85 +155,51 @@
          <obj_property name="ElementShortName">data_out[3:0]</obj_property>
          <obj_property name="ObjectShortName">data_out[3:0]</obj_property>
       </wvobject>
-      <wvobject fp_name="/ssd1306_tb_top/uut/cstate" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">cstate</obj_property>
-         <obj_property name="ObjectShortName">cstate</obj_property>
-      </wvobject>
-      <wvobject fp_name="/ssd1306_tb_top/uut/waiting" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">waiting</obj_property>
-         <obj_property name="ObjectShortName">waiting</obj_property>
-      </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/ppx" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">ppx[3:0]</obj_property>
          <obj_property name="ObjectShortName">ppx[3:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/ppyb" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">ppyb[1:0]</obj_property>
          <obj_property name="ObjectShortName">ppyb[1:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/ppyp" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">ppyp[4:0]</obj_property>
          <obj_property name="ObjectShortName">ppyp[4:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/ppxm1" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">ppxm1[3:0]</obj_property>
          <obj_property name="ObjectShortName">ppxm1[3:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/ppxp1" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">ppxp1[3:0]</obj_property>
          <obj_property name="ObjectShortName">ppxp1[3:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/ppym1" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">ppym1[4:0]</obj_property>
          <obj_property name="ObjectShortName">ppym1[4:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/ppyp1" type="array" db_ref_id="1">
+         <obj_property name="DisplayName">label</obj_property>
          <obj_property name="ElementShortName">ppyp1[4:0]</obj_property>
          <obj_property name="ObjectShortName">ppyp1[4:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/ssd1306_tb_top/uut/oppx" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">oppx[3:0]</obj_property>
-         <obj_property name="ObjectShortName">oppx[3:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/ssd1306_tb_top/uut/oppy" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">oppy[4:0]</obj_property>
-         <obj_property name="ObjectShortName">oppy[4:0]</obj_property>
+         <obj_property name="label">ppyp1[4:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/countalive" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">countalive[3:0]</obj_property>
          <obj_property name="ObjectShortName">countalive[3:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/cellalive" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">cellalive</obj_property>
          <obj_property name="ObjectShortName">cellalive</obj_property>
-      </wvobject>
-      <wvobject fp_name="/ssd1306_tb_top/uut/cd" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">cd</obj_property>
-         <obj_property name="ObjectShortName">cd</obj_property>
-      </wvobject>
-      <wvobject fp_name="/ssd1306_tb_top/uut/cd_display" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">cd_display</obj_property>
-         <obj_property name="ObjectShortName">cd_display</obj_property>
-      </wvobject>
-      <wvobject fp_name="/ssd1306_tb_top/uut/cd_calculate" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">cd_calculate</obj_property>
-         <obj_property name="ObjectShortName">cd_calculate</obj_property>
-      </wvobject>
-      <wvobject fp_name="/ssd1306_tb_top/uut/input_clock" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">input_clock</obj_property>
-         <obj_property name="ObjectShortName">input_clock</obj_property>
-      </wvobject>
-      <wvobject fp_name="/ssd1306_tb_top/uut/bus_clock" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">bus_clock</obj_property>
-         <obj_property name="ObjectShortName">bus_clock</obj_property>
-      </wvobject>
-      <wvobject fp_name="/ssd1306_tb_top/uut/divider_clock" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">divider_clock</obj_property>
-         <obj_property name="ObjectShortName">divider_clock</obj_property>
-      </wvobject>
-      <wvobject fp_name="/ssd1306_tb_top/uut/w" type="other" db_ref_id="1">
-         <obj_property name="ElementShortName">w</obj_property>
-         <obj_property name="ObjectShortName">w</obj_property>
       </wvobject>
    </wvobject>
    <wvobject fp_name="group109" type="group">
@@ -275,14 +224,17 @@
       <wvobject fp_name="/ssd1306_tb_top/uut/c0/i_x" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">i_x[3:0]</obj_property>
          <obj_property name="ObjectShortName">i_x[3:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/c0/i_y" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">i_y[1:0]</obj_property>
          <obj_property name="ObjectShortName">i_y[1:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/c0/i_byte" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">i_byte[7:0]</obj_property>
          <obj_property name="ObjectShortName">i_byte[7:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/c0/i_all_pixels" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">i_all_pixels</obj_property>
@@ -291,6 +243,10 @@
       <wvobject fp_name="/ssd1306_tb_top/uut/c0/o_display_initialize" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">o_display_initialize</obj_property>
          <obj_property name="ObjectShortName">o_display_initialize</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/c0/o_busy" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_busy</obj_property>
+         <obj_property name="ObjectShortName">o_busy</obj_property>
       </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/c0/io_sda" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">io_sda</obj_property>
@@ -312,18 +268,6 @@
       <wvobject fp_name="/ssd1306_tb_top/uut/c0/i2c_ena" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">i2c_ena</obj_property>
          <obj_property name="ObjectShortName">i2c_ena</obj_property>
-      </wvobject>
-      <wvobject fp_name="/ssd1306_tb_top/uut/c0/i2c_addr" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">i2c_addr[6:0]</obj_property>
-         <obj_property name="ObjectShortName">i2c_addr[6:0]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/ssd1306_tb_top/uut/c0/init_display" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">init_display[0:25]</obj_property>
-         <obj_property name="ObjectShortName">init_display[0:25]</obj_property>
-      </wvobject>
-      <wvobject fp_name="/ssd1306_tb_top/uut/c0/set_coordination_00" type="array" db_ref_id="1">
-         <obj_property name="ElementShortName">set_coordination_00[0:5]</obj_property>
-         <obj_property name="ObjectShortName">set_coordination_00[0:5]</obj_property>
       </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/c0/i2c_rw" type="logic" db_ref_id="1">
          <obj_property name="ElementShortName">i2c_rw</obj_property>
@@ -352,10 +296,12 @@
       <wvobject fp_name="/ssd1306_tb_top/uut/c0/coord_prev_x" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">coord_prev_x[3:0]</obj_property>
          <obj_property name="ObjectShortName">coord_prev_x[3:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/c0/coord_prev_y" type="array" db_ref_id="1">
          <obj_property name="ElementShortName">coord_prev_y[1:0]</obj_property>
          <obj_property name="ObjectShortName">coord_prev_y[1:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
       </wvobject>
       <wvobject fp_name="/ssd1306_tb_top/uut/c0/global_clk" type="other" db_ref_id="1">
          <obj_property name="ElementShortName">global_clk</obj_property>
@@ -517,6 +463,152 @@
       <wvobject fp_name="/ssd1306_tb_top/uut/c0/c0/sda_width_max" type="other" db_ref_id="1">
          <obj_property name="ElementShortName">sda_width_max</obj_property>
          <obj_property name="ObjectShortName">sda_width_max</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group160" type="group">
+      <obj_property name="label">m1</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/i_clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_clk</obj_property>
+         <obj_property name="ObjectShortName">i_clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/i_reset" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_reset</obj_property>
+         <obj_property name="ObjectShortName">i_reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/i_enable_byte" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_enable_byte</obj_property>
+         <obj_property name="ObjectShortName">i_enable_byte</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/i_enable_bit" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_enable_bit</obj_property>
+         <obj_property name="ObjectShortName">i_enable_bit</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/i_write_byte" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_write_byte</obj_property>
+         <obj_property name="ObjectShortName">i_write_byte</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/i_write_bit" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_write_bit</obj_property>
+         <obj_property name="ObjectShortName">i_write_bit</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/i_row" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">i_row[3:0]</obj_property>
+         <obj_property name="ObjectShortName">i_row[3:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/i_col_pixel" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">i_col_pixel[4:0]</obj_property>
+         <obj_property name="ObjectShortName">i_col_pixel[4:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/i_col_block" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">i_col_block[1:0]</obj_property>
+         <obj_property name="ObjectShortName">i_col_block[1:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/i_byte" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">i_byte[7:0]</obj_property>
+         <obj_property name="ObjectShortName">i_byte[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/i_bit" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">i_bit</obj_property>
+         <obj_property name="ObjectShortName">i_bit</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/o_byte" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">o_byte[7:0]</obj_property>
+         <obj_property name="ObjectShortName">o_byte[7:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/o_bit" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">o_bit</obj_property>
+         <obj_property name="ObjectShortName">o_bit</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/clk_bufg" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">clk_bufg</obj_property>
+         <obj_property name="ObjectShortName">clk_bufg</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/inv_set_reset" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">inv_set_reset</obj_property>
+         <obj_property name="ObjectShortName">inv_set_reset</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/data_in" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">data_in[31:0]</obj_property>
+         <obj_property name="ObjectShortName">data_in[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/address" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">address[8:0]</obj_property>
+         <obj_property name="ObjectShortName">address[8:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/enable" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">enable</obj_property>
+         <obj_property name="ObjectShortName">enable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/write_en" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">write_en</obj_property>
+         <obj_property name="ObjectShortName">write_en</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/data_out" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">data_out[31:0]</obj_property>
+         <obj_property name="ObjectShortName">data_out[31:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/st" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">st</obj_property>
+         <obj_property name="ObjectShortName">st</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/copy_content" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">copy_content</obj_property>
+         <obj_property name="ObjectShortName">copy_content</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/m1/index" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">index</obj_property>
+         <obj_property name="ObjectShortName">index</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group237" type="group">
+      <obj_property name="label">ramb16</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/ssd1306_tb_top/uut/U_RAMB16_S4/clk" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/U_RAMB16_S4/do" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">do[3:0]</obj_property>
+         <obj_property name="ObjectShortName">do[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/U_RAMB16_S4/addr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">addr[11:0]</obj_property>
+         <obj_property name="ObjectShortName">addr[11:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/U_RAMB16_S4/di" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">di[3:0]</obj_property>
+         <obj_property name="ObjectShortName">di[3:0]</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/U_RAMB16_S4/en" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">en</obj_property>
+         <obj_property name="ObjectShortName">en</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/U_RAMB16_S4/ssr" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">ssr</obj_property>
+         <obj_property name="ObjectShortName">ssr</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/U_RAMB16_S4/we" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">we</obj_property>
+         <obj_property name="ObjectShortName">we</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/U_RAMB16_S4/length" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">length</obj_property>
+         <obj_property name="ObjectShortName">length</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/U_RAMB16_S4/width" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">width</obj_property>
+         <obj_property name="ObjectShortName">width</obj_property>
+      </wvobject>
+      <wvobject fp_name="/ssd1306_tb_top/uut/U_RAMB16_S4/write_mode" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">write_mode[1:9]</obj_property>
+         <obj_property name="ObjectShortName">write_mode[1:9]</obj_property>
       </wvobject>
    </wvobject>
 </wave_config>

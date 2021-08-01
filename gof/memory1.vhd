@@ -143,18 +143,19 @@ begin
             when start =>
                 ENABLE <= '1';
                 WRITE_EN <= '0';
+								st <= write_content;
+                WRITE_EN <= '1';
+                ADDRESS <= std_logic_vector(to_unsigned(index,BRAM_ADDRESS_BITS));
+                DATA_IN <= memory_content(index);
+                
+            when write_content =>
                 if (index = ROWS-1) then
                     st <= disable_mem1;
                     copy_content <= '1';
                 else
-                    st <= write_content;
+                    st <= start;
                     index <= index + 1;
                 end if;
-            when write_content =>
-                st <= start;
-                WRITE_EN <= '1';
-                ADDRESS <= std_logic_vector(to_unsigned(index,BRAM_ADDRESS_BITS));
-                DATA_IN <= memory_content(index);
 						when disable_mem1 =>
 							st <= check;
 							ENABLE <= '1';
