@@ -488,11 +488,11 @@ begin
 			when memory_disable_bit =>
 				cstate <= store_count_alive;
 				i_mem_e_bit <= '0';
-			when store_count_alive =>
-				cstate <= update_row1;
 				ENABLE <= '1';
 				WRITE_EN <= '1';
-				ADDRESS <= std_logic_vector(to_unsigned(vppX+vppYp*WORD_BITS,12));
+			when store_count_alive =>
+				cstate <= update_row1;
+				ADDRESS <= std_logic_vector(to_unsigned(vppX*WORD_BITS+vppYp,12));
 				DATA_IN <= countAlive;
 				report "store_count_alive " & integer'image(to_integer(unsigned(ppX))) & "," & integer'image(to_integer(unsigned(ppYp)));
 			when update_row1 =>
@@ -533,12 +533,13 @@ begin
 				else
 					vCellAlive := false;
 				end if;
+				report "get_alive1 " & integer'image(to_integer(unsigned(ppX))) & "," & integer'image(to_integer(unsigned(ppYp)));
+				ENABLE <= '1';
+			  WRITE_EN <= '0';
 			when enable_write_to_memory =>
 				cstate <= write_count_alive;
 				i_mem_write_bit <= '1';
-			  ENABLE <= '1';
-			  WRITE_EN <= '0';
-			  ADDRESS <= std_logic_vector(to_unsigned(vppX+vppYp*WORD_BITS,12));
+			  ADDRESS <= std_logic_vector(to_unsigned(vppX*WORD_BITS+vppYp,12));
 				report "enable_write_to_memory " & integer'image(to_integer(unsigned(ppX))) & "," & integer'image(to_integer(unsigned(ppYp)));
 			when write_count_alive =>
 				cstate <= disable_write_to_memory;
@@ -560,7 +561,7 @@ begin
 			  WRITE_EN <= '0';
 				cstate <= update_row2;
 				i_mem_write_bit <= '0';
-				--i_bit <= '0';
+				i_bit <= '0';
 			when update_row2 =>
 				if (vppX = ROWS - 1) then
 					cstate <= update_col2;

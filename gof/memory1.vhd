@@ -59,9 +59,10 @@ end component;
 
 component RAMB16_S36
 generic (
-WRITE_MODE : string := "NO_CHANGE" ; -- WRITE_FIRST(default)/ READ_FIRST/NO_CHANGE
+WRITE_MODE : string := "NO_CHANGE"; -- WRITE_FIRST/READ_FIRST/NO_CHANGE
 INIT : bit_vector(35 downto 0) := X"000000000";
-SRVAL : bit_vector(35 downto 0) := X"012345678");
+SRVAL : bit_vector(35 downto 0) := X"012345678"
+);
 port (
 DI    : in std_logic_vector (31 downto 0);
 DIP   : in std_logic_vector (3 downto 0);
@@ -75,12 +76,12 @@ DOP   : out std_logic_vector (3 downto 0)
 );
 end component;
 
-attribute WRITE_MODE : string;
-attribute INIT: string;
-attribute SRVAL: string;
-attribute WRITE_MODE of U_RAMB16_S36: label is "WRITE_FIRST";
-attribute INIT of U_RAMB16_S36: label is "000000000";
-attribute SRVAL of U_RAMB16_S36: label is "000000000";
+--attribute WRITE_MODE : string;
+--attribute INIT: string;
+--attribute SRVAL: string;
+--attribute WRITE_MODE of U_RAMB16_S36: label is "WRITE_FIRST";
+--attribute INIT of U_RAMB16_S36: label is "000000000";
+--attribute SRVAL of U_RAMB16_S36: label is "000000000";
 
 signal CLK_BUFG: std_logic;
 signal INV_SET_RESET : std_logic;
@@ -112,6 +113,11 @@ O => CLK_BUFG
 );
 
 U_RAMB16_S36: RAMB16_S36
+generic map (
+WRITE_MODE => "WRITE_FIRST",
+INIT => X"000000000",
+SRVAL => X"000000000"
+)
 port map (
 DI => DATA_IN,
 DIP => DATA_INP,
@@ -139,13 +145,11 @@ begin
                 ENABLE <= '0';
                 WRITE_EN <= '0';
             when start =>
-                ENABLE <= '1';
-                WRITE_EN <= '0';
 								st <= write_content;
+                ENABLE <= '1';
                 WRITE_EN <= '1';
                 ADDRESS <= std_logic_vector(to_unsigned(index,BRAM_ADDRESS_BITS));
                 DATA_IN <= memory_content(index);
-                
             when write_content =>
                 if (index = ROWS-1) then
                     st <= disable_mem1;
@@ -156,13 +160,12 @@ begin
                 end if;
 						when disable_mem1 =>
 							st <= check;
-							ENABLE <= '1';
+							ENABLE <= '0';
+							WRITE_EN <= '0';
             when check =>
                 st <= disable_mem1;
 								ENABLE <= '1';
-								                    ADDRESS(ROWS_BITS-1 downto 0) <= i_row;
-											WRITE_EN <= '0';
-
+								ADDRESS(ROWS_BITS-1 downto 0) <= i_row;
                 if (i_enable_byte = '1') then
 									if (i_write_byte = '1') then
                     WRITE_EN <= '1';
@@ -178,6 +181,7 @@ begin
                         when others => null;
                     end case;
 									else
+										WRITE_EN <= '0';
 											case (to_integer(unsigned(i_col_block))) is
 													when 0 =>
 															o_byte <= DATA_OUT(7 downto 0);
@@ -197,15 +201,15 @@ begin
                     ADDRESS(ROWS_BITS-1 downto 0) <= i_row;
                     DATA_IN(to_integer(unsigned(i_col_pixel))) <= i_bit;
 									end if;
-											WRITE_EN <= '0';
-											ADDRESS(ROWS_BITS-1 downto 0) <= i_row;
-											o_bit <= DATA_OUT(to_integer(unsigned(i_col_pixel)));
+										WRITE_EN <= '0';
+										ADDRESS(ROWS_BITS-1 downto 0) <= i_row;
+										o_bit <= DATA_OUT(to_integer(unsigned(i_col_pixel)));
 									
 								end if;
 					when others =>
---					null;
-					o_bit <= '0';
-					o_byte <= (others => '0');
+					null;
+--					o_bit <= '0';
+--					o_byte <= (others => '0');
         end case;
     end if;
 end process pc;
