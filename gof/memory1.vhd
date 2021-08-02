@@ -96,76 +96,84 @@ signal p4_obit : std_logic;
 
 begin
 
-p0a : process(i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit) is
+p0a : process(i_clk) is
 begin
-	case(std_logic_vector'(i_copy_content&i_enable_byte&i_enable_bit&i_write_byte&i_write_bit)) is
-		when "10000" =>
-			ENABLE <= p0_enable;
-		when "01010" =>
-			ENABLE <= p1_enable;
-		when "01000" =>
-			ENABLE <= p2_enable;
-		when "00101" =>
-			ENABLE <= p3_enable;
-		when "00100" =>
-			ENABLE <= p4_enable;
-		when others =>
-			ENABLE <= '0';
-	end case;
+	if (rising_edge(i_clk)) then
+		case(std_logic_vector'(i_copy_content&i_enable_byte&i_enable_bit&i_write_byte&i_write_bit)) is
+			when "10000" =>
+				ENABLE <= p0_enable;
+			when "01010" =>
+				ENABLE <= p1_enable;
+			when "01000" =>
+				ENABLE <= p2_enable;
+			when "00101" =>
+				ENABLE <= p3_enable;
+			when "00100" =>
+				ENABLE <= p4_enable;
+			when others =>
+				ENABLE <= '0';
+		end case;
+	end if;
 end process p0a;
 
-p1a : process(i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit) is
+p1a : process(i_clk) is
 begin
-	case(std_logic_vector'(i_copy_content&i_enable_byte&i_enable_bit&i_write_byte&i_write_bit)) is
-		when "10000" =>
-			WRITE_EN <= p0_write_en;
-		when "01010" =>
-			WRITE_EN <= p1_write_en;
-		when "01000" =>
-			WRITE_EN <= p2_write_en;
-		when "00101" =>
-			WRITE_EN <= p3_write_en;
-		when "00100" =>
-			WRITE_EN <= p4_write_en;
-		when others =>
-			WRITE_EN <= '0';
-	end case;
+	if (rising_edge(i_clk)) then
+		case(std_logic_vector'(i_copy_content&i_enable_byte&i_enable_bit&i_write_byte&i_write_bit)) is
+			when "10000" =>
+				WRITE_EN <= p0_write_en;
+			when "01010" =>
+				WRITE_EN <= p1_write_en;
+			when "01000" =>
+				WRITE_EN <= p2_write_en;
+			when "00101" =>
+				WRITE_EN <= p3_write_en;
+			when "00100" =>
+				WRITE_EN <= p4_write_en;
+			when others =>
+				WRITE_EN <= '0';
+		end case;
+	end if;
 end process p1a;
 
-p2a : process(i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit) is
+p2a : process(i_clk) is
 begin
-	case(std_logic_vector'(i_copy_content&i_enable_byte&i_enable_bit&i_write_byte&i_write_bit)) is
-		when "10000" =>
-			ADDRESS <= p0_address;
-		when "01010" =>
-			ADDRESS <= p1_address;
-		when "01000" =>
-			ADDRESS <= p2_address;
-		when "00101" =>
-			ADDRESS <= p3_address;
-		when "00100" =>
-			ADDRESS <= p4_address;
-		when others =>
-			ADDRESS <= (others => '0');
-	end case;
+	if (rising_edge(i_clk)) then
+		case(std_logic_vector'(i_copy_content&i_enable_byte&i_enable_bit&i_write_byte&i_write_bit)) is
+			when "10000" =>
+				ADDRESS <= p0_address;
+			when "01010" =>
+				ADDRESS <= p1_address;
+			when "01000" =>
+				ADDRESS <= p2_address;
+			when "00101" =>
+				ADDRESS <= p3_address;
+			when "00100" =>
+				ADDRESS <= p4_address;
+			when others =>
+				ADDRESS <= (others => '0');
+		end case;
+	end if;
 end process p2a;
 
-p3a : process(i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit) is
+p3a : process(i_clk) is
 begin
-	case(std_logic_vector'(i_copy_content&i_enable_byte&i_enable_bit&i_write_byte&i_write_bit)) is
-		when "10000" =>
-			DATA_IN <= p0_data_in;
-		when "01010" =>
-			DATA_IN <= p1_data_in;
-		when "01000" =>
-			DATA_IN <= p2_data_in;
-		when "00101" =>
-			DATA_IN <= p3_data_in;
-		when "00100" =>
-			DATA_IN <= p4_data_in;
-		when others =>
-			DATA_IN <= (others => '0');
-	end case;
+	if (rising_edge(i_clk)) then
+		case(std_logic_vector'(i_copy_content&i_enable_byte&i_enable_bit&i_write_byte&i_write_bit)) is
+			when "10000" =>
+				DATA_IN <= p0_data_in;
+			when "01010" =>
+				DATA_IN <= p1_data_in;
+			when "01000" =>
+				DATA_IN <= p2_data_in;
+			when "00101" =>
+				DATA_IN <= p3_data_in;
+			when "00100" =>
+				DATA_IN <= p4_data_in;
+			when others =>
+				DATA_IN <= (others => '0');
+		end case;
+	end if;
 end process p3a;
 
 p0 : process (i_clk,i_reset) is
