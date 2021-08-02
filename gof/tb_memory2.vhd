@@ -67,8 +67,6 @@ ARCHITECTURE behavior OF tb_memory2 IS
 	signal i_col_block : std_logic_vector(COLS_BLOCK_BITS-1 downto 0);
 	signal i_byte : std_logic_vector(BYTE_BITS-1 downto 0);
 	signal i_bit : std_logic;
-	signal i : integer range 0 to ROWS-1 := 0;
-	signal j : integer range 0 to COLS_BLOCK-1 := 0;
 
 	--Outputs
 	signal o_bit : std_logic;
@@ -105,25 +103,79 @@ BEGIN
 		wait for i_clk_period/2;
 	end process;
 
-	i_enable_bit <= '1';
-	--i_enable_bit <= '1';
+	i_reset <= '1','0' after i_clk_period;
 
 	-- Stimulus process
 	p0 : process (i_clk) is
+		variable i : integer range 0 to ROWS-1 := 0;
+		variable j : integer range 0 to COLS_BLOCK-1 := 0;
+		variable k : integer range 0 to COLS_PIXEL-1 := 0;
+		type states is (idle,st1,st2,st3,st4,st5);
+		variable state : states := idle;
 	begin
 		if (rising_edge(i_clk)) then
-			if (j < COLS_BLOCK-1) then
-				if (i < ROWS-1) then
-					i <= i + 1;
-				else
-					j <= j + 1;
-					i <= 0;
-				end if;
-			end if;
+			i_row <= (others => 'U');
+			i_col_pixel <= (others => 'U');
+			i_col_block <= (others => 'U');
+			i_byte <= (others => 'U');
+			case (state) is
+				when idle =>
+					state := st1;
+					i := 0;
+					j := 0;
+					k := 0;
+					i_row <= (others => '0');
+					i_col_block <= (others => '0');
+					i_col_pixel <= (others => '0');
+				when st1 =>
+					state := st2;
+					i_enable_byte <= '1';
+					i_write_byte <= '1';
+				when st2 =>
+					state := st3;
+					i_row <= std_logic_vector(to_unsigned(i,i_row'length));
+					i_col_block <= std_logic_vector(to_unsigned(k,i_col_block'length));
+					i_byte <= memory_content(i)((k*BYTE_BITS+(BYTE_BITS-1)) downto ((k*BYTE_BITS)+0));
+				when st3 =>
+					if (k = COLS_BLOCK - 1) then
+						state := st4;
+						k := 0;
+					else
+						state := st2;
+						k := k + 1;
+					end if;
+				when st4 =>
+					if (i = ROWS - 1) then
+						state := st5;
+						i := 0;
+					else
+						state := st2;
+						i := i + 1;
+					end if;
+				when st5 =>
+					state := idle;
+					i_enable_byte <= '0';
+					i_write_byte <= '0';
+			end case;			
 		end if;
+		
+--		i_col_pixel <= std_logic_vector(to_unsigned(k,i_col_pixel'length));
+--		if (j = COLS_BLOCK-1) then
+--						if (i = ROWS-1) then
+--							j := j + 1;
+--							i := 0;
+--						else
+--							i := i + 1;
+--						end if;
+--					end if;
+--if (k = COLS_PIXEL-1) then
+--						if (i = ROWS-1) then
+--							k := k + 1;
+--							i := 0;
+--						else
+--							i := i + 1;
+--						end if;
+--					end if;
 	end process p0;
-
-	i_row <= std_logic_vector(to_unsigned(i,i_row'length));
-	i_col_block <= std_logic_vector(to_unsigned(j,i_col_block'length));
 
 END;
