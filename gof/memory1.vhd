@@ -96,37 +96,37 @@ signal p4_obit : std_logic;
 
 begin
 
-ENABLE <=
-p0_enable when i_copy_content = '1' and i_enable_byte = '0' and i_enable_bit = '0' and i_write_byte = '0' and i_write_bit = '0' else
-p1_enable when i_copy_content = '0' and i_enable_byte = '1' and i_enable_bit = '0' and i_write_byte = '1' and i_write_bit = '0' else
-p2_enable when i_copy_content = '0' and i_enable_byte = '1' and i_enable_bit = '0' and i_write_byte = '0' and i_write_bit = '0' else
-p3_enable when i_copy_content = '0' and i_enable_byte = '0' and i_enable_bit = '1' and i_write_byte = '0' and i_write_bit = '1' else
-p4_enable when i_copy_content = '0' and i_enable_byte = '0' and i_enable_bit = '1' and i_write_byte = '0' and i_write_bit = '0' else
-'Z';
+with std_logic_vector'(i_copy_content&i_enable_byte&i_enable_bit&i_write_byte&i_write_bit) select ENABLE <=
+p0_enable when "10000",
+p1_enable when "01010",
+p2_enable when "01000",
+p3_enable when "00101",
+p4_enable when "00100",
+'0' when others;
 
-WRITE_EN <=
-p0_write_en when i_copy_content = '1' and i_enable_byte = '0' and i_enable_bit = '0' and i_write_byte = '0' and i_write_bit = '0' else
-p1_write_en when i_copy_content = '0' and i_enable_byte = '1' and i_enable_bit = '0' and i_write_byte = '1' and i_write_bit = '0' else
-p2_write_en when i_copy_content = '0' and i_enable_byte = '1' and i_enable_bit = '0' and i_write_byte = '0' and i_write_bit = '0' else
-p3_write_en when i_copy_content = '0' and i_enable_byte = '0' and i_enable_bit = '1' and i_write_byte = '0' and i_write_bit = '1' else
-p4_write_en when i_copy_content = '0' and i_enable_byte = '0' and i_enable_bit = '1' and i_write_byte = '0' and i_write_bit = '0' else
-'Z';
+with std_logic_vector'(i_copy_content&i_enable_byte&i_enable_bit&i_write_byte&i_write_bit) select WRITE_EN <=
+p0_write_en when "10000",
+p1_write_en when "01010",
+p2_write_en when "01000",
+p3_write_en when "00101",
+p4_write_en when "00100",
+'0' when others;
 
-ADDRESS <=
-p0_address when i_copy_content = '1' and i_enable_byte = '0' and i_enable_bit = '0' and i_write_byte = '0' and i_write_bit = '0' else
-p1_address when i_copy_content = '0' and i_enable_byte = '1' and i_enable_bit = '0' and i_write_byte = '1' and i_write_bit = '0' else
-p2_address when i_copy_content = '0' and i_enable_byte = '1' and i_enable_bit = '0' and i_write_byte = '0' and i_write_bit = '0' else
-p3_address when i_copy_content = '0' and i_enable_byte = '0' and i_enable_bit = '1' and i_write_byte = '0' and i_write_bit = '1' else
-p4_address when i_copy_content = '0' and i_enable_byte = '0' and i_enable_bit = '1' and i_write_byte = '0' and i_write_bit = '0' else
-(others => 'Z');
+with std_logic_vector'(i_copy_content&i_enable_byte&i_enable_bit&i_write_byte&i_write_bit) select ADDRESS <=
+p0_address when "10000",
+p1_address when "01010",
+p2_address when "01000",
+p3_address when "00101",
+p4_address when "00100",
+(others => '0') when others;
 
-DATA_IN <=
-p0_data_in when i_copy_content = '1' and i_enable_byte = '0' and i_enable_bit = '0' and i_write_byte = '0' and i_write_bit = '0' else
-p1_data_in when i_copy_content = '0' and i_enable_byte = '1' and i_enable_bit = '0' and i_write_byte = '1' and i_write_bit = '0' else
-p2_data_in when i_copy_content = '0' and i_enable_byte = '1' and i_enable_bit = '0' and i_write_byte = '0' and i_write_bit = '0' else
-p3_data_in when i_copy_content = '0' and i_enable_byte = '0' and i_enable_bit = '1' and i_write_byte = '0' and i_write_bit = '1' else
-p4_data_in when i_copy_content = '0' and i_enable_byte = '0' and i_enable_bit = '1' and i_write_byte = '0' and i_write_bit = '0' else
-(others => 'Z');
+with std_logic_vector'(i_copy_content&i_enable_byte&i_enable_bit&i_write_byte&i_write_bit) select DATA_IN <=
+p0_data_in when "10000",
+p1_data_in when "01010",
+p2_data_in when "01000",
+p3_data_in when "00101",
+p4_data_in when "00100",
+(others => '0') when others;
 
 p0 : process (i_clk,i_reset) is
 begin
@@ -166,6 +166,10 @@ begin
 			when done_copy =>
 				p0_state <= done_copy;
 				o_copy_content <= '1';
+				p0_enable <= '0';
+				p0_write_en <= '0';
+				p0_address <= (others => '0');
+				p0_data_in <= (others => '0');
 		end case;
 	end if;
 end process p0;
@@ -179,22 +183,26 @@ begin
 		p1_data_in <= (others => '0');
 	elsif (rising_edge(i_clk)) then
 --		if (i_enable_byte = '1') then
+			p1_enable <= '1';
 --			if (i_write_byte = '1') then
-				p1_enable <= '1';
 				p1_write_en <= '1';
 				p1_address(ROWS_BITS-1 downto 0) <= i_row;
 				case (to_integer(unsigned(i_col_block))) is
 					when 0 =>
-						p1_data_in <= DATA_IN(31 downto 8) & i_byte;
+						p1_data_in <= p1_data_in(31 downto 8) & i_byte;
 					when 1 =>
-						p1_data_in <= DATA_IN(31 downto 16) & i_byte & DATA_IN(7 downto 0);
+						p1_data_in <= p1_data_in(31 downto 16) & i_byte & DATA_IN(7 downto 0);
 					when 2 =>
-						p1_data_in <= DATA_IN(31 downto 24) & i_byte & DATA_IN(15 downto 0);
+						p1_data_in <= p1_data_in(31 downto 24) & i_byte & DATA_IN(15 downto 0);
 					when 3 =>
-						p1_data_in <= i_byte & DATA_IN(23 downto 0);
+						p1_data_in <= i_byte & p1_data_in(23 downto 0);
 					when others => null;
 				end case;
+--			else
+--				p1_write_en <= '0';
 --			end if;
+--		else
+--			p1_enable <= '0';
 --		end if;
 	end if;
 end process p1;
@@ -208,8 +216,8 @@ begin
 		p2_obyte <= (others => '0');
 	elsif (rising_edge(i_clk)) then
 --		if (i_enable_byte = '1') then
+			p2_enable <= '1';
 --			if (i_write_byte = '0') then
-				p2_enable <= '1';
 				p2_write_en <= '0';
 				p2_address(ROWS_BITS-1 downto 0) <= i_row;
 				case (to_integer(unsigned(i_col_block))) is
@@ -224,6 +232,8 @@ begin
 					when others => null;
 				end case;
 --			end if;
+--		else
+--			p2_enable <= '0';
 --		end if;
 	end if;
 end process p2;
@@ -237,12 +247,16 @@ begin
 		p3_data_in <= (others => '0');
 	elsif (rising_edge(i_clk)) then
 --		if (i_enable_bit = '1') then
+			p3_enable <= '1';
 --			if (i_write_bit = '1') then
-				p3_enable <= '1';
 				p3_write_en <= '1';
 				p3_address(ROWS_BITS-1 downto 0) <= i_row;
 				p3_data_in(to_integer(unsigned(i_col_pixel))) <= i_bit;
+--			else
+--				p3_write_en <= '0';
 --			end if;
+--		else
+--			p3_enable <= '0';
 --		end if;
 	end if;
 end process p3;
@@ -252,16 +266,18 @@ begin
 	if (i_reset = '1') then
 		p4_enable <= '0';
 		p4_write_en <= '0';
-		p4_address(ROWS_BITS-1 downto 0) <= (others => '0');
+		p4_address <= (others => '0');
 		p4_obit <= '0';
 	elsif (rising_edge(i_clk)) then
 --		if (i_enable_bit = '1') then
+			p4_enable <= '1';
 --			if (i_write_bit = '0') then
-				p4_enable <= '1';
 				p4_write_en <= '0';
 				p4_address(ROWS_BITS-1 downto 0) <= i_row;
 				p4_obit <= DATA_OUT(to_integer(unsigned(i_col_pixel)));
 --			end if;
+--		else
+--			p4_enable <= '0';
 --		end if;
 	end if;
 end process p4;
@@ -283,135 +299,5 @@ CLK => CLK_BUFG,
 DO => DATA_OUT,
 DOP => DATA_OUTP
 );
-
---ADDRESS(ROWS_BITS-1 downto 0) <= i_row when (i_enable_byte = '1' or i_enable_bit = '1') else (others => 'Z');
---ENABLE <= '1' when (i_enable_byte = '1' or i_enable_bit = '1' or st = start) else '0';
---WRITE_EN <= '1' when (i_write_byte = '1' or i_write_bit = '1' or st = write_content) else '0';
-
---i_enable_byte : in std_logic;
---i_enable_bit : in std_logic;
---i_write_byte : in std_logic;
---i_write_bit : in std_logic;
---i_row : in std_logic_vector(ROWS_BITS-1 downto 0);
---i_col_pixel : in std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
---i_col_block : in std_logic_vector(COLS_BLOCK_BITS-1 downto 0);
---i_byte : in std_logic_vector(BYTE_BITS-1 downto 0);
---i_bit : in std_logic;
---o_byte : out std_logic_vector(BYTE_BITS-1 downto 0);
---o_bit : out std_logic
-
---process_byte : process(i_clk) is
---variable t_row : std_logic_vector(ROWS_BITS-1 downto 0);
---variable t_col_block : std_logic_vector(COLS_BLOCK_BITS-1 downto 0);
---variable t_col : std_logic_vector(WORD_BITS-1 downto 0);
---variable t_byte : std_logic_vector(BYTE_BITS-1 downto 0);
---variable v0 : std_logic_vector(BYTE_BITS-1 downto 0);
---variable v1 : std_logic_vector(BYTE_BITS-1 downto 0);
---variable v2 : std_logic_vector(BYTE_BITS-1 downto 0);
---variable v3 : std_logic_vector(BYTE_BITS-1 downto 0);
---begin
---if (rising_edge(i_clk)) then
---t_row := i_row;
---t_col := m1(to_integer(unsigned(t_row)));
---t_col_block := i_col_block;
---t_byte := i_byte;
---v0 := t_col((1*BYTE_BITS)-1 downto 0*BYTE_BITS);
---v1 := t_col((2*BYTE_BITS)-1 downto 1*BYTE_BITS);
---v2 := t_col((3*BYTE_BITS)-1 downto 2*BYTE_BITS);
---v3 := t_col((4*BYTE_BITS)-1 downto 3*BYTE_BITS);
---if (i_enable_byte = '1') then
---if (i_write_byte = '1') then
---case to_integer(unsigned(t_col_block)) is
---when 0 =>
---v0 := t_byte;
---when 1 =>
---v1 := t_byte;
---when 2 =>
---v2 := t_byte;
---when 3 =>
---v3 := t_byte;
---when others => null;
---end case;
---t_col := v3 & v2 & v1 & v0;
---m1(to_integer(unsigned(t_row))) := t_col;
---else
---case to_integer(unsigned(t_col_block)) is
---when 0 =>
---t_byte := v0;
---when 1 =>
---t_byte := v1;
---when 2 =>
---t_byte := v2;
---when 3 =>
---t_byte := v3;
---when others => null;
---end case;
---end if;
---else
---t_byte := "ZZZZZZZZ";
---end if;
---end if;
---obyte <= t_byte;
---end process process_byte;
---o_byte <= obyte;
---
---process_bit : process (i_clk) is
---variable t_row : std_logic_vector(ROWS_BITS-1 downto 0);
---variable t_col_pixel : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
---variable t_bit : std_logic;
---variable t_col : std_logic_vector(WORD_BITS-1 downto 0);
---variable v0 : std_logic_vector(BYTE_BITS-1 downto 0);
---variable v1 : std_logic_vector(BYTE_BITS-1 downto 0);
---variable v2 : std_logic_vector(BYTE_BITS-1 downto 0);
---variable v3 : std_logic_vector(BYTE_BITS-1 downto 0);
---variable t_col_p1 : integer range 0 to COLS_PIXEL_BITS-1;
---variable t_col_p2 : integer range 0 to BYTE_BITS-1;
---begin
---if (rising_edge(i_clk)) then
---t_row := i_row;
---t_col_pixel := i_col_pixel;
---t_bit := i_bit;
---t_col_p1 := to_integer(unsigned(t_col_pixel)) / BYTE_BITS;
---t_col_p2 := to_integer(unsigned(t_col_pixel)) mod BYTE_BITS;
---t_col := m1(to_integer(unsigned(t_row)));
---v0 := t_col((1*BYTE_BITS)-1 downto 0*BYTE_BITS);
---v1 := t_col((2*BYTE_BITS)-1 downto 1*BYTE_BITS);
---v2 := t_col((3*BYTE_BITS)-1 downto 2*BYTE_BITS);
---v3 := t_col((4*BYTE_BITS)-1 downto 3*BYTE_BITS);
---if (i_enable_bit = '1') then
---if (i_write_bit = '1') then
---case t_col_p1 is
---when 0 =>
---v0(t_col_p2) := t_bit;
---when 1 =>
---v1(t_col_p2) := t_bit;
---when 2 =>
---v2(t_col_p2) := t_bit;
---when 3 =>
---v3(t_col_p2) := t_bit;
---when others => null;
---end case;
---t_col := v3 & v2 & v1 & v0;
---m1(to_integer(unsigned(t_row))) := t_col;
---else
---case t_col_p1 is
---when 0 =>
---t_bit := v0(t_col_p2);
---when 1 =>
---t_bit := v1(t_col_p2);
---when 2 =>
---t_bit := v2(t_col_p2);
---when 3 =>
---t_bit := v3(t_col_p2);
---when others => null;
---end case;
---obit <= t_bit;
---end if;
---else
---obit <= 'Z';
---end if;
---end if;
---end process process_bit;
---o_bit <= obit;
 
 end Behavioral;
