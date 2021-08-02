@@ -286,6 +286,7 @@ p3 : process (i_reset,i_enable_bit,i_write_bit,p3_data_in,i_row,i_bit) is
 begin
 	i := to_integer(unsigned(i_col_pixel));
 	t := p3_data_in;
+	p3_data_in <= t;
 	if (i_reset = '1') then
 		p3_enable <= '0';
 		p3_write_en <= '0';
@@ -296,11 +297,10 @@ begin
 		p3_write_en <= '1';
 		p3_address <= std_logic_vector(to_unsigned(0,BRAM_ADDRESS_BITS-ROWS_BITS)) & i_row;
 		t(i) := i_bit;
-		p3_data_in <= t;
 	else
 		p3_write_en <= '0';
 		p3_enable <= '0';
-		p3_data_in <= (others => '0');
+--		p3_data_in <= (others => '0');
 		p3_address <= (others => '0');
 	end if;
 end process p3;
