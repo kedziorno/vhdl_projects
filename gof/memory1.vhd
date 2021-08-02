@@ -36,6 +36,8 @@ entity memory1 is
 Port (
 i_clk : in std_logic;
 i_reset : in std_logic;
+i_copy_content : in std_logic;
+o_copy_content : out std_logic;
 i_enable_byte : in std_logic;
 i_enable_bit : in std_logic;
 i_write_byte : in std_logic;
@@ -51,11 +53,6 @@ o_bit : out std_logic
 end memory1;
 
 architecture Behavioral of memory1 is
-
-component BUFG
-port (I : in std_logic;
-O : out std_logic); 
-end component;
 
 component RAMB16_S36
 generic (
@@ -87,23 +84,191 @@ signal WRITE_EN : std_logic;
 signal DATA_OUT : std_logic_vector(WORD_BITS-1 downto 0);
 signal DATA_OUTP : std_logic_vector(PARITY_BITS-1 downto 0);
 
-type state is (idle,start,write_content,disable_mem1,check,check_byte,disable_mem2,check_bit);
-signal st : state;
-
-signal copy_content : std_logic;
-signal index : integer;
+type p0_states is (idle,start,write_content,done_copy);
+signal p0_state : p0_states;
+signal p0_index : integer range 0 to ROWS - 1;
+signal p0_enable,p1_enable,p2_enable,p3_enable,p4_enable : std_logic;
+signal p0_write_en,p1_write_en,p2_write_en,p3_write_en,p4_write_en : std_logic;
+signal p0_address,p1_address,p2_address,p3_address,p4_address : std_logic_vector(BRAM_ADDRESS_BITS-1 downto 0);
+signal p0_data_in,p1_data_in,p2_data_in,p3_data_in,p4_data_in : std_logic_vector(WORD_BITS-1 downto 0);
+signal p2_obyte : std_logic_vector(BYTE_BITS-1 downto 0);
+signal p4_obit : std_logic;
 
 begin
 
-U_BUFG: BUFG 
-port map (
-I => i_clk,
-O => CLK_BUFG
-);
+ENABLE <=
+p0_enable when i_copy_content = '1' else
+p1_enable when i_enable_byte = '1' and i_write_byte = '1' else
+p2_enable when i_enable_byte = '1' and i_write_byte = '0' else
+p3_enable when i_enable_bit = '1' and i_write_bit = '1' else
+p4_enable when i_enable_bit = '1' and i_write_bit = '0' else
+'Z';
+
+WRITE_EN <=
+p0_write_en when i_copy_content = '1' else
+p1_write_en when i_enable_byte = '1' and i_write_byte = '1' else
+p2_write_en when i_enable_byte = '1' and i_write_byte = '0' else
+p3_write_en when i_enable_bit = '1' and i_write_bit = '1' else
+p4_write_en when i_enable_bit = '1' and i_write_bit = '0' else
+'Z';
+
+ADDRESS <=
+p0_address when i_copy_content = '1' else
+p1_address when i_enable_byte = '1' and i_write_byte = '1' else
+p2_address when i_enable_byte = '1' and i_write_byte = '0' else
+p3_address when i_enable_bit = '1' and i_write_bit = '1' else
+p4_address when i_enable_bit = '1' and i_write_bit = '0' else
+(others => 'Z');
+
+DATA_IN <=
+p0_data_in when i_copy_content = '1' else
+p1_data_in when i_enable_byte = '1' and i_write_byte = '1' else
+p2_data_in when i_enable_byte = '1' and i_write_byte = '0' else
+p3_data_in when i_enable_bit = '1' and i_write_bit = '1' else
+p4_data_in when i_enable_bit = '1' and i_write_bit = '0' else
+(others => 'Z');
+
+p0 : process (i_clk,i_reset) is
+begin
+	if (i_reset = '1') then
+		p0_state <= idle;
+		p0_index <= 0;
+		p0_enable <= '0';
+		p0_write_en <= '0';
+		p0_address <= (others => '0');
+		p0_data_in <= (others => '0');
+		o_copy_content <= '0';
+	elsif (rising_edge(i_clk)) then
+		case (p0_state) is
+			when idle =>
+				if (i_copy_content = '1') then
+					p0_state <= start;
+				else
+					p0_state <= idle;
+				end if;
+				p0_state <= start;
+				p0_enable <= '0';
+				p0_write_en <= '0';
+			when start =>
+				p0_state <= write_content;
+				p0_enable <= '1';
+				p0_write_en <= '1';
+				p0_address <= std_logic_vector(to_unsigned(p0_index,BRAM_ADDRESS_BITS));
+				p0_data_in <= memory_content(p0_index);
+			when write_content =>
+				if (p0_index = ROWS-1) then
+					p0_state <= done_copy;
+					p0_index <= 0;
+				else
+					p0_state <= idle;
+					p0_index <= p0_index + 1;
+				end if;
+			when done_copy =>
+				p0_state <= done_copy;
+				o_copy_content <= '1';
+		end case;
+	end if;
+end process p0;
+
+p1 : process (i_clk,i_reset) is
+begin
+	if (i_reset = '1') then
+		p1_enable <= '0';
+		p1_write_en <= '0';
+		p1_address <= (others => '0');
+		p1_data_in <= (others => '0');
+	elsif (rising_edge(i_clk)) then
+		if (i_enable_byte = '1') then
+			if (i_write_byte = '1') then
+				p1_enable <= '1';
+				p1_write_en <= '1';
+				p1_address(ROWS_BITS-1 downto 0) <= i_row;
+				case (to_integer(unsigned(i_col_block))) is
+					when 0 =>
+						p1_data_in <= DATA_IN(31 downto 8) & i_byte;
+					when 1 =>
+						p1_data_in <= DATA_IN(31 downto 16) & i_byte & DATA_IN(7 downto 0);
+					when 2 =>
+						p1_data_in <= DATA_IN(31 downto 24) & i_byte & DATA_IN(15 downto 0);
+					when 3 =>
+						p1_data_in <= i_byte & DATA_IN(23 downto 0);
+					when others => null;
+				end case;
+			end if;
+		end if;
+	end if;
+end process p1;
+
+p2 : process (i_clk,i_reset) is
+begin
+	if (i_reset = '1') then
+		p2_enable <= '0';
+		p2_write_en <= '0';
+		p2_address <= (others => '0');
+		p2_obyte <= (others => '0');
+	elsif (rising_edge(i_clk)) then
+		if (i_enable_byte = '1') then
+			if (i_write_byte = '0') then
+				p2_enable <= '1';
+				p2_write_en <= '0';
+				p2_address(ROWS_BITS-1 downto 0) <= i_row;
+				case (to_integer(unsigned(i_col_block))) is
+					when 0 =>
+						p2_obyte <= DATA_OUT(7 downto 0);
+					when 1 =>
+						p2_obyte <= DATA_OUT(15 downto 8);
+					when 2 =>
+						p2_obyte <= DATA_OUT(23 downto 16);
+					when 3 =>
+						p2_obyte <= DATA_OUT(31 downto 24);
+					when others => null;
+				end case;
+			end if;
+		end if;
+	end if;
+end process p2;
+
+p3 : process (i_clk,i_reset) is
+begin
+	if (i_reset = '1') then
+		p3_enable <= '0';
+		p3_write_en <= '0';
+		p3_address <= (others => '0');
+		p3_data_in <= (others => '0');
+	elsif (rising_edge(i_clk)) then
+		if (i_enable_bit = '1') then
+			if (i_write_bit = '1') then
+				p3_enable <= '1';
+				p3_write_en <= '1';
+				p3_address(ROWS_BITS-1 downto 0) <= i_row;
+				p3_data_in(to_integer(unsigned(i_col_pixel))) <= i_bit;
+			end if;
+		end if;
+	end if;
+end process p3;
+
+p4 : process (i_clk,i_reset) is
+begin
+	if (i_reset = '1') then
+		p4_enable <= '0';
+		p4_write_en <= '0';
+		p4_address(ROWS_BITS-1 downto 0) <= (others => '0');
+		p4_obit <= '0';
+	elsif (rising_edge(i_clk)) then
+		if (i_enable_bit = '1') then
+			if (i_write_bit = '0') then
+				p4_enable <= '1';
+				p4_write_en <= '0';
+				p4_address(ROWS_BITS-1 downto 0) <= i_row;
+				p4_obit <= DATA_OUT(to_integer(unsigned(i_col_pixel)));
+			end if;
+		end if;
+	end if;
+end process p4;
 
 U_RAMB16_S36: RAMB16_S36
 generic map (
-WRITE_MODE => "WRITE_FIRST",
+WRITE_MODE => "NO_CHANGE",
 INIT => X"000000000",
 SRVAL => X"000000000"
 )
@@ -118,89 +283,6 @@ CLK => CLK_BUFG,
 DO => DATA_OUT,
 DOP => DATA_OUTP
 );
-
-pc : process(CLK_BUFG,i_reset) is
-begin
-    if (i_reset = '1') then
-			st <= idle;
-			copy_content <= '0';
-			index <= 0;
-			DATA_IN <= (others => '0');
-			ADDRESS <= (others => '0');
-			o_bit <= '0';
-			o_byte <= (others => '0');
-    elsif (rising_edge(CLK_BUFG)) then
-        case (st) is
-            when idle =>
-                st <= start;
-                ENABLE <= '0';
-                WRITE_EN <= '0';
-            when start =>
-								st <= write_content;
-                ENABLE <= '1';
-                WRITE_EN <= '1';
-                ADDRESS <= std_logic_vector(to_unsigned(index,BRAM_ADDRESS_BITS));
-                DATA_IN <= memory_content(index);
-            when write_content =>
-                if (index = ROWS-1) then
-                    st <= disable_mem1;
-                    copy_content <= '1';
-                else
-                    st <= start;
-                    index <= index + 1;
-                end if;
-						when disable_mem1 =>
-							st <= check;
-							ENABLE <= '0';
-							WRITE_EN <= '0';
-            when check =>
-							st <= disable_mem1;
-							ENABLE <= '1';
-							ADDRESS(ROWS_BITS-1 downto 0) <= i_row;
-							if (i_enable_byte = '1') then
-								if (i_write_byte = '1') then
-									WRITE_EN <= '1';
-									case (to_integer(unsigned(i_col_block))) is
-										when 0 =>
-											DATA_IN <= DATA_IN(31 downto 8) & i_byte;
-										when 1 =>
-											DATA_IN <= DATA_IN(31 downto 16) & i_byte & DATA_IN(7 downto 0);
-										when 2 =>
-											DATA_IN <= DATA_IN(31 downto 24) & i_byte & DATA_IN(15 downto 0);
-										when 3 =>
-											DATA_IN <= i_byte & DATA_IN(23 downto 0);
-										when others => null;
-									end case;
-								else
-									WRITE_EN <= '0';
-									case (to_integer(unsigned(i_col_block))) is
-										when 0 =>
-											o_byte <= DATA_OUT(7 downto 0);
-										when 1 =>
-											o_byte <= DATA_OUT(15 downto 8);
-										when 2 =>
-											o_byte <= DATA_OUT(23 downto 16);
-										when 3 =>
-											o_byte <= DATA_OUT(31 downto 24);
-										when others => null;
-									end case;
-								end if;
-							end if;
-							if (i_enable_bit = '1') then
-								if (i_write_bit = '1') then
-									WRITE_EN <= '1';
-									ADDRESS(ROWS_BITS-1 downto 0) <= i_row;
-									DATA_IN(to_integer(unsigned(i_col_pixel))) <= i_bit;
-								end if;
-								WRITE_EN <= '0';
-								ADDRESS(ROWS_BITS-1 downto 0) <= i_row;
-								o_bit <= DATA_OUT(to_integer(unsigned(i_col_pixel)));
-							end if;
-						when others =>
-						null;
-        end case;
-    end if;
-end process pc;
 
 --ADDRESS(ROWS_BITS-1 downto 0) <= i_row when (i_enable_byte = '1' or i_enable_bit = '1') else (others => 'Z');
 --ENABLE <= '1' when (i_enable_byte = '1' or i_enable_bit = '1' or st = start) else '0';

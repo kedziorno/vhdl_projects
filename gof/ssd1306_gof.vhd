@@ -216,6 +216,11 @@ O => CLK_BUFG
 i_reset <= btn_1;
 
 U_RAMB16_S4: RAMB16_S4
+generic map (
+WRITE_MODE => "WRITE_FIRST", -- WRITE_FIRST/READ_FIRST/NO_CHANGE
+INIT => X"0",
+SRVAL => X"0"
+)
 port map (
 DI => DATA_IN,
 ADDR => ADDRESS,
@@ -499,7 +504,7 @@ begin
 				WRITE_EN <= '1';
 			when store_count_alive =>
 				cstate <= update_row1;
-				ADDRESS <= std_logic_vector(to_unsigned(vppX*WORD_BITS+vppYp,12));
+				ADDRESS <= std_logic_vector(to_unsigned(vppX+vppYp*WORD_BITS,12));
 				DATA_IN <= countAlive;
 				report "store_count_alive " & integer'image(to_integer(unsigned(ppX))) & "," & integer'image(to_integer(unsigned(ppYp)));
 			when update_row1 =>
@@ -546,7 +551,7 @@ begin
 			when enable_write_to_memory =>
 				cstate <= write_count_alive;
 				i_mem_write_bit <= '1';
-			  ADDRESS <= std_logic_vector(to_unsigned(vppX*WORD_BITS+vppYp,12));
+			  ADDRESS <= std_logic_vector(to_unsigned(vppX+vppYp*WORD_BITS,12));
 				report "enable_write_to_memory " & integer'image(to_integer(unsigned(ppX))) & "," & integer'image(to_integer(unsigned(ppYp)));
 				i_bit <= '0';
 			when write_count_alive =>
