@@ -222,111 +222,104 @@ begin
 	end if;
 end process p0;
 
-p1 : process (i_clk,i_reset) is
+p1 : process (i_reset,i_enable_byte,i_write_byte,i_row,DATA_IN,i_byte) is
 begin
 	if (i_reset = '1') then
 		p1_enable <= '0';
 		p1_write_en <= '0';
 		p1_address <= (others => '0');
 		p1_data_in <= (others => '0');
-	elsif (rising_edge(i_clk)) then
-		if (i_enable_byte = '1') then
-			p1_enable <= '1';
-			if (i_write_byte = '1') then
-				p1_write_en <= '1';
-				p1_address(ROWS_BITS-1 downto 0) <= i_row;
-				case (to_integer(unsigned(i_col_block))) is
-					when 0 =>
-						p1_data_in <= DATA_IN(31 downto 8) & i_byte;
-					when 1 =>
-						p1_data_in <= DATA_IN(31 downto 16) & i_byte & DATA_IN(7 downto 0);
-					when 2 =>
-						p1_data_in <= DATA_IN(31 downto 24) & i_byte & DATA_IN(15 downto 0);
-					when 3 =>
-						p1_data_in <= i_byte & DATA_IN(23 downto 0);
-					when others => null;
-				end case;
-			else
-				p1_write_en <= '0';
-			end if;
-		else
-			p1_enable <= '0';
-		end if;
+	elsif (i_enable_byte = '1' and i_write_byte = '1') then
+		p1_enable <= '1';
+		p1_write_en <= '1';
+		p1_address <= std_logic_vector(to_unsigned(0,BRAM_ADDRESS_BITS-ROWS_BITS)) & i_row;
+		case (to_integer(unsigned(i_col_block))) is
+			when 0 =>
+				p1_data_in <= DATA_IN(31 downto 8) & i_byte;
+			when 1 =>
+				p1_data_in <= DATA_IN(31 downto 16) & i_byte & DATA_IN(7 downto 0);
+			when 2 =>
+				p1_data_in <= DATA_IN(31 downto 24) & i_byte & DATA_IN(15 downto 0);
+			when 3 =>
+				p1_data_in <= i_byte & DATA_IN(23 downto 0);
+			when others => null;
+		end case;
+	else
+		p1_write_en <= '0';
+		p1_enable <= '0';
+		p1_data_in <= (others => '0');
+		p1_address <= (others => '0');
 	end if;
 end process p1;
 
-p2 : process (i_clk,i_reset) is
+p2 : process (i_reset,i_enable_byte,i_write_byte,i_row,DATA_OUT) is
 begin
 	if (i_reset = '1') then
 		p2_enable <= '0';
 		p2_write_en <= '0';
 		p2_address <= (others => '0');
 		p2_obyte <= (others => '0');
-	elsif (rising_edge(i_clk)) then
-		if (i_enable_byte = '1') then
-			p2_enable <= '1';
-			if (i_write_byte = '0') then
-				p2_write_en <= '0';
-				p2_address(ROWS_BITS-1 downto 0) <= i_row;
-				case (to_integer(unsigned(i_col_block))) is
-					when 0 =>
-						p2_obyte <= DATA_OUT(7 downto 0);
-					when 1 =>
-						p2_obyte <= DATA_OUT(15 downto 8);
-					when 2 =>
-						p2_obyte <= DATA_OUT(23 downto 16);
-					when 3 =>
-						p2_obyte <= DATA_OUT(31 downto 24);
-					when others => null;
-				end case;
-			end if;
-		else
-			p2_enable <= '0';
-		end if;
+	elsif (i_enable_byte = '1' and i_write_byte = '0') then
+		p2_enable <= '1';
+		p2_write_en <= '0';
+		p2_address <= std_logic_vector(to_unsigned(0,BRAM_ADDRESS_BITS-ROWS_BITS)) & i_row;
+		case (to_integer(unsigned(i_col_block))) is
+			when 0 =>
+				p2_obyte <= DATA_OUT(7 downto 0);
+			when 1 =>
+				p2_obyte <= DATA_OUT(15 downto 8);
+			when 2 =>
+				p2_obyte <= DATA_OUT(23 downto 16);
+			when 3 =>
+				p2_obyte <= DATA_OUT(31 downto 24);
+			when others => null;
+		end case;
+	else
+		p2_enable <= '0';
+		p2_address <= (others => '0');
 	end if;
 end process p2;
 
-p3 : process (i_clk,i_reset) is
+p3 : process (i_reset,i_enable_bit,i_write_bit,p3_data_in,i_row,i_bit) is
+	variable i : integer range 0 to WORD_BITS-1;
+	variable t : std_logic_vector(WORD_BITS-1 downto 0);
 begin
+	i := to_integer(unsigned(i_col_pixel));
+	t := p3_data_in;
 	if (i_reset = '1') then
 		p3_enable <= '0';
 		p3_write_en <= '0';
 		p3_address <= (others => '0');
 		p3_data_in <= (others => '0');
-	elsif (rising_edge(i_clk)) then
-		if (i_enable_bit = '1') then
-			p3_enable <= '1';
-			if (i_write_bit = '1') then
-				p3_write_en <= '1';
-				p3_address(ROWS_BITS-1 downto 0) <= i_row;
-				p3_data_in(to_integer(unsigned(i_col_pixel))) <= i_bit;
-			else
-				p3_write_en <= '0';
-			end if;
-		else
-			p3_enable <= '0';
-		end if;
+	elsif (i_enable_bit = '1' and i_write_bit = '1') then
+		p3_enable <= '1';
+		p3_write_en <= '1';
+		p3_address <= std_logic_vector(to_unsigned(0,BRAM_ADDRESS_BITS-ROWS_BITS)) & i_row;
+		t(i) := i_bit;
+		p3_data_in <= t;
+	else
+		p3_write_en <= '0';
+		p3_enable <= '0';
+		p3_data_in <= (others => '0');
+		p3_address <= (others => '0');
 	end if;
 end process p3;
 
-p4 : process (i_clk,i_reset) is
+p4 : process (i_reset,i_enable_bit,i_write_bit,i_row,DATA_OUT) is
 begin
 	if (i_reset = '1') then
 		p4_enable <= '0';
 		p4_write_en <= '0';
 		p4_address <= (others => '0');
 		p4_obit <= '0';
-	elsif (rising_edge(i_clk)) then
-		if (i_enable_bit = '1') then
-			p4_enable <= '1';
-			if (i_write_bit = '0') then
-				p4_write_en <= '0';
-				p4_address(ROWS_BITS-1 downto 0) <= i_row;
-				p4_obit <= DATA_OUT(to_integer(unsigned(i_col_pixel)));
-			end if;
-		else
-			p4_enable <= '0';
-		end if;
+	elsif (i_enable_bit = '1' and i_write_bit = '0') then
+		p4_enable <= '1';
+		p4_write_en <= '0';
+		p4_address <= std_logic_vector(to_unsigned(0,BRAM_ADDRESS_BITS-ROWS_BITS)) & i_row;
+		p4_obit <= DATA_OUT(to_integer(unsigned(i_col_pixel)));
+	else
+		p4_enable <= '0';
+		p4_address <= (others => '0');
 	end if;
 end process p4;
 
