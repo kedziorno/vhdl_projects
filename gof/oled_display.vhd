@@ -250,7 +250,9 @@ begin
 				end case;
 			when wait0 =>
 				o_display_initialize <= '1';
-				if (i_byte /= "ZZZZZZZZ") then
+				if (i_all_pixels = '1') then
+					c_state <= wait0;
+				else
 					c_state <= set_address_1;
 				end if;
 			when set_address_1 =>
