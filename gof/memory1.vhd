@@ -96,37 +96,77 @@ signal p4_obit : std_logic;
 
 begin
 
-with std_logic_vector'(i_copy_content&i_enable_byte&i_enable_bit&i_write_byte&i_write_bit) select ENABLE <=
-p0_enable when "10000",
-p1_enable when "01010",
-p2_enable when "01000",
-p3_enable when "00101",
-p4_enable when "00100",
-'0' when others;
+p0a : process(i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit) is
+begin
+	case(std_logic_vector'(i_copy_content&i_enable_byte&i_enable_bit&i_write_byte&i_write_bit)) is
+		when "10000" =>
+			ENABLE <= p0_enable;
+		when "01010" =>
+			ENABLE <= p1_enable;
+		when "01000" =>
+			ENABLE <= p2_enable;
+		when "00101" =>
+			ENABLE <= p3_enable;
+		when "00100" =>
+			ENABLE <= p4_enable;
+		when others =>
+			ENABLE <= '0';
+	end case;
+end process p0a;
 
-with std_logic_vector'(i_copy_content&i_enable_byte&i_enable_bit&i_write_byte&i_write_bit) select WRITE_EN <=
-p0_write_en when "10000",
-p1_write_en when "01010",
-p2_write_en when "01000",
-p3_write_en when "00101",
-p4_write_en when "00100",
-'0' when others;
+p1a : process(i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit) is
+begin
+	case(std_logic_vector'(i_copy_content&i_enable_byte&i_enable_bit&i_write_byte&i_write_bit)) is
+		when "10000" =>
+			WRITE_EN <= p0_write_en;
+		when "01010" =>
+			WRITE_EN <= p1_write_en;
+		when "01000" =>
+			WRITE_EN <= p2_write_en;
+		when "00101" =>
+			WRITE_EN <= p3_write_en;
+		when "00100" =>
+			WRITE_EN <= p4_write_en;
+		when others =>
+			WRITE_EN <= '0';
+	end case;
+end process p1a;
 
-with std_logic_vector'(i_copy_content&i_enable_byte&i_enable_bit&i_write_byte&i_write_bit) select ADDRESS <=
-p0_address when "10000",
-p1_address when "01010",
-p2_address when "01000",
-p3_address when "00101",
-p4_address when "00100",
-(others => '0') when others;
+p2a : process(i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit) is
+begin
+	case(std_logic_vector'(i_copy_content&i_enable_byte&i_enable_bit&i_write_byte&i_write_bit)) is
+		when "10000" =>
+			ADDRESS <= p0_address;
+		when "01010" =>
+			ADDRESS <= p1_address;
+		when "01000" =>
+			ADDRESS <= p2_address;
+		when "00101" =>
+			ADDRESS <= p3_address;
+		when "00100" =>
+			ADDRESS <= p4_address;
+		when others =>
+			ADDRESS <= (others => '0');
+	end case;
+end process p2a;
 
-with std_logic_vector'(i_copy_content&i_enable_byte&i_enable_bit&i_write_byte&i_write_bit) select DATA_IN <=
-p0_data_in when "10000",
-p1_data_in when "01010",
-p2_data_in when "01000",
-p3_data_in when "00101",
-p4_data_in when "00100",
-(others => '0') when others;
+p3a : process(i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit) is
+begin
+	case(std_logic_vector'(i_copy_content&i_enable_byte&i_enable_bit&i_write_byte&i_write_bit)) is
+		when "10000" =>
+			DATA_IN <= p0_data_in;
+		when "01010" =>
+			DATA_IN <= p1_data_in;
+		when "01000" =>
+			DATA_IN <= p2_data_in;
+		when "00101" =>
+			DATA_IN <= p3_data_in;
+		when "00100" =>
+			DATA_IN <= p4_data_in;
+		when others =>
+			DATA_IN <= (others => '0');
+	end case;
+end process p3a;
 
 p0 : process (i_clk,i_reset) is
 begin
@@ -189,13 +229,13 @@ begin
 				p1_address(ROWS_BITS-1 downto 0) <= i_row;
 				case (to_integer(unsigned(i_col_block))) is
 					when 0 =>
-						p1_data_in <= p1_data_in(31 downto 8) & i_byte;
+						p1_data_in <= DATA_IN(31 downto 8) & i_byte;
 					when 1 =>
-						p1_data_in <= p1_data_in(31 downto 16) & i_byte & DATA_IN(7 downto 0);
+						p1_data_in <= DATA_IN(31 downto 16) & i_byte & DATA_IN(7 downto 0);
 					when 2 =>
-						p1_data_in <= p1_data_in(31 downto 24) & i_byte & DATA_IN(15 downto 0);
+						p1_data_in <= DATA_IN(31 downto 24) & i_byte & DATA_IN(15 downto 0);
 					when 3 =>
-						p1_data_in <= i_byte & p1_data_in(23 downto 0);
+						p1_data_in <= i_byte & DATA_IN(23 downto 0);
 					when others => null;
 				end case;
 --			else
