@@ -97,35 +97,35 @@ signal p4_obit : std_logic;
 begin
 
 ENABLE <=
-p0_enable when i_copy_content = '1' else
-p1_enable when i_enable_byte = '1' and i_write_byte = '1' else
-p2_enable when i_enable_byte = '1' and i_write_byte = '0' else
-p3_enable when i_enable_bit = '1' and i_write_bit = '1' else
-p4_enable when i_enable_bit = '1' and i_write_bit = '0' else
+p0_enable when i_copy_content = '1' and i_enable_byte = '0' and i_enable_bit = '0' and i_write_byte = '0' and i_write_bit = '0' else
+p1_enable when i_copy_content = '0' and i_enable_byte = '1' and i_enable_bit = '0' and i_write_byte = '1' and i_write_bit = '0' else
+p2_enable when i_copy_content = '0' and i_enable_byte = '1' and i_enable_bit = '0' and i_write_byte = '0' and i_write_bit = '0' else
+p3_enable when i_copy_content = '0' and i_enable_byte = '0' and i_enable_bit = '1' and i_write_byte = '0' and i_write_bit = '1' else
+p4_enable when i_copy_content = '0' and i_enable_byte = '0' and i_enable_bit = '1' and i_write_byte = '0' and i_write_bit = '0' else
 'Z';
 
 WRITE_EN <=
-p0_write_en when i_copy_content = '1' else
-p1_write_en when i_enable_byte = '1' and i_write_byte = '1' else
-p2_write_en when i_enable_byte = '1' and i_write_byte = '0' else
-p3_write_en when i_enable_bit = '1' and i_write_bit = '1' else
-p4_write_en when i_enable_bit = '1' and i_write_bit = '0' else
+p0_write_en when i_copy_content = '1' and i_enable_byte = '0' and i_enable_bit = '0' and i_write_byte = '0' and i_write_bit = '0' else
+p1_write_en when i_copy_content = '0' and i_enable_byte = '1' and i_enable_bit = '0' and i_write_byte = '1' and i_write_bit = '0' else
+p2_write_en when i_copy_content = '0' and i_enable_byte = '1' and i_enable_bit = '0' and i_write_byte = '0' and i_write_bit = '0' else
+p3_write_en when i_copy_content = '0' and i_enable_byte = '0' and i_enable_bit = '1' and i_write_byte = '0' and i_write_bit = '1' else
+p4_write_en when i_copy_content = '0' and i_enable_byte = '0' and i_enable_bit = '1' and i_write_byte = '0' and i_write_bit = '0' else
 'Z';
 
 ADDRESS <=
-p0_address when i_copy_content = '1' else
-p1_address when i_enable_byte = '1' and i_write_byte = '1' else
-p2_address when i_enable_byte = '1' and i_write_byte = '0' else
-p3_address when i_enable_bit = '1' and i_write_bit = '1' else
-p4_address when i_enable_bit = '1' and i_write_bit = '0' else
+p0_address when i_copy_content = '1' and i_enable_byte = '0' and i_enable_bit = '0' and i_write_byte = '0' and i_write_bit = '0' else
+p1_address when i_copy_content = '0' and i_enable_byte = '1' and i_enable_bit = '0' and i_write_byte = '1' and i_write_bit = '0' else
+p2_address when i_copy_content = '0' and i_enable_byte = '1' and i_enable_bit = '0' and i_write_byte = '0' and i_write_bit = '0' else
+p3_address when i_copy_content = '0' and i_enable_byte = '0' and i_enable_bit = '1' and i_write_byte = '0' and i_write_bit = '1' else
+p4_address when i_copy_content = '0' and i_enable_byte = '0' and i_enable_bit = '1' and i_write_byte = '0' and i_write_bit = '0' else
 (others => 'Z');
 
 DATA_IN <=
-p0_data_in when i_copy_content = '1' else
-p1_data_in when i_enable_byte = '1' and i_write_byte = '1' else
-p2_data_in when i_enable_byte = '1' and i_write_byte = '0' else
-p3_data_in when i_enable_bit = '1' and i_write_bit = '1' else
-p4_data_in when i_enable_bit = '1' and i_write_bit = '0' else
+p0_data_in when i_copy_content = '1' and i_enable_byte = '0' and i_enable_bit = '0' and i_write_byte = '0' and i_write_bit = '0' else
+p1_data_in when i_copy_content = '0' and i_enable_byte = '1' and i_enable_bit = '0' and i_write_byte = '1' and i_write_bit = '0' else
+p2_data_in when i_copy_content = '0' and i_enable_byte = '1' and i_enable_bit = '0' and i_write_byte = '0' and i_write_bit = '0' else
+p3_data_in when i_copy_content = '0' and i_enable_byte = '0' and i_enable_bit = '1' and i_write_byte = '0' and i_write_bit = '1' else
+p4_data_in when i_copy_content = '0' and i_enable_byte = '0' and i_enable_bit = '1' and i_write_byte = '0' and i_write_bit = '0' else
 (others => 'Z');
 
 p0 : process (i_clk,i_reset) is
