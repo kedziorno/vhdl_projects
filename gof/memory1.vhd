@@ -178,8 +178,8 @@ begin
 		p1_address <= (others => '0');
 		p1_data_in <= (others => '0');
 	elsif (rising_edge(i_clk)) then
-		if (i_enable_byte = '1') then
-			if (i_write_byte = '1') then
+--		if (i_enable_byte = '1') then
+--			if (i_write_byte = '1') then
 				p1_enable <= '1';
 				p1_write_en <= '1';
 				p1_address(ROWS_BITS-1 downto 0) <= i_row;
@@ -194,8 +194,8 @@ begin
 						p1_data_in <= i_byte & DATA_IN(23 downto 0);
 					when others => null;
 				end case;
-			end if;
-		end if;
+--			end if;
+--		end if;
 	end if;
 end process p1;
 
@@ -207,8 +207,8 @@ begin
 		p2_address <= (others => '0');
 		p2_obyte <= (others => '0');
 	elsif (rising_edge(i_clk)) then
-		if (i_enable_byte = '1') then
-			if (i_write_byte = '0') then
+--		if (i_enable_byte = '1') then
+--			if (i_write_byte = '0') then
 				p2_enable <= '1';
 				p2_write_en <= '0';
 				p2_address(ROWS_BITS-1 downto 0) <= i_row;
@@ -223,8 +223,8 @@ begin
 						p2_obyte <= DATA_OUT(31 downto 24);
 					when others => null;
 				end case;
-			end if;
-		end if;
+--			end if;
+--		end if;
 	end if;
 end process p2;
 
@@ -236,14 +236,14 @@ begin
 		p3_address <= (others => '0');
 		p3_data_in <= (others => '0');
 	elsif (rising_edge(i_clk)) then
-		if (i_enable_bit = '1') then
-			if (i_write_bit = '1') then
+--		if (i_enable_bit = '1') then
+--			if (i_write_bit = '1') then
 				p3_enable <= '1';
 				p3_write_en <= '1';
 				p3_address(ROWS_BITS-1 downto 0) <= i_row;
 				p3_data_in(to_integer(unsigned(i_col_pixel))) <= i_bit;
-			end if;
-		end if;
+--			end if;
+--		end if;
 	end if;
 end process p3;
 
@@ -255,14 +255,14 @@ begin
 		p4_address(ROWS_BITS-1 downto 0) <= (others => '0');
 		p4_obit <= '0';
 	elsif (rising_edge(i_clk)) then
-		if (i_enable_bit = '1') then
-			if (i_write_bit = '0') then
+--		if (i_enable_bit = '1') then
+--			if (i_write_bit = '0') then
 				p4_enable <= '1';
 				p4_write_en <= '0';
 				p4_address(ROWS_BITS-1 downto 0) <= i_row;
 				p4_obit <= DATA_OUT(to_integer(unsigned(i_col_pixel)));
-			end if;
-		end if;
+--			end if;
+--		end if;
 	end if;
 end process p4;
 
