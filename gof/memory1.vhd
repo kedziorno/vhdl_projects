@@ -114,96 +114,92 @@ begin
 o_byte <= p2_obyte;
 o_bit <= p4_obit;
 
-p0a : process(i_clk) is
+p0a : process(i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit,
+p0_enable,p1_enable,p2_enable,p3_enable,p4_enable) is
 	variable t_enable : std_logic_vector(4 downto 0);
 begin
-	if (rising_edge(i_clk)) then
-		t_enable := (i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit);
+	t_enable := (i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit);
 --		report "enable " & vec2str(t_enable);
-		case(t_enable) is
-			when "10000" =>
-				ENABLE <= p0_enable;
-			when "01010" =>
-				ENABLE <= p1_enable;
-			when "01000" =>
-				ENABLE <= p2_enable;
-			when "00101" =>
-				ENABLE <= p3_enable;
-			when "00100" =>
-				ENABLE <= p4_enable;
-			when others =>
-				ENABLE <= '0';
-		end case;
-	end if;
+	case(t_enable) is
+		when "10000" =>
+			ENABLE <= p0_enable;
+		when "01010" =>
+			ENABLE <= p1_enable;
+		when "01000" =>
+			ENABLE <= p2_enable;
+		when "00101" =>
+			ENABLE <= p3_enable;
+		when "00100" =>
+			ENABLE <= p4_enable;
+		when others =>
+			ENABLE <= '0';
+	end case;
 end process p0a;
 
-p1a : process(i_clk) is
+p1a : process(i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit,
+p0_write_en,p1_write_en,p2_write_en,p3_write_en,p4_write_en) is
 	variable t_write_en : std_logic_vector(4 downto 0);
 begin
-	if (rising_edge(i_clk)) then
-		t_write_en := (i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit);
+	t_write_en := (i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit);
 --		report "write_en " & vec2str(t_write_en);
-		case(t_write_en) is
-			when "10000" =>
-				WRITE_EN <= p0_write_en;
-			when "01010" =>
-				WRITE_EN <= p1_write_en;
-			when "01000" =>
-				WRITE_EN <= p2_write_en;
-			when "00101" =>
-				WRITE_EN <= p3_write_en;
-			when "00100" =>
-				WRITE_EN <= p4_write_en;
-			when others =>
-				WRITE_EN <= '0';
-		end case;
-	end if;
+	case(t_write_en) is
+		when "10000" =>
+			WRITE_EN <= p0_write_en;
+		when "01010" =>
+			WRITE_EN <= p1_write_en;
+		when "01000" =>
+			WRITE_EN <= p2_write_en;
+		when "00101" =>
+			WRITE_EN <= p3_write_en;
+		when "00100" =>
+			WRITE_EN <= p4_write_en;
+		when others =>
+			WRITE_EN <= '0';
+	end case;
 end process p1a;
 
-p2a : process(i_clk) is
+p2a : process(i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit,
+p0_address,p1_address,p2_address,p3_address,p4_address) is
 	variable t_address : std_logic_vector(4 downto 0);
 begin
-	if (rising_edge(i_clk)) then
-		t_address := (i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit);
+	t_address := (i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit);
 --		report "address " & vec2str(t_address);
-		case(t_address) is
-			when "10000" =>
-				ADDRESS <= p0_address;
-			when "01010" =>
-				ADDRESS <= p1_address;
-			when "01000" =>
-				ADDRESS <= p2_address;
-			when "00101" =>
-				ADDRESS <= p3_address;
-			when "00100" =>
-				ADDRESS <= p4_address;
-			when others =>
-				ADDRESS <= (others => '0');
-		end case;
-	end if;
+	case(t_address) is
+		when "10000" =>
+			ADDRESS <= p0_address;
+		when "01010" =>
+			ADDRESS <= p1_address;
+		when "01000" =>
+			ADDRESS <= p2_address;
+		when "00101" =>
+			ADDRESS <= p3_address;
+		when "00100" =>
+			ADDRESS <= p4_address;
+		when others =>
+			ADDRESS <= (others => '0');
+	end case;
 end process p2a;
 
-p3a : process(i_clk) is
+p3a : process(i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit,
+p0_data_in,p1_data_in,p2_data_in,p3_data_in,p4_data_in) is
 	variable t_data_in : std_logic_vector(4 downto 0);
 begin
-	if (rising_edge(i_clk)) then
-		t_data_in := (i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit);
+	t_data_in := (i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit);
 --		report "data_in " & vec2str(t_data_in);
-		case(t_data_in) is
-			when "10000" =>
-				DATA_IN <= p0_data_in;
-			when "01010" =>
-				DATA_IN <= p1_data_in;
-			when "01000" =>
-				DATA_IN <= p2_data_in;
-			when "00101" =>
-				DATA_IN <= p3_data_in;
-			when "00100" =>
-				DATA_IN <= p4_data_in;
-			when others =>
-				DATA_IN <= (others => '0');
-		end case;
-	end if;
+	case(t_data_in) is
+		when "10000" =>
+			DATA_IN <= p0_data_in;
+		when "01010" =>
+			DATA_IN <= p1_data_in;
+		when "01000" =>
+			DATA_IN <= p2_data_in;
+		when "00101" =>
+			DATA_IN <= p3_data_in;
+		when "00100" =>
+			DATA_IN <= p4_data_in;
+		when others =>
+			DATA_IN <= (others => '0');
+	end case;
 end process p3a;
 
 p0 : process (i_clk,i_reset) is
