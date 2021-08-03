@@ -58,18 +58,18 @@ ARCHITECTURE behavior OF tb_memory2 IS
 	END COMPONENT;
 
 	--Inputs
-	signal i_clk : std_logic;
-	signal i_reset : std_logic;
-	signal i_enable_byte : std_logic;
-	signal i_enable_bit : std_logic;
-	signal i_write_byte : std_logic;
-	signal i_write_bit : std_logic;
-	signal i_row : std_logic_vector(ROWS_BITS-1 downto 0);
-	signal i_col_pixel : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
-	signal i_col_block : std_logic_vector(COLS_BLOCK_BITS-1 downto 0);
-	signal i_byte : std_logic_vector(BYTE_BITS-1 downto 0);
-	signal i_bit : std_logic;
-	signal i_copy_content : std_logic;
+	signal i_clk : std_logic := '0';
+	signal i_reset : std_logic := '0';
+	signal i_enable_byte : std_logic := '0';
+	signal i_enable_bit : std_logic := '0';
+	signal i_write_byte : std_logic := '0';
+	signal i_write_bit : std_logic := '0';
+	signal i_row : std_logic_vector(ROWS_BITS-1 downto 0) := (others => '0');
+	signal i_col_pixel : std_logic_vector(COLS_PIXEL_BITS-1 downto 0) := (others => '0');
+	signal i_col_block : std_logic_vector(COLS_BLOCK_BITS-1 downto 0) := (others => '0');
+	signal i_byte : std_logic_vector(BYTE_BITS-1 downto 0) := (others => '0');
+	signal i_bit : std_logic := '0';
+	signal i_copy_content : std_logic := '0';
 	signal o_copy_content : std_logic;
 
 	--Outputs
