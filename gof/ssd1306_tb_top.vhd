@@ -38,12 +38,9 @@ END ssd1306_tb_top;
 
 ARCHITECTURE behavior OF ssd1306_tb_top IS
 
---	constant IC : integer := 1_000_000;
---	constant BC : integer := 100_000;
---	constant DC : integer := 1_000;
-constant IC : integer := G_BOARD_CLOCK;
-constant BC : integer := G_BUS_CLOCK;
-constant DC : integer := G_ClockDivider;
+constant IC : integer := 50_000_000;
+constant BC : integer := 6_000_000;
+constant DC : integer := 10_000;
 
 -- Component Declaration for the Unit Under Test (UUT)
 COMPONENT ssd1306_gof
