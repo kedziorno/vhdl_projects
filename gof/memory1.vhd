@@ -119,7 +119,7 @@ p0a : process(i_clk) is
 begin
 	if (rising_edge(i_clk)) then
 		t_enable := (i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit);
-		report "enable " & vec2str(t_enable);
+--		report "enable " & vec2str(t_enable);
 		case(t_enable) is
 			when "10000" =>
 				ENABLE <= p0_enable;
@@ -142,7 +142,7 @@ p1a : process(i_clk) is
 begin
 	if (rising_edge(i_clk)) then
 		t_write_en := (i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit);
-		report "write_en " & vec2str(t_write_en);
+--		report "write_en " & vec2str(t_write_en);
 		case(t_write_en) is
 			when "10000" =>
 				WRITE_EN <= p0_write_en;
@@ -165,7 +165,7 @@ p2a : process(i_clk) is
 begin
 	if (rising_edge(i_clk)) then
 		t_address := (i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit);
-		report "address " & vec2str(t_address);
+--		report "address " & vec2str(t_address);
 		case(t_address) is
 			when "10000" =>
 				ADDRESS <= p0_address;
@@ -188,7 +188,7 @@ p3a : process(i_clk) is
 begin
 	if (rising_edge(i_clk)) then
 		t_data_in := (i_copy_content,i_enable_byte,i_enable_bit,i_write_byte,i_write_bit);
-		report "data_in " & vec2str(t_data_in);
+--		report "data_in " & vec2str(t_data_in);
 		case(t_data_in) is
 			when "10000" =>
 				DATA_IN <= p0_data_in;
