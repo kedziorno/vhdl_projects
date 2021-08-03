@@ -73,9 +73,6 @@ DOP   : out std_logic_vector (3 downto 0)
 );
 end component;
 
-signal CLK_BUFG: std_logic;
-signal INV_SET_RESET : std_logic;
-
 signal DATA_IN : std_logic_vector(WORD_BITS-1 downto 0);
 signal DATA_INP : std_logic_vector(PARITY_BITS-1 downto 0);
 signal ADDRESS : std_logic_vector(BRAM_ADDRESS_BITS-1 downto 0);
@@ -95,6 +92,9 @@ signal p2_obyte : std_logic_vector(BYTE_BITS-1 downto 0);
 signal p4_obit : std_logic;
 
 begin
+
+o_byte <= p2_obyte;
+o_bit <= p4_obit;
 
 p0a : process(i_clk) is
 begin
@@ -258,6 +258,7 @@ begin
 		p2_enable <= '0';
 		p2_write_en <= '0';
 		p2_address <= (others => '0');
+		p2_data_in <= (others => '0');
 		p2_obyte <= (others => '0');
 	elsif (i_enable_byte = '1' and i_write_byte = '0') then
 		p2_enable <= '1';
@@ -277,6 +278,7 @@ begin
 	else
 		p2_enable <= '0';
 		p2_address <= (others => '0');
+		p2_obyte <= (others => '0');
 	end if;
 end process p2;
 
@@ -286,7 +288,6 @@ p3 : process (i_reset,i_enable_bit,i_write_bit,p3_data_in,i_row,i_bit) is
 begin
 	i := to_integer(unsigned(i_col_pixel));
 	t := p3_data_in;
-	p3_data_in <= t;
 	if (i_reset = '1') then
 		p3_enable <= '0';
 		p3_write_en <= '0';
@@ -297,10 +298,12 @@ begin
 		p3_write_en <= '1';
 		p3_address <= std_logic_vector(to_unsigned(0,BRAM_ADDRESS_BITS-ROWS_BITS)) & i_row;
 		t(i) := i_bit;
+		p3_data_in <= t;
+--		p3_data_in(i) <= i_bit;
 	else
 		p3_write_en <= '0';
 		p3_enable <= '0';
---		p3_data_in <= (others => '0');
+		p3_data_in <= (others => '0');
 		p3_address <= (others => '0');
 	end if;
 end process p3;
@@ -311,6 +314,7 @@ begin
 		p4_enable <= '0';
 		p4_write_en <= '0';
 		p4_address <= (others => '0');
+		p4_data_in <= (others => '0');
 		p4_obit <= '0';
 	elsif (i_enable_bit = '1' and i_write_bit = '0') then
 		p4_enable <= '1';
@@ -320,12 +324,13 @@ begin
 	else
 		p4_enable <= '0';
 		p4_address <= (others => '0');
+		p4_obit <= '0';
 	end if;
 end process p4;
 
 U_RAMB16_S36: RAMB16_S36
 generic map (
-WRITE_MODE => "NO_CHANGE",
+WRITE_MODE => "WRITE_FIRST",
 INIT => X"000000000",
 SRVAL => X"000000000"
 )
@@ -336,7 +341,7 @@ ADDR => ADDRESS,
 EN => ENABLE,
 WE => WRITE_EN,
 SSR => i_reset,
-CLK => CLK_BUFG,
+CLK => i_clk,
 DO => DATA_OUT,
 DOP => DATA_OUTP
 );

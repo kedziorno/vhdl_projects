@@ -83,6 +83,7 @@ ARCHITECTURE behavior OF tb_memory2 IS
 	ccstart,ccstop,idle,
 	st1,st2,st3,st4,st5,st5a,
 	st6,st7,st8,st9,st10,
+	st11,st12,st13,st14,st15,st16,
 	stop
 	);
 	signal state : states := ccstart;
@@ -209,9 +210,34 @@ BEGIN
 						i := i + 1;
 					end if;
 				when st10 =>
-					state <= stop;
+					state <= st11;
 					i_enable_byte <= '0';
 					i_write_byte <= '0';
+				when st11 =>
+					state <= st12;
+					i_enable_bit <= '1';
+					i_write_bit <= '1';
+				when st12 =>
+					state <= st13;
+					i_row <= std_logic_vector(to_unsigned(12,i_row'length));
+					i_col_pixel <= std_logic_vector(to_unsigned(12,i_col_pixel'length));
+					i_bit <= '1';
+				when st13 =>
+					state <= st14;
+					i_enable_bit <= '0';
+					i_write_bit <= '0';
+				when st14 =>
+					state <= st15;
+					i_enable_bit <= '1';
+					i_write_bit <= '0';
+				when st15 =>
+					state <= st16;
+					i_row <= std_logic_vector(to_unsigned(12,i_row'length));
+					i_col_pixel <= std_logic_vector(to_unsigned(12,i_col_pixel'length));
+				when st16 =>
+					state <= stop;
+					i_enable_bit <= '0';
+					i_write_bit <= '0';
 				when stop =>
 					state <= stop;
 				when others => null;
