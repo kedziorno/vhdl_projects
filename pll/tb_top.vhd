@@ -153,13 +153,17 @@ pll_testmode => pll_testmode
 );
 
 -- Clock process definitions
---pll_sys_clk_process :process
---begin
---pll_sys_clk <= '0';
---wait for pll_sys_clk_period/2;
---pll_sys_clk <= '1';
---wait for pll_sys_clk_period/2;
---end process;
+pll_sys_clk_process :process
+begin
+pll_sys_clk <= "00";
+wait for pll_sys_clk_period/4;
+pll_sys_clk <= "01";
+wait for pll_sys_clk_period/4;
+pll_sys_clk <= "10";
+wait for pll_sys_clk_period/4;
+pll_sys_clk <= "11";
+wait for pll_sys_clk_period/4;
+end process;
 
 --ccu_rst_sys_clk_process :process
 --begin

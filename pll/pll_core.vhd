@@ -13,11 +13,11 @@ vco_out : out bit
 end entity pll_core;
 architecture arch of pll_core is
 signal vco_tmp,locked : bit;
-signal neg_delay,ref_per,vco_per,vco_hi_ph,vco_lo_ph : time;
+signal neg_delay,ref_per,vco_per,vco_hi_ph,vco_lo_ph : time := 0 ps;
 signal t0,t1,posedge_vco_tmp,posedge_fdbkclk,insdelay,adj_delay : time := 0 ps;
 signal j,ph_offset_past,ph_offset : integer;
 signal pulse_cnt : integer := 2;
-signal mult,mult2x : unsigned(6 downto 0) := (others => '0');
+signal mult,mult2x : integer := 0;
 signal vco_shift : bit;
 signal tmp_clk1,tmp_clk2,tmp_clk3,tmp_clk4 : bit;
 signal lock_cnt : bit_vector(2 downto 0);
@@ -48,28 +48,28 @@ return sv;
 end;
 
 begin
-mult <= to_unsigned(to_integer(unsigned(to_slv(div))),7) + "1";
-mult2x <= (mult(5 downto 0)&"0"); 
+mult <= to_integer(unsigned(to_slv(div))) + 1;
+mult2x <= mult*2;
 p0 : process (sysclk) is
 begin
 	t0 <= NOW;
 	if (sysclk'event and sysclk = '1') then
-	t1 <= NOW;
-	ref_per <= t1 - t0;
-	vco_per <= time(ref_per / (to_integer(unsigned(to_slv(div)))+1));
-	vco_hi_ph <= ref_per / (to_integer(unsigned(mult2x)));
-	vco_lo_ph <= vco_per - vco_hi_ph; 
-	qnt_err <= ref_per - (vco_hi_ph + vco_lo_ph) * to_integer(unsigned(mult));
+		t1 <= NOW;
+		ref_per <= t1 - t0;
+		vco_per <= time(ref_per / (to_integer(unsigned(to_slv(div)))+1));
+		vco_hi_ph <= ref_per / mult2x;
+		vco_lo_ph <= vco_per - vco_hi_ph;
+		qnt_err <= ref_per - (vco_hi_ph + vco_lo_ph) * mult;
 	end if;
 end process p0;
 p1 : process (sysclk) is
 variable jj : integer := 0;
 begin
 	vco_tmp <= '1';
-	l0 : for j in 1 to to_integer(mult) loop
+	l0 : for j in 1 to mult loop
 		jj := j;
 		vco_tmp <= '0' after vco_hi_ph;
-		if ((jj = shift_right(mult,1)) and (qnt_err /= 0 ns)) then
+		if (jj = mult/2 and (qnt_err /= 0 ns)) then
 			jj := jj / 2;
 		end if;
 		if (jj = 1) then
