@@ -173,29 +173,29 @@ end process;
 --wait for ccu_rst_sys_clk_period/2;
 --end process;
 
---dr_ext_clk_process :process
---begin
---dr_ext_clk <= '0';
---wait for dr_ext_clk_period/2;
---dr_ext_clk <= '1';
---wait for dr_ext_clk_period/2;
---end process;
+dr_ext_clk_process :process
+begin
+dr_ext_clk <= '0';
+wait for dr_ext_clk_period/2;
+dr_ext_clk <= '1';
+wait for dr_ext_clk_period/2;
+end process;
 
---pll_ext_clk_process :process
---begin
---pll_ext_clk <= '0';
---wait for pll_ext_clk_period/2;
---pll_ext_clk <= '1';
---wait for pll_ext_clk_period/2;
---end process;
+pll_ext_clk_process :process
+begin
+pll_ext_clk <= '0';
+wait for pll_ext_clk_period/2;
+pll_ext_clk <= '1';
+wait for pll_ext_clk_period/2;
+end process;
 
---l2clk_process :process
---begin
---l2clk <= '0';
---wait for l2clk_period/2;
---l2clk <= '1';
---wait for l2clk_period/2;
---end process;
+l2clk_process :process
+begin
+l2clk <= '0';
+wait for l2clk_period/2;
+l2clk <= '1';
+wait for l2clk_period/2;
+end process;
 
 -- Stimulus process
 stim_proc: process
