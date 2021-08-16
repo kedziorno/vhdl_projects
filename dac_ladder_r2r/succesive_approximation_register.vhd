@@ -66,12 +66,13 @@ signal qb1 : std_logic_vector(n-2 downto 0);
 signal q2 : std_logic_vector(n-1 downto 0);
 
 begin
+-- XXX based on https://api.intechopen.com/media/chapter/39238/media/image5.JPG
 
 o_end <= q1(n-1);
 
 PULLUP_inst : PULLUP
 port map (O=>pull_up);
-	
+
 first : FDCPE_Q_QB
 generic map (INIT => '0')
 port map (Q=>first_q,QB=>first_qb,C=>i_clock,CE=>'1',CLR=>not pull_up,D=>o_end,PRE=>not i_reset);
@@ -98,18 +99,18 @@ FDCPE_g2 : for i in 0 to n-1 generate
 	n2_first : if (i=0) generate
 		FDCPE_inst : FDCPE
 		generic map (INIT => '0')
-		port map (Q=>q2(i),C=>first_qb,CE=>'1',CLR=>i_reset,D=>i_select,PRE=>pull_up);
+		port map (Q=>q2(i),C=>first_qb,CE=>'1',CLR=>not i_reset,D=>i_select,PRE=>pull_up);
 	end generate n2_first;
 	n2_chain : if (0<i) generate
 		FDCPE_inst : FDCPE
 		generic map (INIT => '0')
-		port map (Q=>q2(i),C=>qb1(i-1),CE=>'1',CLR=>i_reset,D=>i_select,PRE=>pull_up);
+		port map (Q=>q2(i),C=>qb1(i-1),CE=>'1',CLR=>not i_reset,D=>i_select,PRE=>pull_up);
 	end generate n2_chain;
 end generate FDCPE_g2;
 
 OR_gates : for i in 0 to n-1 generate
 	or_first : if (i=0) generate
-		o_q(n-1-i) <= q2(i) or first_qb;
+		o_q(n-1-i) <= q2(i) or first_q;
 	end generate or_first;
 	or_rest : if (0<i) generate
 		o_q(n-1-i) <= q2(i) or q1(i-1);

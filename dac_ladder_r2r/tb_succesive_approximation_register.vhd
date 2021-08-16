@@ -37,7 +37,7 @@ END tb_succesive_approximation_register;
 
 ARCHITECTURE behavior OF tb_succesive_approximation_register IS
 
-constant N : integer := 16;
+constant N : integer := 8;
 
 -- Component Declaration for the Unit Under Test (UUT)
 COMPONENT succesive_approximation_register
@@ -90,22 +90,34 @@ wait for i_clock_period/2;
 i_clock <= '1';
 wait for i_clock_period/2;
 end process;
+
 -- Stimulus process
 stim_proc: process
 begin
 -- hold reset state for 100 ns.
+--o_end <= '1';
 i_reset <= '0';
-wait for i_clock_period;
+wait for 3*i_clock_period;
 i_reset <= '1';
+wait for 1*i_clock_period;
+i_select <= '1';
+wait for 1*i_clock_period;
+i_select <= '0';
+wait for 5*i_clock_period;
+i_select <= '1';
+wait for 1*i_clock_period;
+i_select <= '0';
+wait for 14*i_clock_period;
+i_reset <= '0';
 -- insert stimulus here
-l0 : for i in 0 to 2**N-1 loop
+--l0 : for i in 0 to 2**N-1 loop
 --wait for i_clock_period*17; -- XXX must be less than (2**N)
 --i_select <= '1';
---o_end <= '0';
---wait for i_clock_period;
+----o_end <= '0';
+--wait for 3*i_clock_period;
 --i_select <= '0';
---o_end <= '0';
-end loop l0;
+----o_end <= '0';
+--end loop l0;
 wait;
 end process;
 

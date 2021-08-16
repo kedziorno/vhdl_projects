@@ -50,7 +50,10 @@ begin
 	FDCPE_inst : FDCPE
 	generic map (INIT => INIT)
 	port map (Q=>s_q,C=>C,CE=>CE,CLR=>CLR,D=>D,PRE=>PRE);
-	Q <= s_q;
-	QB <= not s_q;
+	process (s_q) is
+	begin
+		Q <= s_q;
+		QB <= not s_q;
+	end process;
 end Behavioral;
 
