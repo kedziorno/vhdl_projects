@@ -31,7 +31,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity sar_adc is
 Generic (
-G_BOARD_CLOCK : integer := 50_000_00;
+G_BOARD_CLOCK : integer := 300_000;
 data_size : integer := 8
 );
 Port (
@@ -42,7 +42,6 @@ i_catch : in std_logic;
 o_catch : out std_logic;
 io_ladder : inout std_logic_vector(data_size-1 downto 0);
 o_data : out std_logic_vector(data_size-1 downto 0);
-o_to_pluscomparator : out std_logic;
 o_done : out std_logic
 );
 end sar_adc;
@@ -58,13 +57,19 @@ i_clock : in  STD_LOGIC;
 i_reset : in  STD_LOGIC;
 i_select : in  STD_LOGIC;
 o_q : out  STD_LOGIC_VECTOR (n-1 downto 0);
-o_end : inout  STD_LOGIC
+o_end : out  STD_LOGIC
 );
 end component succesive_approximation_register;
 
+signal andgate : std_logic;
 signal divclock : std_logic;
 signal done : std_logic;
 constant count_max : integer := G_BOARD_CLOCK;
+
+--constant ccount : integer := 2**data_size;
+--signal count : integer range 0 to ccount-1 := 0;
+
+signal ladder : std_logic_vector(data_size-1 downto 0);
 
 begin
 
@@ -73,6 +78,7 @@ p0 : process (i_clock,i_reset) is
 begin
 	if (i_reset = '1') then
 		count := 0;
+		divclock <= '0';
 	elsif (rising_edge(i_clock)) then
 		if (count = count_max-1) then
 			count := 0;
@@ -84,14 +90,37 @@ begin
 	end if;
 end process p0;
 
+--p1 : process (divclock,i_reset,andgate) is
+--begin
+--	if (i_reset = '1') then
+--		count <= 0;
+--	elsif (rising_edge(divclock)) then
+--		if (andgate = '1') then
+--			if (count = ccount-1) then
+--				count <= 0;
+--			else
+--				count <= count + 1;
+--			end if;
+--		end if;
+--		if (andgate = '0') then
+--			if (count = 0) then
+--				count <= ccount-1;
+--			else
+--				count <= count - 1;
+--			end if;
+--		end if;
+--		io_ladder <= std_logic_vector(to_unsigned(count,data_size));
+--	end if;
+--end process p1;
+
 --o_data <= io_ladder when done = '1' else (others => '0');
 o_data <= io_ladder;
 o_done <= done;
 o_catch <= i_catch;
 
+andgate <= i_from_comparator and divclock;
 sar_entity : succesive_approximation_register
 Generic map (n=>data_size)
---Port map (i_clock=>divclock,i_reset=>not i_from_comparator,i_select=>not i_from_comparator,o_q=>io_ladder,o_end=>done);
-Port map (i_clock=>divclock,i_reset=>i_catch,i_select=>not i_from_comparator,o_q=>io_ladder,o_end=>done);
-
+Port map (i_clock=>divclock,i_reset=>not i_reset,i_select=>andgate,o_q=>ladder,o_end=>done);
+io_ladder <= ladder;
 end Behavioral;
