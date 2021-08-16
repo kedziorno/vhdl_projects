@@ -109,6 +109,10 @@ wait for 1*i_clock_period;
 i_select <= '0';
 wait for 14*i_clock_period;
 i_reset <= '0';
+wait for 5*i_clock_period;
+i_reset <= '1';
+wait for 24*i_clock_period;
+i_reset <= '0';
 -- insert stimulus here
 --l0 : for i in 0 to 2**N-1 loop
 --wait for i_clock_period*17; -- XXX must be less than (2**N)

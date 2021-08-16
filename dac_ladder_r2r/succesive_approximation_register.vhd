@@ -38,7 +38,7 @@ i_clock : in  STD_LOGIC;
 i_reset : in  STD_LOGIC;
 i_select : in  STD_LOGIC;
 o_q : out  STD_LOGIC_VECTOR (n-1 downto 0);
-o_end : inout  STD_LOGIC
+o_end : out  STD_LOGIC
 );
 end succesive_approximation_register;
 
@@ -59,8 +59,7 @@ Port (
 );
 END COMPONENT FDCPE_Q_QB;
 
-signal pull_up : std_logic;
-signal first_q,first_qb : std_logic;
+signal first_q : std_logic;
 signal q1 : std_logic_vector(n-1 downto 0);
 signal qb1 : std_logic_vector(n-2 downto 0);
 signal q2 : std_logic_vector(n-1 downto 0);
@@ -70,28 +69,25 @@ begin
 
 o_end <= q1(n-1);
 
-PULLUP_inst : PULLUP
-port map (O=>pull_up);
-
-first : FDCPE_Q_QB
+first : FDCPE
 generic map (INIT => '0')
-port map (Q=>first_q,QB=>first_qb,C=>i_clock,CE=>'1',CLR=>not pull_up,D=>o_end,PRE=>not i_reset);
+port map (Q=>first_q,C=>i_clock,CE=>'1',CLR=>'0',D=>q1(n-1),PRE=>not i_reset);
 
 FDCPE_g1 : for i in 0 to n-1 generate
 	n1_first : if (i=0) generate
 		FDCPE_inst : FDCPE_Q_QB
 		generic map (INIT => '0')
-		port map (Q=>q1(i),QB=>qb1(i),C=>i_clock,CE=>'1',CLR=>not i_reset,D=>first_q,PRE=>not pull_up);
+		port map (Q=>q1(i),QB=>qb1(i),C=>i_clock,CE=>'1',CLR=>not i_reset,D=>first_q,PRE=>'0');
 	end generate n1_first;
 	n1_chain : if (0<i and i<n-1) generate
 		FDCPE_inst : FDCPE_Q_QB
 		generic map (INIT => '0')
-		port map (Q=>q1(i),QB=>qb1(i),C=>i_clock,CE=>'1',CLR=>not i_reset,D=>q1(i-1),PRE=>not pull_up);
+		port map (Q=>q1(i),QB=>qb1(i),C=>i_clock,CE=>'1',CLR=>not i_reset,D=>q1(i-1),PRE=>'0');
 	end generate n1_chain;
 	n1_last : if (i=n-1) generate
 		FDCPE_inst : FDCPE
 		generic map (INIT => '0')
-		port map (Q=>q1(n-1),C=>i_clock,CE=>'1',CLR=>not i_reset,D=>q1(i-1),PRE=>not pull_up);
+		port map (Q=>q1(n-1),C=>i_clock,CE=>'1',CLR=>not i_reset,D=>q1(i-1),PRE=>'0');
 	end generate n1_last;
 end generate FDCPE_g1;
 
@@ -99,12 +95,12 @@ FDCPE_g2 : for i in 0 to n-1 generate
 	n2_first : if (i=0) generate
 		FDCPE_inst : FDCPE
 		generic map (INIT => '0')
-		port map (Q=>q2(i),C=>first_qb,CE=>'1',CLR=>not i_reset,D=>i_select,PRE=>pull_up);
+		port map (Q=>q2(i),C=>first_q,CE=>'1',CLR=>not i_reset,D=>i_select,PRE=>'0');
 	end generate n2_first;
 	n2_chain : if (0<i) generate
 		FDCPE_inst : FDCPE
 		generic map (INIT => '0')
-		port map (Q=>q2(i),C=>qb1(i-1),CE=>'1',CLR=>not i_reset,D=>i_select,PRE=>pull_up);
+		port map (Q=>q2(i),C=>qb1(i-1),CE=>'1',CLR=>not i_reset,D=>i_select,PRE=>'0');
 	end generate n2_chain;
 end generate FDCPE_g2;
 
