@@ -62,7 +62,6 @@ o_end : out  STD_LOGIC
 );
 end component succesive_approximation_register;
 
-signal andgate : std_logic;
 signal divclock : std_logic;
 signal done : std_logic;
 constant count_max : integer := G_BOARD_CLOCK;
@@ -119,7 +118,6 @@ o_data <= io_ladder;
 o_done <= done;
 o_catch <= i_catch;
 
-andgate <= i_from_comparator and divclock;
 sar_entity : succesive_approximation_register
 Generic map (n=>data_size)
 Port map (i_clock=>divclock,i_reset=>not i_reset,i_select=>not i_from_comparator,o_q=>ladder,o_end=>done);
