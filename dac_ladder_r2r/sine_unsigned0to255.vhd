@@ -29,7 +29,7 @@ use IEEE.NUMERIC_STD.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity top is
+entity sine_unsigned0to255 is
 Generic (
 N : integer := 8;
 M : integer := 5_000_000
@@ -39,9 +39,9 @@ i_clock : in  STD_LOGIC;
 i_reset : in  STD_LOGIC;
 o_ladder : out  STD_LOGIC_VECTOR(N-1 downto 0)
 );
-end top;
+end sine_unsigned0to255;
 
-architecture Behavioral of top is
+architecture Behavioral of sine_unsigned0to255 is
 	constant PROBES : integer := 256;
 	type trom is array (0 to PROBES-1) of integer range 0 to 255;
 	constant rom : trom := (
