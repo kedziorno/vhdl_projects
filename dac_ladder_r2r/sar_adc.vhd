@@ -31,7 +31,8 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity sar_adc is
 Generic (
-G_BOARD_CLOCK : integer := 300_000;
+--G_BOARD_CLOCK : integer := 5_000_000;
+G_BOARD_CLOCK : integer := 200_000;
 data_size : integer := 8
 );
 Port (
@@ -121,6 +122,6 @@ o_catch <= i_catch;
 andgate <= i_from_comparator and divclock;
 sar_entity : succesive_approximation_register
 Generic map (n=>data_size)
-Port map (i_clock=>divclock,i_reset=>not i_reset,i_select=>andgate,o_q=>ladder,o_end=>done);
+Port map (i_clock=>divclock,i_reset=>not i_reset,i_select=>not i_from_comparator,o_q=>ladder,o_end=>done);
 io_ladder <= ladder;
 end Behavioral;
