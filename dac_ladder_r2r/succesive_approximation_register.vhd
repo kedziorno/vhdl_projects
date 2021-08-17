@@ -38,7 +38,7 @@ i_clock : in  STD_LOGIC;
 i_reset : in  STD_LOGIC;
 i_select : in  STD_LOGIC;
 o_q : out  STD_LOGIC_VECTOR (n-1 downto 0);
-o_end : out  STD_LOGIC
+o_end : inout  STD_LOGIC
 );
 end succesive_approximation_register;
 
@@ -59,7 +59,7 @@ Port (
 );
 END COMPONENT FDCPE_Q_QB;
 
-signal first_q : std_logic;
+signal first_q,first_qb : std_logic;
 signal q1 : std_logic_vector(n-1 downto 0);
 signal qb1 : std_logic_vector(n-2 downto 0);
 signal q2 : std_logic_vector(n-1 downto 0);
@@ -67,11 +67,11 @@ signal q2 : std_logic_vector(n-1 downto 0);
 begin
 -- XXX based on https://api.intechopen.com/media/chapter/39238/media/image5.JPG
 
-o_end <= q1(n-1);
+o_end <= q1(n-1) after 1 ns;
 
-first : FDCPE
+first : FDCPE_Q_QB
 generic map (INIT => '0')
-port map (Q=>first_q,C=>i_clock,CE=>'1',CLR=>'0',D=>q1(n-1),PRE=>not i_reset);
+port map (Q=>first_q,QB=>first_qb,C=>i_clock,CE=>'1',CLR=>'0',D=>o_end,PRE=>not i_reset);
 
 FDCPE_g1 : for i in 0 to n-1 generate
 	n1_first : if (i=0) generate
@@ -95,7 +95,7 @@ FDCPE_g2 : for i in 0 to n-1 generate
 	n2_first : if (i=0) generate
 		FDCPE_inst : FDCPE
 		generic map (INIT => '0')
-		port map (Q=>q2(i),C=>first_q,CE=>'1',CLR=>not i_reset,D=>i_select,PRE=>'0');
+		port map (Q=>q2(i),C=>first_qb,CE=>'1',CLR=>not i_reset,D=>i_select,PRE=>'0');
 	end generate n2_first;
 	n2_chain : if (0<i) generate
 		FDCPE_inst : FDCPE
@@ -106,10 +106,10 @@ end generate FDCPE_g2;
 
 OR_gates : for i in 0 to n-1 generate
 	or_first : if (i=0) generate
-		o_q(n-1-i) <= q2(i) or first_q;
+		o_q(n-1) <= q2(i) or first_q after 1 ns;
 	end generate or_first;
 	or_rest : if (0<i) generate
-		o_q(n-1-i) <= q2(i) or q1(i-1);
+		o_q(n-1-i) <= q2(i) or q1(i-1) after 1 ns;
 	end generate or_rest;
 end generate OR_gates;
 
