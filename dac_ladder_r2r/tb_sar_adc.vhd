@@ -38,7 +38,7 @@ END tb_sar_adc;
 ARCHITECTURE behavior OF tb_sar_adc IS
 
 --constant C_CLOCK : integer := 200; -- XXX tb
-constant C_CLOCK : integer := 50_000_0; -- XXX orig
+constant C_CLOCK : integer := 5_000_000; -- XXX orig
 constant C_DATA_SIZE : integer := 8;
 
 -- Component Declaration for the Unit Under Test (UUT)
@@ -73,7 +73,8 @@ signal o_data : std_logic_vector(C_DATA_SIZE-1 downto 0);
 signal o_eoc : std_logic;
 
 -- Clock period definitions
-constant i_clock_period : time := (1_000_000_000/C_CLOCK) * 1 ns;
+--constant i_clock_period : time := (1_000_000_000/C_CLOCK) * 1 ns;
+constant i_clock_period : time := 20 ns;
 
 BEGIN
 -- Instantiate the Unit Under Test (UUT)

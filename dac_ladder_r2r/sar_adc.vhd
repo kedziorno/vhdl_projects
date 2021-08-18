@@ -130,7 +130,7 @@ begin
 end process p_fsm;
 
 p_clockdivider : process (i_clock,i_reset) is
-	constant count_max : integer := G_BOARD_CLOCK;
+	constant count_max : integer := G_BOARD_CLOCK/1000;
 	variable count : integer range 0 to count_max-1 := 0;
 begin
 	if (i_reset = '1') then
