@@ -39,8 +39,6 @@ Port (
 i_clock : in std_logic;
 i_reset : in std_logic;
 i_from_comparator : in std_logic;
-i_soc: in std_logic;
-o_soc: out std_logic;
 io_ladder : inout std_logic_vector(data_size-1 downto 0);
 o_data : out std_logic_vector(data_size-1 downto 0);
 o_eoc : out std_logic
@@ -74,63 +72,14 @@ o_q : out std_logic_vector(nbit-1 downto 0)
 );
 end component nxp_74hc573;
 
-signal divclock,soc,eoc,oeb,le : std_logic;
-signal ladder1,ladder2,ladderbuf,data : std_logic_vector(data_size-1 downto 0);
-signal sample : std_logic;
-
-type states is (idle,start,stop);
-signal state : states;
+signal divclock,eoc : std_logic;
+signal oeb : std_logic;
+signal ladder_latch,data : std_logic_vector(data_size-1 downto 0);
 
 begin
-
-p_fsm : process (divclock,i_reset) is
-	constant CW : integer := 10;
-	variable w : integer range 0 to CW-1;
-begin
-	if (i_reset = '1') then
-		state <= idle;
-		soc <= '0';
-		oeb <= '1';
-		w := 0;
-	elsif (rising_edge(divclock)) then
-		case (state) is
-			when idle =>
-				if (sample = '1') then
-					state <= start;
-					soc <= '1';
-					oeb <= '1';
-				else
-					state <= idle;
-					soc <= '0';
-					oeb <= '0';
-				end if;
-			when start =>
-				if (eoc = '1') then
-					state <= stop;
-					oeb <= '1';
-					soc <= '0';
-					ladderbuf <= io_ladder;
-				else
-					state <= start;
-					soc <= '1';
-				end if;
-			when stop =>
-				if (w = CW-1) then
-					state <= idle;
-					w := 0;
-					oeb <= '1';
-				else
-					state <= stop;
-					w := w + 1;
-					oeb <= '0';
-				end if;
-			when others => null;
-		end case;
-	end if;
-end process p_fsm;
 
 p_clockdivider : process (i_clock,i_reset) is
-	constant count_max : integer := G_BOARD_CLOCK/1000;
+	constant count_max : integer := G_BOARD_CLOCK/10;
 	variable count : integer range 0 to count_max-1 := 0;
 begin
 	if (i_reset = '1') then
@@ -147,52 +96,58 @@ begin
 	end if;
 end process p_clockdivider;
 
-p_sampleclock : process (i_clock,i_reset) is
-	constant count_max : integer := G_BOARD_CLOCK/1000;
-	variable count : integer range 0 to count_max-1 := 0;
+p_comparator : process (divclock,i_reset) is
+	variable a : std_logic;
+	constant ccount : integer := 2**data_size;
+	variable count : integer range 0 to ccount-1 := 0;
+	variable voeb : std_logic;
 begin
 	if (i_reset = '1') then
 		count := 0;
-		sample <= '0';
-	elsif (rising_edge(i_clock)) then
-		if (count = count_max-1) then
-			count := 0;
-			sample <= '1';
-		else
-			count := count + 1;
-			sample <= '0';
-		end if;
+		a := '0';
+		eoc <= '0';
+		voeb := '1';
+	elsif (rising_edge(divclock)) then
+		a := i_from_comparator;
+		case (a) is
+			when '0' =>
+				if (count = ccount-1) then
+					count := ccount-1;
+					eoc <= '1';
+					voeb := '1';
+				else
+					count := count + 1;
+					eoc <= '0';
+					voeb := '1';
+				end if;
+			when '1' =>
+				count := count;
+				eoc <= '1';
+				voeb := '0';
+			when others =>
+				count := 0;
+				eoc <= '0';
+				voeb := '1';
+		end case;
+		io_ladder <= std_logic_vector(to_unsigned(count,data_size));
 	end if;
-end process p_sampleclock;
+	oeb <= voeb;
+end process p_comparator;
 
---ladderbuf <= io_ladder when eoc = '1' else (others => 'Z');
 g0 : for i in 0 to data_size-1 generate
-inst : OBUF port map (I=>ladderbuf(i),O=>ladder2(i));
+inst : OBUF port map (I=>io_ladder(i),O=>ladder_latch(i));
 end generate g0;
 o_data <= data;
 o_eoc <= eoc;
-o_soc <= i_soc;
-
-sar_entity : succesive_approximation_register
-Generic map (
-n => data_size
-)
-Port map (
-i_clock => divclock,
-i_reset => soc,
-i_select => not i_from_comparator,
-o_q => io_ladder,
-o_end => eoc
-);
 
 latch_entity : nxp_74hc573
 generic map(
 nbit => data_size
 )
 port map (
-i_le => sample,
+i_le => divclock,
 i_oeb => oeb,
-i_d => ladder2,
+i_d => ladder_latch,
 o_q => data
 );
 

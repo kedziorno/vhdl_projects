@@ -37,7 +37,7 @@ M : integer := 5_000_000
 Port (
 i_clock : in  STD_LOGIC;
 i_reset : in  STD_LOGIC;
-o_ladder : out  STD_LOGIC_VECTOR(N-1 downto 0)
+io_ladder : out  STD_LOGIC_VECTOR(N-1 downto 0)
 );
 end sine_unsigned0to255;
 
@@ -71,9 +71,9 @@ begin
 	begin
 		if (i_reset = '1') then
 			count := 0;
-			o_ladder <= (others => '0');
+			io_ladder <= (others => '0');
 		elsif (rising_edge(clock_divider)) then
-			o_ladder <= std_logic_vector(to_unsigned(rom(count),8));
+			io_ladder <= std_logic_vector(to_unsigned(rom(count),8));
 			if (count = PROBES-1) then
 				count := 0;
 			else
