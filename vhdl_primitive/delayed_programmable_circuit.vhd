@@ -30,8 +30,15 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity delayed_programmable_circuit is
-generic (n : integer := 8);
 port (
+i_reg1 : in std_logic;
+i_reg2 : in std_logic;
+i_reg3 : in std_logic;
+i_reg4 : in std_logic;
+i_reg5 : in std_logic;
+i_reg6 : in std_logic;
+i_reg7 : in std_logic;
+i_reg8 : in std_logic;
 i_input : in std_logic;
 o_output : out std_logic
 );
@@ -43,23 +50,86 @@ component MUX_21 is
 port (S,A,B:in STD_LOGIC;C:out STD_LOGIC);
 end component MUX_21;
 
-signal reg : std_logic_vector(n-1 downto 0);
-signal nots : std_logic_vector(2**n-1 downto 0);
-signal mux_out : std_logic_vector(n-1 downto 0);
+component GATE_NOT is
+port (
+A : in STD_LOGIC;
+B : out STD_LOGIC
+);
+end component GATE_NOT;
+
+component DEMUX_12 is
+port (S,A:in STD_LOGIC;B,C:out STD_LOGIC);
+end component DEMUX_12;
+
+signal mux_out : std_logic_vector(8 downto 1);
+signal normal_line1 : std_logic;
+signal normal_line2 : std_logic;
+signal normal_line3 : std_logic;
+signal normal_line4 : std_logic;
+signal normal_line5 : std_logic;
+signal normal_line6 : std_logic;
+signal normal_line7 : std_logic;
+signal normal_line8 : std_logic;
+
+signal nots1 : std_logic_vector(2**1 downto 0);
+signal nots2 : std_logic_vector(2**2 downto 0);
+signal nots3 : std_logic_vector(2**3 downto 0);
+signal nots4 : std_logic_vector(2**4 downto 0);
+signal nots5 : std_logic_vector(2**5 downto 0);
+signal nots6 : std_logic_vector(2**6 downto 0);
+signal nots7 : std_logic_vector(2**7 downto 0);
+signal nots8 : std_logic_vector(2**8 downto 0);
 
 begin
 
-mux_out(0) <= i_input;
+dmx1 : DEMUX_12 port map (S => i_reg1, A => i_input, B => normal_line1, C => nots1(0));
+gnots1 : for i in 1 to 2**1 generate
+	gn : GATE_NOT port map (A => nots1(i-1), B => nots1(i));
+end generate gnots1;
+mux1 : MUX_21 port map (S => i_reg1, A => normal_line1, B => nots1(2**1), C => mux_out(1));
 
-g0_not : for i in 1 to n-1 generate
-	g1_not : for j in 2**(i+0) to 2**(i+1)-1 generate
-		nots(j) <= not nots(j-1);
-		mux_out : if (j=2**(i+1)-1) generate
-			m21 : MUX_21 port map (S => reg(i), A => mux_out(i-1), B => nots(j), C => mux_out(i));
-		end generate mux_out;
-	end generate g1_not;
-end generate g0_not;
+dmx2 : DEMUX_12 port map (S => i_reg2, A => mux_out(1), B => normal_line2, C => nots2(0));
+gnots2 : for i in 1 to 2**2 generate
+	gn : GATE_NOT port map (A => nots2(i-1), B => nots2(i));
+end generate gnots2;
+mux2 : MUX_21 port map (S => i_reg2, A => normal_line2, B => nots2(2**2), C => mux_out(2));
 
-o_output <= mux_out(n-1);
+dmx3 : DEMUX_12 port map (S => i_reg3, A => mux_out(2), B => normal_line3, C => nots3(0));
+gnots3 : for i in 1 to 2**3 generate
+	gn : GATE_NOT port map (A => nots3(i-1), B => nots3(i));
+end generate gnots3;
+mux3 : MUX_21 port map (S => i_reg3, A => normal_line3, B => nots3(2**3), C => mux_out(3));
+
+dmx4 : DEMUX_12 port map (S => i_reg4, A => mux_out(3), B => normal_line4, C => nots4(0));
+gnots4 : for i in 1 to 2**4 generate
+	gn : GATE_NOT port map (A => nots4(i-1), B => nots4(i));
+end generate gnots4;
+mux4 : MUX_21 port map (S => i_reg4, A => normal_line4, B => nots4(2**4), C => mux_out(4));
+
+dmx5 : DEMUX_12 port map (S => i_reg5, A => mux_out(4), B => normal_line5, C => nots5(0));
+gnots5 : for i in 1 to 2**5 generate
+	gn : GATE_NOT port map (A => nots5(i-1), B => nots5(i));
+end generate gnots5;
+mux5 : MUX_21 port map (S => i_reg5, A => normal_line5, B => nots5(2**5), C => mux_out(5));
+
+dmx6 : DEMUX_12 port map (S => i_reg6, A => mux_out(5), B => normal_line6, C => nots6(0));
+gnots6 : for i in 1 to 2**6 generate
+	gn : GATE_NOT port map (A => nots6(i-1), B => nots6(i));
+end generate gnots6;
+mux6 : MUX_21 port map (S => i_reg6, A => normal_line6, B => nots6(2**6), C => mux_out(6));
+
+dmx7 : DEMUX_12 port map (S => i_reg7, A => mux_out(6), B => normal_line7, C => nots7(0));
+gnots7 : for i in 1 to 2**7 generate
+	gn : GATE_NOT port map (A => nots7(i-1), B => nots7(i));
+end generate gnots7;
+mux7 : MUX_21 port map (S => i_reg7, A => normal_line7, B => nots7(2**7), C => mux_out(7));
+
+dmx8 : DEMUX_12 port map (S => i_reg8, A => mux_out(7), B => normal_line8, C => nots8(0));
+gnots8 : for i in 1 to 2**8 generate
+	gn : GATE_NOT port map (A => nots8(i-1), B => nots8(i));
+end generate gnots8;
+mux8 : MUX_21 port map (S => i_reg8, A => normal_line8, B => nots8(2**8), C => mux_out(8));
+
+o_output <= mux_out(8);
 
 end Behavioral;
