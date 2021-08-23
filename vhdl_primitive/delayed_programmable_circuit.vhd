@@ -38,7 +38,6 @@ i_reg4 : in std_logic;
 i_reg5 : in std_logic;
 i_reg6 : in std_logic;
 i_reg7 : in std_logic;
-i_reg8 : in std_logic;
 i_input : in std_logic;
 o_output : out std_logic
 );
@@ -71,7 +70,6 @@ signal nots4 : std_logic_vector(2**4 downto 0);
 signal nots5 : std_logic_vector(2**5 downto 0);
 signal nots6 : std_logic_vector(2**6 downto 0);
 signal nots7 : std_logic_vector(2**7 downto 0);
---signal nots8 : std_logic_vector(2**8 downto 0);
 
 begin
 
@@ -165,19 +163,6 @@ S => i_reg7,
 A => normal_line(7), B => nots7(2**7),
 C => mux_out(7)
 );
-
---dmx8 : DEMUX_12 port map (
---S => i_reg8, A => mux_out(7),
---B => normal_line(8), C => nots8(0)
---);
---gnots8 : for i in 1 to 2**8-1 generate
---	gn : GATE_NOT port map (A => nots8(i-1), B => nots8(i));
---end generate gnots8;
---mux8 : MUX_21 port map (
---S => i_reg8,
---A => normal_line(8), B => nots8(2**8-1),
---C => mux_out(8)
---);
 
 o_output <= mux_out(7);
 
