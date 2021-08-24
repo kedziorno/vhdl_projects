@@ -30,6 +30,9 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity top_dpc is
+generic (
+n : integer := 50_000_000
+);
 port (
 i_clock : in std_logic;
 i_reset : in std_logic;
@@ -60,38 +63,58 @@ reg1,reg2,reg3,reg4,reg5,reg6,reg7,reg8,
 stop);
 signal state : states;
 
+signal clock_divider : std_logic;
+
 begin
 
-p0 : process (i_clock,i_reset) is
+p_clockdivider : process (i_clock,i_reset) is
+	constant C_CD : integer := n;
+	variable count : integer range 0 to C_CD - 1;
+begin
+	if (i_reset = '1') then
+		clock_divider <= '0';
+		count := 0;
+	elsif (rising_edge(i_clock)) then
+		if (count = C_CD - 1) then
+			clock_divider <= '1';
+			count := 0;
+		else
+			clock_divider <= '0';
+			count := count + 1;
+		end if;
+	end if;
+end process p_clockdivider;
+
+p0 : process (clock_divider,i_reset) is
 begin
 	if (i_reset = '1') then
 		state <= idle;
-		reg <= (others => '0');
-	elsif (rising_edge(i_clock)) then
+		reg <= (others => '1');
+	elsif (rising_edge(clock_divider)) then
 		case (state) is
 			when idle =>
 				state <= start;
 			when start =>
 				state <= reg1;
-				reg <= "1111111";
+				reg <= "0000000";
 			when reg1 =>
 				state <= reg2;
-				reg <= "1111111";
+				reg <= "0000001";
 			when reg2 =>
 				state <= reg3;
-				reg <= "1111111";
+				reg <= "0000011";
 			when reg3 =>
 				state <= reg4;
-				reg <= "1111111";
+				reg <= "0000111";
 			when reg4 =>
 				state <= reg5;
-				reg <= "1111111";
+				reg <= "0001111";
 			when reg5 =>
 				state <= reg6;
-				reg <= "1111111";
+				reg <= "0011111";
 			when reg6 =>
 				state <= reg7;
-				reg <= "1111111";
+				reg <= "0111111";
 			when reg7 =>
 				state <= reg8;
 				reg <= "1111111";
@@ -112,7 +135,7 @@ i_reg4 => reg(4),
 i_reg5 => reg(5),
 i_reg6 => reg(6),
 i_reg7 => reg(7),
-i_input => i_clock,
+i_input => clock_divider,
 o_output => o_led
 );
 
