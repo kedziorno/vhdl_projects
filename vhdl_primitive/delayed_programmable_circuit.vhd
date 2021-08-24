@@ -50,11 +50,15 @@ port (S,A,B:in STD_LOGIC;C:out STD_LOGIC);
 end component MUX_21;
 
 component GATE_NOT is
+generic (
+delay_not : time := 1 ns
+);
 port (
 A : in STD_LOGIC;
 B : out STD_LOGIC
 );
 end component GATE_NOT;
+for all : GATE_NOT use entity WORK.GATE_NOT(GATE_NOT_LUT);
 
 component DEMUX_12 is
 port (S,A:in STD_LOGIC;B,C:out STD_LOGIC);

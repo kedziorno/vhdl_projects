@@ -15,9 +15,9 @@ end component GOR;
 component GN is
 port (A:in STD_LOGIC;B:out STD_LOGIC);
 end component GN;
-for all : GAND use entity WORK.GATE_AND(GATE_AND_BEHAVIORAL_1);
-for all : GOR use entity WORK.GATE_OR(GATE_OR_BEHAVIORAL_1);
-for all : GN use entity WORK.GATE_NOT(GATE_NOT_BEHAVIORAL_1);
+for all : GAND use entity WORK.GATE_AND(GATE_AND_LUT);
+for all : GOR use entity WORK.GATE_OR(GATE_OR_LUT);
+for all : GN use entity WORK.GATE_NOT(GATE_NOT_LUT);
 signal sa : STD_LOGIC;
 begin
 g1: GN port map (S,sa);
