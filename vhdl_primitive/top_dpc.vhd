@@ -59,8 +59,8 @@ end component delayed_programmable_circuit;
 signal reg : std_logic_vector(7 downto 1);
 
 type states is (idle,start,
-reg1,reg2,reg3,reg4,reg5,reg6,reg7,reg8,
-stop);
+reg1,reg2,reg3,reg4,reg5,reg6,reg7,reg8
+);
 signal state : states;
 
 signal clock_divider : std_logic;
@@ -89,11 +89,12 @@ p0 : process (clock_divider,i_reset) is
 begin
 	if (i_reset = '1') then
 		state <= idle;
-		reg <= (others => '1');
+		reg <= (others => '0');
 	elsif (rising_edge(clock_divider)) then
 		case (state) is
 			when idle =>
 				state <= start;
+				reg <= "1111111";
 			when start =>
 				state <= reg1;
 				reg <= "0000000";
@@ -102,26 +103,28 @@ begin
 				reg <= "0000001";
 			when reg2 =>
 				state <= reg3;
-				reg <= "0000011";
+				reg <= "0000010";
 			when reg3 =>
 				state <= reg4;
-				reg <= "0000111";
+				reg <= "0000100";
 			when reg4 =>
 				state <= reg5;
-				reg <= "0001111";
+				reg <= "0001000";
 			when reg5 =>
 				state <= reg6;
-				reg <= "0011111";
+				reg <= "0010000";
 			when reg6 =>
 				state <= reg7;
-				reg <= "0111111";
+				reg <= "0100000";
 			when reg7 =>
 				state <= reg8;
-				reg <= "1111111";
+				reg <= "1000000";
 			when reg8 =>
-				state <= stop;
-			when stop =>
 				state <= idle;
+				reg <= "0000000";
+			when others =>
+				state <= idle;
+				reg <= "0000000";
 		end case;
 	end if;
 end process p0;

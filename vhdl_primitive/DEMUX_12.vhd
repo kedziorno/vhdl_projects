@@ -7,12 +7,15 @@ end entity DEMUX_12;
 
 architecture DEMUX_12_BEHAVIORAL_1 of DEMUX_12 is
 component GAND is
+generic (delay_and : time := 1 ns);
 port (A,B:in STD_LOGIC;C:out STD_LOGIC);
 end component GAND;
 component GOR is
+generic (delay_or : time := 1 ns);
 port (A,B:in STD_LOGIC;C:out STD_LOGIC);
 end component GOR;
 component GN is
+generic (delay_not : time := 1 ns);
 port (A:in STD_LOGIC;B:out STD_LOGIC);
 end component GN;
 for all : GAND use entity WORK.GATE_AND(GATE_AND_LUT);
