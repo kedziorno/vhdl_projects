@@ -31,9 +31,8 @@ use UNISIM.VComponents.all;
 
 entity sar_adc is
 Generic (
-G_BOARD_CLOCK : integer := 5_000_000;
---G_BOARD_CLOCK : integer := 200_000;
-data_size : integer := 8
+G_BOARD_CLOCK : integer := 500_000;
+data_size : integer := 12
 );
 Port (
 i_clock : in std_logic;
@@ -62,7 +61,7 @@ end component succesive_approximation_register;
 
 component nxp_74hc573 is
 generic (
-nbit : integer := 8
+nbit : integer := data_size
 );
 port (
 i_le : in std_logic;
@@ -79,7 +78,7 @@ signal ladder_latch,data : std_logic_vector(data_size-1 downto 0);
 begin
 
 p_clockdivider : process (i_clock,i_reset) is
-	constant count_max : integer := G_BOARD_CLOCK/10;
+	constant count_max : integer := G_BOARD_CLOCK;
 	variable count : integer range 0 to count_max-1 := 0;
 begin
 	if (i_reset = '1') then
@@ -96,7 +95,7 @@ begin
 	end if;
 end process p_clockdivider;
 
-p_comparator : process (divclock,i_reset) is
+p_comparator : process (divclock,i_reset,i_from_comparator) is
 	variable a : std_logic;
 	constant ccount : integer := 2**data_size;
 	variable count : integer range 0 to ccount-1 := 0;
@@ -108,7 +107,7 @@ begin
 		eoc <= '0';
 		voeb := '1';
 	elsif (rising_edge(divclock)) then
-		a := i_from_comparator;
+--		a := not i_from_comparator; -- XXX maybe with S&H
 		case (a) is
 			when '0' =>
 				if (count = ccount-1) then
@@ -129,9 +128,10 @@ begin
 				eoc <= '0';
 				voeb := '1';
 		end case;
-		io_ladder <= std_logic_vector(to_unsigned(count,data_size));
 	end if;
+	a := i_from_comparator;
 	oeb <= voeb;
+	io_ladder <= std_logic_vector(to_unsigned(count,data_size));
 end process p_comparator;
 
 g0 : for i in 0 to data_size-1 generate
@@ -146,7 +146,7 @@ nbit => data_size
 )
 port map (
 i_le => divclock,
-i_oeb => oeb,
+i_oeb => '0',
 i_d => ladder_latch,
 o_q => data
 );
