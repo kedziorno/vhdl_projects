@@ -31,7 +31,7 @@ use IEEE.NUMERIC_STD.ALL;
 library UNISIM;
 use UNISIM.VComponents.all;
 
-entity sar_adc is
+entity adc_counter is
 Generic (
 G_BOARD_CLOCK : integer := G_BOARD_CLOCK;
 data_size : integer := 12
@@ -45,9 +45,9 @@ o_anode : out std_logic_vector(G_LCDAnode-1 downto 0);
 o_segment : out std_logic_vector(G_LCDSegment-1 downto 0);
 o_eoc : out std_logic
 );
-end sar_adc;
+end adc_counter;
 
-architecture Behavioral of sar_adc is
+architecture Behavioral of adc_counter is
 
 component lcd_display is
 Generic (
