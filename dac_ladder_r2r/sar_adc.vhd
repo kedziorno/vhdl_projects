@@ -40,7 +40,7 @@ Port (
 i_clock : in std_logic;
 i_reset : in std_logic;
 i_from_comparator : in std_logic;
-io_ladder : inout std_logic_vector(data_size-1 downto 0);
+io_ladder : out std_logic_vector(data_size-1 downto 0);
 o_anode : out std_logic_vector(G_LCDAnode-1 downto 0);
 o_segment : out std_logic_vector(G_LCDSegment-1 downto 0);
 o_eoc : out std_logic
@@ -89,11 +89,13 @@ p_comparator : process (divclock,i_reset) is
 	constant ccount : integer := 2**data_size;
 	variable count : integer range 0 to ccount-1 := 0;
 	variable veoc : std_logic;
+	variable vladder : std_logic_vector(data_size-1 downto 0);
 begin
 	if (i_reset = '1') then
 		count := 0;
 		a := '0';
 		veoc := '0';
+		vladder := (others => '0');
 	elsif (rising_edge(divclock)) then
 --		a := not i_from_comparator; -- XXX maybe with S&H
 		a := i_from_comparator;
@@ -106,16 +108,18 @@ begin
 					count := count + 1;
 					veoc := '0';
 				end if;
+				vladder := std_logic_vector(to_unsigned(count,data_size));
 			when '1' =>
 				count := count;
 				veoc := '1';
+				vladder := std_logic_vector(to_unsigned(count,data_size));
 			when others =>
 				count := 0;
 				veoc := '0';
 		end case;
 		o_eoc <= veoc;
-		io_ladder <= std_logic_vector(to_unsigned(count,data_size));
-		LCDChar <= (io_ladder(3 downto 0),io_ladder(7 downto 4),io_ladder(11 downto 8),x"0");
+		io_ladder <= vladder;
+		LCDChar <= (vladder(3 downto 0),vladder(7 downto 4),vladder(11 downto 8),x"0");
 	end if;
 end process p_comparator;
 
