@@ -27,6 +27,8 @@
 --------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
+use WORK.p_globals.ALL;
+use WORK.p_lcd_display.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -38,8 +40,8 @@ END tb_sar_adc;
 ARCHITECTURE behavior OF tb_sar_adc IS
 
 --constant C_CLOCK : integer := 200; -- XXX tb
-constant C_CLOCK : integer := 5_000_000; -- XXX orig
-constant C_DATA_SIZE : integer := 8;
+constant C_CLOCK : integer := 50_000_000; -- XXX orig
+constant C_DATA_SIZE : integer := 12;
 
 -- Component Declaration for the Unit Under Test (UUT)
 COMPONENT sar_adc
@@ -48,14 +50,13 @@ G_BOARD_CLOCK : integer;
 data_size : integer
 );
 PORT(
-i_clock : IN  std_logic;
-i_reset : IN  std_logic;
-i_from_comparator : IN  std_logic;
-i_soc : IN  std_logic;
-o_soc : OUT  std_logic;
-io_ladder : INOUT  std_logic_vector(C_DATA_SIZE-1 downto 0);
-o_data : OUT  std_logic_vector(C_DATA_SIZE-1 downto 0);
-o_eoc : OUT  std_logic
+i_clock : in std_logic;
+i_reset : in std_logic;
+i_from_comparator : in std_logic;
+io_ladder : inout std_logic_vector(data_size-1 downto 0);
+o_anode : out std_logic_vector(G_LCDAnode-1 downto 0);
+o_segment : out std_logic_vector(G_LCDSegment-1 downto 0);
+o_eoc : out std_logic
 );
 END COMPONENT;
 
@@ -63,13 +64,12 @@ END COMPONENT;
 signal i_clock : std_logic := '0';
 signal i_reset : std_logic := '0';
 signal i_from_comparator : std_logic := '0';
-signal i_soc : std_logic := '0';
 
 signal io_ladder : std_logic_vector(C_DATA_SIZE-1 downto 0);
 
 --Outputs
-signal o_soc : std_logic;
-signal o_data : std_logic_vector(C_DATA_SIZE-1 downto 0);
+signal o_anode : std_logic_vector(G_LCDAnode-1 downto 0);
+signal o_segment : std_logic_vector(G_LCDSegment-1 downto 0);
 signal o_eoc : std_logic;
 
 -- Clock period definitions
@@ -87,10 +87,9 @@ PORT MAP (
 i_clock => i_clock,
 i_reset => i_reset,
 i_from_comparator => i_from_comparator,
-i_soc => i_soc,
-o_soc => o_soc,
 io_ladder => io_ladder,
-o_data => o_data,
+o_anode => o_anode,
+o_segment => o_segment,
 o_eoc => o_eoc
 );
 
@@ -113,13 +112,8 @@ i_reset <= '0';
 
 wait for 3 * C_CLOCK * i_clock_period;
 
-i_soc <= '0';
 i_from_comparator <= '0';
 
-wait for C_CLOCK * i_clock_period;
-i_soc <= '1';
-wait for C_CLOCK * i_clock_period;
-i_soc <= '0';
 wait for C_CLOCK * i_clock_period;
 i_from_comparator <= '0';
 wait for C_CLOCK * i_clock_period;
@@ -138,15 +132,10 @@ wait for C_CLOCK * i_clock_period;
 i_from_comparator <= '0';
 wait for C_CLOCK * i_clock_period;
 
-i_soc <= '0';
 i_from_comparator <= '0';
 
 wait for 3 * C_CLOCK * i_clock_period;
 
-i_soc <= '1';
-wait for C_CLOCK * i_clock_period;
-i_soc <= '0';
-wait for C_CLOCK * i_clock_period;
 i_from_comparator <= '1';
 wait for C_CLOCK * i_clock_period;
 i_from_comparator <= '1';
@@ -164,15 +153,10 @@ wait for C_CLOCK * i_clock_period;
 i_from_comparator <= '1';
 wait for C_CLOCK * i_clock_period;
 
-i_soc <= '0';
 i_from_comparator <= '0';
 
 wait for 3 * C_CLOCK * i_clock_period;
 
-i_soc <= '1';
-wait for C_CLOCK * i_clock_period;
-i_soc <= '0';
-wait for C_CLOCK * i_clock_period;
 i_from_comparator <= '1';
 wait for C_CLOCK * i_clock_period;
 i_from_comparator <= '1';
@@ -190,15 +174,10 @@ wait for C_CLOCK * i_clock_period;
 i_from_comparator <= '1';
 wait for C_CLOCK * i_clock_period;
 
-i_soc <= '0';
 i_from_comparator <= '0';
 
 wait for 3 * C_CLOCK * i_clock_period;
 
-i_soc <= '1';
-wait for C_CLOCK * i_clock_period;
-i_soc <= '0';
-wait for C_CLOCK * i_clock_period;
 i_from_comparator <= '1';
 wait for C_CLOCK * i_clock_period;
 i_from_comparator <= '1';
@@ -216,15 +195,10 @@ wait for C_CLOCK * i_clock_period;
 i_from_comparator <= '1';
 wait for C_CLOCK * i_clock_period;
 
-i_soc <= '0';
 i_from_comparator <= '0';
 
 wait for 3 * C_CLOCK * i_clock_period;
 
-i_soc <= '1';
-wait for C_CLOCK * i_clock_period;
-i_soc <= '0';
-wait for C_CLOCK * i_clock_period;
 i_from_comparator <= '1';
 wait for C_CLOCK * i_clock_period;
 i_from_comparator <= '0';
@@ -243,7 +217,6 @@ i_from_comparator <= '1';
 
 wait for C_CLOCK * i_clock_period;
 
-i_soc <= '0';
 i_from_comparator <= '0';
 
 wait;
