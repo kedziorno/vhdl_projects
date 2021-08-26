@@ -19,6 +19,8 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use WORK.p_globals.ALL;
+use WORK.p_lcd_display.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -29,57 +31,43 @@ use IEEE.NUMERIC_STD.ALL;
 library UNISIM;
 use UNISIM.VComponents.all;
 
-entity sar_adc is
+entity adc_counter is
 Generic (
-G_BOARD_CLOCK : integer := 5_000_000;
---G_BOARD_CLOCK : integer := 200_000;
-data_size : integer := 8
+G_BOARD_CLOCK : integer := G_BOARD_CLOCK;
+data_size : integer := 12
 );
 Port (
 i_clock : in std_logic;
 i_reset : in std_logic;
 i_from_comparator : in std_logic;
-io_ladder : inout std_logic_vector(data_size-1 downto 0);
-o_data : out std_logic_vector(data_size-1 downto 0);
+io_ladder : out std_logic_vector(data_size-1 downto 0);
+o_anode : out std_logic_vector(G_LCDAnode-1 downto 0);
+o_segment : out std_logic_vector(G_LCDSegment-1 downto 0);
 o_eoc : out std_logic
 );
-end sar_adc;
+end adc_counter;
 
-architecture Behavioral of sar_adc is
+architecture Behavioral of adc_counter is
 
-component succesive_approximation_register is
+component lcd_display is
 Generic (
-n : integer := data_size
+LCDClockDivider : integer := G_LCDClockDivider -- XXX in ms
 );
 Port (
-i_clock : in  STD_LOGIC;
-i_reset : in  STD_LOGIC;
-i_select : in  STD_LOGIC;
-o_q : out  STD_LOGIC_VECTOR (n-1 downto 0);
-o_end : inout  STD_LOGIC
+i_clock : in std_logic;
+i_LCDChar : LCDHex;
+o_anode : out std_logic_vector(G_LCDAnode-1 downto 0);
+o_segment : out std_logic_vector(G_LCDSegment-1 downto 0)
 );
-end component succesive_approximation_register;
+end component lcd_display;
 
-component nxp_74hc573 is
-generic (
-nbit : integer := 8
-);
-port (
-i_le : in std_logic;
-i_oeb : in std_logic;
-i_d : in std_logic_vector(nbit-1 downto 0);
-o_q : out std_logic_vector(nbit-1 downto 0)
-);
-end component nxp_74hc573;
-
-signal divclock,eoc : std_logic;
-signal oeb : std_logic;
-signal ladder_latch,data : std_logic_vector(data_size-1 downto 0);
+signal divclock : std_logic;
+signal LCDChar : LCDHex;
 
 begin
 
 p_clockdivider : process (i_clock,i_reset) is
-	constant count_max : integer := G_BOARD_CLOCK/10;
+	constant count_max : integer := G_BOARD_CLOCK/1000;
 	variable count : integer range 0 to count_max-1 := 0;
 begin
 	if (i_reset = '1') then
@@ -100,55 +88,50 @@ p_comparator : process (divclock,i_reset) is
 	variable a : std_logic;
 	constant ccount : integer := 2**data_size;
 	variable count : integer range 0 to ccount-1 := 0;
-	variable voeb : std_logic;
+	variable veoc : std_logic;
+	variable vladder : std_logic_vector(data_size-1 downto 0);
 begin
 	if (i_reset = '1') then
 		count := 0;
 		a := '0';
-		eoc <= '0';
-		voeb := '1';
+		veoc := '0';
+		vladder := (others => '0');
 	elsif (rising_edge(divclock)) then
+--		a := not i_from_comparator; -- XXX maybe with S&H
 		a := i_from_comparator;
 		case (a) is
 			when '0' =>
 				if (count = ccount-1) then
 					count := ccount-1;
-					eoc <= '1';
-					voeb := '1';
+					veoc := '1';
 				else
 					count := count + 1;
-					eoc <= '0';
-					voeb := '1';
+					veoc := '0';
 				end if;
+				vladder := std_logic_vector(to_unsigned(count,data_size));
 			when '1' =>
 				count := count;
-				eoc <= '1';
-				voeb := '0';
+				veoc := '1';
+				vladder := std_logic_vector(to_unsigned(count,data_size));
 			when others =>
 				count := 0;
-				eoc <= '0';
-				voeb := '1';
+				veoc := '0';
 		end case;
-		io_ladder <= std_logic_vector(to_unsigned(count,data_size));
+		o_eoc <= veoc;
+		io_ladder <= vladder;
+		LCDChar <= (vladder(3 downto 0),vladder(7 downto 4),vladder(11 downto 8),x"0");
 	end if;
-	oeb <= voeb;
 end process p_comparator;
 
-g0 : for i in 0 to data_size-1 generate
-inst : OBUF port map (I=>io_ladder(i),O=>ladder_latch(i));
-end generate g0;
-o_data <= data;
-o_eoc <= eoc;
-
-latch_entity : nxp_74hc573
-generic map(
-nbit => data_size
+lcddisplay_entity : lcd_display
+generic map (
+LCDClockDivider => 4 -- XXX in ms
 )
 port map (
-i_le => divclock,
-i_oeb => oeb,
-i_d => ladder_latch,
-o_q => data
+i_clock => i_clock,
+i_LCDChar => LCDChar,
+o_anode => o_anode,
+o_segment => o_segment
 );
 
 end Behavioral;
