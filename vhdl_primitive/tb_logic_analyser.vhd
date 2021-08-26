@@ -145,7 +145,7 @@ wait for 3*i_clock_period;
 i_catch <= '1';
 --report "catch wait " & integer'image(G_BOARD_CLOCK/G_DEBOUNCE_MS_COUNT) severity warning;
 --wait for W; -- wait for debounce
-wait for G_DEBOUNCE_MS * 1 ms; -- wait for debounce
+wait for 164 * 1 us; -- wait for debounce
 i_catch <= '0';
 wait for 25*i_clock_period;
 

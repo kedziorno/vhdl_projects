@@ -27,10 +27,10 @@ package p_globals is
 	constant G_DEBOUNCE_DIV : integer := 2*G_DEBOUNCE_SPEED_X;
 --	constant G_DEBOUNCE_MS_COUNT : integer := integer(real((G_DEBOUNCE_MS * 1000 * 1000)/(1_000_000_000/G_BOARD_CLOCK)));
 --	constant G_DEBOUNCE_MS_COUNT : integer := integer(real((0.001*real(G_DEBOUNCE_MS)))/real(1/G_BOARD_CLOCK));
-	constant G_DEBOUNCE_MS_COUNT : integer := 14976000/G_DEBOUNCE_DIV; -- XXX for 100ms,0.001*50/(1/29952000)
+--	constant G_DEBOUNCE_MS_COUNT : integer := 14976000/G_DEBOUNCE_DIV; -- XXX for 100ms,0.001*50/(1/29952000)
 --	constant G_DEBOUNCE_MS_COUNT : integer := 299520/G_DEBOUNCE_DIV; -- XXX for sim 10ms,0.001*10/(1/29952000)
 --	constant G_DEBOUNCE_MS_COUNT : integer := 299520/1; -- XXX for syn 10ms,0.001*10/(1/29952000)
---	constant G_DEBOUNCE_MS_COUNT : integer := 50000;
+	constant G_DEBOUNCE_MS_COUNT : integer := 50000; -- XXX 0.001*50/(1/1000000)
 	constant G_DEBOUNCE_MS_BITS : integer := bits_req(G_DEBOUNCE_MS_COUNT);
 
 end p_globals;
