@@ -110,8 +110,13 @@ begin
 				end if;
 				vladder := std_logic_vector(to_unsigned(count,data_size));
 			when '1' =>
-				count := count;
-				veoc := '1';
+				if (count = 0) then
+					count := 0;
+					veoc := '1';
+				else
+					count := count - 1;
+					veoc := '0';
+				end if;
 				vladder := std_logic_vector(to_unsigned(count,data_size));
 			when others =>
 				count := 0;
