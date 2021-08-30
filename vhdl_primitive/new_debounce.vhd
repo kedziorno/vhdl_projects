@@ -107,9 +107,8 @@ rc_mrb <= not2 xnor i_b;
 ffjk_j <= not1;
 ffjk_k <= not1;
 rc_ud <= '1';
-rc_cpb <= '1';
+rc_cpb <= not i_reset;
 o_db <= ffjk_q1;
-rc_ping <= '0';
 
 gnot1 : GATE_NOT
 GENERIC MAP (WAIT_NOT)
@@ -125,7 +124,7 @@ A => not1,
 B => not2
 );
 
-rc_entity : ripple_counter -- XXX 50ms
+rc_entity : ripple_counter -- XXX
 Generic map (
 N => RC_N,
 MAX => RC_MAX
@@ -143,7 +142,7 @@ ffdpe_entity : FF_D_POSITIVE_EDGE
 port map(
 S => not i_reset,
 R => not i_reset,
-C => rc_q(RC_N-3), -- XXX check RC_N-1, fix to catch anywhere
+C => rc_ping, -- XXX
 D => ffdpe_d,
 Q1 => ffdpe_q1,
 Q2 => ffdpe_q2
@@ -154,7 +153,7 @@ port map (
 i_r => i_reset,
 J => ffjk_j,
 K => ffjk_k,
-C => not1,
+C => not not2,
 Q1 => ffjk_q1,
 Q2 => ffjk_q2
 );
