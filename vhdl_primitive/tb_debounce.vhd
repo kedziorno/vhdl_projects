@@ -40,8 +40,8 @@ ARCHITECTURE behavior OF tb_debounce IS
 
 	-- Constant
 	constant DEBOUNCE_SIZE : integer := 8;
-	constant DEBOUNCE_RC_N : integer := 18; -- XXX +1 bit for 2**n
-	constant DEBOUNCE_RC_MAX : integer := 85000; -- XXX must be ((2**N)/4)*clock_period
+	constant DEBOUNCE_RC_N : integer := 18; -- XXX -1 bit for 2**n
+	constant DEBOUNCE_RC_MAX : integer := 85000; -- XXX must be ((2**N)/4)*clock_period , 85000=~1.7ms on 20ns clock
 	constant W0_COUNT : integer := 80;
 	constant G_BOARD_CLOCK : integer := 50_000_000;
 	constant LFSR_SIZE : integer := 32;
@@ -172,7 +172,7 @@ BEGIN
 
 		wait for 1 ms;
 
-		reset_db <= '0'; -- XXX
+		reset_db <= '1'; -- XXX
 		wait for i_clk_period;
 		reset_db <= '0';
 		wait for i_clk_period;
@@ -200,7 +200,7 @@ BEGIN
 
 		wait for 1 ms;
 
-		reset_db <= '0'; -- XXX
+		reset_db <= '1'; -- XXX
 		wait for i_clk_period;
 		reset_db <= '0';
 		wait for i_clk_period;
@@ -208,11 +208,35 @@ BEGIN
 		wait for 1 ms;
 
 		i_btn <= '1';
-		wait for 1 ms; -- XXX
+--		wait for 1_699_999_999.999_999 * 1 ps; -- XXX no catch
+--		wait for 1_700_000_000.000_000 * 1 ps; -- XXX no catch
+--		wait for 1_700_000_000.000_000 * 1 ps + 1 ps; -- XXX no catch
+--		wait for 1_700_000_000.000_000 * 1 ps + 14 ps; -- XXX no catch
+--		wait for 1_700_000_000.000_000 * 1 ps + 15 ps; -- XXX catch
+		wait for 1.75 ms;
 		i_btn <= '0';
 		wait for i_clk_period;
 
 		wait for 1 ms;
+
+		reset_db <= '1'; -- XXX
+		wait for i_clk_period;
+		reset_db <= '0';
+		wait for i_clk_period;
+
+		wait for 1 ms;
+
+		i_btn <= '1';
+		wait for 1.6 ms;
+		i_btn <= '0';
+		wait for i_clk_period;
+
+		wait for 1 ms;
+
+		reset_db <= '1'; -- XXX
+		wait for i_clk_period;
+		reset_db <= '0';
+		wait for i_clk_period;
 
 		simulation_finish <= '1';
 
