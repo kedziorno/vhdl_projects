@@ -153,7 +153,7 @@ port map (
 i_r => i_reset,
 J => ffjk_j,
 K => ffjk_k,
-C => not1 and rc_ping,
+C => not1 and not rc_ping,
 Q1 => ffjk_q1,
 Q2 => ffjk_q2
 );

@@ -115,13 +115,13 @@ begin
 	o_q <= q1;
 	cp <= i_cpb;
 	mr <= '1' when o_q = a or i_mrb = '1' else '0';
-	ping <= '1' when o_q = b else '0';
+	--ping <= '1' when o_q = b else '0';
 
 	inst1 : FF_D_POSITIVE_EDGE
 	PORT MAP (
 	S => not mr,
 	R => not mr,
-	D => ping,
+	D => mr,
 	C => gated_clock,
 	Q1 => ping1,
 	Q2 => ping2
