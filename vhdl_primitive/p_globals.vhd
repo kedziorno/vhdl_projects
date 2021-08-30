@@ -11,7 +11,7 @@ package p_globals is
 	constant G_OSC1 : integer := 29_952_000; -- XXX osc on socket
 	constant G_OSC2 : integer := 23_961_600; -- XXX osc on socket
 	constant G_OSC3 : integer := 1_000_000; -- XXX for sim
-	constant G_BOARD_CLOCK : integer := G_CLOCK1; -- XXX osc on board
+	constant G_BOARD_CLOCK : integer := G_OSC3; -- XXX osc on board
 	constant G_LCDSegment : integer := 7;
 	constant G_LCDAnode : integer := 4;
 	constant G_LCDClockDivider : integer := 200;
