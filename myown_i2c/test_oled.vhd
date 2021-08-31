@@ -77,7 +77,7 @@ port(
 end component glcdfont;
 for all : glcdfont use entity WORK.glcdfont(behavioral_glcdfont);
 
-component my_i2c is
+component my_i2c_fsm is
 generic(
 BOARD_CLOCK : INTEGER := G_BOARD_CLOCK;
 BUS_CLOCK : INTEGER := G_BUS_CLOCK
@@ -92,7 +92,7 @@ o_busy : out std_logic;
 o_sda : out std_logic;
 o_scl : out std_logic
 );
-end component my_i2c;
+end component my_i2c_fsm;
 
 type state is 
 (
@@ -112,7 +112,8 @@ signal glcdfont_index : std_logic_vector(10 downto 0);
 
 begin
 
-i2c_addr <= "0111100"; -- 3C
+i2c_addr <= "1111111"; -- 3C
+--i2c_addr <= "0000000"; -- 3C
 
 c0 : glcdfont
 port map
@@ -123,7 +124,7 @@ port map
 	o_character => glcdfont_character
 );
 
-c1 : my_i2c
+c1 : my_i2c_fsm
 GENERIC MAP
 (
 	BOARD_CLOCK => GCLK,
@@ -151,7 +152,7 @@ begin
 end process p1;
 
 
-p0 : process (c_state,i2c_busy,glcdfont_character) is
+p0 : process (c_state,i2c_busy,glcdfont_character,busy_prev) is
 begin
 	n_state <= c_state;
 	case c_state is
@@ -188,7 +189,7 @@ begin
 					glcdfont_index <= (others => '0');
 					index_character <= 0;
 				when 1 to BYTES_SEQUENCE_LENGTH =>
-					i2c_ena <= '1';
+					i2c_ena <= '0';
 					i2c_data_wr <= sequence(busy_cnt_sequence-1); -- command
 					current_character <= (others => '0');
 					glcdfont_index <= (others => '0');

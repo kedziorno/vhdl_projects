@@ -31,7 +31,7 @@ use IEEE.NUMERIC_STD.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity my_i2c is
+entity my_i2c_fsm is
 generic(
 BOARD_CLOCK : INTEGER := G_BOARD_CLOCK;
 BUS_CLOCK : INTEGER := G_BUS_CLOCK
@@ -46,9 +46,9 @@ o_busy : out std_logic;
 o_sda : out std_logic;
 o_scl : out std_logic
 );
-end my_i2c;
+end my_i2c_fsm;
 
-architecture Behavioral of my_i2c is
+architecture Behavioral of my_i2c_fsm is
 
 	signal clock : std_logic;
 	signal temp_sda : std_logic;
