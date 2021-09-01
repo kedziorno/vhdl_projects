@@ -170,8 +170,6 @@ begin
 		variable vtemp_sda,vtemp_sck : std_logic;
 	begin
 		n_state <= c_state;
-		vtemp_sda := vtemp_sda;
-		vtemp_sck := vtemp_sck;
 		case c_state is
 			when idle =>
 				slave_index := 0;
@@ -195,6 +193,9 @@ begin
 					vtemp_sck := '1';
 					vtemp_sda := '1';
 					n_state <= start;
+				else
+					vtemp_sda := vtemp_sda;
+					vtemp_sck := vtemp_sck;
 				end if;
 				o_busy <= '1';
 			when start =>
@@ -206,6 +207,9 @@ begin
 					vtemp_sda := '0';
 					vtemp_sck := '1';
 					n_state <= slave_address;
+				else
+					vtemp_sda := vtemp_sda;
+					vtemp_sck := vtemp_sck;
 				end if;
 				o_busy <= '1';
 				vtemp_sda := vtemp_sda;
@@ -226,6 +230,9 @@ begin
 						vtemp_sda := i_slave_address(slave_index);
 						slave_index := slave_index + 1;
 						n_state <= slave_address;
+					else
+						vtemp_sda := vtemp_sda;
+						vtemp_sck := vtemp_sck;
 					end if;
 				else
 					n_state <= slave_address_lastbit;
@@ -263,6 +270,9 @@ begin
 				if (c_cmode0 = c0) then
 					vtemp_sda := '0';
 					n_state <= slave_ack;
+				else
+					vtemp_sda := vtemp_sda;
+					vtemp_sck := vtemp_sck;
 				end if;
 			when slave_ack =>
 				slave_index := 0;
@@ -301,6 +311,9 @@ begin
 					else
 						n_state <= data;
 					end if;
+				else
+					vtemp_sda := vtemp_sda;
+					vtemp_sck := vtemp_sck;
 				end if;
 			when data_ack =>
 				o_busy <= '1';
@@ -360,8 +373,8 @@ begin
 				slave_index := 0;
 				o_busy <= '1';
 			when others =>
-				vtemp_sda := vtemp_sda;
-				vtemp_sck := vtemp_sck;
+--				vtemp_sda := vtemp_sda;
+--				vtemp_sck := vtemp_sck;
 				o_busy <= '0';
 				rc1_mrb <= '0';
 				rc1_cpb <= '0';
