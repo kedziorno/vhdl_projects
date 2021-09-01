@@ -174,6 +174,7 @@ begin
 		vtemp_sck := vtemp_sck;
 		case c_state is
 			when idle =>
+				slave_index := 0;
 				rc1_mrb <= '1';
 				rc1_cpb <= '0';
 				o_busy <= '0';
@@ -186,7 +187,9 @@ begin
 					n_state <= idle;
 				end if;
 			when sda_start =>
+				slave_index := 0;
 				rc1_mrb <= '0';
+				rc1_cpb <= '0';
 				sda_width := 0;
 				if (c_cmode0 = c0) then
 					vtemp_sck := '1';
@@ -195,6 +198,9 @@ begin
 				end if;
 				o_busy <= '1';
 			when start =>
+				slave_index := 0;
+				rc1_mrb <= '0';
+				rc1_cpb <= '0';
 				sda_width := 0;
 				if (c_cmode0 = c0) then
 					vtemp_sda := '0';
@@ -205,6 +211,8 @@ begin
 				vtemp_sda := vtemp_sda;
 				vtemp_sck := vtemp_sck;
 			when slave_address =>
+				rc1_mrb <= '0';
+				rc1_cpb <= '0';
 				o_busy <= '1';
 				sda_width := 0;
 				if (c_cmode0 /= c1 and c_cmode0 /= c2 and (c_cmode0 = c0 or c_cmode0 = c3)) then
@@ -223,6 +231,9 @@ begin
 					n_state <= slave_address_lastbit;
 				end if;
 			when slave_address_lastbit =>
+				slave_index := 0;
+				rc1_mrb <= '0';
+				rc1_cpb <= '0';
 				o_busy <= '1';
 				sda_width := 0;
 				if (c_cmode0 /= c1 and c_cmode0 /= c2 and (c_cmode0 = c0 or c_cmode0 = c3)) then
@@ -235,7 +246,12 @@ begin
 					vtemp_sda := i_slave_address(SLAVE_INDEX_MAX-1);
 					n_state <= slave_rw;
 				end if;
+				vtemp_sda := vtemp_sda;
+				vtemp_sck := vtemp_sck;
 			when slave_rw =>
+				slave_index := 0;
+				rc1_mrb <= '0';
+				rc1_cpb <= '0';
 				o_busy <= '1';
 				sda_width := 0;
 				if (c_cmode0 /= c1 and c_cmode0 /= c2 and (c_cmode0 = c0 or c_cmode0 = c3)) then
@@ -249,6 +265,9 @@ begin
 					n_state <= slave_ack;
 				end if;
 			when slave_ack =>
+				slave_index := 0;
+				rc1_mrb <= '0';
+				rc1_cpb <= '0';
 				o_busy <= '1';
 				sda_width := 0;
 				if (c_cmode0 /= c1 and c_cmode0 /= c2 and (c_cmode0 = c0 or c_cmode0 = c3)) then
@@ -265,7 +284,9 @@ begin
 				vtemp_sck := vtemp_sck;
 			when data =>
 				sda_width := 0;
-				rc1_cpb <= '1';			
+				slave_index := 0;
+				rc1_cpb <= '1';
+				rc1_mrb <= '0';
 				o_busy <= '1';
 				if (c_cmode0 /= c1 and c_cmode0 /= c2 and (c_cmode0 = c0 or c_cmode0 = c3)) then
 					vtemp_sck := '0';
@@ -283,6 +304,9 @@ begin
 				end if;
 			when data_ack =>
 				o_busy <= '1';
+				slave_index := 0;
+				rc1_mrb <= '0';
+				rc1_cpb <= '0';
 				if (c_cmode0 /= c1 and c_cmode0 /= c2 and (c_cmode0 = c0 or c_cmode0 = c3)) then
 					vtemp_sck := '0';
 				end if;
@@ -310,7 +334,10 @@ begin
 				vtemp_sck := vtemp_sck;
 			when stop =>
 				o_busy <= '1';
+				slave_index := 0;
 				sda_width := 0;
+				rc1_mrb <= '0';
+				rc1_cpb <= '0';
 				if (c_cmode0 /= c1 and c_cmode0 /= c2 and (c_cmode0 = c0 or c_cmode0 = c3)) then
 					vtemp_sck := '0';
 				end if;
@@ -321,6 +348,8 @@ begin
 				n_state <= sda_stop;
 			when sda_stop =>
 				sda_width := 0;
+				rc1_mrb <= '0';
+				rc1_cpb <= '0';
 				if (c_cmode0 = c0) then
 					n_state <= idle;
 				else
@@ -333,6 +362,11 @@ begin
 			when others =>
 				vtemp_sda := vtemp_sda;
 				vtemp_sck := vtemp_sck;
+				o_busy <= '0';
+				rc1_mrb <= '0';
+				rc1_cpb <= '0';
+				sda_width := 0;
+				slave_index := 0;
 		end case;
 		temp_sda <= vtemp_sda;
 		temp_sck <= vtemp_sck;
