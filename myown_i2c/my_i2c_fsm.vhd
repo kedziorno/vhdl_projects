@@ -87,6 +87,11 @@ architecture Behavioral of my_i2c_fsm is
 	o_ping : out std_logic
 	);
 	end component ripple_counter;
+	constant RC0_N : integer := 4;
+	constant RC0_MAX : integer := G_SLAVE_ADDRESS_SIZE*2;
+	signal rc0_cpb,rc0_mrb : std_logic;
+	signal rc0_q : std_logic_vector(RC0_N-1 downto 0);
+	signal rc0_ping : std_logic;
 	constant RC1_N : integer := 4;
 	constant RC1_MAX : integer := G_BYTE_SIZE;
 	signal rc1_cpb,rc1_mrb : std_logic;
@@ -99,6 +104,17 @@ architecture Behavioral of my_i2c_fsm is
 	signal rc2_ping : std_logic;
 
 begin
+
+	entity_rc0 : ripple_counter
+	Generic map (N => RC0_N, MAX => RC0_MAX)
+	Port map (
+	i_clock => c_cmode0_rc_clock,
+	i_cpb => rc0_cpb,
+	i_mrb => rc0_mrb,
+	i_ud => '1',
+	o_q => rc0_q,
+	o_ping => rc0_ping
+	);
 
 	entity_rc1 : ripple_counter
 	Generic map (N => RC1_N, MAX => RC1_MAX)
@@ -182,17 +198,15 @@ begin
 	end process p2;
 	
 	i2c_send_sequence_fsm : process (c_state,c_cmode0,i_enable,i_slave_address,i_bytes_to_send) is
-		constant SLAVE_INDEX_MAX : integer := G_SLAVE_ADDRESS_SIZE;
-		variable data_index : std_logic_vector(G_BYTE_SIZE-1 downto 0);
-		variable slave_index : integer range 0 to SLAVE_INDEX_MAX-1;
 		variable vtemp_sda,vtemp_sck : std_logic;
 	begin
 		n_state <= c_state;
 		case c_state is
 			when idle =>
-				slave_index := 0;
+				rc0_mrb <= '1';
 				rc1_mrb <= '1';
 				rc2_mrb <= '1';
+				rc0_cpb <= '0';
 				rc1_cpb <= '0';
 				rc2_cpb <= '0';
 				o_busy <= '0';
@@ -204,7 +218,7 @@ begin
 					n_state <= idle;
 				end if;
 			when sda_start =>
-				slave_index := 0;
+				rc0_mrb <= '0';
 				rc1_mrb <= '0';
 				rc2_mrb <= '0';
 				rc1_cpb <= '0';
@@ -218,7 +232,6 @@ begin
 				end if;
 				o_busy <= '1';
 			when start =>
-				slave_index := 0;
 				rc1_mrb <= '0';
 				rc1_cpb <= '0';
 				if (c_cmode0 = c0) then
@@ -230,9 +243,10 @@ begin
 					vtemp_sck := vtemp_sck;
 				end if;
 				o_busy <= '1';
-				vtemp_sda := vtemp_sda;
-				vtemp_sck := vtemp_sck;
+--				vtemp_sda := vtemp_sda;
+--				vtemp_sck := vtemp_sck;
 			when slave_address =>
+				rc0_cpb <= '1';
 				rc1_mrb <= '0';
 				rc1_cpb <= '0';
 				o_busy <= '1';
@@ -242,21 +256,21 @@ begin
 				if ((c_cmode0 = c1 or c_cmode0 = c2) and c_cmode0 /= c0 and c_cmode0 /= c3) then
 					vtemp_sck := '1';
 				end if;
-				if (slave_index /= SLAVE_INDEX_MAX-1) then
+				if (to_integer(unsigned(rc0_q)) = G_SLAVE_ADDRESS_SIZE-1) then
+					n_state <= slave_address_lastbit;
+				else
 					if (c_cmode0 = c0) then
-						vtemp_sda := i_slave_address(slave_index);
-						slave_index := slave_index + 1;
+						vtemp_sda := i_slave_address(to_integer(unsigned(rc0_q)));
 						n_state <= slave_address;
 					else
-						vtemp_sda := vtemp_sda;
-						vtemp_sck := vtemp_sck;
+						n_state <= slave_address;
+--						vtemp_sda := vtemp_sda;
+--						vtemp_sck := vtemp_sck;
 					end if;
-				else
-					n_state <= slave_address_lastbit;
 				end if;
 			when slave_address_lastbit =>
-				slave_index := 0;
 				rc1_mrb <= '0';
+				rc0_cpb <= '0';
 				rc1_cpb <= '0';
 				o_busy <= '1';
 				if (c_cmode0 /= c1 and c_cmode0 /= c2 and (c_cmode0 = c0 or c_cmode0 = c3)) then
@@ -266,13 +280,12 @@ begin
 					vtemp_sck := '1';
 				end if;
 				if (c_cmode0 = c0) then
-					vtemp_sda := i_slave_address(SLAVE_INDEX_MAX-1);
+					vtemp_sda := i_slave_address(G_SLAVE_ADDRESS_SIZE-1);
 					n_state <= slave_rw;
 				end if;
 				vtemp_sda := vtemp_sda;
 				vtemp_sck := vtemp_sck;
 			when slave_rw =>
-				slave_index := 0;
 				rc1_mrb <= '0';
 				rc1_cpb <= '0';
 				o_busy <= '1';
@@ -290,7 +303,6 @@ begin
 					vtemp_sck := vtemp_sck;
 				end if;
 			when slave_ack =>
-				slave_index := 0;
 				rc1_mrb <= '0';
 				rc1_cpb <= '0';
 				o_busy <= '1';
@@ -307,7 +319,6 @@ begin
 				vtemp_sda := vtemp_sda;
 				vtemp_sck := vtemp_sck;
 			when data =>
-				slave_index := 0;
 				rc1_mrb <= '0';
 				rc1_cpb <= '1';
 				rc2_cpb <= '0';
@@ -331,7 +342,6 @@ begin
 				end if;
 			when data_ack =>
 				o_busy <= '1';
-				slave_index := 0;
 				rc1_mrb <= '0';
 				rc1_cpb <= '0';
 				rc2_cpb <= '1';
@@ -357,7 +367,6 @@ begin
 				vtemp_sck := vtemp_sck;
 			when stop =>
 				o_busy <= '1';
-				slave_index := 0;
 				rc1_mrb <= '0';
 				rc2_mrb <= '0';
 				rc1_cpb <= '0';
@@ -380,7 +389,6 @@ begin
 					vtemp_sck := '1';
 					vtemp_sda := '1';
 				end if;
-				slave_index := 0;
 				o_busy <= '1';
 			when others =>
 --				vtemp_sda := vtemp_sda;
@@ -388,7 +396,6 @@ begin
 				o_busy <= '0';
 				rc1_mrb <= '0';
 				rc1_cpb <= '0';
-				slave_index := 0;
 		end case;
 		temp_sda <= vtemp_sda;
 		temp_sck <= vtemp_sck;
