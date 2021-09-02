@@ -43,7 +43,7 @@ architecture Behavioral of top is
 component power_on is 
 port
 (
-	signal i_clk,i_reset : in std_logic;
+	signal i_clock,i_reset : in std_logic;
 	signal o_sda,o_scl : out std_logic
 );
 end component power_on;
@@ -54,7 +54,7 @@ begin
 c0 : power_on
 port map
 (
-	i_clk => clk,
+	i_clock => clk,
 	i_reset => btn_1,
 	o_sda => sda,
 	o_scl => scl
