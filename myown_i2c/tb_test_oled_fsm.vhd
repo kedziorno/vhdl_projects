@@ -40,7 +40,7 @@ ARCHITECTURE behavior OF tb_test_oled_fsm IS
  
     -- Component Declaration for the Unit Under Test (UUT)
  
-    COMPONENT test_oled
+    COMPONENT test_oled_fsm
     PORT(
          i_clk : IN  std_logic;
          i_rst : IN  std_logic;
@@ -66,7 +66,7 @@ ARCHITECTURE behavior OF tb_test_oled_fsm IS
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
-	uut: test_oled PORT MAP (
+	uut: test_oled_fsm PORT MAP (
 		i_clk => clk,
 		i_rst => rst,
 		i_refresh => refresh,
