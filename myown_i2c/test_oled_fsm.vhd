@@ -22,7 +22,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 use WORK.p_constants1.ALL;
 
-entity test_oled is
+entity test_oled_fsm is
 generic (
 g_board_clock : integer := 50_000_000;
 g_bus_clock : integer := 100_000
@@ -34,9 +34,9 @@ signal i_rst : in std_logic;
 signal i_refresh : in std_logic;
 signal io_sda,io_scl : inout std_logic
 );
-end test_oled;
+end test_oled_fsm;
 
-architecture Behavioral of test_oled is
+architecture Behavioral of test_oled_fsm is
 
 constant i_char : array1(0 to 5) := (x"30",x"31",x"32",x"33",x"34",x"35");
 
