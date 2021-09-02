@@ -71,7 +71,7 @@ architecture Behavioral of my_i2c_fsm is
 
 	type clock_mode is (c0,c1,c2,c3);
 	signal c_cmode0,n_cmode0 : clock_mode;
-	signal c_cmode0_rc1 : std_logic;
+	signal c_cmode0_rc_clock : std_logic;
 
 	component ripple_counter is
 	Generic (
@@ -87,23 +87,39 @@ architecture Behavioral of my_i2c_fsm is
 	o_ping : out std_logic
 	);
 	end component ripple_counter;
-	constant RC_N : integer := 4;
-	constant RC_MAX : integer := G_BYTE_SIZE;
+	constant RC1_N : integer := 4;
+	constant RC1_MAX : integer := G_BYTE_SIZE;
 	signal rc1_cpb,rc1_mrb : std_logic;
-	signal rc1_q : std_logic_vector(RC_N-1 downto 0);
+	signal rc1_q : std_logic_vector(RC1_N-1 downto 0);
 	signal rc1_ping : std_logic;
+	constant RC2_N : integer := 2;
+	constant RC2_MAX : integer := 1;
+	signal rc2_cpb,rc2_mrb : std_logic;
+	signal rc2_q : std_logic_vector(RC2_N-1 downto 0);
+	signal rc2_ping : std_logic;
 
 begin
 
 	entity_rc1 : ripple_counter
-	Generic map (N => RC_N, MAX => RC_MAX)
+	Generic map (N => RC1_N, MAX => RC1_MAX)
 	Port map (
-	i_clock => c_cmode0_rc1,
+	i_clock => c_cmode0_rc_clock,
 	i_cpb => rc1_cpb,
 	i_mrb => rc1_mrb,
 	i_ud => '1',
 	o_q => rc1_q,
 	o_ping => rc1_ping
+	);
+
+	entity_rc2 : ripple_counter
+	Generic map (N => RC2_N, MAX => RC2_MAX)
+	Port map (
+	i_clock => c_cmode0_rc_clock,
+	i_cpb => rc2_cpb,
+	i_mrb => rc2_mrb,
+	i_ud => '1',
+	o_q => rc2_q,
+	o_ping => rc2_ping
 	);
 
 	i2c_clock_process : process (i_clock) is
@@ -141,16 +157,16 @@ begin
 		case c_cmode0 is
 			when c0 =>
 				n_cmode0 <= c1;
-				c_cmode0_rc1 <= '1';
+				c_cmode0_rc_clock <= '1';
 			when c1 =>
 				n_cmode0 <= c2;
-				c_cmode0_rc1 <= '0';
+				c_cmode0_rc_clock <= '0';
 			when c2 =>
 				n_cmode0 <= c3;
-				c_cmode0_rc1 <= '0';
+				c_cmode0_rc_clock <= '0';
 			when c3 =>
 				n_cmode0 <= c0;
-				c_cmode0_rc1 <= '0';
+				c_cmode0_rc_clock <= '0';
 		end case;
 	end process clock_mode_0_com;
 
@@ -167,10 +183,8 @@ begin
 	
 	i2c_send_sequence_fsm : process (c_state,c_cmode0,i_enable,i_slave_address,i_bytes_to_send) is
 		constant SLAVE_INDEX_MAX : integer := G_SLAVE_ADDRESS_SIZE;
-		constant SDA_WIDTH_MAX : integer := 2;
 		variable data_index : std_logic_vector(G_BYTE_SIZE-1 downto 0);
 		variable slave_index : integer range 0 to SLAVE_INDEX_MAX-1;
-		variable sda_width: integer range 0 to SDA_WIDTH_MAX-1;
 		variable vtemp_sda,vtemp_sck : std_logic;
 	begin
 		n_state <= c_state;
@@ -178,9 +192,10 @@ begin
 			when idle =>
 				slave_index := 0;
 				rc1_mrb <= '1';
+				rc2_mrb <= '1';
 				rc1_cpb <= '0';
+				rc2_cpb <= '0';
 				o_busy <= '0';
-				sda_width := 0;
 				vtemp_sda := '1';
 				vtemp_sck := '1';
 				if (i_enable = '1') then
@@ -191,8 +206,8 @@ begin
 			when sda_start =>
 				slave_index := 0;
 				rc1_mrb <= '0';
+				rc2_mrb <= '0';
 				rc1_cpb <= '0';
-				sda_width := 0;
 				if (c_cmode0 = c0) then
 					vtemp_sck := '1';
 					vtemp_sda := '1';
@@ -206,7 +221,6 @@ begin
 				slave_index := 0;
 				rc1_mrb <= '0';
 				rc1_cpb <= '0';
-				sda_width := 0;
 				if (c_cmode0 = c0) then
 					vtemp_sda := '0';
 					vtemp_sck := '1';
@@ -222,7 +236,6 @@ begin
 				rc1_mrb <= '0';
 				rc1_cpb <= '0';
 				o_busy <= '1';
-				sda_width := 0;
 				if (c_cmode0 /= c1 and c_cmode0 /= c2 and (c_cmode0 = c0 or c_cmode0 = c3)) then
 					vtemp_sck := '0';
 				end if;
@@ -246,7 +259,6 @@ begin
 				rc1_mrb <= '0';
 				rc1_cpb <= '0';
 				o_busy <= '1';
-				sda_width := 0;
 				if (c_cmode0 /= c1 and c_cmode0 /= c2 and (c_cmode0 = c0 or c_cmode0 = c3)) then
 					vtemp_sck := '0';
 				end if;
@@ -264,7 +276,6 @@ begin
 				rc1_mrb <= '0';
 				rc1_cpb <= '0';
 				o_busy <= '1';
-				sda_width := 0;
 				if (c_cmode0 /= c1 and c_cmode0 /= c2 and (c_cmode0 = c0 or c_cmode0 = c3)) then
 					vtemp_sck := '0';
 				end if;
@@ -283,7 +294,6 @@ begin
 				rc1_mrb <= '0';
 				rc1_cpb <= '0';
 				o_busy <= '1';
-				sda_width := 0;
 				if (c_cmode0 /= c1 and c_cmode0 /= c2 and (c_cmode0 = c0 or c_cmode0 = c3)) then
 					vtemp_sck := '0';
 				end if;
@@ -297,10 +307,10 @@ begin
 				vtemp_sda := vtemp_sda;
 				vtemp_sck := vtemp_sck;
 			when data =>
-				sda_width := 0;
 				slave_index := 0;
-				rc1_cpb <= '1';
 				rc1_mrb <= '0';
+				rc1_cpb <= '1';
+				rc2_cpb <= '0';
 				o_busy <= '1';
 				if (c_cmode0 /= c1 and c_cmode0 /= c2 and (c_cmode0 = c0 or c_cmode0 = c3)) then
 					vtemp_sck := '0';
@@ -324,6 +334,7 @@ begin
 				slave_index := 0;
 				rc1_mrb <= '0';
 				rc1_cpb <= '0';
+				rc2_cpb <= '1';
 				if (c_cmode0 /= c1 and c_cmode0 /= c2 and (c_cmode0 = c0 or c_cmode0 = c3)) then
 					vtemp_sck := '0';
 				end if;
@@ -332,29 +343,25 @@ begin
 				end if;
 				if (c_cmode0 = c0) then
 					vtemp_sda := '0';
-					if (sda_width = SDA_WIDTH_MAX-1) then -- XXX latch
-						sda_width := 0;
+					if (to_integer(unsigned(rc2_q)) = RC2_MAX-1) then
 						if (i_enable = '1') then
 							n_state <= data;
-							sda_width := 0;
 						else
 							n_state <= stop;
-							sda_width := 0;
 						end if;
 					else
-						sda_width := sda_width + 1;
 						n_state <= data_ack;
 					end if;
-					sda_width := sda_width;
 				end if;
 				vtemp_sda := vtemp_sda;
 				vtemp_sck := vtemp_sck;
 			when stop =>
 				o_busy <= '1';
 				slave_index := 0;
-				sda_width := 0;
 				rc1_mrb <= '0';
+				rc2_mrb <= '0';
 				rc1_cpb <= '0';
+				rc2_cpb <= '0';
 				if (c_cmode0 /= c1 and c_cmode0 /= c2 and (c_cmode0 = c0 or c_cmode0 = c3)) then
 					vtemp_sck := '0';
 				end if;
@@ -364,7 +371,6 @@ begin
 				vtemp_sda := '0';
 				n_state <= sda_stop;
 			when sda_stop =>
-				sda_width := 0;
 				rc1_mrb <= '0';
 				rc1_cpb <= '0';
 				if (c_cmode0 = c0) then
@@ -382,7 +388,6 @@ begin
 				o_busy <= '0';
 				rc1_mrb <= '0';
 				rc1_cpb <= '0';
-				sda_width := 0;
 				slave_index := 0;
 		end case;
 		temp_sda <= vtemp_sda;
