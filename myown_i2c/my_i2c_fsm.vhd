@@ -88,7 +88,7 @@ architecture Behavioral of my_i2c_fsm is
 	);
 	end component ripple_counter;
 	constant RC0_N : integer := 4;
-	constant RC0_MAX : integer := G_SLAVE_ADDRESS_SIZE+1;
+	constant RC0_MAX : integer := G_SLAVE_ADDRESS_SIZE*2;
 	signal rc0_cpb,rc0_mrb : std_logic;
 	signal rc0_q : std_logic_vector(RC0_N-1 downto 0);
 	signal rc0_ping : std_logic;
@@ -197,10 +197,13 @@ begin
 		end if;
 	end process p2;
 	
-	i2c_send_sequence_fsm : process (c_state_i2c_fsm,c_cmode0,i_enable,i_slave_address,i_bytes_to_send) is
+	i2c_send_sequence_fsm : process (c_state_i2c_fsm,c_cmode0,i_enable,i_slave_address,i_bytes_to_send
+	,temp_sda,temp_sck) is
 		variable vtemp_sda,vtemp_sck : std_logic;
 	begin
 		n_state_i2c_fsm <= c_state_i2c_fsm;
+		vtemp_sda := temp_sda;
+		vtemp_sck := temp_sck;
 		case c_state_i2c_fsm is
 			when idle =>
 				rc0_mrb <= '1';
@@ -241,6 +244,9 @@ begin
 					vtemp_sda := '0';
 					vtemp_sck := '1';
 					n_state_i2c_fsm <= slave_address;
+				else
+					vtemp_sda := '1';
+					vtemp_sck := '1';
 				end if;
 				o_busy <= '1';
 			when slave_address =>
@@ -280,10 +286,14 @@ begin
 				end if;
 				if ((c_cmode0 = c1 or c_cmode0 = c2) and c_cmode0 /= c0 and c_cmode0 /= c3) then
 					vtemp_sck := '1';
+				else
+					vtemp_sck := '0';
 				end if;
 				if (c_cmode0 = c0) then
 					vtemp_sda := i_slave_address(G_SLAVE_ADDRESS_SIZE-1);
 					n_state_i2c_fsm <= slave_rw;
+				else
+					vtemp_sda := temp_sda;
 				end if;
 			when slave_rw =>
 				rc0_mrb <= '0';
@@ -298,6 +308,8 @@ begin
 				end if;
 				if ((c_cmode0 = c1 or c_cmode0 = c2) and c_cmode0 /= c0 and c_cmode0 /= c3) then
 					vtemp_sck := '1';
+				else
+					vtemp_sck := '0';
 				end if;
 				if (c_cmode0 = c0) then
 					vtemp_sda := '0';
@@ -316,13 +328,15 @@ begin
 				end if;
 				if ((c_cmode0 = c1 or c_cmode0 = c2) and c_cmode0 /= c0 and c_cmode0 /= c3) then
 					vtemp_sck := '1';
+				else
+					vtemp_sck := '0';
 				end if;
 				if (c_cmode0 = c0) then
 					vtemp_sda := '1';
 					n_state_i2c_fsm <= data;
+				else
+					vtemp_sda := '0';
 				end if;
-				vtemp_sda := vtemp_sda;
-				vtemp_sck := vtemp_sck;
 			when data =>
 				rc0_mrb <= '0';
 				rc1_mrb <= '0';
@@ -336,6 +350,8 @@ begin
 				end if;
 				if ((c_cmode0 = c1 or c_cmode0 = c2) and c_cmode0 /= c0 and c_cmode0 /= c3) then
 					vtemp_sck := '1';
+				else
+					vtemp_sck := '0';
 				end if;
 				if (c_cmode0 = c0) then
 					vtemp_sda := i_bytes_to_send(to_integer(unsigned(rc1_q)));
@@ -344,9 +360,6 @@ begin
 					else
 						n_state_i2c_fsm <= data;
 					end if;
-				else
-					vtemp_sda := vtemp_sda;
-					vtemp_sck := vtemp_sck;
 				end if;
 			when data_ack =>
 				o_busy <= '1';
@@ -361,21 +374,23 @@ begin
 				end if;
 				if ((c_cmode0 = c1 or c_cmode0 = c2) and c_cmode0 /= c0 and c_cmode0 /= c3) then
 					vtemp_sck := '1';
+				else
+					vtemp_sck := '0';
 				end if;
 				if (c_cmode0 = c0) then
 					vtemp_sda := '1';
+				else
+					vtemp_sda := temp_sda;
 				end if;
-					if (to_integer(unsigned(rc2_q)) = RC2_MAX-1) then
-						if (i_enable = '1') then
-							n_state_i2c_fsm <= data;
-						else
-							n_state_i2c_fsm <= stop;
-						end if;
+				if (to_integer(unsigned(rc2_q)) = RC2_MAX-1) then
+					if (i_enable = '1') then
+						n_state_i2c_fsm <= data;
 					else
-						n_state_i2c_fsm <= data_ack;
+						n_state_i2c_fsm <= stop;
 					end if;
-				vtemp_sda := vtemp_sda;
-				vtemp_sck := vtemp_sck;
+				else
+					n_state_i2c_fsm <= data_ack;
+				end if;
 			when stop =>
 				o_busy <= '1';
 				rc0_mrb <= '0';
@@ -389,10 +404,14 @@ begin
 				end if;
 				if ((c_cmode0 = c1 or c_cmode0 = c2) and c_cmode0 /= c0 and c_cmode0 /= c3) then
 					vtemp_sck := '1';
+				else
+					vtemp_sck := '0';
 				end if;
 				if (c_cmode0 = c0) then
 					vtemp_sda := '0';
 					n_state_i2c_fsm <= sda_stop;
+				else
+					vtemp_sda := '1';
 				end if;
 			when sda_stop =>
 				rc0_mrb <= '0';
