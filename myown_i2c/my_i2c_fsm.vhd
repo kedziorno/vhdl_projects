@@ -43,6 +43,7 @@ i_slave_address : in std_logic_vector(0 to G_SLAVE_ADDRESS_SIZE-1);
 i_bytes_to_send : in std_logic_vector(0 to G_BYTE_SIZE-1);
 i_enable : in std_logic;
 o_busy : out std_logic;
+o_byte_sended : out std_logic;
 o_sda : out std_logic;
 o_scl : out std_logic
 );
@@ -67,7 +68,7 @@ architecture Behavioral of my_i2c_fsm is
 	stop,
 	sda_stop
 	);
-	signal c_state,n_state : state;
+	signal c_state_i2c_fsm,n_state_i2c_fsm : state;
 
 	type clock_mode is (c0,c1,c2,c3);
 	signal c_cmode0,n_cmode0 : clock_mode;
@@ -98,7 +99,7 @@ architecture Behavioral of my_i2c_fsm is
 	signal rc1_q : std_logic_vector(RC1_N-1 downto 0);
 	signal rc1_ping : std_logic;
 	constant RC2_N : integer := 2;
-	constant RC2_MAX : integer := 2;
+	constant RC2_MAX : integer := 3;
 	signal rc2_cpb,rc2_mrb : std_logic;
 	signal rc2_q : std_logic_vector(RC2_N-1 downto 0);
 	signal rc2_ping : std_logic;
@@ -190,19 +191,23 @@ begin
 	begin
 		if (rising_edge(clock)) then
 			if (i_reset = '1') then
-				c_state <= idle;
+				c_state_i2c_fsm <= idle;
 			else
-				c_state <= n_state;
+				c_state_i2c_fsm <= n_state_i2c_fsm;
 			end if;
 		end if;
 	end process p2;
 	
-	i2c_send_sequence_fsm : process (c_state,c_cmode0,i_enable,i_slave_address,i_bytes_to_send) is
+	i2c_send_sequence_fsm : process (c_state_i2c_fsm,c_cmode0,i_enable,i_slave_address,i_bytes_to_send
+	,temp_sda,temp_sck) is
 		variable vtemp_sda,vtemp_sck : std_logic;
 	begin
-		n_state <= c_state;
-		case c_state is
+		n_state_i2c_fsm <= c_state_i2c_fsm;
+		vtemp_sda := temp_sda;
+		vtemp_sck := temp_sck;
+		case c_state_i2c_fsm is
 			when idle =>
+				o_byte_sended <= '0';
 				rc0_mrb <= '1';
 				rc1_mrb <= '1';
 				rc2_mrb <= '1';
@@ -213,9 +218,9 @@ begin
 				vtemp_sda := '1';
 				vtemp_sck := '1';
 				if (i_enable = '1') then
-					n_state <= sda_start;
+					n_state_i2c_fsm <= sda_start;
 				else
-					n_state <= idle;
+					n_state_i2c_fsm <= idle;
 				end if;
 			when sda_start =>
 				rc0_mrb <= '0';
@@ -227,10 +232,7 @@ begin
 				if (c_cmode0 = c0) then
 					vtemp_sck := '1';
 					vtemp_sda := '1';
-					n_state <= start;
-				else
-					vtemp_sda := vtemp_sda;
-					vtemp_sck := vtemp_sck;
+					n_state_i2c_fsm <= start;
 				end if;
 				o_busy <= '1';
 			when start =>
@@ -243,10 +245,10 @@ begin
 				if (c_cmode0 = c0) then
 					vtemp_sda := '0';
 					vtemp_sck := '1';
-					n_state <= slave_address;
+					n_state_i2c_fsm <= slave_address;
 				else
-					vtemp_sda := vtemp_sda;
-					vtemp_sck := vtemp_sck;
+					vtemp_sda := '1';
+					vtemp_sck := '1';
 				end if;
 				o_busy <= '1';
 			when slave_address =>
@@ -264,13 +266,13 @@ begin
 					vtemp_sck := '1';
 				end if;
 				if (to_integer(unsigned(rc0_q)) = G_SLAVE_ADDRESS_SIZE-1) then
-					n_state <= slave_address_lastbit;
+					n_state_i2c_fsm <= slave_address_lastbit;
 				else
 					if (c_cmode0 = c0) then
 						vtemp_sda := i_slave_address(to_integer(unsigned(rc0_q)));
-						n_state <= slave_address;
+						n_state_i2c_fsm <= slave_address;
 					else
-						n_state <= slave_address;
+						n_state_i2c_fsm <= slave_address;
 					end if;
 				end if;
 			when slave_address_lastbit =>
@@ -286,13 +288,15 @@ begin
 				end if;
 				if ((c_cmode0 = c1 or c_cmode0 = c2) and c_cmode0 /= c0 and c_cmode0 /= c3) then
 					vtemp_sck := '1';
+				else
+					vtemp_sck := '0';
 				end if;
 				if (c_cmode0 = c0) then
 					vtemp_sda := i_slave_address(G_SLAVE_ADDRESS_SIZE-1);
-					n_state <= slave_rw;
+					n_state_i2c_fsm <= slave_rw;
+				else
+					vtemp_sda := temp_sda;
 				end if;
-				vtemp_sda := vtemp_sda;
-				vtemp_sck := vtemp_sck;
 			when slave_rw =>
 				rc0_mrb <= '0';
 				rc1_mrb <= '0';
@@ -306,13 +310,12 @@ begin
 				end if;
 				if ((c_cmode0 = c1 or c_cmode0 = c2) and c_cmode0 /= c0 and c_cmode0 /= c3) then
 					vtemp_sck := '1';
+				else
+					vtemp_sck := '0';
 				end if;
 				if (c_cmode0 = c0) then
 					vtemp_sda := '0';
-					n_state <= slave_ack;
-				else
-					vtemp_sda := vtemp_sda;
-					vtemp_sck := vtemp_sck;
+					n_state_i2c_fsm <= slave_ack;
 				end if;
 			when slave_ack =>
 				rc0_mrb <= '0';
@@ -327,13 +330,15 @@ begin
 				end if;
 				if ((c_cmode0 = c1 or c_cmode0 = c2) and c_cmode0 /= c0 and c_cmode0 /= c3) then
 					vtemp_sck := '1';
+				else
+					vtemp_sck := '0';
 				end if;
 				if (c_cmode0 = c0) then
 					vtemp_sda := '1';
-					n_state <= data;
+					n_state_i2c_fsm <= data;
+				else
+					vtemp_sda := '0';
 				end if;
-				vtemp_sda := vtemp_sda;
-				vtemp_sck := vtemp_sck;
 			when data =>
 				rc0_mrb <= '0';
 				rc1_mrb <= '0';
@@ -342,25 +347,24 @@ begin
 				rc1_cpb <= '1';
 				rc2_cpb <= '0';
 				o_busy <= '1';
+				o_byte_sended <= '0';
 				if (c_cmode0 /= c1 and c_cmode0 /= c2 and (c_cmode0 = c0 or c_cmode0 = c3)) then
 					vtemp_sck := '0';
 				end if;
 				if ((c_cmode0 = c1 or c_cmode0 = c2) and c_cmode0 /= c0 and c_cmode0 /= c3) then
 					vtemp_sck := '1';
+				else
+					vtemp_sck := '0';
 				end if;
 				if (c_cmode0 = c0) then
 					vtemp_sda := i_bytes_to_send(to_integer(unsigned(rc1_q)));
 					if (to_integer(unsigned(rc1_q)) = G_BYTE_SIZE-1) then
-						n_state <= data_ack;
+						n_state_i2c_fsm <= data_ack;
 					else
-						n_state <= data;
+						n_state_i2c_fsm <= data;
 					end if;
-				else
-					vtemp_sda := vtemp_sda;
-					vtemp_sck := vtemp_sck;
 				end if;
 			when data_ack =>
-				o_busy <= '1';
 				rc0_mrb <= '0';
 				rc1_mrb <= '0';
 				rc2_mrb <= '0';
@@ -372,21 +376,32 @@ begin
 				end if;
 				if ((c_cmode0 = c1 or c_cmode0 = c2) and c_cmode0 /= c0 and c_cmode0 /= c3) then
 					vtemp_sck := '1';
+				else
+					vtemp_sck := '0';
 				end if;
 				if (c_cmode0 = c0) then
 					vtemp_sda := '1';
+				else
+					vtemp_sda := temp_sda;
 				end if;
-					if (to_integer(unsigned(rc2_q)) = RC2_MAX-1) then
-						if (i_enable = '1') then
-							n_state <= data;
-						else
-							n_state <= stop;
-						end if;
+				if (i_enable = '1') then
+					if (to_integer(unsigned(rc2_q)) = RC2_MAX-2) then
+						n_state_i2c_fsm <= data;
+						o_busy <= '0';
+						o_byte_sended <= '1';
 					else
-						n_state <= data_ack;
+						n_state_i2c_fsm <= data_ack;
+						o_busy <= '1';
 					end if;
-				vtemp_sda := vtemp_sda;
-				vtemp_sck := vtemp_sck;
+				else
+					if (to_integer(unsigned(rc2_q)) = RC2_MAX-2) then
+						n_state_i2c_fsm <= stop;
+						o_busy <= '1';
+					else
+						n_state_i2c_fsm <= data_ack;
+						o_busy <= '1';
+					end if;
+				end if;
 			when stop =>
 				o_busy <= '1';
 				rc0_mrb <= '0';
@@ -400,10 +415,14 @@ begin
 				end if;
 				if ((c_cmode0 = c1 or c_cmode0 = c2) and c_cmode0 /= c0 and c_cmode0 /= c3) then
 					vtemp_sck := '1';
+				else
+					vtemp_sck := '0';
 				end if;
 				if (c_cmode0 = c0) then
 					vtemp_sda := '0';
-					n_state <= sda_stop;
+					n_state_i2c_fsm <= sda_stop;
+				else
+					vtemp_sda := '1';
 				end if;
 			when sda_stop =>
 				rc0_mrb <= '0';
@@ -412,12 +431,12 @@ begin
 				rc0_cpb <= '0';
 				rc1_cpb <= '0';
 				rc2_cpb <= '0';
-				n_state <= idle;
+				n_state_i2c_fsm <= idle;
 				vtemp_sck := '1';
 				vtemp_sda := '0';
 				o_busy <= '1';
 			when others =>
-				n_state <= idle;
+				n_state_i2c_fsm <= idle;
 				rc0_mrb <= '1';
 				rc1_mrb <= '1';
 				rc2_mrb <= '1';
@@ -425,6 +444,8 @@ begin
 				rc1_cpb <= '0';
 				rc2_cpb <= '0';
 				o_busy <= '0';
+				vtemp_sda := '1';
+				vtemp_sck := '1';
 		end case;
 		temp_sda <= vtemp_sda;
 		temp_sck <= vtemp_sck;

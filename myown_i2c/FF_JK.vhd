@@ -11,10 +11,10 @@ port (
 end entity FF_JK;
 
 architecture structural of FF_JK is
-	constant W_NAND2 : time := 1 ps;
-	constant W_NAND3 : time := 2 ps;
-	constant W_Q1MS : time := 10 ps;
-	constant W_Q2MS : time := 1 ps;
+	constant W_NAND2 : time := 0 ns;
+	constant W_NAND3 : time := 0 ns;
+	constant W_Q1MS : time := 0 ns;
+	constant W_Q2MS : time := 0 ns;
 	constant W_C : time := 0 ns;
 	constant W_NOTC : time := 0 ns;
 	constant W_J : time := 0 ns;
@@ -50,7 +50,7 @@ begin
 
 	-- nand2 1d
 	so <= not (sj and sn and not i_r);
-	sp <= so after W_NAND2;
+	sp <= so after 1 ns;
 
 	-- nand2 1u
 	sr <= sn nand sb;
@@ -62,13 +62,13 @@ begin
 
 	-- nand2 q1
 	sw <= ss nand q2;
-	sx <= sw after W_NAND2;
+	sx <= sw after 1 ns;
 
 	-- nand2 q2
 	sy <= su nand q1;
 	sz <= sy after W_NAND2;
 
-	q1 <= sx and not i_r after W_Q1MS; -- XXX metastable
+	q1 <= sx and not i_r after 1 ns; -- XXX metastable
 	q2 <= sz after W_Q2MS;
 
 end architecture Structural;
