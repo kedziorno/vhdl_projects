@@ -50,7 +50,7 @@ begin
 
 	-- nand2 1d
 	so <= not (sj and sn and not i_r);
-	sp <= so after W_NAND2;
+	sp <= so after 1 ns;
 
 	-- nand2 1u
 	sr <= sn nand sb;

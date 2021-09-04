@@ -53,8 +53,8 @@ begin
 g1 : Q1 <= not (S and setd and Q2) after 0 ps;
 g2 : Q2 <= not (Q1 and resetu and R) after 1 ns;
 g3 : setu <= not (S and resetd and setd) after 0 ps;
-g4 : setd <= not (setu and C and R) after 0 ps;
-g5 : resetu <= not (setd and C and resetd) after 0 ps;
-g6 : resetd <= not (resetu and D and R) after 0 ps;
+g4 : setd <= not (setu and C and R) after 1 ns;
+g5 : resetu <= not (setd and C and resetd) after 1 ns;
+g6 : resetd <= not (resetu and D and R) after 1 ns;
 
 end architecture Behavioral_D_PE;
