@@ -43,6 +43,7 @@ i_slave_address : in std_logic_vector(0 to G_SLAVE_ADDRESS_SIZE-1);
 i_bytes_to_send : in std_logic_vector(0 to G_BYTE_SIZE-1);
 i_enable : in std_logic;
 o_busy : out std_logic;
+o_byte_sended : out std_logic;
 o_sda : out std_logic;
 o_scl : out std_logic
 );
@@ -98,7 +99,7 @@ architecture Behavioral of my_i2c_fsm is
 	signal rc1_q : std_logic_vector(RC1_N-1 downto 0);
 	signal rc1_ping : std_logic;
 	constant RC2_N : integer := 2;
-	constant RC2_MAX : integer := 2;
+	constant RC2_MAX : integer := 3;
 	signal rc2_cpb,rc2_mrb : std_logic;
 	signal rc2_q : std_logic_vector(RC2_N-1 downto 0);
 	signal rc2_ping : std_logic;
@@ -206,6 +207,7 @@ begin
 		vtemp_sck := temp_sck;
 		case c_state_i2c_fsm is
 			when idle =>
+				o_byte_sended <= '0';
 				rc0_mrb <= '1';
 				rc1_mrb <= '1';
 				rc2_mrb <= '1';
@@ -345,6 +347,7 @@ begin
 				rc1_cpb <= '1';
 				rc2_cpb <= '0';
 				o_busy <= '1';
+				o_byte_sended <= '0';
 				if (c_cmode0 /= c1 and c_cmode0 /= c2 and (c_cmode0 = c0 or c_cmode0 = c3)) then
 					vtemp_sck := '0';
 				end if;
@@ -362,7 +365,6 @@ begin
 					end if;
 				end if;
 			when data_ack =>
-				o_busy <= '1';
 				rc0_mrb <= '0';
 				rc1_mrb <= '0';
 				rc2_mrb <= '0';
@@ -382,14 +384,23 @@ begin
 				else
 					vtemp_sda := temp_sda;
 				end if;
-				if (to_integer(unsigned(rc2_q)) = RC2_MAX-1) then
-					if (i_enable = '1') then
+				if (i_enable = '1') then
+					if (to_integer(unsigned(rc2_q)) = RC2_MAX-2) then
 						n_state_i2c_fsm <= data;
+						o_busy <= '0';
+						o_byte_sended <= '1';
 					else
-						n_state_i2c_fsm <= stop;
+						n_state_i2c_fsm <= data_ack;
+						o_busy <= '1';
 					end if;
 				else
-					n_state_i2c_fsm <= data_ack;
+					if (to_integer(unsigned(rc2_q)) = RC2_MAX-2) then
+						n_state_i2c_fsm <= stop;
+						o_busy <= '1';
+					else
+						n_state_i2c_fsm <= data_ack;
+						o_busy <= '1';
+					end if;
 				end if;
 			when stop =>
 				o_busy <= '1';
