@@ -1,0 +1,31 @@
+
+NET "i_clock" LOC = "B8";
+NET "i_reset" LOC = "B18";
+#NET "BUTTON<1>" LOC = "D18";
+
+NET "io_ladder<11>" LOC = "L15";
+NET "io_ladder<10>" LOC = "K12";
+NET "io_ladder<9>" LOC = "L17";
+NET "io_ladder<8>" LOC = "M15";
+NET "io_ladder<7>" LOC = "K13";
+NET "io_ladder<6>" LOC = "L16";
+NET "io_ladder<5>" LOC = "M14";
+NET "io_ladder<4>" LOC = "M16";
+
+NET "io_ladder<3>" LOC = "M13";
+NET "io_ladder<2>" LOC = "R18";
+NET "io_ladder<1>" LOC = "R15";
+NET "io_ladder<0>" LOC = "T17";
+#NET "JB<4>" LOC = "P17";
+#NET "JB<5>" LOC = "R16";
+#NET "JB<6>" LOC = "T18";
+#NET "JB<7>" LOC = "U18";
+
+#NET "o_data<0>" LOC = "J14";
+#NET "o_data<1>" LOC = "J15";
+#NET "o_data<2>" LOC = "K15";
+#NET "o_data<3>" LOC = "K14";
+#NET "o_data<4>" LOC = "E16";
+#NET "o_data<5>" LOC = "P16";
+#NET "o_data<6>" LOC = "E4";
+#NET "o_data<7>" LOC = "P4";

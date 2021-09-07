@@ -40,10 +40,10 @@ ARCHITECTURE behavior OF tb_debounce IS
 
 	-- Constant
 	constant DEBOUNCE_SIZE : integer := 8;
-	constant DEBOUNCE_RC_N : integer := 6;
-	constant DEBOUNCE_RC_MAX : integer := 32;
+	constant DEBOUNCE_RC_N : integer := 18; -- XXX -1 bit for 2**n
+	constant DEBOUNCE_RC_MAX : integer := 85000; -- XXX must be ((2**N)/4)*clock_period , 85000=~1.7ms on 20ns clock
 	constant W0_COUNT : integer := 80;
-	constant G_BOARD_CLOCK : integer := 29_952_000;
+	constant G_BOARD_CLOCK : integer := 50_000_000;
 	constant LFSR_SIZE : integer := 32;
 	constant LFSR_SIZE_BITS : integer := 32;
 	constant GRAYCODE_SIZE : integer := 8;
@@ -151,110 +151,198 @@ BEGIN
 			wait for i_clk_period/2;
 			i_clk <= '1';
 			wait for i_clk_period/2;
-			end loop;
+		end loop;
+		report "simulation_finish" severity note;
 		wait;
 	end process;
 
-	-- Stimulus process
-	stim_proc: process (i_clk) is
-
-		constant WAIT0_COUNT : integer := W0_COUNT;
-		variable wait0 : integer range 0 to WAIT0_COUNT-1 := 0;
--- LFSR
-		variable index : integer range 0 to LFSR_SIZE-1 := 0;
-		constant send_the_same : integer := 1;
-		variable send_the_same_index : integer range 0 to send_the_same-1 := 0;
--- GRAYCODE
-		constant o_gc_max : integer := GRAYCODE_SIZE;
-		variable o_gc_index : integer range 0 to o_gc_max-1 := 0;
-		constant gc_max : std_logic_vector(GRAYCODE_SIZE_BITS-1 downto 0) := (others => '1');
-		variable gc_index : std_logic_vector(GRAYCODE_SIZE_BITS-1 downto 0) := (others => '0');
-
+	p0 : process is
 	begin
+		reset_db <= '1'; -- XXX
+		wait for i_clk_period;
+		reset_db <= '0';
+		wait for i_clk_period;
 
-		-- insert stimulus here
--- GRAYCODE
-		if (rising_edge(i_clk)) then
-			case (state) is
-				when idle =>
-					REPORT "CLOCK PERIOD " & time'image(i_clk_period) SEVERITY NOTE;
-					state <= start;
-					reset <= '1', '0' after 100 ns;
-					reset_db <= '1';
-				when start =>
-					state <= gc_send;
-					REPORT "GRAYCODE" SEVERITY NOTE;
-					reset_db <= '0';
-				when gc_send => -- start from gc mode
-					reset_db <= '0';
-					if (o_gc_index = o_gc_max-1) then
-						state <= gc_increment;
-						o_gc_index := 0;
-						enable_gc <= '1';
-					else
-						state <= gc_send;
-						i_btn <= o_gc(o_gc_index);
-						o_gc_index := o_gc_index + 1;
-					end if;
-				when gc_increment =>
-					enable_gc <= '0';
-					if (to_integer(unsigned(gc_index)) = to_integer(unsigned(gc_max))-1) then
-						state <= lfsr_enable; -- jump to lfsr mode
-						REPORT "LFSR" SEVERITY NOTE;
-						gc_index := std_logic_vector(to_unsigned(0,GRAYCODE_SIZE_BITS));
-					else
-						state <= gc_wait0;
-						gc_index := std_logic_vector(to_unsigned(to_integer(unsigned(gc_index) + 1),GRAYCODE_SIZE_BITS));
-						i_int <= gc_index;
-					end if;
-				when gc_wait0 =>
-					if (wait0 < WAIT0_COUNT) then
-						state <= gc_wait0;
-						wait0 := wait0 + 1;
-						i_btn <= '0';
-					else
-						state <= gc_send;
-						wait0 := 0;
-						reset_db <= '1';
-					end if;
-				when lfsr_enable =>
-					state <= lfsr_disable;
-					enable_lfsr <= '1';
-					reset_db <= '0';
-				when lfsr_disable =>
-					state <= lfsr_send;
-					enable_lfsr <= '0';
-				when lfsr_send =>
-					if (index = LFSR_SIZE-1) then
-						state <= lfsr_increment;
-						index := 0;
-					else
-						state <= lfsr_send;
-						i_btn <= o_lfsr(index);
-						index := index + 1;
-					end if;
-				when lfsr_increment =>
-					if (o_lfsr = std_logic_vector(to_unsigned(0,LFSR_SIZE_BITS))) then
-						state <= stop;
-					else
-						state <= lfsr_wait0;
-					end if;
-				when lfsr_wait0 =>
-					if (wait0 = WAIT0_COUNT-1) then
-						state <= lfsr_enable;
-						wait0 := 0;
-						reset_db <= '1';
-					else
-						state <= lfsr_wait0;
-						wait0 := wait0 + 1;
-						i_btn <= '0';
-					end if;
-				when stop =>
-					REPORT "END" SEVERITY NOTE;
-					simulation_finish <= '1';
-					state <= stop;
-			end case;
-		end if;
-	end process;
+		wait for 1 ms;
+
+		i_btn <= '1';
+		wait for 3 ms; -- XXX
+		i_btn <= '0';
+		wait for i_clk_period;
+
+		wait for 1 ms;
+
+		reset_db <= '1'; -- XXX
+		wait for i_clk_period;
+		reset_db <= '0';
+		wait for i_clk_period;
+
+		wait for 1 ms;
+
+		i_btn <= '1';
+		wait for 1.8 ms; -- XXX
+		i_btn <= '0';
+		wait for i_clk_period;
+
+		wait for 1 ms;
+
+		reset_db <= '1'; -- XXX
+		wait for i_clk_period;
+		reset_db <= '0';
+		wait for i_clk_period;
+
+		wait for 1 ms;
+
+		i_btn <= '1';
+		wait for 2.2 ms; -- XXX
+		i_btn <= '0';
+		wait for i_clk_period;
+
+		wait for 1 ms;
+
+		reset_db <= '1'; -- XXX
+		wait for i_clk_period;
+		reset_db <= '0';
+		wait for i_clk_period;
+
+		wait for 1 ms;
+
+		i_btn <= '1';
+--		wait for 1_699_999_999.999_999 * 1 ps; -- XXX no catch
+--		wait for 1_700_000_000.000_000 * 1 ps; -- XXX no catch
+--		wait for 1_700_000_000.000_000 * 1 ps + 1 ps; -- XXX no catch
+--		wait for 1_700_000_000.000_000 * 1 ps + 14 ps; -- XXX no catch
+--		wait for 1_700_000_000.000_000 * 1 ps + 15 ps; -- XXX catch
+		wait for 1.75 ms;
+		i_btn <= '0';
+		wait for i_clk_period;
+
+		wait for 1 ms;
+
+		reset_db <= '1'; -- XXX
+		wait for i_clk_period;
+		reset_db <= '0';
+		wait for i_clk_period;
+
+		wait for 1 ms;
+
+		i_btn <= '1';
+		wait for 1.6 ms;
+		i_btn <= '0';
+		wait for i_clk_period;
+
+		wait for 1 ms;
+
+		reset_db <= '1'; -- XXX
+		wait for i_clk_period;
+		reset_db <= '0';
+		wait for i_clk_period;
+
+		simulation_finish <= '1';
+
+		wait;
+	end process p0;
+
+--	-- Stimulus process
+--	stim_proc: process (i_clk) is
+--
+--		constant WAIT0_COUNT : integer := W0_COUNT;
+--		variable wait0 : integer range 0 to WAIT0_COUNT-1 := 0;
+---- LFSR
+--		variable index : integer range 0 to LFSR_SIZE-1 := 0;
+--		constant send_the_same : integer := 1;
+--		variable send_the_same_index : integer range 0 to send_the_same-1 := 0;
+---- GRAYCODE
+--		constant o_gc_max : integer := GRAYCODE_SIZE;
+--		variable o_gc_index : integer range 0 to o_gc_max-1 := 0;
+--		constant gc_max : std_logic_vector(GRAYCODE_SIZE_BITS-1 downto 0) := (others => '1');
+--		variable gc_index : std_logic_vector(GRAYCODE_SIZE_BITS-1 downto 0) := (others => '0');
+--
+--	begin
+--
+--		-- insert stimulus here
+---- GRAYCODE
+--		if (rising_edge(i_clk)) then
+--			case (state) is
+--				when idle =>
+--					REPORT "CLOCK PERIOD " & time'image(i_clk_period) SEVERITY NOTE;
+--					state <= start;
+--					reset <= '1', '0' after 100 ns;
+--					reset_db <= '1';
+--				when start =>
+--					state <= gc_send;
+--					REPORT "GRAYCODE" SEVERITY NOTE;
+--					reset_db <= '0';
+--				when gc_send => -- start from gc mode
+--					reset_db <= '0';
+--					if (o_gc_index = o_gc_max-1) then
+--						state <= gc_increment;
+--						o_gc_index := 0;
+--						enable_gc <= '1';
+--					else
+--						state <= gc_send;
+--						i_btn <= o_gc(o_gc_index);
+--						o_gc_index := o_gc_index + 1;
+--					end if;
+--				when gc_increment =>
+--					enable_gc <= '0';
+--					if (to_integer(unsigned(gc_index)) = to_integer(unsigned(gc_max))-1) then
+--						state <= lfsr_enable; -- jump to lfsr mode
+--						REPORT "LFSR" SEVERITY NOTE;
+--						gc_index := std_logic_vector(to_unsigned(0,GRAYCODE_SIZE_BITS));
+--					else
+--						state <= gc_wait0;
+--						gc_index := std_logic_vector(to_unsigned(to_integer(unsigned(gc_index) + 1),GRAYCODE_SIZE_BITS));
+--						i_int <= gc_index;
+--					end if;
+--				when gc_wait0 =>
+--					if (wait0 < WAIT0_COUNT) then
+--						state <= gc_wait0;
+--						wait0 := wait0 + 1;
+--						i_btn <= '0';
+--					else
+--						state <= gc_send;
+--						wait0 := 0;
+--						reset_db <= '1';
+--					end if;
+--				when lfsr_enable =>
+--					state <= lfsr_disable;
+--					enable_lfsr <= '1';
+--					reset_db <= '0';
+--				when lfsr_disable =>
+--					state <= lfsr_send;
+--					enable_lfsr <= '0';
+--				when lfsr_send =>
+--					if (index = LFSR_SIZE-1) then
+--						state <= lfsr_increment;
+--						index := 0;
+--					else
+--						state <= lfsr_send;
+--						i_btn <= o_lfsr(index);
+--						index := index + 1;
+--					end if;
+--				when lfsr_increment =>
+--					if (o_lfsr = std_logic_vector(to_unsigned(0,LFSR_SIZE_BITS))) then
+--						state <= stop;
+--					else
+--						state <= lfsr_wait0;
+--					end if;
+--				when lfsr_wait0 =>
+--					if (wait0 = WAIT0_COUNT-1) then
+--						state <= lfsr_enable;
+--						wait0 := 0;
+--						reset_db <= '1';
+--					else
+--						state <= lfsr_wait0;
+--						wait0 := wait0 + 1;
+--						i_btn <= '0';
+--					end if;
+--				when stop =>
+--					REPORT "END" SEVERITY NOTE;
+--					simulation_finish <= '1';
+--					state <= stop;
+--			end case;
+--		end if;
+--	end process;
 
 END;

@@ -51,6 +51,8 @@ architecture Behavioral of my_spi is
 	signal data_index : integer range BYTE_SIZE - 1 downto 0;
 	signal ck : std_logic;
 begin
+--XXX 50mhz - when send byte : cs=0 = 640ns,ck period = 80ns
+
 	o_cs <= '0' when i_enable = '1' else '1';
 	o_do <= i_data_byte(BYTE_SIZE - 1 - data_index) when i_enable = '1' else '0';
 	o_sended <= '1' when (data_index = BYTE_SIZE - 1 and i_enable = '1') else '0';

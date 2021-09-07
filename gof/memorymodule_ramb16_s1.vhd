@@ -30,7 +30,7 @@ use IEEE.NUMERIC_STD.ALL;
 library UNISIM;
 use UNISIM.VComponents.all;
 
-entity memorymodule_bram is
+entity memorymodule_ramb16_s1 is
 Port (
 i_clock : in std_logic;
 i_enable : in std_logic;
@@ -38,8 +38,8 @@ i_write : in std_logic;
 i_read : in std_logic;
 o_busy : out std_logic;
 i_MemAdr : in MemoryAddress;
-i_MemDB : in MemoryDataByte;
-o_MemDB : out MemoryDataByte;
+i_MemDB : in std_logic_vector(0 downto 0);
+o_MemDB : out std_logic_vector(0 downto 0);
 o_MemOE : out std_logic;
 o_MemWR : out std_logic;
 o_RamAdv : out std_logic;
@@ -47,14 +47,14 @@ o_RamCS : out std_logic;
 o_RamCRE : out std_logic;
 o_RamLB : out std_logic;
 o_RamUB : out std_logic;
-i_RamWait : in std_logic;
+--i_RamWait : in std_logic;
 o_RamClk : out std_logic;
 o_MemAdr : out MemoryAddress;
-io_MemDB : inout MemoryDataByte
+io_MemDB : inout std_logic_vector(0 downto 0)
 );
-end memorymodule_bram;
+end memorymodule_ramb16_s1;
 
-architecture Behavioral of memorymodule_bram is
+architecture Behavioral of memorymodule_ramb16_s1 is
 
 type state is (
 idle,
@@ -81,27 +81,20 @@ signal RamClk : std_logic;
 signal MemAdr : MemoryAddress;
 signal MemDB : MemoryDataByte;
 
-signal RAMB36_S18_DO,RAMB36_S18_DI : std_logic_vector(15 downto 0);
-signal RAMB36_S18_DOP,RAMB36_S18_DIP : std_logic_vector(1 downto 0);
-signal RAMB36_S18_ADDR : std_logic_vector(9 downto 0);
-signal RAMB36_S18_CLK,RAMB36_S18_EN,RAMB36_S18_SSR,RAMB36_S18_WE : std_logic;
+signal RAMB16_S1_DO,RAMB16_S1_DI : std_logic_vector(0 downto 0);
+signal RAMB16_S1_ADDR : std_logic_vector(13 downto 0);
+signal RAMB16_S1_CLK,RAMB16_S1_EN,RAMB16_S1_SSR,RAMB16_S1_WE : std_logic;
 
 begin
 
---MemAdr <= i_MemAdr when (RamCS = '0' and (MemWR = '0' or MemOE = '0')) else (others => 'Z');
---o_MemDB <= io_MemDB when (cstate = idle) else (others => 'Z');
---io_MemDB <= i_MemDB when (RamCS = '0' and MemWR = '0') else (others => 'Z');
-
-RAMB36_S18_ADDR(9 downto 0) <= i_MemAdr(10 downto 1) when (RamCS = '0' and (MemWR = '0' or MemOE = '0')) else (others => 'Z');
-io_MemDB <= RAMB36_S18_DO when (cstate = idle) else (others => 'Z');
---io_MemDB <= RAMB36_S18_DO when (cstate = idle or cstate = start or cstate = read_setup or cstate = read1 or cstate = wait2) else (others => 'Z');
-o_MemDB <= RAMB36_S18_DO when (RamCS = '0' and MemOE = '0') else (others => 'Z');
-RAMB36_S18_DI <= i_MemDB when (RamCS = '0' and MemWR = '0') else (others => 'Z');
-RAMB36_S18_CLK <= i_clock;
-RAMB36_S18_EN <= not RamCS;
---RAMB36_S18_EN <= '1';
-RAMB36_S18_WE <= not MemWR;
-RAMB36_S18_SSR <= '0';
+RAMB16_S1_ADDR(13 downto 0) <= i_MemAdr(14 downto 1) when (RamCS = '0' and (MemWR = '0' or MemOE = '0')) else (others => 'Z');
+o_MemDB(0 downto 0) <= RAMB16_S1_DO(0 downto 0) when (cstate = idle) else (others => 'Z');
+io_MemDB <= RAMB16_S1_DO(0 downto 0) when (RamCS = '0' and MemOE = '0') else (others => 'Z');
+RAMB16_S1_DI(0 downto 0) <= i_MemDB when (RamCS = '0' and MemWR = '0') else (others => 'Z');
+RAMB16_S1_CLK <= i_clock;
+RAMB16_S1_EN <= not RamCS;
+RAMB16_S1_WE <= not MemWR;
+RAMB16_S1_SSR <= '0';
 
 o_MemAdr <= MemAdr;
 o_RamCS <= RamCS;
@@ -121,10 +114,9 @@ RamLB <= '0';
 RamUB <= '0';
 
 p0 : process (i_clock) is
-	constant cw : integer := 6;
-	variable w : integer range 0 to cw := 0;
+	constant cw : integer := 1; -- XXX dont wait in bram
+	variable w : integer range 0 to cw - 1 := 0;
 	variable t : std_logic_vector(G_MemoryData-1 downto 0);
-	variable tz : std_logic_vector(G_MemoryData-1 downto 0) := (others => 'Z');
 begin
 	if (rising_edge(i_clock)) then
 		if (w > 0) then
@@ -160,7 +152,7 @@ begin
 				cstate <= wait1;
 				MemWR <= '0';
 				RamCS <= '0';
-				w := cw;
+				w := cw - 1;
 			when wait1 =>
 				if (w = 0) then
 					cstate <= write_disable;
@@ -182,7 +174,7 @@ begin
 				end if;
 			when read1 =>
 				cstate <= wait2;
-				w := cw;
+				w := cw - 1;
 			when wait2 =>
 				if (w = 0) then
 					cstate <= stop;
@@ -199,16 +191,11 @@ begin
 	end if;
 end process p0;
 
--- RAMB16_S18: 1k x 16 + 2 Parity bits Single-Port RAM
--- Spartan-3E
--- Xilinx HDL Libraries Guide, version 14.5
-RAMB16_S18_inst : RAMB16_S18
+RAMB16_S1_inst : RAMB16_S1
 generic map (
-INIT => X"00000", -- Value of output RAM registers at startup
-SRVAL => X"00000", -- Output value upon SSR assertion
+INIT => X"0", -- Value of output RAM registers at startup
+SRVAL => X"0", -- Output value upon SSR assertion
 WRITE_MODE => "NO_CHANGE", -- WRITE_FIRST, READ_FIRST or NO_CHANGE
--- The following INIT_xx declarations specify the intial contents of the RAM
--- Address 0 to 255
 INIT_00 => X"0000000000000000000000000000000000000000000000000000000000000000",
 INIT_01 => X"0000000000000000000000000000000000000000000000000000000000000000",
 INIT_02 => X"0000000000000000000000000000000000000000000000000000000000000000",
@@ -225,7 +212,6 @@ INIT_0C => X"0000000000000000000000000000000000000000000000000000000000000000",
 INIT_0D => X"0000000000000000000000000000000000000000000000000000000000000000",
 INIT_0E => X"0000000000000000000000000000000000000000000000000000000000000000",
 INIT_0F => X"0000000000000000000000000000000000000000000000000000000000000000",
--- Address 256 to 511
 INIT_10 => X"0000000000000000000000000000000000000000000000000000000000000000",
 INIT_11 => X"0000000000000000000000000000000000000000000000000000000000000000",
 INIT_12 => X"0000000000000000000000000000000000000000000000000000000000000000",
@@ -242,7 +228,6 @@ INIT_1C => X"0000000000000000000000000000000000000000000000000000000000000000",
 INIT_1D => X"0000000000000000000000000000000000000000000000000000000000000000",
 INIT_1E => X"0000000000000000000000000000000000000000000000000000000000000000",
 INIT_1F => X"0000000000000000000000000000000000000000000000000000000000000000",
--- Address 512 to 767
 INIT_20 => X"0000000000000000000000000000000000000000000000000000000000000000",
 INIT_21 => X"0000000000000000000000000000000000000000000000000000000000000000",
 INIT_22 => X"0000000000000000000000000000000000000000000000000000000000000000",
@@ -259,7 +244,6 @@ INIT_2C => X"0000000000000000000000000000000000000000000000000000000000000000",
 INIT_2D => X"0000000000000000000000000000000000000000000000000000000000000000",
 INIT_2E => X"0000000000000000000000000000000000000000000000000000000000000000",
 INIT_2F => X"0000000000000000000000000000000000000000000000000000000000000000",
--- Address 768 to 1023
 INIT_30 => X"0000000000000000000000000000000000000000000000000000000000000000",
 INIT_31 => X"0000000000000000000000000000000000000000000000000000000000000000",
 INIT_32 => X"0000000000000000000000000000000000000000000000000000000000000000",
@@ -275,30 +259,15 @@ INIT_3B => X"0000000000000000000000000000000000000000000000000000000000000000",
 INIT_3C => X"0000000000000000000000000000000000000000000000000000000000000000",
 INIT_3D => X"0000000000000000000000000000000000000000000000000000000000000000",
 INIT_3E => X"0000000000000000000000000000000000000000000000000000000000000000",
-INIT_3F => X"0000000000000000000000000000000000000000000000000000000000000000",
--- The next set of INITP_xx are for the parity bits
--- Address 0 to 255
-INITP_00 => X"0000000000000000000000000000000000000000000000000000000000000000",
-INITP_01 => X"0000000000000000000000000000000000000000000000000000000000000000",
--- Address 256 to 511
-INITP_02 => X"0000000000000000000000000000000000000000000000000000000000000000",
-INITP_03 => X"0000000000000000000000000000000000000000000000000000000000000000",
--- Address 512 to 767
-INITP_04 => X"0000000000000000000000000000000000000000000000000000000000000000",
-INITP_05 => X"0000000000000000000000000000000000000000000000000000000000000000",
--- Address 768 to 1023
-INITP_06 => X"0000000000000000000000000000000000000000000000000000000000000000",
-INITP_07 => X"0000000000000000000000000000000000000000000000000000000000000000")
+INIT_3F => X"0000000000000000000000000000000000000000000000000000000000000000")
 port map (
-DO => RAMB36_S18_DO, -- 16-bit Data Output
-DOP => RAMB36_S18_DOP, -- 2-bit parity Output
-ADDR => RAMB36_S18_ADDR, -- 10-bit Address Input
-CLK => RAMB36_S18_CLK, -- Clock
-DI => RAMB36_S18_DI, -- 16-bit Data Input
-DIP => RAMB36_S18_DIP, -- 2-bit parity Input
-EN => RAMB36_S18_EN, -- RAM Enable Input
-SSR => RAMB36_S18_SSR, -- Synchronous Set/Reset Input
-WE => RAMB36_S18_WE -- Write Enable Input
+DO => RAMB16_S1_DO,
+ADDR => RAMB16_S1_ADDR,
+CLK => RAMB16_S1_CLK,
+DI => RAMB16_S1_DI,
+EN => RAMB16_S1_EN,
+SSR => RAMB16_S1_SSR,
+WE => RAMB16_S1_WE
 );
 
 end Behavioral;
