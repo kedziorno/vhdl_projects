@@ -201,10 +201,13 @@ begin
 	i2c_send_sequence_fsm : process (c_state_i2c_fsm,c_cmode0,i_enable,i_slave_address,i_bytes_to_send
 	,temp_sda,temp_sck) is
 		variable vtemp_sda,vtemp_sck : std_logic;
+		variable index1,index2 : integer range 0 to 7;
 	begin
 		n_state_i2c_fsm <= c_state_i2c_fsm;
 		vtemp_sda := temp_sda;
 		vtemp_sck := temp_sck;
+		index1 := to_integer(unsigned(rc0_q));
+		index2 := to_integer(unsigned(rc1_q));
 		case c_state_i2c_fsm is
 			when idle =>
 				o_byte_sended <= '0';
@@ -268,11 +271,11 @@ begin
 				if ((c_cmode0 = c1 or c_cmode0 = c2) and c_cmode0 /= c0 and c_cmode0 /= c3) then
 					vtemp_sck := '1';
 				end if;
-				if (to_integer(unsigned(rc0_q)) = G_SLAVE_ADDRESS_SIZE-1) then
+				if (index1 = G_SLAVE_ADDRESS_SIZE-1) then
 					n_state_i2c_fsm <= slave_address_lastbit;
 				else
 					if (c_cmode0 = c0) then
-						vtemp_sda := i_slave_address(to_integer(unsigned(rc0_q)));
+						vtemp_sda := i_slave_address(index1);
 						n_state_i2c_fsm <= slave_address;
 					else
 						n_state_i2c_fsm <= slave_address;
@@ -363,8 +366,8 @@ begin
 					vtemp_sck := '0';
 				end if;
 				if (c_cmode0 = c0) then
-					vtemp_sda := i_bytes_to_send(to_integer(unsigned(rc1_q)));
-					if (to_integer(unsigned(rc1_q)) = G_BYTE_SIZE-1) then
+					vtemp_sda := i_bytes_to_send(index2);
+					if (index2 = G_BYTE_SIZE-1) then
 						n_state_i2c_fsm <= data_ack;
 					else
 						n_state_i2c_fsm <= data;
@@ -395,20 +398,24 @@ begin
 						n_state_i2c_fsm <= data;
 						o_busy <= '0';
 						o_byte_sended <= '1';
+						rc2_mrb <= '1';
 					else
 						n_state_i2c_fsm <= data_ack;
 						o_busy <= '1';
 						o_byte_sended <= '0';
+						rc2_mrb <= '0';
 					end if;
 				else
 					if (to_integer(unsigned(rc2_q)) = RC2_MAX-2) then
 						n_state_i2c_fsm <= stop;
 						o_busy <= '1';
 						o_byte_sended <= '0';
+						rc2_mrb <= '1';
 					else
 						n_state_i2c_fsm <= data_ack;
 						o_busy <= '1';
 						o_byte_sended <= '0';
+						rc2_mrb <= '0';
 					end if;
 				end if;
 			when stop =>

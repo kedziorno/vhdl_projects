@@ -215,6 +215,7 @@ begin
 end process test_oled_fsm_p1;
 
 test_oled_fsm_p0 : process (c_state_test_oled_fsm,i2c_busy,glcdfont_character,busy_prev) is
+	variable index : integer range 0 to 6;
 begin
 	n_state_test_oled_fsm <= c_state_test_oled_fsm;
 	case c_state_test_oled_fsm is
@@ -232,8 +233,10 @@ begin
 			rc1_cpb <= '0';
 			rc2_mrb <= '1';
 			rc2_cpb <= '0';
+			index := 0;
 			character_sended <= '0';
 		when start =>
+			index := 0;
 			character_sended <= '0';
 			i2c_reset <= '0';
 			busy_prev <= i2c_busy;
@@ -241,7 +244,7 @@ begin
 			rc1_mrb <= '0';
 			rc1_cpb <= '0';
 			rc2_cpb <= '0';
-			rc0_cpb <= '0';
+--			rc0_cpb <= '0';
 			rc2_mrb <= '0';
 			if (busy_prev = '0' and i2c_busy = '1') then
 				rc0_cpb <= '0';
@@ -275,11 +278,12 @@ begin
 					current_character <= (others => '0');
 			end case;
 		when set_address_1 =>
+			index := 0;
 			character_sended <= '0';
 			busy_prev <= i2c_busy;
 			rc0_mrb <= '0';
 			rc1_cpb <= '0';
-			rc0_cpb <= '0';
+--			rc0_cpb <= '0';
 			rc2_mrb <= '0';
 			rc1_mrb <= '0';
 			rc2_cpb <= '0';
@@ -316,6 +320,7 @@ begin
 					current_character <= (others => '0');
 			end case;
 		when set_address_2 =>
+			index := 0;
 			character_sended <= '0';
 			i2c_reset <= '0';
 			current_character <= (others => '0');
@@ -324,7 +329,7 @@ begin
 			rc0_mrb <= '0';
 			rc1_cpb <= '0';
 			rc2_cpb <= '0';
-			rc0_cpb <= '0';
+--			rc0_cpb <= '0';
 			rc2_mrb <= '0';
 			rc1_mrb <= '0';
 			if (busy_prev = '0' and i2c_busy = '1') then
@@ -360,13 +365,14 @@ begin
 					current_character <= (others => '0');
 			end case;
 		when send_character =>
+			index := to_integer(unsigned(rc2_q));
 			character_sended <= '0';
 			i2c_reset <= '0';
 			busy_prev <= i2c_busy;
 			glcdfont_index <= (others => '0');
 			rc0_mrb <= '1';
 			rc1_mrb <= '0';
-			rc1_cpb <= '0';
+--			rc1_cpb <= '0';
 			rc2_mrb <= '0';
 			rc2_cpb <= '1';
 			rc0_cpb <= '0';
@@ -384,27 +390,27 @@ begin
 					glcdfont_index <= (others => '0');
 				when 1 =>
 					i2c_ena <= '1';
-					current_character <= i_char(to_integer(unsigned(rc2_q)));
+					current_character <= i_char(index);
 					glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+0,glcdfont_index'length));
 					i2c_data_wr <= glcdfont_character;
 				when 2 =>
 					i2c_ena <= '1';
-					current_character <= i_char(to_integer(unsigned(rc2_q)));
+					current_character <= i_char(index);
 					glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+1,glcdfont_index'length));
 					i2c_data_wr <= glcdfont_character;
 				when 3 =>
 					i2c_ena <= '1';
-					current_character <= i_char(to_integer(unsigned(rc2_q)));
+					current_character <= i_char(index);
 					glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+2,glcdfont_index'length));
 					i2c_data_wr <= glcdfont_character;
 				when 4 =>
 					i2c_ena <= '1';
-					current_character <= i_char(to_integer(unsigned(rc2_q)));
+					current_character <= i_char(index);
 					glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+3,glcdfont_index'length));
 					i2c_data_wr <= glcdfont_character;
 				when 5 =>
 					i2c_ena <= '1';
-					current_character <= i_char(to_integer(unsigned(rc2_q)));
+					current_character <= i_char(index);
 					glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+4,glcdfont_index'length));
 					i2c_data_wr <= glcdfont_character;
 				when 6 =>
@@ -423,12 +429,13 @@ begin
 					current_character <= (others => '0');
 			end case;
 		when check_character_index =>
+			index := 0;
 			rc0_mrb <= '1';
 			rc2_cpb <= '1';
 			rc1_cpb <= '0';
 			rc0_cpb <= '0';
 			rc2_mrb <= '0';
-			rc1_mrb <= '0';
+--			rc1_mrb <= '0';
 			busy_prev <= '0';
 			i2c_ena <= '0';
 			i2c_reset <= '0';
@@ -444,6 +451,7 @@ begin
 				rc1_mrb <= '1';
 			end if;
 		when stop =>
+			index := 0;
 --			n_state_test_oled_fsm <= idle;
 			rc2_cpb <= '0';
 			rc0_cpb <= '0';
