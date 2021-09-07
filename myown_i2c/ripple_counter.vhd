@@ -69,6 +69,17 @@ architecture Behavioral of ripple_counter is
 	);
 	end component GATE_AND;
 
+	component GATE_AND_LUT2 is
+	generic (
+	delay_and : TIME := 1 ns
+	);
+	port (
+	A,B : in STD_LOGIC;
+	C : out STD_LOGIC
+	);
+	end component GATE_AND_LUT2;
+	for all : GATE_AND_LUT2 use entity WORK.GATE_AND(GATE_AND_LUT);
+
 	component GATE_OR is
 	generic (
 	delay_or : TIME := 1 ns
@@ -110,7 +121,7 @@ architecture Behavioral of ripple_counter is
 begin
 
 	ffjk_or(N-1) <= '0';
-	gated_clock <= i_clock and cp;
+	gand_lut2 : GATE_AND_LUT2 port map (A=>i_clock,B=>cp,C=>gated_clock);
 	ud <= i_ud;
 	o_q <= q1;
 	cp <= i_cpb;
