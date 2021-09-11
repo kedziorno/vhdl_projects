@@ -39,8 +39,7 @@ i_clock : in std_logic;
 i_cpb : in std_logic;
 i_mrb : in std_logic;
 i_ud : in std_logic;
-o_q : inout std_logic_vector(N-1 downto 0);
-o_ping : out std_logic
+o_q : inout std_logic_vector(N-1 downto 0)
 );
 end ripple_counter;
 
@@ -116,11 +115,6 @@ architecture Behavioral of ripple_counter is
 	constant WAIT_OR : time := 0 ps;
 	constant WAIT_NOT : time := 0 ps;
 
---	attribute keep : string; -- XXX when unconnected signal in g0_and_d
---	attribute keep of ud : signal is "true";
---	attribute keep of udb : signal is "true";
---	attribute keep of ffjk_and_d : signal is "true";
-
 begin
 
 	ffjk_or(N-1) <= '0';
@@ -129,18 +123,6 @@ begin
 	o_q <= q1;
 	cp <= i_cpb;
 	mr <= '1' when o_q = a or i_mrb = '1' else '0';
-	--ping <= '1' when o_q = b else '0';
-
-	inst1 : FF_D_POSITIVE_EDGE
-	PORT MAP (
-	S => not mr,
-	R => not mr,
-	D => mr,
-	C => gated_clock,
-	Q1 => ping1,
-	Q2 => ping2
-	);
-	o_ping <= ping1;
 
 	g0_and_u : for i in 0 to N-1 generate -- XXX omit last FF JK
 		g0_and_u_first : if (i=0) generate

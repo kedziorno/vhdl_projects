@@ -84,8 +84,7 @@ architecture Behavioral of my_i2c_fsm is
 	i_cpb : in std_logic;
 	i_mrb : in std_logic;
 	i_ud : in std_logic;
-	o_q : inout std_logic_vector(N-1 downto 0);
-	o_ping : out std_logic
+	o_q : inout std_logic_vector(N-1 downto 0)
 	);
 	end component ripple_counter;
 	constant RC0_N : integer := 4;
@@ -113,8 +112,7 @@ begin
 	i_cpb => rc0_cpb,
 	i_mrb => rc0_mrb,
 	i_ud => '1',
-	o_q => rc0_q,
-	o_ping => rc0_ping
+	o_q => rc0_q
 	);
 
 	entity_rc1 : ripple_counter
@@ -124,8 +122,7 @@ begin
 	i_cpb => rc1_cpb,
 	i_mrb => rc1_mrb,
 	i_ud => '1',
-	o_q => rc1_q,
-	o_ping => rc1_ping
+	o_q => rc1_q
 	);
 
 	entity_rc2 : ripple_counter
@@ -135,8 +132,7 @@ begin
 	i_cpb => rc2_cpb,
 	i_mrb => rc2_mrb,
 	i_ud => '1',
-	o_q => rc2_q,
-	o_ping => rc2_ping
+	o_q => rc2_q
 	);
 
 	i2c_clock_process : process (i_clock) is
