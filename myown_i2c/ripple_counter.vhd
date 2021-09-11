@@ -68,6 +68,7 @@ architecture Behavioral of ripple_counter is
 	C : out STD_LOGIC
 	);
 	end component GATE_AND;
+	for all : GATE_AND use entity WORK.GATE_AND(GATE_AND_LUT);
 
 	component GATE_AND_LUT2 is
 	generic (
@@ -89,6 +90,7 @@ architecture Behavioral of ripple_counter is
 	C : out STD_LOGIC
 	);
 	end component GATE_OR;
+	for all : GATE_OR use entity WORK.GATE_OR(GATE_OR_LUT);
 
 	component GATE_NOT is
 	generic (
@@ -99,6 +101,7 @@ architecture Behavioral of ripple_counter is
 	B : out STD_LOGIC
 	);
 	end component GATE_NOT;
+	for all : GATE_NOT use entity WORK.GATE_NOT(GATE_NOT_LUT);
 
 	signal cp,mr : std_logic;
 	signal q1,q2 : std_logic_vector(N-1 downto 0);
@@ -106,8 +109,8 @@ architecture Behavioral of ripple_counter is
 	signal ffjk_and_u,ffjk_and_d,ffjk_or : std_logic_vector(N-1 downto 0); -- XXX omit last FF JK
 	signal ud,udb : std_logic;
 	signal gated_clock : std_logic;
-	signal a : std_logic_vector(N-1 downto 0) := std_logic_vector(to_unsigned(MAX,N));
-	signal b : std_logic_vector(N-1 downto 0) := std_logic_vector(to_unsigned(0,N));
+	constant a : std_logic_vector(N-1 downto 0) := std_logic_vector(to_unsigned(MAX,N));
+	constant b : std_logic_vector(N-1 downto 0) := std_logic_vector(to_unsigned(0,N));
 
 	constant WAIT_AND : time := 0 ps;
 	constant WAIT_OR : time := 0 ps;
