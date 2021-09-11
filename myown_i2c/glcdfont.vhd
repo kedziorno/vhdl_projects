@@ -5,7 +5,6 @@ use IEEE.NUMERIC_STD.ALL;
 entity glcdfont is
 port (
 signal i_clk : in std_logic;
-signal i_reset : in std_logic;
 signal i_index : in std_logic_vector(10 downto 0);
 signal o_character : out std_logic_vector(7 downto 0)
 );
@@ -1811,13 +1810,8 @@ p0 : process (i_clk) is
 	variable index : integer range 0 to NUMBER_GLCDFONTC-1;
 begin
 	if (rising_edge(i_clk)) then
-		if (i_reset = '1') then
-			o_character <= (others => '0');
-			index := 0;
-		else
-			index := to_integer(unsigned(i_index));
-			o_character <= GLCDFONTC(index);
-		end if;
+		index := to_integer(unsigned(i_index))+1;
+		o_character <= GLCDFONTC(index);
 	end if;
 end  process p0;
 

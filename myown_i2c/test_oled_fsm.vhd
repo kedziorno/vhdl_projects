@@ -66,7 +66,6 @@ signal byte_sended : std_logic;
 component glcdfont is
 port(
 	i_clk : in std_logic;
-	i_reset : in std_logic;
 	i_index : in std_logic_vector(10 downto 0);
 	o_character : out std_logic_vector(7 downto 0)
 );
@@ -148,7 +147,6 @@ c0 : glcdfont
 port map
 (
 	i_clk => byte_sended,
-	i_reset => i_rst,
 	i_index => glcdfont_index,
 	o_character => glcdfont_character
 );
