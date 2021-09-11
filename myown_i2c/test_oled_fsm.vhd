@@ -120,18 +120,18 @@ o_q : inout std_logic_vector(N-1 downto 0);
 o_ping : out std_logic
 );
 end component ripple_counter;
-constant RC0_N : integer := 5;
-constant RC0_MAX : integer := BYTES_SEQUENCE_LENGTH;
+constant RC0_N : integer := 6;
+constant RC0_MAX : integer := 32;
 signal rc0_cpb,rc0_mrb : std_logic;
 signal rc0_q : std_logic_vector(RC0_N-1 downto 0);
 signal rc0_ping : std_logic;
-constant RC1_N : integer := 4;
-constant RC1_MAX : integer := 7;
+constant RC1_N : integer := 6;
+constant RC1_MAX : integer := 32;
 signal rc1_cpb,rc1_mrb : std_logic;
 signal rc1_q : std_logic_vector(RC1_N-1 downto 0);
 signal rc1_ping : std_logic;
-constant RC2_N : integer := 5;
-constant RC2_MAX : integer := 16;
+constant RC2_N : integer := 6;
+constant RC2_MAX : integer := 32;
 signal rc2_cpb,rc2_mrb : std_logic;
 signal rc2_q : std_logic_vector(RC2_N-1 downto 0);
 signal rc2_ping : std_logic;
@@ -147,7 +147,7 @@ i2c_addr <= "0111100"; -- 3C
 c0 : glcdfont
 port map
 (
-	i_clk => i_clk,
+	i_clk => byte_sended,
 	i_reset => i_rst,
 	i_index => glcdfont_index,
 	o_character => glcdfont_character
@@ -173,7 +173,7 @@ PORT MAP
 );
 
 test_oled_fsm_entity_rc0 : ripple_counter
-Generic map (N => RC0_N, MAX => RC0_MAX+2)
+Generic map (N => RC0_N, MAX => RC0_MAX)
 Port map (
 i_clock => byte_sended,
 i_cpb => rc0_cpb,
@@ -354,7 +354,7 @@ begin
 					current_character <= (others => '0');
 					glcdfont_index <= (others => '0');
 					if (i2c_busy = '0') then
-						rc0_mrb <= '1';
+						rc0_mrb <= '0';
 						n_state_test_oled_fsm <= send_character;
 						character_sended <= '1';
 					end if;
@@ -370,18 +370,18 @@ begin
 			i2c_reset <= '0';
 			busy_prev <= i2c_busy;
 			glcdfont_index <= (others => '0');
-			rc0_mrb <= '1';
+			rc0_mrb <= '0';
 			rc1_mrb <= '0';
---			rc1_cpb <= '0';
+			rc1_cpb <= '1';
 			rc2_mrb <= '0';
 			rc2_cpb <= '1';
 			rc0_cpb <= '0';
 			character_sended <= '0';
-			if (busy_prev = '0' and i2c_busy = '1') then
-				rc1_cpb <= '0';
-			else
-				rc1_cpb <= '1';
-			end if;
+--			if (busy_prev = '0' and i2c_busy = '1') then
+--				rc1_mrb <= '1';
+--			else
+--				rc1_mrb <= '0';
+--			end if;
 			case to_integer(unsigned(rc1_q)) is
 				when 0 =>
 					i2c_ena <= '1'; -- we are busy
@@ -419,7 +419,7 @@ begin
 					i2c_data_wr <= (others => '0');
 					glcdfont_index <= (others => '0');
 					if (i2c_busy = '0') then
---						rc2_mrb <= '1';
+						rc1_mrb <= '1';
 						n_state_test_oled_fsm <= check_character_index;
 					end if;
 				when others =>
@@ -430,12 +430,12 @@ begin
 			end case;
 		when check_character_index =>
 			index := 0;
-			rc0_mrb <= '1';
+			rc0_mrb <= '0';
 			rc2_cpb <= '1';
-			rc1_cpb <= '0';
+			rc1_cpb <= '1';
 			rc0_cpb <= '0';
 			rc2_mrb <= '0';
---			rc1_mrb <= '0';
+			rc1_mrb <= '0';
 			busy_prev <= '0';
 			i2c_ena <= '0';
 			i2c_reset <= '0';
@@ -448,7 +448,6 @@ begin
 				rc1_mrb <= '0';
 			else
 				n_state_test_oled_fsm <= send_character;
-				rc1_mrb <= '1';
 			end if;
 		when stop =>
 			index := 0;
@@ -466,6 +465,8 @@ begin
 			i2c_data_wr <= (others => '0');
 			current_character <= (others => '0');
 			glcdfont_index <= (others => '0');
+		when others =>
+			null;
 	end case;
 end process test_oled_fsm_p0;
 
