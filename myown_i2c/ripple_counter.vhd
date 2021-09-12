@@ -53,10 +53,7 @@ architecture Behavioral of ripple_counter is
 	Q2:inout STD_LOGIC
 	);
 	end component FF_JK;
-
-	component FF_D_POSITIVE_EDGE is
-	port (S,R,C,D:in STD_LOGIC;Q1,Q2:inout STD_LOGIC);
-	end component FF_D_POSITIVE_EDGE;
+	for all : FF_JK use entity WORK.FF_JK(LUT);
 
 	component GATE_AND is
 	generic (
