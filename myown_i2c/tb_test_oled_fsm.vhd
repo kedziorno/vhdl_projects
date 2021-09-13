@@ -44,7 +44,6 @@ ARCHITECTURE behavior OF tb_test_oled_fsm IS
     PORT(
          i_clk : IN  std_logic;
          i_rst : IN  std_logic;
-         i_refresh : IN  std_logic;
          io_sda : INOUT  std_logic;
          io_scl : INOUT  std_logic
         );
@@ -54,7 +53,6 @@ ARCHITECTURE behavior OF tb_test_oled_fsm IS
    --Inputs
    signal clk : std_logic := '0';
    signal rst : std_logic := '0';
-   signal refresh : std_logic := '0';
 
 	--BiDirs
    signal sda : std_logic;
@@ -69,7 +67,6 @@ BEGIN
 	uut: test_oled_fsm PORT MAP (
 		i_clk => clk,
 		i_rst => rst,
-		i_refresh => refresh,
 		io_sda => sda,
 		io_scl => scl
 	);
@@ -88,10 +85,6 @@ rst <= '1','0' after clk_period;
 	-- Stimulus process
 	stim_proc: process
 	begin
---		wait for 60 ms;
---		refresh <= '1';
---		wait for 20 ns;
---		refresh <= '0';
 		wait;
 	end process;
 

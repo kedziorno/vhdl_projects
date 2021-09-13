@@ -31,7 +31,6 @@ port
 (
 signal i_clk : in std_logic;
 signal i_rst : in std_logic;
-signal i_refresh : in std_logic;
 signal io_sda,io_scl : inout std_logic
 );
 end test_oled_fsm;
@@ -119,22 +118,29 @@ o_q : inout std_logic_vector(N-1 downto 0)
 );
 end component ripple_counter;
 constant RC0_N : integer := 6;
-constant RC0_MAX : integer := 32;
+constant RC0_MAX : integer := BYTES_SEQUENCE_LENGTH+2;
 signal rc0_cpb,rc0_mrb : std_logic;
 signal rc0_q : std_logic_vector(RC0_N-1 downto 0);
 signal rc0_ping : std_logic;
-constant RC1_N : integer := 6;
-constant RC1_MAX : integer := 32;
+constant RC1_N : integer := 4;
+constant RC1_MAX : integer := 7;
 signal rc1_cpb,rc1_mrb : std_logic;
 signal rc1_q : std_logic_vector(RC1_N-1 downto 0);
 signal rc1_ping : std_logic;
-constant RC2_N : integer := 6;
-constant RC2_MAX : integer := 32;
+constant RC2_N : integer := 4;
+constant RC2_MAX : integer := 6;
 signal rc2_cpb,rc2_mrb : std_logic;
 signal rc2_q : std_logic_vector(RC2_N-1 downto 0);
 signal rc2_ping : std_logic;
 
 signal character_sended : std_logic;
+
+attribute CLOCK_SIGNAL : string;
+attribute CLOCK_SIGNAL of i_clk : signal is "yes"; --{yes | no};
+attribute CLOCK_SIGNAL of byte_sended : signal is "no"; --{yes | no};
+attribute BUFFER_TYPE : string;
+attribute BUFFER_TYPE of i_clk : signal is "BUFGP"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
+attribute BUFFER_TYPE of byte_sended : signal is "none"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
 
 begin
 

@@ -47,21 +47,21 @@ E <= T after DELAY_NAND4;
 end GATE_NAND4_BEHAVIORAL_1;
 
 architecture GATE_NAND4_LUT of GATE_NAND4 is
-	signal T : std_logic;
+--	signal T : std_logic;
 begin
 -- LUT4: 4-input Look-Up Table with general output
 -- Spartan-3
 -- Xilinx HDL Libraries Guide, version 14.7
-LUT4_inst : LUT4
+gate_nand4_LUT4_L : LUT4_L
 generic map (
 	INIT => X"7FFF")
 port map (
-	O => T, -- LUT general output
+	LO => E, -- LUT local output
 	I0 => A, -- LUT input
 	I1 => B, -- LUT input
 	I2 => C, -- LUT input
 	I3 => D -- LUT input
 );
 -- End of LUT4_inst instantiation
-E <= T after DELAY_NAND4;
+--E <= T after DELAY_NAND4;
 end architecture GATE_NAND4_LUT;
