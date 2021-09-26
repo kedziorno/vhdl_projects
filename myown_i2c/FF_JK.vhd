@@ -36,16 +36,16 @@ architecture LUT of FF_JK is
 	signal sy,sz : std_logic := '0';
 	signal i_rb : std_logic := '0';
 
-	component GATE_AND3 is
-	Generic (
-	DELAY_AND3 : time := 1 ps
-	);
-	Port (
-	A,B,C : in  STD_LOGIC;
-	D : out  STD_LOGIC
-	);
-	end component GATE_AND3;
-	for all : GATE_AND3 use entity WORK.GATE_AND3(GATE_AND3_LUT);
+--	component GATE_NAND3 is
+--	Generic (
+--	DELAY_NAND3 : time := 1 ps
+--	);
+--	Port (
+--	A,B,C : in  STD_LOGIC;
+--	D : out  STD_LOGIC
+--	);
+--	end component GATE_NAND3;
+--	for all : GATE_NAND3 use entity WORK.GATE_NAND3(GATE_NAND3_LUT);
 
 	component GATE_AND is
 	generic (
@@ -109,8 +109,8 @@ begin
 	clock_b : GATE_NOT GENERIC MAP (W_NOTC)
 	PORT MAP (A=>C,B=>sb);
 --	sb <= not C after W_NOTC;
-	sc <= j after W_J;
-	sd <= k after W_K;
+--	sc <= j after W_J;
+--	sd <= k after W_K;
 
 	-- reset bar
 	i_rbar : GATE_NOT GENERIC MAP (W_NOT)
@@ -118,13 +118,13 @@ begin
 	
 	-- nand3 1u plus i_r bar
 	nand3_1u : GATE_NAND4 GENERIC MAP (W_NAND3)
-	PORT MAP (A=>sa,B=>sc,C=>q2,D=>i_rb,E=>sg);
+	PORT MAP (A=>sa,B=>j,C=>q2,D=>i_rb,E=>sg);
 --	se <= not (sa and sc and q2 and not i_r);
 --	sg <= se after W_NAND3;
 
 	-- nand3 1d
 	nand3_1d : GATE_NAND3 GENERIC MAP (W_NAND3)
-	PORT MAP (A=>sa,B=>sd,C=>q1,D=>sj);
+	PORT MAP (A=>sa,B=>k,C=>q1,D=>sj);
 --	sh <= not (sa and sd and q1);
 --	sj <= sh after W_NAND3;
 

@@ -88,7 +88,7 @@ architecture Behavioral of my_i2c_fsm is
 	);
 	end component ripple_counter;
 	constant RC0_N : integer := 4;
-	constant RC0_MAX : integer := G_SLAVE_ADDRESS_SIZE;
+	constant RC0_MAX : integer := G_BYTE_SIZE;
 	signal rc0_cpb,rc0_mrb : std_logic;
 	signal rc0_q : std_logic_vector(RC0_N-1 downto 0);
 	signal rc0_ping : std_logic;
@@ -105,14 +105,14 @@ architecture Behavioral of my_i2c_fsm is
 
 	--attribute KEEP : string;
 	--attribute KEEP of i_clk : signal is true;
-	attribute CLOCK_SIGNAL : string;
-	attribute CLOCK_SIGNAL of i_clock : signal is "yes"; --{yes | no};
-	attribute CLOCK_SIGNAL of temp_sck : signal is "no"; --{yes | no};
-	attribute CLOCK_SIGNAL of temp_sda : signal is "no"; --{yes | no};
-	attribute BUFFER_TYPE : string;
-	attribute BUFFER_TYPE of i_clock : signal is "BUFGP"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
-	attribute BUFFER_TYPE of temp_sck : signal is "none"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
-	attribute BUFFER_TYPE of temp_sda : signal is "none"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
+--	attribute CLOCK_SIGNAL : string;
+--	attribute CLOCK_SIGNAL of clock : signal is "no"; --{yes | no};
+--	attribute CLOCK_SIGNAL of temp_sck : signal is "no"; --{yes | no};
+--	attribute CLOCK_SIGNAL of temp_sda : signal is "no"; --{yes | no};
+--	attribute BUFFER_TYPE : string;
+--	attribute BUFFER_TYPE of i_clock : signal is "BUFGP"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
+--	attribute BUFFER_TYPE of temp_sck : signal is "none"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
+--	attribute BUFFER_TYPE of temp_sda : signal is "none"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
 
 begin
 
@@ -146,15 +146,15 @@ begin
 	o_q => rc2_q
 	);
 
-	i2c_clock_process : process (i_clock) is
+	i2c_clock_process : process (i_clock,i_reset) is
 		constant I2C_COUNTER_MAX : integer := (BOARD_CLOCK / BUS_CLOCK) / 4;
 		variable count : integer range 0 to (I2C_COUNTER_MAX*4)-1;
 	begin
-		if (rising_edge(i_clock)) then
-			if (i_reset = '1') then
-				clock <= '0';
-				count := 0;
-			elsif (count = (I2C_COUNTER_MAX*4)-1) then
+		if (i_reset = '1') then
+			clock <= '0';
+			count := 0;
+		elsif (rising_edge(i_clock)) then
+			if (count = (I2C_COUNTER_MAX*4)-1) then
 				clock <= '1';
 				count := 0;
 			else
@@ -164,20 +164,19 @@ begin
 		end if;
 	end process i2c_clock_process;
 
-	clock_mode_0_seq : process (clock) is
+	clock_mode_0_seq : process (clock,i_reset) is
 	begin
-		if (rising_edge(clock)) then
-			if (i_reset = '1') then
-				c_cmode0 <= c0;
-			else
-				c_cmode0 <= n_cmode0;
-			end if;
+		if (i_reset = '1') then
+			c_cmode0 <= c0;
+		elsif (rising_edge(clock)) then
+			c_cmode0 <= n_cmode0;
 		end if;
 	end process clock_mode_0_seq;
 
 	clock_mode_0_com : process (c_cmode0) is
 	begin
 		n_cmode0 <= c_cmode0;
+		c_cmode0_rc_clock <= '0';
 		case c_cmode0 is
 			when c0 =>
 				n_cmode0 <= c1;
@@ -191,17 +190,18 @@ begin
 			when c3 =>
 				n_cmode0 <= c0;
 				c_cmode0_rc_clock <= '0';
+			when others =>
+				n_cmode0 <= c0;
+				c_cmode0_rc_clock <= '0';
 		end case;
 	end process clock_mode_0_com;
 
-	p2 : process (clock) is
+	p2 : process (clock,i_reset) is
 	begin
-		if (rising_edge(clock)) then
-			if (i_reset = '1') then
-				c_state_i2c_fsm <= idle;
-			else
-				c_state_i2c_fsm <= n_state_i2c_fsm;
-			end if;
+		if (i_reset = '1') then
+			c_state_i2c_fsm <= idle;
+		elsif (rising_edge(clock)) then
+			c_state_i2c_fsm <= n_state_i2c_fsm;
 		end if;
 	end process p2;
 	
@@ -211,8 +211,8 @@ begin
 		variable index1,index2 : integer range 0 to 7;
 	begin
 		n_state_i2c_fsm <= c_state_i2c_fsm;
-		vtemp_sda := temp_sda;
-		vtemp_sck := temp_sck;
+--		vtemp_sda := temp_sda;
+--		vtemp_sck := temp_sck;
 		index1 := to_integer(unsigned(rc0_q));
 		index2 := to_integer(unsigned(rc1_q));
 		case c_state_i2c_fsm is
@@ -225,8 +225,14 @@ begin
 				rc1_cpb <= '0';
 				rc2_cpb <= '0';
 				o_busy <= '0';
-				vtemp_sda := '1';
-				vtemp_sck := '1';
+				if (c_cmode0 = c0) then
+					vtemp_sda := '1';
+					vtemp_sck := '1';
+				end if;
+				if (c_cmode0 /= c0) then
+					vtemp_sda := temp_sda;
+					vtemp_sck := temp_sck;
+				end if;
 				if (i_enable = '1') then
 					n_state_i2c_fsm <= sda_start;
 				else
@@ -245,6 +251,11 @@ begin
 					vtemp_sda := '1';
 					n_state_i2c_fsm <= start;
 				end if;
+				if (c_cmode0 /= c0) then
+					vtemp_sck := temp_sck;
+					vtemp_sda := temp_sda;
+					n_state_i2c_fsm <= sda_start;
+				end if;
 				o_busy <= '1';
 			when start =>
 				o_byte_sended <= '0';
@@ -258,9 +269,11 @@ begin
 					vtemp_sda := '0';
 					vtemp_sck := '1';
 					n_state_i2c_fsm <= slave_address;
-				else
-					vtemp_sda := '1';
-					vtemp_sck := '1';
+				end if;
+				if (c_cmode0 /= c0) then
+					vtemp_sda := temp_sda;
+					vtemp_sck := temp_sck;
+					n_state_i2c_fsm <= start;
 				end if;
 				o_busy <= '1';
 			when slave_address =>
@@ -279,12 +292,15 @@ begin
 					vtemp_sck := '1';
 				end if;
 				if (index1 = G_SLAVE_ADDRESS_SIZE-1) then
+					vtemp_sda := temp_sda;
 					n_state_i2c_fsm <= slave_address_lastbit;
 				else
 					if (c_cmode0 = c0) then
 						vtemp_sda := i_slave_address(index1);
 						n_state_i2c_fsm <= slave_address;
-					else
+					end if;
+					if (c_cmode0 /= c0) then
+						vtemp_sda := temp_sda;
 						n_state_i2c_fsm <= slave_address;
 					end if;
 				end if;
@@ -308,8 +324,10 @@ begin
 				if (c_cmode0 = c0) then
 					vtemp_sda := i_slave_address(G_SLAVE_ADDRESS_SIZE-1);
 					n_state_i2c_fsm <= slave_rw;
-				else
+				end if;
+				if (c_cmode0 /= c0) then
 					vtemp_sda := temp_sda;
+					n_state_i2c_fsm <= slave_address_lastbit;
 				end if;
 			when slave_rw =>
 				o_byte_sended <= '0';
@@ -332,6 +350,10 @@ begin
 					vtemp_sda := '0';
 					n_state_i2c_fsm <= slave_ack;
 				end if;
+				if (c_cmode0 /= c0) then
+					vtemp_sda := temp_sda;
+					n_state_i2c_fsm <= slave_rw;
+				end if;
 			when slave_ack =>
 				o_byte_sended <= '0';
 				rc0_mrb <= '0';
@@ -352,8 +374,10 @@ begin
 				if (c_cmode0 = c0) then
 					vtemp_sda := '1';
 					n_state_i2c_fsm <= data;
-				else
+				end if;
+				if (c_cmode0 /= c0) then
 					vtemp_sda := '0';
+					n_state_i2c_fsm <= slave_ack;
 				end if;
 			when data =>
 				o_byte_sended <= '0';
@@ -380,6 +404,9 @@ begin
 						n_state_i2c_fsm <= data;
 					end if;
 				end if;
+				if (c_cmode0 /= c0) then
+					vtemp_sda := temp_sda;
+				end if;
 			when data_ack =>
 				rc0_mrb <= '0';
 				rc1_mrb <= '0';
@@ -397,7 +424,8 @@ begin
 				end if;
 				if (c_cmode0 = c0) then
 					vtemp_sda := '1';
-				else
+				end if;
+				if (c_cmode0 /= c0) then
 					vtemp_sda := temp_sda;
 				end if;
 				if (i_enable = '1') then
@@ -444,10 +472,11 @@ begin
 				end if;
 				if (c_cmode0 = c0) then
 					vtemp_sda := '0';
-					n_state_i2c_fsm <= sda_stop;
-				else
-					vtemp_sda := '1';
 				end if;
+				if (c_cmode0 /= c0) then
+					vtemp_sda := temp_sda;
+				end if;
+				n_state_i2c_fsm <= sda_stop;
 			when sda_stop =>
 				rc0_mrb <= '0';
 				rc1_mrb <= '0';
@@ -470,8 +499,8 @@ begin
 				rc1_cpb <= '0';
 				rc2_cpb <= '0';
 				o_busy <= '0';
-				vtemp_sda := '1';
-				vtemp_sck := '1';
+				vtemp_sda := temp_sda;
+				vtemp_sck := temp_sck;
 		end case;
 		temp_sda <= vtemp_sda;
 		temp_sck <= vtemp_sck;

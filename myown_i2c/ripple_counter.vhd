@@ -116,10 +116,15 @@ begin
 
 	ffjk_or(N-1) <= '0';
 	gand_lut2 : GATE_AND_LUT2 port map (A=>i_clock,B=>cp,C=>gated_clock);
+--	BUFGCE_inst : BUFGCE port map (
+--	O => gated_clock, -- Clock buffer ouptput
+--	CE => cp, -- Clock enable input
+--	I => i_clock -- Clock buffer input
+--	);
 	ud <= i_ud;
 	o_q <= q1;
 	cp <= i_cpb;
-	mr <= '1' when o_q = a or i_mrb = '1' else '0';
+	mr <= '1' when o_q = a or i_mrb = '1' else '0' after 1 ns;
 
 	g0_not_clock : GATE_NOT generic map (WAIT_NOT) port map (A=>ud,B=>udb);
 

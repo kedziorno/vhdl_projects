@@ -22,6 +22,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 use WORK.p_constants1.ALL;
 
+-- WIP dont work, ~5-8mhz
 entity test_oled_fsm is
 generic (
 g_board_clock : integer := 50_000_000;
@@ -118,7 +119,7 @@ o_q : inout std_logic_vector(N-1 downto 0)
 );
 end component ripple_counter;
 constant RC0_N : integer := 6;
-constant RC0_MAX : integer := BYTES_SEQUENCE_LENGTH+2;
+constant RC0_MAX : integer := BYTES_SEQUENCE_LENGTH+3;
 signal rc0_cpb,rc0_mrb : std_logic;
 signal rc0_q : std_logic_vector(RC0_N-1 downto 0);
 signal rc0_ping : std_logic;
@@ -137,10 +138,10 @@ signal character_sended : std_logic;
 
 attribute CLOCK_SIGNAL : string;
 attribute CLOCK_SIGNAL of i_clk : signal is "yes"; --{yes | no};
-attribute CLOCK_SIGNAL of byte_sended : signal is "no"; --{yes | no};
-attribute BUFFER_TYPE : string;
-attribute BUFFER_TYPE of i_clk : signal is "BUFGP"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
-attribute BUFFER_TYPE of byte_sended : signal is "none"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
+--attribute CLOCK_SIGNAL of byte_sended : signal is "no"; --{yes | no};
+--attribute BUFFER_TYPE : string;
+--attribute BUFFER_TYPE of i_clk : signal is "BUFGP"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
+--attribute BUFFER_TYPE of byte_sended : signal is "none"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
 
 begin
 
@@ -263,14 +264,17 @@ begin
 					current_character <= (others => '0');
 					glcdfont_index <= (others => '0');
 				when BYTES_SEQUENCE_LENGTH+1 =>
-					i2c_ena <= '0';
+					i2c_ena <= '1';
 					i2c_data_wr <= (others => '0');
 					current_character <= (others => '0');
 					glcdfont_index <= (others => '0');
-					if (i2c_busy = '0') then
+--					if (i2c_busy = '0') then
+--						i2c_ena <= '0';
 						rc0_mrb <= '1';
 						n_state_test_oled_fsm <= set_address_1;
-					end if;
+--					end if;
+				when BYTES_SEQUENCE_LENGTH+2 =>
+					i2c_ena <= '0';
 				when others =>
 					i2c_ena <= '0';
 					i2c_data_wr <= (others => '0');
@@ -305,11 +309,12 @@ begin
 					current_character <= (others => '0');
 					glcdfont_index <= (others => '0');
 				when NI_SET_COORDINATION+1 =>
-					i2c_ena <= '0';
+					i2c_ena <= '1';
 					i2c_data_wr <= (others => '0');
 					current_character <= (others => '0');
 					glcdfont_index <= (others => '0');
 					if (i2c_busy = '0') then
+--						i2c_ena <= '0';
 						rc0_mrb <= '1';
 						n_state_test_oled_fsm <= set_address_2; --clear_display_state_1;
 					end if;
@@ -349,11 +354,12 @@ begin
 					current_character <= (others => '0');
 					glcdfont_index <= (others => '0');
 				when NI_SET_COORDINATION+1 =>
-					i2c_ena <= '0';
+					i2c_ena <= '1';
 					i2c_data_wr <= (others => '0');
 					current_character <= (others => '0');
 					glcdfont_index <= (others => '0');
 					if (i2c_busy = '0') then
+--						i2c_ena <= '0';
 						rc0_mrb <= '1';
 						n_state_test_oled_fsm <= send_character;
 						character_sended <= '1';
@@ -414,11 +420,12 @@ begin
 					glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+4,glcdfont_index'length));
 					i2c_data_wr <= glcdfont_character;
 				when 6 =>
-					i2c_ena <= '0';
+					i2c_ena <= '1';
 					current_character <= (others => '0');
 					i2c_data_wr <= (others => '0');
 					glcdfont_index <= (others => '0');
 					if (i2c_busy = '0') then
+--						i2c_ena <= '0';
 						rc1_mrb <= '1';
 						n_state_test_oled_fsm <= check_character_index;
 					end if;

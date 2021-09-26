@@ -78,14 +78,13 @@ signal current_character : std_logic_vector(7 downto 0);
 component glcdfont is
 port(
 	i_clk : in std_logic;
-	i_reset : in std_logic;
 	i_index : in std_logic_vector(10 downto 0);
 	o_character : out std_logic_vector(7 downto 0)
 );
 end component glcdfont;
 for all : glcdfont use entity WORK.glcdfont(behavioral_glcdfont);
 
-component my_i2c is
+component my_i2c_fsm is
 generic(
 BOARD_CLOCK : INTEGER := G_BOARD_CLOCK;
 BUS_CLOCK : INTEGER := G_BUS_CLOCK
@@ -100,7 +99,7 @@ o_busy : out std_logic;
 o_sda : out std_logic;
 o_scl : out std_logic
 );
-end component my_i2c;
+end component my_i2c_fsm;
 
 type state is 
 (
@@ -126,12 +125,11 @@ c0 : glcdfont
 port map
 (
 	i_clk => i_clk,
-	i_reset => i_rst,
 	i_index => glcdfont_index,
 	o_character => glcdfont_character
 );
 
-c1 : my_i2c
+c1 : my_i2c_fsm
 GENERIC MAP
 (
 	BOARD_CLOCK => GCLK,
