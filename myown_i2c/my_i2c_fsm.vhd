@@ -466,21 +466,16 @@ begin
 				rc0_cpb <= '0';
 				rc1_cpb <= '0';
 				rc2_cpb <= '0';
-				if (c_cmode0 /= c1 and c_cmode0 /= c2 and (c_cmode0 = c0 or c_cmode0 = c3)) then
-					vtemp_sck := '0';
-				end if;
-				if ((c_cmode0 = c1 or c_cmode0 = c2) and c_cmode0 /= c0 and c_cmode0 /= c3) then
-					vtemp_sck := '1';
-				else
-					vtemp_sck := '0';
-				end if;
 				if (c_cmode0 = c0) then
 					vtemp_sda := '0';
+					vtemp_sck := '1';
+					n_state_i2c_fsm <= sda_stop;
 				end if;
 				if (c_cmode0 /= c0) then
 					vtemp_sda := temp_sda;
+					vtemp_sck := temp_sck;
+					n_state_i2c_fsm <= stop;
 				end if;
-				n_state_i2c_fsm <= sda_stop;
 			when sda_stop =>
 				rc0_mrb <= '0';
 				rc1_mrb <= '0';
@@ -489,9 +484,16 @@ begin
 				rc1_cpb <= '0';
 				rc2_cpb <= '0';
 				o_byte_sended <= '0';
-				n_state_i2c_fsm <= idle;
-				vtemp_sck := '1';
-				vtemp_sda := '0';
+				if (c_cmode0 = c0) then
+					vtemp_sck := '1';
+					vtemp_sda := '1';
+					n_state_i2c_fsm <= idle;
+				end if;
+				if (c_cmode0 /= c0) then
+					vtemp_sck := temp_sck;
+					vtemp_sda := temp_sda;
+					n_state_i2c_fsm <= sda_stop;
+				end if;
 				o_busy <= '1';
 			when others =>
 				n_state_i2c_fsm <= idle;
