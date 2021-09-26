@@ -39,37 +39,42 @@ END tb_test_oled;
 ARCHITECTURE behavior OF tb_test_oled IS 
  
     -- Component Declaration for the Unit Under Test (UUT)
- 
-    COMPONENT test_oled
-    PORT(
-         i_clk : IN  std_logic;
-         i_rst : IN  std_logic;
-         i_refresh : IN  std_logic;
-         io_sda : INOUT  std_logic;
-         io_scl : INOUT  std_logic
-        );
-    END COMPONENT;
+		COMPONENT test_oled
+		GENERIC (
+		g_board_clock : integer := G_BOARD_CLOCK;
+		g_bus_clock : integer := G_BUS_CLOCK
+		);
+		PORT(
+		i_clk : IN  std_logic;
+		i_rst : IN  std_logic;
+		io_sda : INOUT  std_logic;
+		io_scl : INOUT  std_logic
+		);
+		END COMPONENT;
     
 
    --Inputs
    signal clk : std_logic := '0';
    signal rst : std_logic := '0';
-   signal refresh : std_logic := '0';
 
 	--BiDirs
    signal sda : std_logic;
    signal scl : std_logic;
 
    -- Clock period definitions
-   constant clk_period : time := 20 ns;
- 
+	 constant clk_period : time := (1_000_000_000/G_BOARD_CLOCK) * 1 ns;
+
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
-	uut: test_oled PORT MAP (
+	uut: test_oled
+	GENERIC MAP (
+		G_BOARD_CLOCK => G_BOARD_CLOCK,
+		G_BUS_CLOCK => G_BUS_CLOCK
+	)
+	PORT MAP (
 		i_clk => clk,
 		i_rst => rst,
-		i_refresh => refresh,
 		io_sda => sda,
 		io_scl => scl
 	);

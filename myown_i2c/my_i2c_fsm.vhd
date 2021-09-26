@@ -146,15 +146,15 @@ begin
 	o_q => rc2_q
 	);
 
-	i2c_clock_process : process (i_clock,i_reset) is
+	i2c_clock_process : process (i_clock) is
 		constant I2C_COUNTER_MAX : integer := (BOARD_CLOCK / BUS_CLOCK) / 4;
 		variable count : integer range 0 to (I2C_COUNTER_MAX*4)-1;
 	begin
-		if (i_reset = '1') then
-			clock <= '0';
-			count := 0;
-		elsif (rising_edge(i_clock)) then
-			if (count = (I2C_COUNTER_MAX*4)-1) then
+		if (rising_edge(i_clock)) then
+			if (i_reset = '1') then
+				clock <= '0';
+				count := 0;
+			elsif (count = (I2C_COUNTER_MAX*4)-1) then
 				clock <= '1';
 				count := 0;
 			else
@@ -164,12 +164,14 @@ begin
 		end if;
 	end process i2c_clock_process;
 
-	clock_mode_0_seq : process (clock,i_reset) is
+	clock_mode_0_seq : process (clock) is
 	begin
-		if (i_reset = '1') then
-			c_cmode0 <= c0;
-		elsif (rising_edge(clock)) then
-			c_cmode0 <= n_cmode0;
+		if (rising_edge(clock)) then
+			if (i_reset = '1') then
+				c_cmode0 <= c0;
+			else
+				c_cmode0 <= n_cmode0;
+			end if;
 		end if;
 	end process clock_mode_0_seq;
 
@@ -196,12 +198,14 @@ begin
 		end case;
 	end process clock_mode_0_com;
 
-	p2 : process (clock,i_reset) is
+	p2 : process (clock) is
 	begin
-		if (i_reset = '1') then
-			c_state_i2c_fsm <= idle;
-		elsif (rising_edge(clock)) then
-			c_state_i2c_fsm <= n_state_i2c_fsm;
+		if (rising_edge(clock)) then
+			if (i_reset = '1') then
+				c_state_i2c_fsm <= idle;
+			else
+				c_state_i2c_fsm <= n_state_i2c_fsm;
+			end if;
 		end if;
 	end process p2;
 	
