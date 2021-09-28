@@ -104,7 +104,7 @@ architecture LUT of FF_JK is
 
 begin
 
-	sa <= C after W_C;
+--	sa <= C after W_C;
 	-- clock bar
 	clock_b : GATE_NOT GENERIC MAP (W_NOTC)
 	PORT MAP (A=>C,B=>sb);
@@ -118,13 +118,13 @@ begin
 	
 	-- nand3 1u plus i_r bar
 	nand3_1u : GATE_NAND4 GENERIC MAP (W_NAND3)
-	PORT MAP (A=>sa,B=>j,C=>q2,D=>i_rb,E=>sg);
+	PORT MAP (A=>C,B=>j,C=>q2,D=>i_rb,E=>sg);
 --	se <= not (sa and sc and q2 and not i_r);
 --	sg <= se after W_NAND3;
 
 	-- nand3 1d
 	nand3_1d : GATE_NAND3 GENERIC MAP (W_NAND3)
-	PORT MAP (A=>sa,B=>k,C=>q1,D=>sj);
+	PORT MAP (A=>C,B=>k,C=>q1,D=>sj);
 --	sh <= not (sa and sd and q1);
 --	sj <= sh after W_NAND3;
 

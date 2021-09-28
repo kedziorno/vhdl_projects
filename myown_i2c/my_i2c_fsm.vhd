@@ -97,20 +97,23 @@ architecture Behavioral of my_i2c_fsm is
 	signal rc1_cpb,rc1_mrb : std_logic;
 	signal rc1_q : std_logic_vector(RC1_N-1 downto 0);
 	signal rc1_ping : std_logic;
-	constant RC2_N : integer := 2;
-	constant RC2_MAX : integer := 2;
+	constant RC2_N : integer := 4;
+	constant RC2_MAX : integer := G_BYTE_SIZE;
 	signal rc2_cpb,rc2_mrb : std_logic;
 	signal rc2_q : std_logic_vector(RC2_N-1 downto 0);
 	signal rc2_ping : std_logic;
 
-	--attribute KEEP : string;
-	--attribute KEEP of i_clk : signal is true;
---	attribute CLOCK_SIGNAL : string;
---	attribute CLOCK_SIGNAL of clock : signal is "no"; --{yes | no};
+--	attribute KEEP : string;
+--	attribute KEEP of clock : signal is "yes";
+--	attribute KEEP of i_clock : signal is "yes";
+	attribute CLOCK_SIGNAL : string;
+	attribute CLOCK_SIGNAL of clock : signal is "yes"; --{yes | no};
+--	attribute CLOCK_SIGNAL of i_clock : signal is "yes"; --{yes | no};
 --	attribute CLOCK_SIGNAL of temp_sck : signal is "no"; --{yes | no};
 --	attribute CLOCK_SIGNAL of temp_sda : signal is "no"; --{yes | no};
---	attribute BUFFER_TYPE : string;
---	attribute BUFFER_TYPE of i_clock : signal is "BUFGP"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
+	attribute BUFFER_TYPE : string;
+	attribute BUFFER_TYPE of clock : signal is "BUFG"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
+--	attribute BUFFER_TYPE of i_clock : signal is "NONE"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
 --	attribute BUFFER_TYPE of temp_sck : signal is "none"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
 --	attribute BUFFER_TYPE of temp_sda : signal is "none"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
 
@@ -147,14 +150,14 @@ begin
 	);
 
 	i2c_clock_process : process (i_clock) is
-		constant I2C_COUNTER_MAX : integer := (BOARD_CLOCK / BUS_CLOCK) / 4;
-		variable count : integer range 0 to (I2C_COUNTER_MAX*4)-1;
+		constant I2C_COUNTER_MAX : integer := BOARD_CLOCK / BUS_CLOCK;
+		variable count : integer range 0 to I2C_COUNTER_MAX-1;
 	begin
 		if (rising_edge(i_clock)) then
 			if (i_reset = '1') then
 				clock <= '0';
 				count := 0;
-			elsif (count = (I2C_COUNTER_MAX*4)-1) then
+			elsif (count = I2C_COUNTER_MAX-1) then
 				clock <= '1';
 				count := 0;
 			else
@@ -433,7 +436,7 @@ begin
 					vtemp_sda := temp_sda;
 				end if;
 				if (i_enable = '1') then
-					if (to_integer(unsigned(rc2_q)) = RC2_MAX-1) then
+					if (to_integer(unsigned(rc2_q)) = RC2_MAX-7) then
 						n_state_i2c_fsm <= data;
 						o_busy <= '0';
 						o_byte_sended <= '1';
@@ -445,7 +448,7 @@ begin
 						rc2_mrb <= '0';
 					end if;
 				else
-					if (to_integer(unsigned(rc2_q)) = RC2_MAX-1) then
+					if (to_integer(unsigned(rc2_q)) = RC2_MAX-7) then
 						n_state_i2c_fsm <= stop;
 						o_busy <= '1';
 						o_byte_sended <= '0';

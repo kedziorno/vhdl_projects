@@ -36,11 +36,11 @@ begin
 -- LUT1_L: 1-input Look-Up Table with local output
 -- Spartan-3
 -- Xilinx HDL Libraries Guide, version 14.7
-gate_not_LUT1_L : LUT1_L
+gate_not_LUT1_L : LUT1
 generic map (
 	INIT => "01")
 port map (
-	LO => B, -- LUT local output
+	O => B, -- LUT local output
 	I0 => A -- LUT input
 ); -- End of LUT1_L_inst instantiation
 --B <= T after delay_not;

@@ -116,6 +116,11 @@ signal c_state : state;
 signal glcdfont_character : std_logic_vector(7 downto 0);
 signal glcdfont_index : std_logic_vector(10 downto 0);
 
+attribute CLOCK_SIGNAL : string;
+attribute CLOCK_SIGNAL of i_clk : signal is "yes"; --{yes | no};
+attribute BUFFER_TYPE : string;
+attribute BUFFER_TYPE of i_clk : signal is "BUFGP"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
+
 begin
 
 i2c_addr <= "0111100"; -- 3C

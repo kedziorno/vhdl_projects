@@ -52,11 +52,11 @@ begin
 -- LUT4: 4-input Look-Up Table with general output
 -- Spartan-3
 -- Xilinx HDL Libraries Guide, version 14.7
-gate_nand4_LUT4_L : LUT4_L
+gate_nand4_LUT4_L : LUT4
 generic map (
 	INIT => X"7FFF")
 port map (
-	LO => E, -- LUT local output
+	O => E, -- LUT local output
 	I0 => A, -- LUT input
 	I1 => B, -- LUT input
 	I2 => C, -- LUT input

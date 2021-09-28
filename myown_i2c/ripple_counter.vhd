@@ -112,15 +112,20 @@ architecture Behavioral of ripple_counter is
 	constant WAIT_OR : time := 0 ps;
 	constant WAIT_NOT : time := 0 ps;
 
+	attribute CLOCK_SIGNAL : string;
+	attribute CLOCK_SIGNAL of i_clock : signal is "yes"; --{yes | no};
+	attribute BUFFER_TYPE : string;
+	attribute BUFFER_TYPE of i_clock : signal is "BUFG"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
+
 begin
 
 	ffjk_or(N-1) <= '0';
-	gand_lut2 : GATE_AND_LUT2 port map (A=>i_clock,B=>cp,C=>gated_clock);
---	BUFGCE_inst : BUFGCE port map (
---	O => gated_clock, -- Clock buffer ouptput
---	CE => cp, -- Clock enable input
---	I => i_clock -- Clock buffer input
---	);
+--	gand_lut2 : GATE_AND_LUT2 port map (A=>i_clock,B=>cp,C=>gated_clock); -- XXX ~20mhz
+	BUFGCE_inst : BUFGCE port map ( -- XXX ~40mhz
+	O => gated_clock, -- Clock buffer ouptput
+	CE => cp, -- Clock enable input
+	I => i_clock -- Clock buffer input
+	);
 	ud <= i_ud;
 	o_q <= q1;
 	cp <= i_cpb;
