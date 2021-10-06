@@ -120,12 +120,12 @@ architecture Behavioral of ripple_counter is
 begin
 
 	ffjk_or(N-1) <= '0';
---	gand_lut2 : GATE_AND_LUT2 port map (A=>i_clock,B=>cp,C=>gated_clock); -- XXX ~20mhz
-	BUFGCE_inst : BUFGCE port map ( -- XXX ~40mhz
-	O => gated_clock, -- Clock buffer ouptput
-	CE => cp, -- Clock enable input
-	I => i_clock -- Clock buffer input
-	);
+	gand_lut2 : GATE_AND_LUT2 port map (A=>i_clock,B=>cp,C=>gated_clock); -- XXX ~20mhz
+--	BUFGCE_inst : BUFGCE port map ( -- XXX ~40mhz
+--	O => gated_clock, -- Clock buffer ouptput
+--	CE => cp, -- Clock enable input
+--	I => i_clock -- Clock buffer input
+--	);
 	ud <= i_ud;
 	o_q <= q1;
 	cp <= i_cpb;

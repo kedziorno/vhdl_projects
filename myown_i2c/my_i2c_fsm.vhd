@@ -106,16 +106,26 @@ architecture Behavioral of my_i2c_fsm is
 --	attribute KEEP : string;
 --	attribute KEEP of clock : signal is "yes";
 --	attribute KEEP of i_clock : signal is "yes";
-	attribute CLOCK_SIGNAL : string;
-	attribute CLOCK_SIGNAL of clock : signal is "yes"; --{yes | no};
+--	attribute CLOCK_SIGNAL : string;
+--	attribute CLOCK_SIGNAL of clock : signal is "yes"; --{yes | no};
 --	attribute CLOCK_SIGNAL of i_clock : signal is "yes"; --{yes | no};
 --	attribute CLOCK_SIGNAL of temp_sck : signal is "no"; --{yes | no};
 --	attribute CLOCK_SIGNAL of temp_sda : signal is "no"; --{yes | no};
-	attribute BUFFER_TYPE : string;
-	attribute BUFFER_TYPE of clock : signal is "BUFG"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
+--	attribute BUFFER_TYPE : string;
+--	attribute BUFFER_TYPE of clock : signal is "BUFG"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
 --	attribute BUFFER_TYPE of i_clock : signal is "NONE"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
 --	attribute BUFFER_TYPE of temp_sck : signal is "none"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
 --	attribute BUFFER_TYPE of temp_sda : signal is "none"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
+
+	constant I2C_COUNTER_MAX : integer := BOARD_CLOCK / BUS_CLOCK;
+	signal count : integer range 0 to I2C_COUNTER_MAX-1;
+
+	attribute loc : string;
+--	attribute loc of {signal_name | label_name }: {signal |label} is "location ";
+	attribute loc of "count" : signal is "SLICE_X56Y116:SLICE_X58Y119";
+	attribute loc of "entity_rc0" : label is "SLICE_X64Y92:SLICE_X79Y105";
+	attribute loc of "entity_rc1" : label is "SLICE_X64Y92:SLICE_X79Y105";
+	attribute loc of "entity_rc2" : label is "SLICE_X64Y92:SLICE_X79Y105";
 
 begin
 
@@ -149,32 +159,28 @@ begin
 	o_q => rc2_q
 	);
 
-	i2c_clock_process : process (i_clock) is
-		constant I2C_COUNTER_MAX : integer := BOARD_CLOCK / BUS_CLOCK;
-		variable count : integer range 0 to I2C_COUNTER_MAX-1;
+	i2c_clock_process : process (i_clock,i_reset) is
 	begin
-		if (rising_edge(i_clock)) then
-			if (i_reset = '1') then
-				clock <= '0';
-				count := 0;
-			elsif (count = I2C_COUNTER_MAX-1) then
+		if (i_reset = '1') then
+			clock <= '0';
+			count <= 0;
+		elsif (rising_edge(i_clock)) then
+			if (count = I2C_COUNTER_MAX-1) then
 				clock <= '1';
-				count := 0;
+				count <= 0;
 			else
 				clock <= '0';
-				count := count + 1;
+				count <= count + 1;
 			end if;
 		end if;
 	end process i2c_clock_process;
 
-	clock_mode_0_seq : process (clock) is
+	clock_mode_0_seq : process (clock,i_reset) is
 	begin
-		if (rising_edge(clock)) then
-			if (i_reset = '1') then
-				c_cmode0 <= c0;
-			else
-				c_cmode0 <= n_cmode0;
-			end if;
+		if (i_reset = '1') then
+			c_cmode0 <= c0;
+		elsif (rising_edge(clock)) then
+			c_cmode0 <= n_cmode0;
 		end if;
 	end process clock_mode_0_seq;
 
@@ -201,14 +207,12 @@ begin
 		end case;
 	end process clock_mode_0_com;
 
-	p2 : process (clock) is
+	p2 : process (clock,i_reset) is
 	begin
-		if (rising_edge(clock)) then
-			if (i_reset = '1') then
-				c_state_i2c_fsm <= idle;
-			else
-				c_state_i2c_fsm <= n_state_i2c_fsm;
-			end if;
+		if (i_reset = '1') then
+			c_state_i2c_fsm <= idle;
+		elsif (rising_edge(clock)) then
+			c_state_i2c_fsm <= n_state_i2c_fsm;
 		end if;
 	end process p2;
 	

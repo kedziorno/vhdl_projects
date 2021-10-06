@@ -116,10 +116,10 @@ signal c_state : state;
 signal glcdfont_character : std_logic_vector(7 downto 0);
 signal glcdfont_index : std_logic_vector(10 downto 0);
 
-attribute CLOCK_SIGNAL : string;
-attribute CLOCK_SIGNAL of i_clk : signal is "yes"; --{yes | no};
-attribute BUFFER_TYPE : string;
-attribute BUFFER_TYPE of i_clk : signal is "BUFGP"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
+--attribute CLOCK_SIGNAL : string;
+--attribute CLOCK_SIGNAL of i_clk : signal is "yes"; --{yes | no};
+--attribute BUFFER_TYPE : string;
+--attribute BUFFER_TYPE of i_clk : signal is "BUFGP"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
 
 begin
 
@@ -153,147 +153,145 @@ PORT MAP
 
 p0 : process (i_clk,i_rst) is
 begin
-		if (rising_edge(i_clk)) then
-			if (i_rst = '1') then
-				c_state <= idle;
-				busy_cnt <= 0;
-				index_character <= 0;
-				glcdfont_index <= (others => '0');
-			else
-				case c_state is
-					when idle =>
-						c_state <= start;
-						i2c_reset <= '1';
-					when start =>
-						i2c_reset <= '0';
-						busy_prev <= i2c_busy;
-						if (busy_prev = '0' and i2c_busy = '1') then
-							busy_cnt <= busy_cnt + 1;
-						end if;
-						case busy_cnt is
-							when 0 =>
-								i2c_ena <= '1'; -- we are busy
-							when 1 =>
-								i2c_data_wr <= OLED_COMMAND;
-							when 2 to BYTES_SEQUENCE_LENGTH+1 =>
-								i2c_data_wr <= sequence(busy_cnt-2); -- command
-							when BYTES_SEQUENCE_LENGTH+2 =>
-								i2c_ena <= '0';
-								i2c_data_wr <= (others => '0');
-								if (i2c_busy = '0') then
-									busy_cnt <= 0;
-									c_state <= set_address_1;
-								end if;
-							when others => null;
-						end case;
-					when set_address_1 =>
-						busy_prev <= i2c_busy;
-						if (busy_prev = '0' and i2c_busy = '1') then
-							busy_cnt <= busy_cnt + 1;
-						end if;
-						case busy_cnt is
-							when 0 =>
-								i2c_ena <= '1'; -- we are busy
-							when 1 =>
-								i2c_data_wr <= OLED_COMMAND;
-							when 2 to NI_SET_COORDINATION+1 =>
-								i2c_data_wr <= set_coordination(busy_cnt-2); -- command
-							when NI_SET_COORDINATION+2 =>
-								i2c_ena <= '0';
-								if (i2c_busy = '0') then
-									busy_cnt <= 0;
-									c_state <= clear_display_state_1;
-								end if;
-							when others => null;
-						end case;
-					when clear_display_state_1 =>
-						busy_prev <= i2c_busy;
-						if (busy_prev = '0' and i2c_busy = '1') then
-							busy_cnt <= busy_cnt + 1;
-						end if;
-						case busy_cnt is
-							when 0 =>
-								i2c_ena <= '1'; -- we are busy
-							when 1 =>
-								i2c_data_wr <= OLED_DATA;
-							when 2 to OLED_PAGES_ALL+1 =>
-								i2c_data_wr <= x"00"; -- command - FF/allpixels,00/blank,F0/zebra
-							when OLED_PAGES_ALL+2 =>
-								i2c_ena <= '0';
-								if (i2c_busy = '0') then
-									busy_cnt <= 0;
-									c_state <= set_address_2;
-								end if;
-							when others => null;
-						end case;
-					when set_address_2 =>
-						busy_prev <= i2c_busy;
-						if (busy_prev = '0' and i2c_busy = '1') then
-							busy_cnt <= busy_cnt + 1;
-						end if;
-						case busy_cnt is
-							when 0 =>
-								i2c_ena <= '1'; -- we are busy
-							when 1 =>
-								i2c_data_wr <= OLED_COMMAND;
-							when 2 to NI_SET_COORDINATION+1 =>
-								i2c_data_wr <= set_coordination(busy_cnt-2); -- command
-							when NI_SET_COORDINATION+2 =>
-								i2c_ena <= '0';
-								if (i2c_busy = '0') then
-									busy_cnt <= 0;
-									c_state <= send_character;
-								end if;
-							when others => null;
-						end case;
-					when send_character =>
-						busy_prev <= i2c_busy;
-						if (busy_prev = '0' and i2c_busy = '1') then
-							busy_cnt <= busy_cnt + 1;
-						end if;
-						case busy_cnt is
-							when 0 =>
-								i2c_ena <= '1'; -- we are busy
-								current_character <= i_char(index_character);
-							when 1 =>
-								i2c_data_wr <= x"40";
-							when 2 =>
-								glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+0,glcdfont_index'length));
-								i2c_data_wr <= glcdfont_character;
-							when 3 =>
-								glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+1,glcdfont_index'length));
-								i2c_data_wr <= glcdfont_character;
-							when 4 =>
-								glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+2,glcdfont_index'length));
-								i2c_data_wr <= glcdfont_character;
-							when 5 =>
-								glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+3,glcdfont_index'length));
-								i2c_data_wr <= glcdfont_character;
-							when 6 =>
-								glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+4,glcdfont_index'length));
-								i2c_data_wr <= glcdfont_character;
-							when 7 =>
-								i2c_ena <= '0';
-								if (i2c_busy = '0') then
-									busy_cnt <= 0;
-									c_state <= check_character_index;
-								end if;
-							when others => null;
-						end case;
-					when check_character_index =>
-						if (index_character = i_char'length-1) then
-							c_state <= stop;
-							index_character <= 0;
-						else
-							c_state <= send_character;
-							index_character <= index_character + 1;
-						end if;
-					when stop =>
-						i2c_ena <= '0';
-	--					c_state <= idle;
-					when others => null;
-				end case;
-			end if;
+		if (i_rst = '1') then
+			c_state <= idle;
+			busy_cnt <= 0;
+			index_character <= 0;
+			glcdfont_index <= (others => '0');
+		elsif (rising_edge(i_clk)) then
+			case c_state is
+				when idle =>
+					c_state <= start;
+					i2c_reset <= '1';
+				when start =>
+					i2c_reset <= '0';
+					busy_prev <= i2c_busy;
+					if (busy_prev = '0' and i2c_busy = '1') then
+						busy_cnt <= busy_cnt + 1;
+					end if;
+					case busy_cnt is
+						when 0 =>
+							i2c_ena <= '1'; -- we are busy
+						when 1 =>
+							i2c_data_wr <= OLED_COMMAND;
+						when 2 to BYTES_SEQUENCE_LENGTH+1 =>
+							i2c_data_wr <= sequence(busy_cnt-2); -- command
+						when BYTES_SEQUENCE_LENGTH+2 =>
+							i2c_ena <= '0';
+							i2c_data_wr <= (others => '0');
+							if (i2c_busy = '0') then
+								busy_cnt <= 0;
+								c_state <= set_address_1;
+							end if;
+						when others => null;
+					end case;
+				when set_address_1 =>
+					busy_prev <= i2c_busy;
+					if (busy_prev = '0' and i2c_busy = '1') then
+						busy_cnt <= busy_cnt + 1;
+					end if;
+					case busy_cnt is
+						when 0 =>
+							i2c_ena <= '1'; -- we are busy
+						when 1 =>
+							i2c_data_wr <= OLED_COMMAND;
+						when 2 to NI_SET_COORDINATION+1 =>
+							i2c_data_wr <= set_coordination(busy_cnt-2); -- command
+						when NI_SET_COORDINATION+2 =>
+							i2c_ena <= '0';
+							if (i2c_busy = '0') then
+								busy_cnt <= 0;
+								c_state <= clear_display_state_1;
+							end if;
+						when others => null;
+					end case;
+				when clear_display_state_1 =>
+					busy_prev <= i2c_busy;
+					if (busy_prev = '0' and i2c_busy = '1') then
+						busy_cnt <= busy_cnt + 1;
+					end if;
+					case busy_cnt is
+						when 0 =>
+							i2c_ena <= '1'; -- we are busy
+						when 1 =>
+							i2c_data_wr <= OLED_DATA;
+						when 2 to OLED_PAGES_ALL+1 =>
+							i2c_data_wr <= x"00"; -- command - FF/allpixels,00/blank,F0/zebra
+						when OLED_PAGES_ALL+2 =>
+							i2c_ena <= '0';
+							if (i2c_busy = '0') then
+								busy_cnt <= 0;
+								c_state <= set_address_2;
+							end if;
+						when others => null;
+					end case;
+				when set_address_2 =>
+					busy_prev <= i2c_busy;
+					if (busy_prev = '0' and i2c_busy = '1') then
+						busy_cnt <= busy_cnt + 1;
+					end if;
+					case busy_cnt is
+						when 0 =>
+							i2c_ena <= '1'; -- we are busy
+						when 1 =>
+							i2c_data_wr <= OLED_COMMAND;
+						when 2 to NI_SET_COORDINATION+1 =>
+							i2c_data_wr <= set_coordination(busy_cnt-2); -- command
+						when NI_SET_COORDINATION+2 =>
+							i2c_ena <= '0';
+							if (i2c_busy = '0') then
+								busy_cnt <= 0;
+								c_state <= send_character;
+							end if;
+						when others => null;
+					end case;
+				when send_character =>
+					busy_prev <= i2c_busy;
+					if (busy_prev = '0' and i2c_busy = '1') then
+						busy_cnt <= busy_cnt + 1;
+					end if;
+					case busy_cnt is
+						when 0 =>
+							i2c_ena <= '1'; -- we are busy
+							current_character <= i_char(index_character);
+						when 1 =>
+							i2c_data_wr <= x"40";
+						when 2 =>
+							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+0,glcdfont_index'length));
+							i2c_data_wr <= glcdfont_character;
+						when 3 =>
+							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+1,glcdfont_index'length));
+							i2c_data_wr <= glcdfont_character;
+						when 4 =>
+							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+2,glcdfont_index'length));
+							i2c_data_wr <= glcdfont_character;
+						when 5 =>
+							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+3,glcdfont_index'length));
+							i2c_data_wr <= glcdfont_character;
+						when 6 =>
+							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+4,glcdfont_index'length));
+							i2c_data_wr <= glcdfont_character;
+						when 7 =>
+							i2c_ena <= '0';
+							if (i2c_busy = '0') then
+								busy_cnt <= 0;
+								c_state <= check_character_index;
+							end if;
+						when others => null;
+					end case;
+				when check_character_index =>
+					if (index_character = i_char'length-1) then
+						c_state <= stop;
+						index_character <= 0;
+					else
+						c_state <= send_character;
+						index_character <= index_character + 1;
+					end if;
+				when stop =>
+					i2c_ena <= '0';
+--					c_state <= idle;
+				when others => null;
+			end case;
 		end if;
 end process p0;
 
