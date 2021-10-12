@@ -151,14 +151,15 @@ PORT MAP
 	o_scl => io_scl
 );
 
-p0 : process (i_clk,i_rst) is
+p0 : process (i_clk) is
 begin
-		if (i_rst = '1') then
-			c_state <= idle;
-			busy_cnt <= 0;
-			index_character <= 0;
-			glcdfont_index <= (others => '0');
-		elsif (rising_edge(i_clk)) then
+		if (rising_edge(i_clk)) then
+			if (i_rst = '1') then
+				c_state <= idle;
+				busy_cnt <= 0;
+				index_character <= 0;
+				glcdfont_index <= (others => '0');
+			else
 			case c_state is
 				when idle =>
 					c_state <= start;
@@ -292,6 +293,7 @@ begin
 --					c_state <= idle;
 				when others => null;
 			end case;
+			end if;
 		end if;
 end process p0;
 

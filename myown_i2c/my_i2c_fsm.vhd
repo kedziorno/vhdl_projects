@@ -28,8 +28,8 @@ use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
+library UNISIM;
+use UNISIM.VComponents.all;
 
 entity my_i2c_fsm is
 generic(
@@ -127,7 +127,11 @@ architecture Behavioral of my_i2c_fsm is
 	attribute loc of "entity_rc1" : label is "SLICE_X64Y92:SLICE_X79Y105";
 	attribute loc of "entity_rc2" : label is "SLICE_X64Y92:SLICE_X79Y105";
 
+	signal pu : std_logic;
+
 begin
+
+	vcc_inst : PULLUP PORT MAP (O => pu);
 
 	entity_rc0 : ripple_counter
 	Generic map (N => RC0_N, MAX => RC0_MAX)
@@ -135,7 +139,7 @@ begin
 	i_clock => c_cmode0_rc_clock,
 	i_cpb => rc0_cpb,
 	i_mrb => rc0_mrb,
-	i_ud => '1',
+	i_ud => pu,
 	o_q => rc0_q
 	);
 
@@ -145,7 +149,7 @@ begin
 	i_clock => c_cmode0_rc_clock,
 	i_cpb => rc1_cpb,
 	i_mrb => rc1_mrb,
-	i_ud => '1',
+	i_ud => pu,
 	o_q => rc1_q
 	);
 
@@ -155,17 +159,17 @@ begin
 	i_clock => c_cmode0_rc_clock,
 	i_cpb => rc2_cpb,
 	i_mrb => rc2_mrb,
-	i_ud => '1',
+	i_ud => pu,
 	o_q => rc2_q
 	);
 
-	i2c_clock_process : process (i_clock,i_reset) is
+	i2c_clock_process : process (i_clock) is
 	begin
-		if (i_reset = '1') then
-			clock <= '0';
-			count <= 0;
-		elsif (rising_edge(i_clock)) then
-			if (count = I2C_COUNTER_MAX-1) then
+		if (rising_edge(i_clock)) then
+			if (i_reset = '1') then
+				clock <= '0';
+				count <= 0;
+			elsif (count = I2C_COUNTER_MAX-1) then
 				clock <= '1';
 				count <= 0;
 			else
@@ -175,12 +179,14 @@ begin
 		end if;
 	end process i2c_clock_process;
 
-	clock_mode_0_seq : process (clock,i_reset) is
+	clock_mode_0_seq : process (clock) is
 	begin
-		if (i_reset = '1') then
-			c_cmode0 <= c0;
-		elsif (rising_edge(clock)) then
-			c_cmode0 <= n_cmode0;
+		if (rising_edge(clock)) then
+			if (i_reset = '1') then
+				c_cmode0 <= c0;
+			else
+				c_cmode0 <= n_cmode0;
+			end if;
 		end if;
 	end process clock_mode_0_seq;
 
@@ -207,12 +213,14 @@ begin
 		end case;
 	end process clock_mode_0_com;
 
-	p2 : process (clock,i_reset) is
+	p2 : process (clock) is
 	begin
-		if (i_reset = '1') then
-			c_state_i2c_fsm <= idle;
-		elsif (rising_edge(clock)) then
-			c_state_i2c_fsm <= n_state_i2c_fsm;
+		if (rising_edge(clock)) then
+			if (i_reset = '1') then
+				c_state_i2c_fsm <= idle;
+			else
+				c_state_i2c_fsm <= n_state_i2c_fsm;
+			end if;
 		end if;
 	end process p2;
 	

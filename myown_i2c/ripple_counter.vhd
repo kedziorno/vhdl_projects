@@ -112,10 +112,10 @@ architecture Behavioral of ripple_counter is
 	constant WAIT_OR : time := 0 ps;
 	constant WAIT_NOT : time := 0 ps;
 
-	attribute CLOCK_SIGNAL : string;
-	attribute CLOCK_SIGNAL of i_clock : signal is "yes"; --{yes | no};
-	attribute BUFFER_TYPE : string;
-	attribute BUFFER_TYPE of i_clock : signal is "BUFG"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
+--	attribute CLOCK_SIGNAL : string;
+--	attribute CLOCK_SIGNAL of i_clock : signal is "yes"; --{yes | no};
+--	attribute BUFFER_TYPE : string;
+--	attribute BUFFER_TYPE of i_clock : signal is "BUFG"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
 
 begin
 
