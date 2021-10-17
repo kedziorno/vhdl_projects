@@ -167,8 +167,8 @@ begin
 	q1_out : GATE_AND GENERIC MAP (1 ns)
 	PORT MAP (A=>sx,B=>i_rb,C=>q1);
 --	q1 <= sx and not i_r after 1 ns; -- XXX metastable
---	q2_out : BUF PORT MAP (I=>sz,O=>q2);
-	q2 <= sz after W_Q2MS;
+	q2_out : BUF PORT MAP (I=>sz,O=>q2);
+--	q2 <= sz after W_Q2MS;
 
 end architecture LUT;
 

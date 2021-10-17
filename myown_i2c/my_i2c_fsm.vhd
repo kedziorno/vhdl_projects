@@ -120,12 +120,12 @@ architecture Behavioral of my_i2c_fsm is
 	constant I2C_COUNTER_MAX : integer := BOARD_CLOCK / BUS_CLOCK;
 	signal count : integer range 0 to I2C_COUNTER_MAX-1;
 
-	attribute loc : string;
+--	attribute loc : string;
 --	attribute loc of {signal_name | label_name }: {signal |label} is "location ";
-	attribute loc of "count" : signal is "SLICE_X56Y116:SLICE_X58Y119";
-	attribute loc of "entity_rc0" : label is "SLICE_X64Y92:SLICE_X79Y105";
-	attribute loc of "entity_rc1" : label is "SLICE_X64Y92:SLICE_X79Y105";
-	attribute loc of "entity_rc2" : label is "SLICE_X64Y92:SLICE_X79Y105";
+--	attribute loc of "count" : signal is "SLICE_X64Y92:SLICE_X79Y105";
+--	attribute loc of "entity_rc0" : label is "SLICE_X64Y92:SLICE_X79Y105";
+--	attribute loc of "entity_rc1" : label is "SLICE_X64Y92:SLICE_X79Y105";
+--	attribute loc of "entity_rc2" : label is "SLICE_X64Y92:SLICE_X79Y105";
 
 	signal pu : std_logic;
 
