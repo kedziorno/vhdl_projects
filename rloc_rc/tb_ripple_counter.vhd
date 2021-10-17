@@ -37,7 +37,7 @@ END tb_ripple_counter;
 
 ARCHITECTURE behavior OF tb_ripple_counter IS
 
-constant N : integer := 8;
+constant N : integer := 9;
 constant MAX : integer := 130;
 
 -- Component Declaration for the Unit Under Test (UUT)
@@ -76,7 +76,7 @@ N => N,
 MAX => MAX
 )
 PORT MAP (
-i_clock => i_clock,
+i_clock => clock,
 i_cpb => i_cpb,
 i_mrb => i_mrb,
 i_ud => i_ud,
@@ -91,8 +91,6 @@ wait for clock_period/2;
 clock <= '1';
 wait for clock_period/2;
 end process;
-
-i_clock <= clock;
 
 -- Stimulus process
 stim_proc: process

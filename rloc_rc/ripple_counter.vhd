@@ -66,17 +66,6 @@ architecture Behavioral of ripple_counter is
 	end component GATE_AND;
 	for all : GATE_AND use entity WORK.GATE_AND(GATE_AND_LUT);
 
-	component GATE_AND_LUT2 is
-	generic (
-	delay_and : TIME := 1 ns
-	);
-	port (
-	A,B : in STD_LOGIC;
-	C : out STD_LOGIC
-	);
-	end component GATE_AND_LUT2;
-	for all : GATE_AND_LUT2 use entity WORK.GATE_AND(GATE_AND_LUT);
-
 	component GATE_OR is
 	generic (
 	delay_or : TIME := 1 ns
@@ -104,7 +93,7 @@ architecture Behavioral of ripple_counter is
 	signal ping,ping1,ping2 : std_logic;
 	signal ffjk_and_u,ffjk_and_d,ffjk_or : std_logic_vector(N-1 downto 0); -- XXX omit last FF JK
 	signal ud,udb : std_logic;
-	signal gated_clock : std_logic;
+	signal gated_clock : std_logic := '0';
 	constant a : std_logic_vector(N-1 downto 0) := std_logic_vector(to_unsigned(MAX,N));
 	constant b : std_logic_vector(N-1 downto 0) := std_logic_vector(to_unsigned(0,N));
 
@@ -126,7 +115,7 @@ architecture Behavioral of ripple_counter is
 begin
 
 	ffjk_or(N-1) <= '0';
-	gand_lut2 : GATE_AND_LUT2 port map (A=>i_clock,B=>cp,C=>gated_clock); -- XXX ~20mhz
+	gand_lut2 : GATE_AND generic map (WAIT_AND) port map (A=>i_clock,B=>cp,C=>gated_clock); -- XXX ~20mhz
 --	BUFGCE_inst : BUFGCE port map ( -- XXX ~40mhz
 --	O => gated_clock, -- Clock buffer ouptput
 --	CE => cp, -- Clock enable input
