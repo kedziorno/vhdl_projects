@@ -37,7 +37,7 @@ END tb_ripple_counter;
 
 ARCHITECTURE behavior OF tb_ripple_counter IS
 
-constant N : integer := 9;
+constant N : integer := 8;
 constant MAX : integer := 130;
 
 -- Component Declaration for the Unit Under Test (UUT)
