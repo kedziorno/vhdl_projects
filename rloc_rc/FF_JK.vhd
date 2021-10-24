@@ -102,6 +102,20 @@ architecture LUT of FF_JK is
 	end component GATE_NOT;
 	for all : GATE_NOT use entity WORK.GATE_NOT(GATE_NOT_LUT);
 
+	attribute loc : string;
+	attribute loc of "clock_b" : label is "SLICE_X0Y0";
+	attribute loc of "i_rbar" : label is "SLICE_X0Y1";
+	attribute loc of "nand3_1u" : label is "SLICE_X1Y0";
+	attribute loc of "nand3_1d" : label is "SLICE_X1Y0";
+	attribute loc of "nand2_1u_1" : label is "SLICE_X1Y1";
+	attribute loc of "nand2_1d_1" : label is "SLICE_X1Y1";
+	attribute loc of "nand2_1u_2" : label is "SLICE_X2Y0";
+	attribute loc of "nand2_1d_2" : label is "SLICE_X2Y0";
+	attribute loc of "nand2_q1" : label is "SLICE_X2Y1";
+	attribute loc of "nand2_q2" : label is "SLICE_X2Y1";
+	attribute loc of "q1_out" : label is "SLICE_X3Y0";
+	attribute loc of "q2_out" : label is "SLICE_X3Y1";
+
 begin
 
 --	sa <= C after W_C;
