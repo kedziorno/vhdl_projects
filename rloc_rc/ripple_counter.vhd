@@ -111,7 +111,10 @@ architecture Behavioral of ripple_counter is
 --	attribute loc of "g0_and_u" : label is "SLICE_X64Y92:SLICE_X79Y92";
 --	attribute loc of "g0_and_d" : label is "SLICE_X64Y94:SLICE_X79Y94";
 --	attribute loc of "g0_or" : label is "SLICE_X64Y93:SLICE_X79Y93";
-	
+
+--	attribute loc : string;
+--	attribute loc of g0 : label is "SLICE_X0Y0";
+
 begin
 
 	ffjk_or(N-1) <= '0';
@@ -150,10 +153,17 @@ begin
 
 	g0 : for i in 0 to N-1 generate
 		ffjk_first : if (i=0) generate
-			ffjk_first : FF_JK port map (i_r=>mr,J=>i_cpb,K=>i_cpb,C=>gated_clock,Q1=>q1(i),Q2=>q2(i));
+			b0 : block
+				attribute loc : string;
+				attribute loc of ffjk_first_1 : label is "SLICE_X0Y0:SLICE_X3Y2";
+--				attribute rloc : string;
+--				attribute rloc of ffjk_first_1 : label is "X0Y0";
+			begin
+				ffjk_first_1 : FF_JK port map (i_r=>mr,J=>i_cpb,K=>i_cpb,C=>gated_clock,Q1=>q1(i),Q2=>q2(i));
+			end block b0;
 		end generate ffjk_first;
 		ffjk_chain : if (i>0) generate
-			ffjk_chain : FF_JK port map (i_r=>mr,J=>ffjk_or(i-1),K=>ffjk_or(i-1),C=>gated_clock,Q1=>q1(i),Q2=>q2(i));
+			ffjk_chain_1 : FF_JK port map (i_r=>mr,J=>ffjk_or(i-1),K=>ffjk_or(i-1),C=>gated_clock,Q1=>q1(i),Q2=>q2(i));
 		end generate ffjk_chain;
 	end generate g0;
 
