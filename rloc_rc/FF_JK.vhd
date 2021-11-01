@@ -104,7 +104,7 @@ architecture LUT of FF_JK is
 
 	attribute rloc : string;
 	attribute rloc of "clock_b" : label is "X0Y0";
-	attribute rloc of "i_rbar" : label is "X0Y1";
+	attribute rloc of "i_rbar" : label is "X0Y0";
 	attribute rloc of "nand3_1u" : label is "X1Y0";
 	attribute rloc of "nand3_1d" : label is "X1Y0";
 	attribute rloc of "nand2_1u_1" : label is "X1Y1";
@@ -114,7 +114,7 @@ architecture LUT of FF_JK is
 	attribute rloc of "nand2_q1" : label is "X2Y1";
 	attribute rloc of "nand2_q2" : label is "X2Y1";
 	attribute rloc of "q1_out" : label is "X3Y0";
-	attribute rloc of "q2_out" : label is "X3Y1";
+--	attribute rloc of "q2_out" : label is "X3Y1";
 
 begin
 

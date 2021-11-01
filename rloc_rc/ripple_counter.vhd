@@ -112,9 +112,6 @@ architecture Behavioral of ripple_counter is
 --	attribute loc of "g0_and_d" : label is "SLICE_X64Y94:SLICE_X79Y94";
 --	attribute loc of "g0_or" : label is "SLICE_X64Y93:SLICE_X79Y93";
 
---	attribute loc : string;
---	attribute loc of g0 : label is "SLICE_X0Y0";
-
 begin
 
 	ffjk_or(N-1) <= '0';
@@ -155,9 +152,7 @@ begin
 		ffjk_first : if (i=0) generate
 			b0 : block
 				attribute loc : string;
-				attribute loc of ffjk_first_1 : label is "SLICE_X0Y0:SLICE_X3Y2";
---				attribute rloc : string;
---				attribute rloc of ffjk_first_1 : label is "X0Y0";
+				attribute loc of ffjk_first_1 : label is "SLICE_X0Y0:SLICE_X2Y2";
 			begin
 				ffjk_first_1 : FF_JK port map (i_r=>mr,J=>i_cpb,K=>i_cpb,C=>gated_clock,Q1=>q1(i),Q2=>q2(i));
 			end block b0;
