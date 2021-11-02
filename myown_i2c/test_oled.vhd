@@ -159,6 +159,7 @@ begin
 				busy_cnt <= 0;
 				index_character <= 0;
 				glcdfont_index <= (others => '0');
+				i2c_reset <= '1';
 			else
 			case c_state is
 				when idle =>

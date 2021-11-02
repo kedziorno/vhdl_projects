@@ -135,7 +135,7 @@ begin
 --	ud <= i_ud;
 --	o_q <= q1;
 --	cp <= i_cpb;
-	mr <= '1' after 10 ns when o_q = a or i_mrb = '1' else '0' after 10 ns;
+	mr <= '1' when (o_q = a or i_mrb = '1') else '0';
 
 	g0_not_clock : GATE_NOT generic map (WAIT_NOT) port map (A=>i_ud,B=>udb);
 
