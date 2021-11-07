@@ -132,19 +132,19 @@ begin
 --	CE => cp, -- Clock enable input
 --	I => i_clock -- Clock buffer input
 --	);
---	ud <= i_ud;
---	o_q <= q1;
---	cp <= i_cpb;
-	mr <= '1' after 10 ns when o_q = a or i_mrb = '1' else '0' after 10 ns;
+	ud <= i_ud;
+	o_q <= q1;
+	cp <= i_cpb;
+	mr <= '1' when (q1 = a or i_mrb = '1') else '0';
 
-	g0_not_clock : GATE_NOT generic map (WAIT_NOT) port map (A=>i_ud,B=>udb);
+	g0_not_clock : GATE_NOT generic map (WAIT_NOT) port map (A=>ud,B=>udb);
 
 	g0_and_u : for i in 0 to N-1 generate -- XXX omit last FF JK
 		g0_and_u_first : if (i=0) generate
-			g0_and_u_first : GATE_AND generic map (WAIT_AND) port map (A=>o_q(i),B=>ud,C=>ffjk_and_u(i));
+			g0_and_u_first : GATE_AND generic map (WAIT_AND) port map (A=>q1(i),B=>ud,C=>ffjk_and_u(i));
 		end generate g0_and_u_first;
 		g0_and_u_chain : if (i>0) generate
-			g0_and_u_chain : GATE_AND generic map (WAIT_AND) port map (A=>o_q(i),B=>ffjk_and_u(i-1),C=>ffjk_and_u(i));
+			g0_and_u_chain : GATE_AND generic map (WAIT_AND) port map (A=>q1(i),B=>ffjk_and_u(i-1),C=>ffjk_and_u(i));
 		end generate g0_and_u_chain;
 	end generate g0_and_u;
 
@@ -163,10 +163,10 @@ begin
 
 	g0 : for i in 0 to N-1 generate
 		ffjk_first : if (i=0) generate
-			ffjk_first : FF_JK port map (i_r=>mr,J=>i_cpb,K=>i_cpb,C=>gated_clock,Q1=>o_q(i),Q2=>open);
+			ffjk_first : FF_JK port map (i_r=>mr,J=>cp,K=>cp,C=>gated_clock,Q1=>q1(i),Q2=>open);
 		end generate ffjk_first;
 		ffjk_chain : if (i>0) generate
-			ffjk_chain : FF_JK port map (i_r=>mr,J=>ffjk_or(i-1),K=>ffjk_or(i-1),C=>gated_clock,Q1=>o_q(i),Q2=>open);
+			ffjk_chain : FF_JK port map (i_r=>mr,J=>ffjk_or(i-1),K=>ffjk_or(i-1),C=>gated_clock,Q1=>q1(i),Q2=>open);
 		end generate ffjk_chain;
 	end generate g0;
 

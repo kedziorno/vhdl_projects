@@ -131,15 +131,13 @@ architecture Behavioral of my_i2c_fsm is
 
 begin
 
-	vcc_inst : PULLUP PORT MAP (O => pu);
-
 	entity_rc0 : ripple_counter
 	Generic map (N => RC0_N, MAX => RC0_MAX)
 	Port map (
 	i_clock => c_cmode0_rc_clock,
 	i_cpb => rc0_cpb,
 	i_mrb => rc0_mrb,
-	i_ud => pu,
+	i_ud => '1',
 	o_q => rc0_q
 	);
 
@@ -149,7 +147,7 @@ begin
 	i_clock => c_cmode0_rc_clock,
 	i_cpb => rc1_cpb,
 	i_mrb => rc1_mrb,
-	i_ud => pu,
+	i_ud => '1',
 	o_q => rc1_q
 	);
 
@@ -159,7 +157,7 @@ begin
 	i_clock => c_cmode0_rc_clock,
 	i_cpb => rc2_cpb,
 	i_mrb => rc2_mrb,
-	i_ud => pu,
+	i_ud => '1',
 	o_q => rc2_q
 	);
 
