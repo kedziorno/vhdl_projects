@@ -114,15 +114,15 @@ architecture Behavioral of ripple_counter is
 
 begin
 
-	ffjk_or(N-1) <= '0';
-	gand_lut2 : GATE_AND generic map (WAIT_AND) port map (A=>i_clock,B=>i_cpb,C=>gated_clock); -- XXX ~20mhz
+--	ffjk_or(N-1) <= '0';
+	gated_clock_gand_lut2 : GATE_AND generic map (WAIT_AND) port map (A=>i_clock,B=>i_cpb,C=>gated_clock); -- XXX ~20mhz
 --	BUFGCE_inst : BUFGCE port map ( -- XXX ~40mhz
 --	O => gated_clock, -- Clock buffer ouptput
 --	CE => cp, -- Clock enable input
 --	I => i_clock -- Clock buffer input
 --	);
 	o_q <= q1;
-	mr <= '1' when o_q = a or i_mrb = '1' else '0';
+	mr_block : mr <= '1' when o_q = a or i_mrb = '1' else '0';
 
 	g0_not_clock : GATE_NOT generic map (WAIT_NOT) port map (A=>i_ud,B=>udb);
 
@@ -162,7 +162,7 @@ begin
 		ffjk_chain : if (i>0) generate
 			b1 : block
 				-- XXX UG625 p231
-				constant row1 : natural := i * 4 + 12;
+				constant row1 : natural := i * 16 + 12;
 				constant loc_str : string := ""
 				& "SLICE_" & "X" & natural'image(row1) & "Y" & "8"
 				& ":"
