@@ -151,14 +151,33 @@ begin
 	g0 : for i in 0 to N-1 generate
 		ffjk_first : if (i=0) generate
 			b0 : block
-				attribute loc : string;
-				attribute loc of ffjk_first_1 : label is "SLICE_X0Y0:SLICE_X2Y2";
+--				attribute loc : string;
+--				attribute loc of ffjk_first_1 : label is "SLICE_X0Y0:SLICE_X2Y2";
+--				attribute rloc : string;
+--				attribute rloc of ffjk_first_1 : label is "X0Y0";
 			begin
 				ffjk_first_1 : FF_JK port map (i_r=>mr,J=>i_cpb,K=>i_cpb,C=>gated_clock,Q1=>q1(i),Q2=>q2(i));
 			end block b0;
 		end generate ffjk_first;
 		ffjk_chain : if (i>0) generate
-			ffjk_chain_1 : FF_JK port map (i_r=>mr,J=>ffjk_or(i-1),K=>ffjk_or(i-1),C=>gated_clock,Q1=>q1(i),Q2=>q2(i));
+			b1 : block
+				-- XXX UG625 p231
+				constant row1 : natural := (((N - 1) / 2) - (i / 2)) * 2;
+				constant column1 : natural := 0;
+				constant column2 : natural := 15;
+				constant loc_str : string := ""
+				& "SLICE_" & "X" & natural'image(column1) & "Y" & natural'image(row1)
+				& ":"
+				& "SLICE_" & "X" & natural'image(column2) & "Y" & natural'image(row1);
+				attribute loc : string;
+				attribute loc of ffjk_chain_1 : label is loc_str;
+--				constant rloc_str : string := ""
+--				& "" & "X" & natural'image(row1) & "Y" & natural'image(column1);
+--				attribute rloc : string;
+--				attribute rloc of ffjk_chain_1 : label is rloc_str;
+			begin
+				ffjk_chain_1 : FF_JK port map (i_r=>mr,J=>ffjk_or(i-1),K=>ffjk_or(i-1),C=>gated_clock,Q1=>q1(i),Q2=>q2(i));
+			end block b1;
 		end generate ffjk_chain;
 	end generate g0;
 

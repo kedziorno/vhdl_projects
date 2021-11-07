@@ -52,11 +52,12 @@ begin
 -- LUT2: 2-input Look-Up Table with general output
 -- Spartan-3
 -- Xilinx HDL Libraries Guide, version 14.7
-gate_nand_LUT2_L : LUT2
+gate_nand_LUT2_D : LUT2_D
 generic map (
 	INIT => "0111")
 port map (
-	O	=> C, -- LUT local output
+	LO => C,
+	O	=> open, -- LUT local output
 	I0 => A, -- LUT input
 	I1 => B -- LUT input
 );

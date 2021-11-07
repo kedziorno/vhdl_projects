@@ -52,11 +52,12 @@ begin
 -- LUT3_D: 3-input Look-Up Table with general and local outputs
 -- Spartan-3
 -- Xilinx HDL Libraries Guide, version 14.7
-gate_nand3_LUT3_L : LUT3
+gate_nand3_LUT3_D : LUT3_D
 generic map (
 	INIT => "01111111")
 port map (
-	O => D, -- LUT local output
+	LO => D,
+	O => open, -- LUT local output
 	I0 => A, -- LUT input
 	I1 => B, -- LUT input
 	I2 => C -- LUT input
