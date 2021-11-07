@@ -151,8 +151,8 @@ begin
 	g0 : for i in 0 to N-1 generate
 		ffjk_first : if (i=0) generate
 			b0 : block
---				attribute loc : string;
---				attribute loc of ffjk_first_1 : label is "SLICE_X0Y0:SLICE_X2Y2";
+				attribute loc : string;
+				attribute loc of ffjk_first_1 : label is "SLICE_X12Y8:SLICE_X14Y10";
 --				attribute rloc : string;
 --				attribute rloc of ffjk_first_1 : label is "X0Y0";
 			begin
@@ -162,13 +162,11 @@ begin
 		ffjk_chain : if (i>0) generate
 			b1 : block
 				-- XXX UG625 p231
-				constant row1 : natural := (((N - 1) / 2) - (i / 2)) * 2;
-				constant column1 : natural := 0;
-				constant column2 : natural := 15;
+				constant row1 : natural := i * 4 + 12;
 				constant loc_str : string := ""
-				& "SLICE_" & "X" & natural'image(column1) & "Y" & natural'image(row1)
+				& "SLICE_" & "X" & natural'image(row1) & "Y" & "8"
 				& ":"
-				& "SLICE_" & "X" & natural'image(column2) & "Y" & natural'image(row1);
+				& "SLICE_" & "X" & natural'image(row1 + 2) & "Y" & "10";
 				attribute loc : string;
 				attribute loc of ffjk_chain_1 : label is loc_str;
 --				constant rloc_str : string := ""
