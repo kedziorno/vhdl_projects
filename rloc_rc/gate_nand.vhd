@@ -52,6 +52,8 @@ begin
 	b0 : block
 		attribute rloc : string;
 		attribute rloc of "gate_nand_LUT2_D" : label is "X0Y0";
+		attribute hu_set : string;
+		attribute hu_set of "gate_nand_LUT2_D" : label is "rc/ffjk/gate";
 	begin
 		gate_nand_LUT2_D : LUT2_D
 		generic map (
