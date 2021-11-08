@@ -154,7 +154,9 @@ begin
 				attribute loc : string;
 				attribute loc of ffjk_first_1 : label is "SLICE_X12Y8:SLICE_X14Y10";
 --				attribute rloc : string;
---				attribute rloc of ffjk_first_1 : label is "X0Y0";
+--				attribute rloc of ffjk_first_1 : label is "X12Y8";
+				attribute hu_set : string;
+				attribute hu_set of "ffjk_first_1" : label is "ffjk_set";
 			begin
 				ffjk_first_1 : FF_JK port map (i_r=>mr,J=>i_cpb,K=>i_cpb,C=>gated_clock,Q1=>q1(i),Q2=>q2(i));
 			end block b0;
@@ -170,9 +172,11 @@ begin
 				attribute loc : string;
 				attribute loc of ffjk_chain_1 : label is loc_str;
 --				constant rloc_str : string := ""
---				& "" & "X" & natural'image(row1) & "Y" & natural'image(column1);
+--				& "" & "X" & natural'image(row1) & "Y" & "8";
 --				attribute rloc : string;
 --				attribute rloc of ffjk_chain_1 : label is rloc_str;
+				attribute hu_set : string;
+				attribute hu_set of "ffjk_chain_1" : label is "ffjk_set";
 			begin
 				ffjk_chain_1 : FF_JK port map (i_r=>mr,J=>ffjk_or(i-1),K=>ffjk_or(i-1),C=>gated_clock,Q1=>q1(i),Q2=>q2(i));
 			end block b1;

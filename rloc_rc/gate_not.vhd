@@ -21,28 +21,18 @@ end architecture GATE_NOT_BEHAVIORAL_1;
 architecture GATE_NOT_LUT of GATE_NOT is
 --	signal T : std_logic;
 begin
----- LUT2: 2-input Look-Up Table with general output
----- Spartan-3
----- Xilinx HDL Libraries Guide, version 14.7
---LUT2_inst : LUT2_L
---generic map (
---	INIT => "0001")
---port map (
---	LO	=> T, -- LUT local output
---	I0 => A, -- LUT input
---	I1 => A -- LUT input
---);
----- End of LUT2_inst instantiation
--- LUT1_L: 1-input Look-Up Table with local output
--- Spartan-3
--- Xilinx HDL Libraries Guide, version 14.7
-gate_not_LUT1_D : LUT1_D
-generic map (
-	INIT => "01")
-port map (
-	LO => B,
-	O => open, -- LUT local output
-	I0 => A -- LUT input
-); -- End of LUT1_L_inst instantiation
---B <= T after delay_not;
+	b0 : block
+		attribute rloc : string;
+		attribute rloc of "gate_not_LUT1_D" : label is "X0Y0";
+	begin
+		gate_not_LUT1_D : LUT1_D
+		generic map (
+			INIT => "01")
+		port map (
+			LO => B,
+			O => open,
+			I0 => A
+		);
+	end block b0;
+--	B <= T after delay_not;
 end architecture GATE_NOT_LUT;

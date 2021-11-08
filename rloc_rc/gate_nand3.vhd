@@ -49,19 +49,20 @@ end GATE_NAND3_BEHAVIORAL_1;
 architecture GATE_NAND3_LUT of GATE_NAND3 is
 --	signal T : std_logic;
 begin
--- LUT3_D: 3-input Look-Up Table with general and local outputs
--- Spartan-3
--- Xilinx HDL Libraries Guide, version 14.7
-gate_nand3_LUT3_D : LUT3_D
-generic map (
-	INIT => "01111111")
-port map (
-	LO => D,
-	O => open, -- LUT local output
-	I0 => A, -- LUT input
-	I1 => B, -- LUT input
-	I2 => C -- LUT input
-);
--- End of LUT3_D_inst instantiation
---D <= T after DELAY_NAND3;
+	b0 : block
+		attribute rloc : string;
+		attribute rloc of "gate_nand3_LUT3_D" : label is "X0Y0";
+	begin
+		gate_nand3_LUT3_D : LUT3_D
+		generic map (
+			INIT => "01111111")
+		port map (
+			LO => D,
+			O => open,
+			I0 => A,
+			I1 => B,
+			I2 => C
+		);
+	end block b0;
+--	D <= T after DELAY_NAND3;
 end architecture GATE_NAND3_LUT;
