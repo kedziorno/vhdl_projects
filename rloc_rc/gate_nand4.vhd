@@ -53,7 +53,7 @@ begin
 		attribute rloc : string;
 		attribute rloc of "gate_nand4_LUT4_D" : label is "X0Y0";
 		attribute hu_set : string;
-		attribute hu_set of "gate_nand4_LUT4_D" : label is "rc/ffjk/gate";
+		attribute hu_set of "gate_nand4_LUT4_D" : label is "rc/ffjk/gate_nand4_LUT4_D";
 	begin
 		gate_nand4_LUT4_D : LUT4_D
 		generic map (

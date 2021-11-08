@@ -25,7 +25,7 @@ begin
 		attribute rloc : string;
 		attribute rloc of "gate_not_LUT1_D" : label is "X0Y0";
 		attribute hu_set : string;
-		attribute hu_set of "gate_not_LUT1_D" : label is "rc/ffjk/gate";
+		attribute hu_set of "gate_not_LUT1_D" : label is "rc/ffjk/gate_not_LUT1_D";
 	begin
 		gate_not_LUT1_D : LUT1_D
 		generic map (
