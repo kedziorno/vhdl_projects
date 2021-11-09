@@ -21,18 +21,21 @@ end architecture GATE_OR_BEHAVIORAL_1;
 architecture GATE_OR_LUT of GATE_OR is
 --	signal T : std_logic;
 begin
--- LUT2: 2-input Look-Up Table with general output
--- Spartan-3
--- Xilinx HDL Libraries Guide, version 14.7
-gate_or_LUT2_D : LUT2_D
-generic map (
-	INIT => "1110")
-port map (
-	O => open,
-	LO	=> C, -- LUT local output
-	I0 => A, -- LUT input
-	I1 => B -- LUT input
-);
--- End of LUT2_inst instantiation
---C <= T after delay_or;
+	b0 : block
+		attribute rloc : string;
+		attribute rloc of "gate_or_LUT2_D" : label is "X0Y0";
+		attribute h_set : string;
+		attribute h_set of "gate_or_LUT2_D" : label is "rc/ffjk/gate_or_LUT2_D";
+	begin
+		gate_or_LUT2_D : LUT2_D
+		generic map (
+			INIT => "1110")
+		port map (
+			O => open,
+			LO => C,
+			I0 => A,
+			I1 => B
+		);
+	end block b0;
+--	C <= T after delay_or;
 end architecture GATE_OR_LUT;

@@ -115,6 +115,19 @@ architecture LUT of FF_JK is
 	attribute rloc of "nand2_q2" : label is "X2Y1";
 	attribute rloc of "q1_out" : label is "X3Y0";
 --	attribute rloc of "q2_out" : label is "X3Y1";
+	attribute h_set : string;
+	attribute h_set of "clock_b" : label is "rc/ffjk";
+	attribute h_set of "i_rbar" : label is "rc/ffjk";
+	attribute h_set of "nand3_1u" : label is "rc/ffjk";
+	attribute h_set of "nand3_1d" : label is "rc/ffjk";
+	attribute h_set of "nand2_1u_1" : label is "rc/ffjk";
+	attribute h_set of "nand2_1d_1" : label is "rc/ffjk";
+	attribute h_set of "nand2_1u_2" : label is "rc/ffjk";
+	attribute h_set of "nand2_1d_2" : label is "rc/ffjk";
+	attribute h_set of "nand2_q1" : label is "rc/ffjk";
+	attribute h_set of "nand2_q2" : label is "rc/ffjk";
+	attribute h_set of "q1_out" : label is "rc/ffjk";
+--	attribute h_set of "q2_out" : label is "rc/ffjk";
 
 begin
 

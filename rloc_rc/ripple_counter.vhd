@@ -101,26 +101,10 @@ architecture Behavioral of ripple_counter is
 	constant WAIT_OR : time := 0 ps;
 	constant WAIT_NOT : time := 0 ps;
 
---	attribute CLOCK_SIGNAL : string;
---	attribute CLOCK_SIGNAL of i_clock : signal is "yes"; --{yes | no};
---	attribute BUFFER_TYPE : string;
---	attribute BUFFER_TYPE of i_clock : signal is "BUFG"; --" {bufgdll | ibufg | bufgp | ibuf | bufr | none}";
-
---	attribute loc : string;
---	attribute loc of {signal_name | label_name }: {signal |label} is "location ";
---	attribute loc of "g0_and_u" : label is "SLICE_X64Y92:SLICE_X79Y92";
---	attribute loc of "g0_and_d" : label is "SLICE_X64Y94:SLICE_X79Y94";
---	attribute loc of "g0_or" : label is "SLICE_X64Y93:SLICE_X79Y93";
-
 begin
 
---	ffjk_or(N-1) <= '0';
+	ffjk_or(N-1) <= '0';
 	gated_clock_gand_lut2 : GATE_AND generic map (WAIT_AND) port map (A=>i_clock,B=>i_cpb,C=>gated_clock); -- XXX ~20mhz
---	BUFGCE_inst : BUFGCE port map ( -- XXX ~40mhz
---	O => gated_clock, -- Clock buffer ouptput
---	CE => cp, -- Clock enable input
---	I => i_clock -- Clock buffer input
---	);
 	o_q <= q1;
 	mr_block : mr <= '1' when o_q = a or i_mrb = '1' else '0';
 
@@ -151,10 +135,12 @@ begin
 	g0 : for i in 0 to N-1 generate
 		ffjk_first : if (i=0) generate
 			b0 : block
-				attribute loc : string;
-				attribute loc of ffjk_first_1 : label is "SLICE_X12Y8:SLICE_X14Y10";
---				attribute rloc : string;
---				attribute rloc of ffjk_first_1 : label is "X0Y0";
+--				attribute loc : string;
+--				attribute loc of ffjk_first_1 : label is "SLICE_X12Y8:SLICE_X14Y10";
+				attribute rloc : string;
+				attribute rloc of ffjk_first_1 : label is "X12Y8";
+				attribute h_set : string;
+				attribute h_set of "ffjk_first_1" : label is "rc";
 			begin
 				ffjk_first_1 : FF_JK port map (i_r=>mr,J=>i_cpb,K=>i_cpb,C=>gated_clock,Q1=>q1(i),Q2=>q2(i));
 			end block b0;
@@ -162,17 +148,19 @@ begin
 		ffjk_chain : if (i>0) generate
 			b1 : block
 				-- XXX UG625 p231
-				constant row1 : natural := i * 16 + 12;
-				constant loc_str : string := ""
-				& "SLICE_" & "X" & natural'image(row1) & "Y" & "8"
-				& ":"
-				& "SLICE_" & "X" & natural'image(row1 + 2) & "Y" & "10";
-				attribute loc : string;
-				attribute loc of ffjk_chain_1 : label is loc_str;
---				constant rloc_str : string := ""
---				& "" & "X" & natural'image(row1) & "Y" & natural'image(column1);
---				attribute rloc : string;
---				attribute rloc of ffjk_chain_1 : label is rloc_str;
+				constant row1 : natural := i * 5 + 12;
+--				constant loc_str : string := ""
+--				& "SLICE_" & "X" & natural'image(row1) & "Y" & "8"
+--				& ":"
+--				& "SLICE_" & "X" & natural'image(row1 + 2) & "Y" & "10";
+--				attribute loc : string;
+--				attribute loc of ffjk_chain_1 : label is loc_str;
+				constant rloc_str : string := ""
+				& "" & "X" & natural'image(row1) & "Y" & "8";
+				attribute rloc : string;
+				attribute rloc of ffjk_chain_1 : label is rloc_str;
+				attribute h_set : string;
+				attribute h_set of "ffjk_chain_1" : label is "rc";
 			begin
 				ffjk_chain_1 : FF_JK port map (i_r=>mr,J=>ffjk_or(i-1),K=>ffjk_or(i-1),C=>gated_clock,Q1=>q1(i),Q2=>q2(i));
 			end block b1;
