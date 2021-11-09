@@ -139,8 +139,8 @@ begin
 --				attribute loc of ffjk_first_1 : label is "SLICE_X12Y8:SLICE_X14Y10";
 				attribute rloc : string;
 				attribute rloc of ffjk_first_1 : label is "X12Y8";
-				attribute hu_set : string;
-				attribute hu_set of "ffjk_first_1" : label is "rc";
+				attribute h_set : string;
+				attribute h_set of "ffjk_first_1" : label is "rc";
 			begin
 				ffjk_first_1 : FF_JK port map (i_r=>mr,J=>i_cpb,K=>i_cpb,C=>gated_clock,Q1=>q1(i),Q2=>q2(i));
 			end block b0;
@@ -148,7 +148,7 @@ begin
 		ffjk_chain : if (i>0) generate
 			b1 : block
 				-- XXX UG625 p231
-				constant row1 : natural := i * 16 + 12;
+				constant row1 : natural := i * 5 + 12;
 --				constant loc_str : string := ""
 --				& "SLICE_" & "X" & natural'image(row1) & "Y" & "8"
 --				& ":"
@@ -159,8 +159,8 @@ begin
 				& "" & "X" & natural'image(row1) & "Y" & "8";
 				attribute rloc : string;
 				attribute rloc of ffjk_chain_1 : label is rloc_str;
-				attribute hu_set : string;
-				attribute hu_set of "ffjk_chain_1" : label is "rc";
+				attribute h_set : string;
+				attribute h_set of "ffjk_chain_1" : label is "rc";
 			begin
 				ffjk_chain_1 : FF_JK port map (i_r=>mr,J=>ffjk_or(i-1),K=>ffjk_or(i-1),C=>gated_clock,Q1=>q1(i),Q2=>q2(i));
 			end block b1;
