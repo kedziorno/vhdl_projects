@@ -51,9 +51,9 @@ architecture GATE_NAND4_LUT of GATE_NAND4 is
 begin
 	b0 : block
 		attribute rloc : string;
-		attribute rloc of "gate_nand4_LUT4_D" : label is "X0Y0";
+		attribute rloc of gate_nand4_LUT4_D : label is "X0Y0";
 		attribute h_set : string;
-		attribute h_set of "gate_nand4_LUT4_D" : label is "rc/ffjk/gate_nand4_LUT4_D";
+		attribute h_set of gate_nand4_LUT4_D : label is "rc/ffjk/gate_nand4_LUT4_D";
 	begin
 		gate_nand4_LUT4_D : LUT4_D
 		generic map (
