@@ -51,9 +51,9 @@ architecture GATE_NAND3_LUT of GATE_NAND3 is
 begin
 	b0 : block
 		attribute rloc : string;
-		attribute rloc of "gate_nand3_LUT3_D" : label is "X0Y0";
+		attribute rloc of gate_nand3_LUT3_D : label is "X0Y0";
 		attribute h_set : string;
-		attribute h_set of "gate_nand3_LUT3_D" : label is "rc/ffjk/gate_nand3_LUT3_D";
+		attribute h_set of gate_nand3_LUT3_D : label is "rc/ffjk/gate_nand3_LUT3_D";
 	begin
 		gate_nand3_LUT3_D : LUT3_D
 		generic map (

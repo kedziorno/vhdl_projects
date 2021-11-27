@@ -23,9 +23,9 @@ architecture GATE_AND_LUT of GATE_AND is
 begin
 	b0 : block
 		attribute rloc : string;
-		attribute rloc of "gate_and_LUT2_D" : label is "X0Y0";
+		attribute rloc of gate_and_LUT2_D : label is "X0Y0";
 		attribute h_set : string;
-		attribute h_set of "gate_and_LUT2_D" : label is "rc/ffjk/gate_and_LUT2_D";
+		attribute h_set of gate_and_LUT2_D : label is "rc/ffjk/gate_and_LUT2_D";
 	begin
 		gate_and_LUT2_D : LUT2_D
 		generic map (

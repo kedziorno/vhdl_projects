@@ -23,9 +23,9 @@ architecture GATE_NOT_LUT of GATE_NOT is
 begin
 	b0 : block
 		attribute rloc : string;
-		attribute rloc of "gate_not_LUT1_D" : label is "X0Y0";
+		attribute rloc of gate_not_LUT1_D : label is "X0Y0";
 		attribute h_set : string;
-		attribute h_set of "gate_not_LUT1_D" : label is "rc/ffjk/gate_not_LUT1_D";
+		attribute h_set of gate_not_LUT1_D : label is "rc/ffjk/gate_not_LUT1_D";
 	begin
 		gate_not_LUT1_D : LUT1_D
 		generic map (
