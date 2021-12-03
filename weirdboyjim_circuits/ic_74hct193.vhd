@@ -31,6 +31,7 @@ use UNISIM.VComponents.all;
 
 entity ic_74hct193 is
 port (
+	signal i_clock : in std_logic;
 	signal i_d0 : in std_logic;
 	signal i_d1 : in std_logic;
 	signal i_d2 : in std_logic;
@@ -212,17 +213,17 @@ begin
 			i_r => ff_jk_r(0),
 			J => ff_jk_t(0),
 			K => ff_jk_t(0),
-			C => '1',
+			C => '0',
 			Q1 => ff_jk_q1(0),
 			Q2 => ff_jk_q2(0)
 			);
-		end generate ff_jk_first_generate ;
+		end generate ff_jk_first_generate;
 		ff_jk_chain_generate : if (i > 0) generate
 			ff_jk_chain : FF_JK port map (
 				i_r => ff_jk_r(i),
 				J => ff_jk_t(i),
 				K => ff_jk_t(i),
-				C => '1',
+				C => '0',
 				Q1 => ff_jk_q1(i),
 				Q2 => ff_jk_q2(i)
 				);
