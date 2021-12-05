@@ -1,5 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+library UNISIM;
+use UNISIM.vcomponents.all;
 
 entity FF_JK is
 port (
@@ -10,11 +12,14 @@ port (
 );
 end entity FF_JK;
 
-architecture structural of FF_JK is
-	constant W_NAND2 : time := 1 ps;
-	constant W_NAND3 : time := 2 ps;
-	constant W_Q1MS : time := 10 ps;
-	constant W_Q2MS : time := 1 ps;
+architecture LUT of FF_JK is
+
+	constant W_NOT : time := 0 ns;
+	constant W_NAND2 : time := 0 ns;
+	constant W_NAND3 : time := 0 ns;
+	constant W_NAND4 : time := 0 ns;
+	constant W_Q1MS : time := 0 ns;
+	constant W_Q2MS : time := 0 ns;
 	constant W_C : time := 0 ns;
 	constant W_NOTC : time := 0 ns;
 	constant W_J : time := 0 ns;
@@ -29,49 +34,206 @@ architecture structural of FF_JK is
 	signal st,su : std_logic := '0';
 	signal sw,sx : std_logic := '0';
 	signal sy,sz : std_logic := '0';
+	signal i_rb : std_logic := '0';
+
+--	component GATE_NAND3 is
+--	Generic (
+--	DELAY_NAND3 : time := 1 ps
+--	);
+--	Port (
+--	A,B,C : in  STD_LOGIC;
+--	D : out  STD_LOGIC
+--	);
+--	end component GATE_NAND3;
+--	for all : GATE_NAND3 use entity WORK.GATE_NAND3(GATE_NAND3_LUT);
+
+	component GATE_AND is
+	generic (
+	delay_and : TIME := 1 ps
+	);
+	port (
+	A,B : in STD_LOGIC;
+	C : out STD_LOGIC
+	);
+	end component GATE_AND;
+	for all : GATE_AND use entity WORK.GATE_AND(GATE_AND_LUT);
+
+	component GATE_NAND is
+	Generic (
+	DELAY_NAND : time := 1 ps
+	);
+	Port (
+	A,B : in  STD_LOGIC;
+	C : out  STD_LOGIC
+	);
+	end component GATE_NAND;
+	for all : GATE_NAND use entity WORK.GATE_NAND(GATE_NAND_LUT);
+
+	component GATE_NAND3 is
+	Generic (
+	DELAY_NAND3 : time := 1 ps
+	);
+	Port (
+	A,B,C : in  STD_LOGIC;
+	D : out  STD_LOGIC
+	);
+	end component GATE_NAND3;
+	for all : GATE_NAND3 use entity WORK.GATE_NAND3(GATE_NAND3_LUT);
+
+	component GATE_NAND4 is
+	Generic (
+	DELAY_NAND4 : time := 1 ps
+	);
+	Port (
+	A,B,C,D : in  STD_LOGIC;
+	E : out  STD_LOGIC
+	);
+	end component GATE_NAND4;
+	for all : GATE_NAND4 use entity WORK.GATE_NAND4(GATE_NAND4_LUT);
+
+	component GATE_NOT is
+	generic (
+	delay_not : TIME := 1 ps
+	);
+	port (
+	A : in STD_LOGIC;
+	B : out STD_LOGIC
+	);
+	end component GATE_NOT;
+	for all : GATE_NOT use entity WORK.GATE_NOT(GATE_NOT_LUT);
+
 begin
 
-	sa <= C after W_C;
-	sb <= not C after W_NOTC;
-	sc <= j after W_J;
-	sd <= k after W_K;
+--	sa <= C after W_C;
+	-- clock bar
+	clock_b : GATE_NOT GENERIC MAP (W_NOTC)
+	PORT MAP (A=>C,B=>sb);
+--	sb <= not C after W_NOTC;
+--	sc <= j after W_J;
+--	sd <= k after W_K;
 
-	-- nand3 1u
-	se <= not (sa and sc and q2 and not i_r);
-	sg <= se after W_NAND3;
+	-- reset bar
+	i_rbar : GATE_NOT GENERIC MAP (W_NOT)
+	PORT MAP (A=>i_r,B=>i_rb);
+	
+	-- nand3 1u plus i_r bar
+	nand3_1u : GATE_NAND4 GENERIC MAP (W_NAND3)
+	PORT MAP (A=>C,B=>j,C=>q2,D=>i_rb,E=>sg);
+--	se <= not (sa and sc and q2 and not i_r);
+--	sg <= se after W_NAND3;
 
 	-- nand3 1d
-	sh <= not (sa and sd and q1);
-	sj <= sh after W_NAND3;
+	nand3_1d : GATE_NAND3 GENERIC MAP (W_NAND3)
+	PORT MAP (A=>C,B=>k,C=>q1,D=>sj);
+--	sh <= not (sa and sd and q1);
+--	sj <= sh after W_NAND3;
 
 	-- nand2 1u
-	sk <= sg nand sp;
-	sn <= sk after W_NAND2;
+	nand2_1u_1 : GATE_NAND GENERIC MAP (W_NAND2)
+	PORT MAP (A=>sg,B=>sp,C=>sn);
+--	sk <= sg nand sp;
+--	sn <= sk after W_NAND2;
 
-	-- nand2 1d
-	so <= not (sj and sn and not i_r);
-	sp <= so after W_NAND2;
+	-- nand2 1d plus i_r bar
+	nand2_1d_1 : GATE_NAND3 GENERIC MAP (1 ns)
+	PORT MAP (A=>sj,B=>sn,C=>i_rb,D=>sp);
+--	so <= not (sj and sn and not i_r);
+--	sp <= so after 1 ns;
 
 	-- nand2 1u
-	sr <= sn nand sb;
-	ss <= sr after W_NAND2;
+	nand2_1u_2 : GATE_NAND GENERIC MAP (W_NAND2)
+	PORT MAP (A=>sn,B=>sb,C=>ss);
+--	sr <= sn nand sb;
+--	ss <= sr after W_NAND2;
 
 	-- nand2 1d
-	st <= sp nand sb;
-	su <= st after W_NAND2;
+	nand2_1d_2 : GATE_NAND GENERIC MAP (W_NAND2)
+	PORT MAP (A=>sp,B=>sb,C=>su);
+--	st <= sp nand sb;
+--	su <= st after W_NAND2;
 
 	-- nand2 q1
-	sw <= ss nand q2;
-	sx <= sw after W_NAND2;
+	nand2_q1 : GATE_NAND GENERIC MAP (1 ns)
+	PORT MAP (A=>ss,B=>q2,C=>sx);
+--	sw <= ss nand q2;
+--	sx <= sw after 1 ns;
 
 	-- nand2 q2
-	sy <= su nand q1;
-	sz <= sy after W_NAND2;
+	nand2_q2 : GATE_NAND GENERIC MAP (W_NAND2)
+	PORT MAP (A=>su,B=>q1,C=>sz);
+--	sy <= su nand q1;
+--	sz <= sy after W_NAND2;
 
-	q1 <= sx and not i_r after W_Q1MS; -- XXX metastable
-	q2 <= sz after W_Q2MS;
+	q1_out : GATE_AND GENERIC MAP (1 ns)
+	PORT MAP (A=>sx,B=>i_rb,C=>q1);
+--	q1 <= sx and not i_r after 1 ns; -- XXX metastable
+	q2_out : BUF PORT MAP (I=>sz,O=>q2);
+--	q2 <= sz after W_Q2MS;
 
-end architecture Structural;
+end architecture LUT;
+
+--architecture structural of FF_JK is
+--	constant W_NAND2 : time := 0 ns;
+--	constant W_NAND3 : time := 0 ns;
+--	constant W_Q1MS : time := 0 ns;
+--	constant W_Q2MS : time := 0 ns;
+--	constant W_C : time := 0 ns;
+--	constant W_NOTC : time := 0 ns;
+--	constant W_J : time := 0 ns;
+--	constant W_K : time := 0 ns;
+--
+--	signal sa,sb,sc,sd : std_logic := '0';
+--	signal se,sg : std_logic := '0';
+--	signal sh,sj : std_logic := '0';
+--	signal sk,sn : std_logic := '0';
+--	signal so,sp : std_logic := '0';
+--	signal sr,ss : std_logic := '0';
+--	signal st,su : std_logic := '0';
+--	signal sw,sx : std_logic := '0';
+--	signal sy,sz : std_logic := '0';
+--begin
+--
+--	sa <= C after W_C;
+--	sb <= not C after W_NOTC;
+--	sc <= j after W_J;
+--	sd <= k after W_K;
+--
+--	-- nand3 1u
+--	se <= not (sa and sc and q2 and not i_r);
+--	sg <= se after W_NAND3;
+--
+--	-- nand3 1d
+--	sh <= not (sa and sd and q1);
+--	sj <= sh after W_NAND3;
+--
+--	-- nand2 1u
+--	sk <= sg nand sp;
+--	sn <= sk after W_NAND2;
+--
+--	-- nand2 1d
+--	so <= not (sj and sn and not i_r);
+--	sp <= so after 1 ns;
+--
+--	-- nand2 1u
+--	sr <= sn nand sb;
+--	ss <= sr after W_NAND2;
+--
+--	-- nand2 1d
+--	st <= sp nand sb;
+--	su <= st after W_NAND2;
+--
+--	-- nand2 q1
+--	sw <= ss nand q2;
+--	sx <= sw after 1 ns;
+--
+--	-- nand2 q2
+--	sy <= su nand q1;
+--	sz <= sy after W_NAND2;
+--
+--	q1 <= sx and not i_r after 1 ns; -- XXX metastable
+--	q2 <= sz after W_Q2MS;
+--
+--end architecture Structural;
 
 ---- https://en.wikipedia.org/wiki/Flip-flop_(electronics)#JK_flip-flop
 ---- XXX strange operation

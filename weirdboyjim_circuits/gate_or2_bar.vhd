@@ -19,15 +19,17 @@ C <= (not A) or (not B) after delay_or2_bar;
 end architecture GATE_OR2_BAR_BEHAVIORAL_1;
 
 architecture GATE_OR2_BAR_LUT of GATE_OR2_BAR is
-	signal T : std_logic;
+	signal T,A_not,B_not : std_logic;
 begin
+A_not <= not A;
+B_not <= not B;
 LUT2_inst : LUT2
 generic map (
 	INIT => "1110")
 port map (
 	O	=> T,
-	I0 => not A,
-	I1 => not B
+	I0 => A_not,
+	I1 => B_not
 );
 C <= T after delay_or2_bar;
 end architecture GATE_OR2_BAR_LUT;

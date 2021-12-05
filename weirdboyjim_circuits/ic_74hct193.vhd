@@ -51,16 +51,6 @@ end ic_74hct193;
 
 architecture Behavioral of ic_74hct193 is
 
-	component FF_JK is
-	port (
-		i_r : in STD_LOGIC;
-		J,K,C : in STD_LOGIC;
-		Q1 : inout STD_LOGIC;
-		Q2 : inout STD_LOGIC
-	);
-	end component FF_JK;
-	for all : FF_JK use entity WORK.FF_JK(structural);
-
 	component GATE_AND is
 	generic (
 		delay_and : TIME := 1 ps
@@ -149,6 +139,15 @@ architecture Behavioral of ic_74hct193 is
 	end component GATE_NOT;
 	for all : GATE_NOT use entity WORK.GATE_NOT(GATE_NOT_LUT);
 
+	component converted_ldcpe2fft is
+	port (
+		signal i_t : in std_logic;
+		signal i_sd,i_rd : in std_logic;
+		signal o_q1,o_q2 : out std_logic
+	);
+	end component converted_ldcpe2fft;
+	for all : converted_ldcpe2fft use entity WORK.converted_ldcpe2fft(Behavioral);
+
 	signal ff_jk_t : std_logic_vector(3 downto 0);
 	signal ff_jk_q1,ff_jk_q2 : std_logic_vector(3 downto 0);
 	signal ff_jk_r : std_logic_vector(3 downto 0);
@@ -160,7 +159,7 @@ architecture Behavioral of ic_74hct193 is
 	signal gate_and4_u,gate_and4_d : std_logic;
 
 	signal gate_or2_bar1,gate_or2_bar2,gate_or2_bar3,gate_or2_bar4 : std_logic;
-	signal gate_nand3_1,gate_nand3_2,gate_nand3_3,gate_nand3_4 : std_logic;
+	signal gate_nand3_slv30 : std_logic_vector(3 downto 0);
 
 begin
 
@@ -173,10 +172,11 @@ begin
 	i_cpd_not_inst : GATE_NOT port map (A => i_cpd, B => i_cpd_not);
 	i_mr_not_inst : GATE_NOT port map (A => i_mr, B => i_mr_not);
 
-	i_cpu_IBUF_inst : IBUF generic map (IBUF_DELAY_VALUE => "0", IFD_DELAY_VALUE => "AUTO", IOSTANDARD => "DEFAULT") port map (O => ibuf_i_cpu_not, I => i_cpu_not);
-	i_cpd_IBUF_inst : IBUF generic map (IBUF_DELAY_VALUE => "0", IFD_DELAY_VALUE => "AUTO", IOSTANDARD => "DEFAULT") port map (O => ibuf_i_cpd_not, I => i_cpd_not);
+--	i_cpu_IBUF_inst : IBUF generic map (IBUF_DELAY_VALUE => "0", IFD_DELAY_VALUE => "AUTO", IOSTANDARD => "DEFAULT") port map (O => ibuf_i_cpu_not, I => i_cpu_not);
+--	i_cpd_IBUF_inst : IBUF generic map (IBUF_DELAY_VALUE => "0", IFD_DELAY_VALUE => "AUTO", IOSTANDARD => "DEFAULT") port map (O => ibuf_i_cpd_not, I => i_cpd_not);
 
-	ff_jk_first_nor2 : GATE_NOR2 port map (A => ibuf_i_cpu_not, B => ibuf_i_cpd_not, C => ff_jk_t(0));
+--	ff_jk_first_nor2 : GATE_NOR2 port map (A => ibuf_i_cpu_not, B => ibuf_i_cpd_not, C => ff_jk_t(0));
+	ff_jk_first_nor2 : GATE_NOR2 port map (A => i_cpu_not, B => i_cpd_not, C => ff_jk_t(0));
 
 	gate_and2_u_inst1 : GATE_AND port map (A => ff_jk_q1(0), B => i_cpu_not, C => gate_and2_u);
 	gate_and2_d_inst1 : GATE_AND port map (A => ff_jk_q2(0), B => i_cpd_not, C => gate_and2_d);
@@ -190,17 +190,17 @@ begin
 	gate_and4_d_inst3 : GATE_AND4 port map (A => ff_jk_q2(2), B => ff_jk_q2(1), C => ff_jk_q2(0), D => i_cpd_not, E => gate_and4_d);
 	ff_jk_chain3_nor2 : GATE_NOR2 port map (A => gate_and4_u, B => gate_and4_d, C => ff_jk_t(3));
 
-	gate_nand3_inst1 : GATE_NAND3 port map (A => i_pl, B => i_mr_not, C => i_d0, D => gate_nand3_1);
-	gate_nand2_inst1 : GATE_NAND2 port map (A => i_pl, B => gate_nand3_1, C => gate_or2_bar1);
+	gate_nand3_inst1 : GATE_NAND3 port map (A => i_pl, B => i_mr_not, C => i_d0, D => gate_nand3_slv30(0));
+	gate_nand2_inst1 : GATE_NAND2 port map (A => i_pl, B => gate_nand3_slv30(0), C => gate_or2_bar1);
 
-	gate_nand3_inst2 : GATE_NAND3 port map (A => i_pl, B => i_mr_not, C => i_d1, D => gate_nand3_2);
-	gate_nand2_inst2 : GATE_NAND2 port map (A => i_pl, B => gate_nand3_2, C => gate_or2_bar2);
+	gate_nand3_inst2 : GATE_NAND3 port map (A => i_pl, B => i_mr_not, C => i_d1, D => gate_nand3_slv30(1));
+	gate_nand2_inst2 : GATE_NAND2 port map (A => i_pl, B => gate_nand3_slv30(1), C => gate_or2_bar2);
 
-	gate_nand3_inst3 : GATE_NAND3 port map (A => i_pl, B => i_mr_not, C => i_d2, D => gate_nand3_3);
-	gate_nand2_inst3 : GATE_NAND2 port map (A => i_pl, B => gate_nand3_3, C => gate_or2_bar3);
+	gate_nand3_inst3 : GATE_NAND3 port map (A => i_pl, B => i_mr_not, C => i_d2, D => gate_nand3_slv30(2));
+	gate_nand2_inst3 : GATE_NAND2 port map (A => i_pl, B => gate_nand3_slv30(2), C => gate_or2_bar3);
 
-	gate_nand3_inst4 : GATE_NAND3 port map (A => i_pl, B => i_mr_not, C => i_d3, D => gate_nand3_4);
-	gate_nand2_inst4 : GATE_NAND2 port map (A => i_pl, B => gate_nand3_4, C => gate_or2_bar4);
+	gate_nand3_inst4 : GATE_NAND3 port map (A => i_pl, B => i_mr_not, C => i_d3, D => gate_nand3_slv30(3));
+	gate_nand2_inst4 : GATE_NAND2 port map (A => i_pl, B => gate_nand3_slv30(3), C => gate_or2_bar4);
 
 	gate_or2_bar_inst1 : GATE_OR2_BAR port map (A => i_mr_not, B => gate_or2_bar1, C => ff_jk_r(0));
 	gate_or2_bar_inst2 : GATE_OR2_BAR port map (A => i_mr_not, B => gate_or2_bar2, C => ff_jk_r(1));
@@ -209,24 +209,22 @@ begin
 
 	ff_jk_generate : for i in 0 to 3 generate
 		ff_jk_first_generate : if (i = 0) generate
-			ff_jk_first : FF_JK port map (
-			i_r => ff_jk_r(0),
-			J => ff_jk_t(0),
-			K => ff_jk_t(0),
-			C => '0',
-			Q1 => ff_jk_q1(0),
-			Q2 => ff_jk_q2(0)
+			ff_jk_first : converted_ldcpe2fft port map (
+				i_t => ff_jk_t(0),
+				i_sd => gate_nand3_slv30(0),
+				i_rd => ff_jk_r(0),
+				o_q1 => ff_jk_q1(0),
+				o_q2 => ff_jk_q2(0)
 			);
 		end generate ff_jk_first_generate;
 		ff_jk_chain_generate : if (i > 0) generate
-			ff_jk_chain : FF_JK port map (
-				i_r => ff_jk_r(i),
-				J => ff_jk_t(i),
-				K => ff_jk_t(i),
-				C => '0',
-				Q1 => ff_jk_q1(i),
-				Q2 => ff_jk_q2(i)
-				);
+			ff_jk_chain : converted_ldcpe2fft port map (
+				i_t => ff_jk_t(i),
+				i_sd => gate_nand3_slv30(i),
+				i_rd => ff_jk_r(i),
+				o_q1 => ff_jk_q1(i),
+				o_q2 => ff_jk_q2(i)
+			);
 		end generate ff_jk_chain_generate;
 	end generate ff_jk_generate;
 

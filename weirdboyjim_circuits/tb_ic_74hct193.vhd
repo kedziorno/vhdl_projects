@@ -75,10 +75,17 @@ ARCHITECTURE behavior OF tb_ic_74hct193 IS
 	signal o_tcu : std_logic;
 	signal o_tcd : std_logic;
 
+	signal o_d03 : std_logic_vector(3 downto 0);
+
 	signal clock : std_logic;
 	constant clock_period : time := 10 ns;
 
 BEGIN
+
+	o_d03(0) <= o_q0;
+	o_d03(1) <= o_q1;
+	o_d03(2) <= o_q2;
+	o_d03(3) <= o_q3;
 
 	uut: ic_74hct193 PORT MAP (
 		i_clock => clock,
@@ -114,7 +121,7 @@ BEGIN
 		wait for clock_period*10;
 		-- insert stimulus here
 		i_mr <= '1';
-		i_pl <= '0';
+		i_pl <= '1';
 		
 		wait for clock_period*10;
 		i_mr <= '0';
