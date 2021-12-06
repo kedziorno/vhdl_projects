@@ -215,9 +215,201 @@ BEGIN
 		i_cpd <= '1'; wait for clock_period*1;
 
 		wait for clock_period * 100;
-		i_cpu <= 'U';
-		i_cpd <= 'U';
+--		i_cpu <= 'U';
+--		i_cpd <= 'U';
 		wait for clock_period * 100;
+
+		-- XXX load 0xA to counter
+		i_pl <= '1';
+		wait for clock_period * 100;
+		i_d0 <= '0';
+		i_d1 <= '1';
+		i_d2 <= '0';
+		i_cpu <= '0' after clock_period*10,'1' after clock_period*11; -- XXX when i_pl is high, counter is halted - ok
+		i_d3 <= '1';
+		wait for clock_period * 100;
+		i_pl <= '0';
+
+		-- XXX count from loaded with i_pl,increment on RE i_cpu, clock_period must have 100 ps
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '1'; wait for clock_period*1;
+
+		wait for clock_period * 100;
+--		i_cpu <= 'U'; -- XXX with U counter have X output
+--		i_cpd <= 'U';
+--		wait for clock_period * 100;
+		i_cpu <= '1';
+		i_cpd <= '1';
+
+		-- XXX count from loaded with i_pl,decrement on RE i_cpd, clock_period must have 100 ps
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '1'; wait for clock_period*1;
+
+		-- XXX load 0x5 to counter
+		i_pl <= '1';
+		wait for clock_period * 100;
+		i_d0 <= '1';
+		i_cpu <= '0' after clock_period*10,'1' after clock_period*11; -- XXX when i_pl is high, counter is halted - ok
+		i_d1 <= '0';
+		i_d2 <= '1';
+		i_d3 <= '0';
+		wait for clock_period * 100;
+		i_pl <= '0';
+
+		-- XXX count from loaded with i_pl,increment on RE i_cpu, clock_period must have 100 ps
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '1'; wait for clock_period*1;
+
+		wait for clock_period * 100;
+--		i_cpu <= 'U'; -- XXX with U counter have X output
+--		i_cpd <= 'U';
+--		wait for clock_period * 100;
+		i_cpu <= '1';
+		i_cpd <= '1';
+
+		-- XXX count from loaded with i_pl,decrement on RE i_cpd, clock_period must have 100 ps
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '1'; wait for clock_period*1;
 
 		wait;
 	end process;
