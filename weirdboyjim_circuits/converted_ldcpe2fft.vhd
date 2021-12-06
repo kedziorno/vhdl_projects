@@ -39,20 +39,20 @@ end converted_ldcpe2fft;
 
 architecture Behavioral of converted_ldcpe2fft is
 
-	component delayed_programmable_circuit is
-	port (
-	i_reg1 : in std_logic;
-	i_reg2 : in std_logic;
-	i_reg3 : in std_logic;
-	i_reg4 : in std_logic;
-	i_reg5 : in std_logic;
-	i_reg6 : in std_logic;
-	i_reg7 : in std_logic;
-	i_input : in std_logic;
-	o_output : out std_logic
-	);
-	end component delayed_programmable_circuit;
-	for all : delayed_programmable_circuit use entity WORK.delayed_programmable_circuit(Behavioral);
+--	component delayed_programmable_circuit is
+--	port (
+--	i_reg1 : in std_logic;
+--	i_reg2 : in std_logic;
+--	i_reg3 : in std_logic;
+--	i_reg4 : in std_logic;
+--	i_reg5 : in std_logic;
+--	i_reg6 : in std_logic;
+--	i_reg7 : in std_logic;
+--	i_input : in std_logic;
+--	o_output : out std_logic
+--	);
+--	end component delayed_programmable_circuit;
+--	for all : delayed_programmable_circuit use entity WORK.delayed_programmable_circuit(Behavioral);
 
 	signal d,q1,q2,xorout,i_sd_not,dpc_xorout : std_logic;
 
@@ -64,18 +64,18 @@ begin
 	o_q1 <= q1;
 	o_q2 <= q2;
 
-	dpc_inst : delayed_programmable_circuit
-	port map (
-		i_reg1 => '1',
-		i_reg2 => '0',
-		i_reg3 => '0',
-		i_reg4 => '0',
-		i_reg5 => '0',
-		i_reg6 => '0',
-		i_reg7 => '1',
-		i_input => xorout,
-		o_output => dpc_xorout
-	);
+--	dpc_inst : delayed_programmable_circuit
+--	port map (
+--		i_reg1 => '1',
+--		i_reg2 => '1',
+--		i_reg3 => '1',
+--		i_reg4 => '1',
+--		i_reg5 => '1',
+--		i_reg6 => '1',
+--		i_reg7 => '1',
+--		i_input => xorout,
+--		o_output => dpc_xorout
+--	);
 
 --	XORCY_inst : xorout <= i_t xor q1 after 99 ps; -- XXX half cycle 199 ps
 	XORCY_inst : XORCY
@@ -90,7 +90,7 @@ begin
 	port map (
 		Q => q1, -- Data output
 		CLR => i_rd, -- Asynchronous clear/reset input
-		D => dpc_xorout, -- Data input
+		D => xorout, -- Data input
 		G => '1', -- Gate input
 		GE => '1', -- Gate enable input
 		PRE => i_sd_not -- Asynchronous preset/set input

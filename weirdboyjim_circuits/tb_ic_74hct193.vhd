@@ -78,7 +78,7 @@ ARCHITECTURE behavior OF tb_ic_74hct193 IS
 	signal o_d03 : std_logic_vector(3 downto 0);
 
 	signal clock : std_logic;
-	constant clock_period : time := 10 ns;
+	constant clock_period : time := 100 ps;
 
 BEGIN
 
@@ -113,19 +113,111 @@ BEGIN
 		wait for clock_period/2;
 	end process;
 
-	i_cpu <= clock;
-	i_cpd <= '1';
-
 	stim_proc: process
 	begin
 		wait for clock_period*10;
 		-- insert stimulus here
-		i_mr <= '1';
-		i_pl <= '0';
-		
-		wait for clock_period*10;
-		i_mr <= '0';
-		i_pl <= '0';
+--		i_mr <= '1';
+--		i_pl <= '0';
+--		wait for clock_period*10;
+--		i_mr <= '0';
+--		i_pl <= '0';
+
+		i_cpu <= '1'; -- XXX when 0 count up
+		i_cpd <= '1'; -- XXX when 0 count down
+
+		-- XXX reset counter
+		i_mr <= '1'; wait for 10 ns; i_mr <= '0'; wait for 10 ns;
+
+		-- XXX count 0 to 15,increment on RE i_cpu, clock_period must have 100 ps
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '0'; wait for clock_period*1;
+		i_cpu <= '1'; wait for clock_period*100;
+		i_cpu <= '1'; wait for clock_period*1;
+
+		wait for clock_period * 100;
+--		i_cpu <= 'U'; -- XXX with U counter have X output
+--		i_cpd <= 'U';
+--		wait for clock_period * 100;
+		i_cpu <= '1';
+		i_cpd <= '1';
+
+		-- XXX count 15 to 0,decrement on RE i_cpd, clock_period must have 100 ps
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '0'; wait for clock_period*1;
+		i_cpd <= '1'; wait for clock_period*100;
+		i_cpd <= '1'; wait for clock_period*1;
+
+		wait for clock_period * 100;
+		i_cpu <= 'U';
+		i_cpd <= 'U';
+		wait for clock_period * 100;
 
 		wait;
 	end process;

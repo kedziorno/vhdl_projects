@@ -168,14 +168,13 @@ begin
 	o_q2 <= ff_jk_q1(2);
 	o_q3 <= ff_jk_q1(3);
 
-	i_cpu_not_inst : GATE_NOT port map (A => i_cpu, B => i_cpu_not);
-	i_cpd_not_inst : GATE_NOT port map (A => i_cpd, B => i_cpd_not);
 	i_mr_not_inst : GATE_NOT port map (A => i_mr, B => i_mr_not);
 
---	i_cpu_IBUF_inst : IBUF generic map (IBUF_DELAY_VALUE => "0", IFD_DELAY_VALUE => "AUTO", IOSTANDARD => "DEFAULT") port map (O => ibuf_i_cpu_not, I => i_cpu_not);
---	i_cpd_IBUF_inst : IBUF generic map (IBUF_DELAY_VALUE => "0", IFD_DELAY_VALUE => "AUTO", IOSTANDARD => "DEFAULT") port map (O => ibuf_i_cpd_not, I => i_cpd_not);
+	i_cpu_IBUF_inst : IBUF generic map (IBUF_DELAY_VALUE => "0", IFD_DELAY_VALUE => "AUTO", IOSTANDARD => "DEFAULT") port map (O => ibuf_i_cpu_not, I => i_cpu);
+	i_cpd_IBUF_inst : IBUF generic map (IBUF_DELAY_VALUE => "0", IFD_DELAY_VALUE => "AUTO", IOSTANDARD => "DEFAULT") port map (O => ibuf_i_cpd_not, I => i_cpd);
+	i_cpu_not_inst : GATE_NOT port map (A => ibuf_i_cpu_not, B => i_cpu_not);
+	i_cpd_not_inst : GATE_NOT port map (A => ibuf_i_cpd_not, B => i_cpd_not);
 
---	ff_jk_first_nor2 : GATE_NOR2 port map (A => ibuf_i_cpu_not, B => ibuf_i_cpd_not, C => ff_jk_t(0));
 	ff_jk_first_nor2 : GATE_NOR2 port map (A => i_cpu_not, B => i_cpd_not, C => ff_jk_t(0));
 
 	gate_and2_u_inst1 : GATE_AND port map (A => ff_jk_q1(0), B => i_cpu_not, C => gate_and2_u);
