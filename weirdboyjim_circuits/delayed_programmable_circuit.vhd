@@ -51,7 +51,7 @@ end component MUX_21;
 
 component GATE_NOT is
 generic (
-delay_not : time := 1 ns
+delay_not : time := 0 ns
 );
 port (
 A : in STD_LOGIC;

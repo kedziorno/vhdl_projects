@@ -54,7 +54,7 @@ architecture Behavioral of converted_ldcpe2fft is
 	end component delayed_programmable_circuit;
 	for all : delayed_programmable_circuit use entity WORK.delayed_programmable_circuit(Behavioral);
 
-	signal d,q1,q2,xorout,i_sd_not,dpc_q1 : std_logic;
+	signal d,q1,q2,xorout,i_sd_not,dpc_xorout : std_logic;
 
 begin
 
@@ -66,15 +66,15 @@ begin
 
 	dpc_inst : delayed_programmable_circuit
 	port map (
-		i_reg1 => '0',
+		i_reg1 => '1',
 		i_reg2 => '0',
 		i_reg3 => '0',
 		i_reg4 => '0',
 		i_reg5 => '0',
 		i_reg6 => '0',
 		i_reg7 => '1',
-		i_input => q1,
-		o_output => dpc_q1
+		i_input => xorout,
+		o_output => dpc_xorout
 	);
 
 --	XORCY_inst : xorout <= i_t xor q1 after 99 ps; -- XXX half cycle 199 ps
@@ -82,7 +82,7 @@ begin
 	port map (
 		O => xorout, -- XOR output signal
 		CI => i_t, -- Carry input signal
-		LI => dpc_q1 -- LUT4 input signal
+		LI => q1 -- LUT4 input signal
 	);
 
 	LDCPE_inst : LDCPE
@@ -90,7 +90,7 @@ begin
 	port map (
 		Q => q1, -- Data output
 		CLR => i_rd, -- Asynchronous clear/reset input
-		D => xorout, -- Data input
+		D => dpc_xorout, -- Data input
 		G => '1', -- Gate input
 		GE => '1', -- Gate enable input
 		PRE => i_sd_not -- Asynchronous preset/set input

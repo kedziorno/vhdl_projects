@@ -121,7 +121,7 @@ BEGIN
 		wait for clock_period*10;
 		-- insert stimulus here
 		i_mr <= '1';
-		i_pl <= '1';
+		i_pl <= '0';
 		
 		wait for clock_period*10;
 		i_mr <= '0';
