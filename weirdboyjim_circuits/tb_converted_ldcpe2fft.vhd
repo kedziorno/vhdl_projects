@@ -81,10 +81,13 @@ end process;
 -- Stimulus process
 stim_proc : process
 begin
+i_rd <= '1';
+wait for clock_period;
+i_rd <= '0';
 i_sd <= '1';
 i_rd <= '1' after clock_period*9.3;
 i_t <= '1' after clock_period*9;
-wait for clock_period*10;
+wait for clock_period*20;
 i_sd <= '0';
 i_rd <= '0';
 -- insert stimulus here

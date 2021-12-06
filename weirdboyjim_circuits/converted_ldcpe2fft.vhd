@@ -39,7 +39,22 @@ end converted_ldcpe2fft;
 
 architecture Behavioral of converted_ldcpe2fft is
 
-	signal d,q1,q2,xorout,i_sd_not : std_logic;
+	component delayed_programmable_circuit is
+	port (
+	i_reg1 : in std_logic;
+	i_reg2 : in std_logic;
+	i_reg3 : in std_logic;
+	i_reg4 : in std_logic;
+	i_reg5 : in std_logic;
+	i_reg6 : in std_logic;
+	i_reg7 : in std_logic;
+	i_input : in std_logic;
+	o_output : out std_logic
+	);
+	end component delayed_programmable_circuit;
+	for all : delayed_programmable_circuit use entity WORK.delayed_programmable_circuit(Behavioral);
+
+	signal d,q1,q2,xorout,i_sd_not,dpc_q1 : std_logic;
 
 begin
 
@@ -49,12 +64,25 @@ begin
 	o_q1 <= q1;
 	o_q2 <= q2;
 
---	XORCY_inst : xorout <= i_t xor q1;
+	dpc_inst : delayed_programmable_circuit
+	port map (
+		i_reg1 => '0',
+		i_reg2 => '0',
+		i_reg3 => '0',
+		i_reg4 => '0',
+		i_reg5 => '0',
+		i_reg6 => '0',
+		i_reg7 => '1',
+		i_input => q1,
+		o_output => dpc_q1
+	);
+
+--	XORCY_inst : xorout <= i_t xor q1 after 99 ps; -- XXX half cycle 199 ps
 	XORCY_inst : XORCY
 	port map (
 		O => xorout, -- XOR output signal
 		CI => i_t, -- Carry input signal
-		LI => q1 -- LUT4 input signal
+		LI => dpc_q1 -- LUT4 input signal
 	);
 
 	LDCPE_inst : LDCPE
