@@ -106,6 +106,14 @@ architecture Behavioral of ic_74hct193 is
 	end component GATE_AND4;
 	for all : GATE_AND4 use entity WORK.GATE_AND4(GATE_AND4_LUT);
 
+	component GATE_NAND5 is
+	port (
+		signal a,b,c,d,e : in std_logic;
+		signal f : out std_logic
+	);
+	end component GATE_NAND5;
+	for all : GATE_NAND5 use entity WORK.my_nand5(Behavioral);
+
 	component GATE_NOR2 is
 	generic (
 		delay_nor2 : TIME := 0 ps
@@ -170,10 +178,12 @@ begin
 
 	i_mr_not_inst : GATE_NOT port map (A => i_mr, B => i_mr_not);
 
-	i_cpu_IBUF_inst : IBUF generic map (IBUF_DELAY_VALUE => "0", IFD_DELAY_VALUE => "AUTO", IOSTANDARD => "DEFAULT") port map (O => ibuf_i_cpu_not, I => i_cpu);
-	i_cpd_IBUF_inst : IBUF generic map (IBUF_DELAY_VALUE => "0", IFD_DELAY_VALUE => "AUTO", IOSTANDARD => "DEFAULT") port map (O => ibuf_i_cpd_not, I => i_cpd);
-	i_cpu_not_inst : GATE_NOT port map (A => ibuf_i_cpu_not, B => i_cpu_not);
-	i_cpd_not_inst : GATE_NOT port map (A => ibuf_i_cpd_not, B => i_cpd_not);
+--	i_cpu_IBUF_inst : IBUF generic map (IBUF_DELAY_VALUE => "0", IFD_DELAY_VALUE => "AUTO", IOSTANDARD => "DEFAULT") port map (O => ibuf_i_cpu_not, I => i_cpu);
+--	i_cpd_IBUF_inst : IBUF generic map (IBUF_DELAY_VALUE => "0", IFD_DELAY_VALUE => "AUTO", IOSTANDARD => "DEFAULT") port map (O => ibuf_i_cpd_not, I => i_cpd);
+--	i_cpu_not_inst : GATE_NOT port map (A => ibuf_i_cpu_not, B => i_cpu_not);
+--	i_cpd_not_inst : GATE_NOT port map (A => ibuf_i_cpd_not, B => i_cpd_not);
+	i_cpu_not_inst : GATE_NOT port map (A => i_cpu, B => i_cpu_not);
+	i_cpd_not_inst : GATE_NOT port map (A => i_cpd, B => i_cpd_not);
 
 	ff_jk_first_nor2 : GATE_NOR2 port map (A => i_cpu_not, B => i_cpd_not, C => ff_jk_t(0));
 
@@ -205,6 +215,9 @@ begin
 	gate_or2_bar_inst2 : GATE_OR2_BAR port map (A => i_mr_not, B => gate_or2_bar_slv30(1), C => ff_jk_r(1));
 	gate_or2_bar_inst3 : GATE_OR2_BAR port map (A => i_mr_not, B => gate_or2_bar_slv30(2), C => ff_jk_r(2));
 	gate_or2_bar_inst4 : GATE_OR2_BAR port map (A => i_mr_not, B => gate_or2_bar_slv30(3), C => ff_jk_r(3));
+
+	gate_nand5_tcu_not : GATE_NAND5 port map (a => i_cpu_not, b => ff_jk_q1(0), c => ff_jk_q1(1), d => ff_jk_q1(2), e => ff_jk_q1(3), f => o_tcu);
+	gate_nand5_tcd_not : GATE_NAND5 port map (a => i_cpd_not, b => ff_jk_q2(0), c => ff_jk_q2(1), d => ff_jk_q2(2), e => ff_jk_q2(3), f => o_tcd);
 
 	ff_jk_generate : for i in 0 to 3 generate
 		ff_jk_first_generate : if (i = 0) generate

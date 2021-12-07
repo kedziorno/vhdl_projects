@@ -49,9 +49,32 @@ architecture Behavioral of weirdboyjim_uart is
 	end component ic_74hct32;
 	for all : ic_74hct32 use entity WORK.ic_74hct32(Behavioral);
 
-	signal txDataReady : std_logic;
+	component ic_74hct193 is
+	port (
+		signal i_clock : in std_logic;
+		signal i_d0 : in std_logic;
+		signal i_d1 : in std_logic;
+		signal i_d2 : in std_logic;
+		signal i_d3 : in std_logic;
+		signal o_q0 : out std_logic;
+		signal o_q1 : out std_logic;
+		signal o_q2 : out std_logic;
+		signal o_q3 : out std_logic;
+		signal i_cpd : in std_logic; -- count down clock input LH
+		signal i_cpu : in std_logic; -- count up clock input LH
+		signal i_pl : in std_logic; -- asynch parallel load input LOW
+		signal o_tcu : out std_logic; -- carry - terminal count up output LOW
+		signal o_tcd : out std_logic; -- borrow - terminal count down output LOW
+		signal i_mr : in std_logic -- asynch master reset input HIGH
+	);
+	end component ic_74hct193;
+	for all : ic_74hct193 use entity WORK.ic_74hct193(Behavioral);
+
+	signal txDataReady,txClock,UartClock : std_logic;
 	signal TFcount_slv30 : std_logic_vector(3 downto 0);
 	signal u9_1a,u9_1b,u9_2a,u9_2b,u9_3a,u9_3b,u9_4a,u9_4b,u9_1y,u9_2y,u9_3y,u9_4y : std_logic;
+	signal u5_d0,u5_d1,u5_d2,u5_d3,u5_q0,u5_q1,u5_q2,u5_q3,u5_cpd,u5_cpu,u5_pl,u5_tcu,u5_tcd,u5_mr : std_logic;
+
 begin
 
 	U9_inst : ic_74hct32 port map (
@@ -72,5 +95,28 @@ begin
 	U9_connect9 : u9_3b <= TFcount_slv30(1);
 	U9_connect10 : u9_3a <= TFcount_slv30(0);
 
+	U5_inst : ic_74hct193 port map (
+		i_clock => 'X',
+		i_d0 => u5_d0, i_d1 => u5_d1, i_d2 => u5_d2, i_d3 => u5_d3,
+		o_q0 => u5_q0, o_q1 => u5_q1, o_q2 => u5_q2, o_q3 => u5_q3,
+		i_cpd => u5_cpd, i_cpu => u5_cpu, i_pl => u5_pl,
+		o_tcu => u5_tcu, o_tcd => u5_tcd, i_mr => u5_mr
+	);
+
+	U5_connect1 : u5_d0 <= '0';
+	U5_connect2 : u5_d1 <= '0';
+	U5_connect3 : u5_d2 <= '0';
+	U5_connect4 : u5_d3 <= '0';
+	U5_connect5 : u5_q0 <= 'X';
+	U5_connect6 : u5_q1 <= 'X';
+	U5_connect7 : u5_q2 <= 'X';
+	U5_connect8 : u5_q3 <= txClock;
+	U5_connect9 : u5_cpd <= '1';
+	U5_connect10 : u5_cpu <= UartClock;
+	U5_connect11 : u5_pl <= '0';
+	U5_connect12 : u5_tcu <= 'X';
+	U5_connect13 : u5_tcd <= 'X';
+	U5_connect14 : u5_mr <= '0';
+		
 end Behavioral;
 
