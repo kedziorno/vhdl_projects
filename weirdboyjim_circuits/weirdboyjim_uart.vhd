@@ -70,10 +70,26 @@ architecture Behavioral of weirdboyjim_uart is
 	end component ic_74hct193;
 	for all : ic_74hct193 use entity WORK.ic_74hct193(Behavioral);
 
-	signal txDataReady,txClock,UartClock : std_logic;
+	component ic_74hct00 is
+	port (
+		i_1a,i_1b : in std_logic;
+		o_1y : out std_logic;
+		i_2a,i_2b : in std_logic;
+		o_2y : out std_logic;
+		i_3a,i_3b : in std_logic;
+		o_3y : out std_logic;
+		i_4a,i_4b : in std_logic;
+		o_4y : out std_logic
+	);
+	end component ic_74hct00;
+	for all : ic_74hct00 use entity WORK.ic_74hct00(Behavioral);
+
+	signal txStart,txDataReady,txDataRead,txClock,UartClock,TFDataRead : std_logic;
 	signal TFcount_slv30 : std_logic_vector(3 downto 0);
 	signal u9_1a,u9_1b,u9_2a,u9_2b,u9_3a,u9_3b,u9_4a,u9_4b,u9_1y,u9_2y,u9_3y,u9_4y : std_logic;
+	signal u8_1a,u8_1b,u8_2a,u8_2b,u8_3a,u8_3b,u8_4a,u8_4b,u8_1y,u8_2y,u8_3y,u8_4y : std_logic;
 	signal u5_d0,u5_d1,u5_d2,u5_d3,u5_q0,u5_q1,u5_q2,u5_q3,u5_cpd,u5_cpu,u5_pl,u5_tcu,u5_tcd,u5_mr : std_logic;
+	signal u7_d0,u7_d1,u7_d2,u7_d3,u7_q0,u7_q1,u7_q2,u7_q3,u7_cpd,u7_cpu,u7_pl,u7_tcu,u7_tcd,u7_mr : std_logic;
 
 begin
 
@@ -117,6 +133,49 @@ begin
 	U5_connect12 : u5_tcu <= 'X';
 	U5_connect13 : u5_tcd <= 'X';
 	U5_connect14 : u5_mr <= '0';
-		
+
+	U7_inst : ic_74hct193 port map (
+		i_clock => 'X',
+		i_d0 => u7_d0, i_d1 => u7_d1, i_d2 => u7_d2, i_d3 => u7_d3,
+		o_q0 => u7_q0, o_q1 => u7_q1, o_q2 => u7_q2, o_q3 => u7_q3,
+		i_cpd => u7_cpd, i_cpu => u7_cpu, i_pl => u7_pl,
+		o_tcu => u7_tcu, o_tcd => u7_tcd, i_mr => u7_mr
+	);
+
+	U7_connect1 : u7_d0 <= '1';
+	U7_connect2 : u7_d1 <= '0';
+	U7_connect3 : u7_d2 <= '1';
+	U7_connect4 : u7_d3 <= '0';
+	U7_connect5 : u7_q0 <= 'X';
+	U7_connect6 : u7_q1 <= 'X';
+	U7_connect7 : u7_q2 <= 'X';
+	U7_connect8 : u7_q3 <= 'X';
+	U7_connect9 : u7_cpd <= '1';
+	U7_connect10 : u7_cpu <= txClock;
+	U7_connect11 : u7_pl <= txStart;
+--	U7_connect12 : u7_tcu <= u8_3a;
+	U7_connect13 : u7_tcd <= 'X';
+	U7_connect14 : u7_mr <= '0';
+
+	U8_inst : ic_74hct00 port map (
+		i_1a => u8_1a, i_1b => u8_1b, o_1y => u8_1y,
+		i_2a => u8_2a, i_2b => u8_2b, o_2y => u8_2y,
+		i_3a => u8_3a, i_3b => u8_3b, o_3y => u8_3y,
+		i_4a => u8_4a, i_4b => u8_4b, o_4y => u8_4y
+	);
+
+	U8_connect1 : u8_1a <= txClock;
+	U8_connect2 : u8_1b <= txDataReady;
+--	U8_connect3 : u8_1y <= 'X';
+	U8_connect4 : u8_2a <= '0';
+	U8_connect5 : u8_2b <= '0';
+	U8_connect6 : u8_2y <= 'X';
+	U8_connect7 : u8_3a <= u7_tcu;
+	U8_connect8 : u8_3b <= txStart;
+	U8_connect9 : u8_3y <= TFDataRead;
+	U8_connect10 : u8_4a <= txDataRead;
+	U8_connect11 : u8_4b <= u8_1y;
+	U8_connect12 : u8_4y <= txStart;
+
 end Behavioral;
 
