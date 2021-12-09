@@ -84,12 +84,26 @@ architecture Behavioral of weirdboyjim_uart is
 	end component ic_74hct00;
 	for all : ic_74hct00 use entity WORK.ic_74hct00(Behavioral);
 
-	signal txStart,txDataReady,txDataRead,txClock,UartClock,TFDataRead : std_logic;
+	component ic_sn74als165 is
+	port (
+		signal i_sh_ld : in std_logic;
+		signal i_clk,i_clk_inh : in std_logic;
+		signal i_ser : in std_logic;
+		signal i_d0,i_d1,i_d2,i_d3,i_d4,i_d5,i_d6,i_d7 : in std_logic;
+		signal o_q7,o_q7_not : out std_logic
+	);
+	end component ic_sn74als165;
+	for all : ic_sn74als165 use entity WORK.ic_sn74als165(Behavioral);
+
+	signal tx,txStart,txDataReady,txDataRead,txClock,UartClock,TFDataRead : std_logic;
 	signal TFcount_slv30 : std_logic_vector(3 downto 0);
+	signal txData : std_logic_vector(7 downto 0);
 	signal u9_1a,u9_1b,u9_2a,u9_2b,u9_3a,u9_3b,u9_4a,u9_4b,u9_1y,u9_2y,u9_3y,u9_4y : std_logic;
 	signal u8_1a,u8_1b,u8_2a,u8_2b,u8_3a,u8_3b,u8_4a,u8_4b,u8_1y,u8_2y,u8_3y,u8_4y : std_logic;
 	signal u5_d0,u5_d1,u5_d2,u5_d3,u5_q0,u5_q1,u5_q2,u5_q3,u5_cpd,u5_cpu,u5_pl,u5_tcu,u5_tcd,u5_mr : std_logic;
 	signal u7_d0,u7_d1,u7_d2,u7_d3,u7_q0,u7_q1,u7_q2,u7_q3,u7_cpd,u7_cpu,u7_pl,u7_tcu,u7_tcd,u7_mr : std_logic;
+	signal u10_sh_ld,u10_clk,u10_clk_inh,u10_ser,u10_d0,u10_d1,u10_d2,u10_d3,u10_d4,u10_d5,u10_d6,u10_d7,u10_q7,u10_q7_not : std_logic;
+	signal u11_sh_ld,u11_clk,u11_clk_inh,u11_ser,u11_d0,u11_d1,u11_d2,u11_d3,u11_d4,u11_d5,u11_d6,u11_d7,u11_q7,u11_q7_not : std_logic;
 
 begin
 
@@ -176,6 +190,70 @@ begin
 	U8_connect10 : u8_4a <= txDataRead;
 	U8_connect11 : u8_4b <= u8_1y;
 	U8_connect12 : u8_4y <= txStart;
+
+	U10_inst : ic_sn74als165 port map (
+		i_sh_ld => u10_sh_ld,
+		i_clk => u10_clk,
+		i_clk_inh => u10_clk_inh,
+		i_ser => u10_ser,
+		i_d0 => u10_d0,
+		i_d1 => u10_d1,
+		i_d2 => u10_d2,
+		i_d3 => u10_d3,
+		i_d4 => u10_d4,
+		i_d5 => u10_d5,
+		i_d6 => u10_d6,
+		i_d7 => u10_d7,
+		o_q7 => u10_q7,
+		o_q7_not => u10_q7_not
+	);
+
+	U10_connect1 : u10_sh_ld <= txStart;
+	U10_connect2 : u10_clk <= txClock;
+	U10_connect3 : u10_clk_inh <= '1';
+	U10_connect4 : u10_ser <= u11_q7;
+	U10_connect5 : u10_d0 <= txData(5);
+	U10_connect6 : u10_d1 <= txData(4);
+	U10_connect7 : u10_d2 <= txData(3);
+	U10_connect8 : u10_d3 <= txData(2);
+	U10_connect9 : u10_d4 <= txData(1);
+	U10_connect10 : u10_d5 <= txData(0);
+	U10_connect11 : u10_d6 <= '0';
+	U10_connect12 : u10_d7 <= '1';
+	U10_connect13 : u10_q7 <= tx;
+	U10_connect14 : u10_q7_not <= 'X';
+
+	U11_inst : ic_sn74als165 port map (
+		i_sh_ld => u11_sh_ld,
+		i_clk => u11_clk,
+		i_clk_inh => u11_clk_inh,
+		i_ser => u11_ser,
+		i_d0 => u11_d0,
+		i_d1 => u11_d1,
+		i_d2 => u11_d2,
+		i_d3 => u11_d3,
+		i_d4 => u11_d4,
+		i_d5 => u11_d5,
+		i_d6 => u11_d6,
+		i_d7 => u11_d7,
+		o_q7 => u11_q7,
+		o_q7_not => u11_q7_not
+	);
+
+	U11_connect1 : u11_sh_ld <= txStart;
+	U11_connect2 : u11_clk <= txClock;
+	U11_connect3 : u11_clk_inh <= '1';
+	U11_connect4 : u11_ser <= '1';
+	U11_connect5 : u11_d0 <= '1';
+	U11_connect6 : u11_d1 <= '1';
+	U11_connect7 : u11_d2 <= '1';
+	U11_connect8 : u11_d3 <= '1';
+	U11_connect9 : u11_d4 <= '1';
+	U11_connect10 : u11_d5 <= '1';
+	U11_connect11 : u11_d6 <= txData(7);
+	U11_connect12 : u11_d7 <= txData(6);
+--	U11_connect13 : u11_q7 <= u10_ser;
+	U11_connect14 : u11_q7_not <= 'X';
 
 end Behavioral;
 
