@@ -85,16 +85,27 @@ begin
 		LI => q1 -- LUT4 input signal
 	);
 
-	LDCPE_inst : LDCPE
-	generic map (INIT => '0') --Initial value of latch ('0' or '1')
-	port map (
-		Q => q1, -- Data output
-		CLR => i_rd, -- Asynchronous clear/reset input
-		D => xorout, -- Data input
-		G => '1', -- Gate input
-		GE => '1', -- Gate enable input
-		PRE => i_sd_not -- Asynchronous preset/set input
-	);
+--	FDCPE_inst : FDCPE
+--	generic map (INIT => '0')
+--	port map (
+--		Q => q1,
+--		C => '1',
+--		CE => '1',
+--		CLR => i_rd,
+--		D => xorout,
+--		PRE => i_sd_not
+--	);
+
+--	LDCPE_inst : LDCPE
+--	generic map (INIT => '0') --Initial value of latch ('0' or '1')
+--	port map (
+--		Q => q1, -- Data output
+--		CLR => i_rd, -- Asynchronous clear/reset input
+--		D => xorout, -- Data input
+--		G => '1', -- Gate input
+--		GE => '0', -- Gate enable input
+--		PRE => i_sd_not -- Asynchronous preset/set input
+--	);
 
 end Behavioral;
 

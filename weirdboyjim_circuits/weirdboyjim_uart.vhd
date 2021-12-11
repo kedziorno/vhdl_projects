@@ -153,7 +153,7 @@ begin
 	U5_connect11 : u5_pl <= '0';
 --	U5_connect12 : u5_tcu <= 'X';
 --	U5_connect13 : u5_tcd <= 'X';
-	U5_connect14 : u5_mr <= '0';
+	U5_connect14 : u5_mr <= i_reset;
 
 	U7_inst : ic_74hct193 port map (
 		i_clock => 'X',
@@ -176,7 +176,7 @@ begin
 	U7_connect11 : u7_pl <= u8_4y;
 --	U7_connect12 : u7_tcu <= u8_3a;
 --	U7_connect13 : u7_tcd <= 'X';
-	U7_connect14 : u7_mr <= '0';
+	U7_connect14 : u7_mr <= i_reset;
 
 	U8_inst : ic_74hct00 port map (
 		i_1a => u8_1a, i_1b => u8_1b, o_1y => u8_1y,

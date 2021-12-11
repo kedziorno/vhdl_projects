@@ -51,7 +51,7 @@ END COMPONENT;
 
 --Inputs
 signal rx : std_logic := '0';
-signal UartClock : std_logic := '0';
+signal UartClock,UartClock2 : std_logic := '0';
 signal txData : std_logic_vector(7 downto 0) := (others => '0');
 signal txClock : std_logic := '0';
 signal TFcount_slv30 : std_logic_vector(3 downto 0) := (others => '0');
@@ -61,8 +61,11 @@ signal i_reset : std_logic;
 signal tx : std_logic;
 
 -- Clock period definitions
+--constant UartClock_period : time := 200 ps;
 constant UartClock_period : time := 20 ns;
-constant txClock_period : time := 100 ns;
+--constant txClock_period : time := 200 ps;
+constant txClock_period : time := 20 ns;
+constant t : integer := 16;
 
 BEGIN
 
@@ -85,10 +88,35 @@ UartClock <= '1';
 wait for UartClock_period/2;
 end process;
 
-TFcount_process : process(UartClock)
-	variable vtemp : std_logic_vector(3 downto 0);
+UartClock_process2 : process(UartClock)
+	variable vtemp : integer range 0 to t-1;
 begin
 	if (rising_edge(UartClock)) then
+		if (vtemp = t-1) then
+			UartClock2 <= '1';
+			vtemp := 0;
+		else
+			UartClock2 <= '0';
+			vtemp := vtemp + 1;
+		end if;
+	else
+		vtemp := vtemp;
+		UartClock2 <= '0';
+	end if;
+end process;
+
+txClock_process : process
+begin
+txClock <= '0';
+wait for txClock_period/2;
+txClock <= '1';
+wait for txClock_period/2;
+end process;
+
+TFcount_process : process(txClock)
+	variable vtemp : std_logic_vector(3 downto 0);
+begin
+	if (rising_edge(txClock)) then
 		vtemp := std_logic_vector(to_unsigned(to_integer(unsigned(vtemp)) + 1,4));
 	else
 		vtemp := vtemp;
@@ -101,9 +129,12 @@ stim_proc: process
 begin
 -- hold reset state for 100 ns.
 i_reset <= '1';
-wait for 100 ns;
+wait for UartClock_period;
 i_reset <= '0';
-txData <= "10101011";
+--txData <= "10101011";
+--txData <= "11010101";
+--txData <= "01010100";
+txData <= "00101010";
 wait for UartClock_period*10;
 
 -- insert stimulus here
