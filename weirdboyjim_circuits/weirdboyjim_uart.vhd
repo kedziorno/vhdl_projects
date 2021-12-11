@@ -31,6 +31,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity weirdboyjim_uart is
 port (
+	signal i_reset : in std_logic;
 	signal tx : out std_logic;
 	signal rx : in std_logic;
 	signal UartClock : in std_logic;
@@ -149,7 +150,7 @@ begin
 	U5_connect8 : itxClock <= u5_q3;
 	U5_connect9 : u5_cpd <= '1';
 	U5_connect10 : u5_cpu <= UartClock;
-	U5_connect11 : u5_pl <= '1';
+	U5_connect11 : u5_pl <= '0';
 --	U5_connect12 : u5_tcu <= 'X';
 --	U5_connect13 : u5_tcd <= 'X';
 	U5_connect14 : u5_mr <= '0';

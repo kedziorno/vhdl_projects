@@ -44,7 +44,8 @@ rx : IN  std_logic;
 UartClock : IN  std_logic;
 txData : IN  std_logic_vector(7 downto 0);
 txClock : IN  std_logic;
-TFcount_slv30 : IN  std_logic_vector(3 downto 0)
+TFcount_slv30 : IN  std_logic_vector(3 downto 0);
+i_reset : IN  std_logic
 );
 END COMPONENT;
 
@@ -54,12 +55,13 @@ signal UartClock : std_logic := '0';
 signal txData : std_logic_vector(7 downto 0) := (others => '0');
 signal txClock : std_logic := '0';
 signal TFcount_slv30 : std_logic_vector(3 downto 0) := (others => '0');
+signal i_reset : std_logic;
 
 --Outputs
 signal tx : std_logic;
 
 -- Clock period definitions
-constant UartClock_period : time := 200 ns;
+constant UartClock_period : time := 20 ns;
 constant txClock_period : time := 100 ns;
 
 BEGIN
@@ -70,7 +72,8 @@ rx => rx,
 UartClock => UartClock,
 txData => txData,
 txClock => txClock,
-TFcount_slv30 => TFcount_slv30
+TFcount_slv30 => TFcount_slv30,
+i_reset => i_reset
 );
 
 -- Clock process definitions
@@ -97,8 +100,10 @@ end process;
 stim_proc: process
 begin
 -- hold reset state for 100 ns.
+i_reset <= '1';
 wait for 100 ns;
-txData <= x"AA";
+i_reset <= '0';
+txData <= "10101011";
 wait for UartClock_period*10;
 
 -- insert stimulus here
