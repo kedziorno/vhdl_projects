@@ -72,7 +72,7 @@ BEGIN
 uut: weirdboyjim_uart PORT MAP (
 tx => tx,
 rx => rx,
-UartClock => UartClock,
+UartClock => not UartClock2,
 txData => txData,
 txClock => txClock,
 TFcount_slv30 => TFcount_slv30,
@@ -131,10 +131,12 @@ begin
 i_reset <= '1';
 wait for UartClock_period;
 i_reset <= '0';
---txData <= "10101011";
+txData <= "10101011";
 --txData <= "11010101";
 --txData <= "01010100";
-txData <= "00101010";
+--txData <= "00101010";
+--txData <= "11111111";
+--txData <= "00000000";
 wait for UartClock_period*10;
 
 -- insert stimulus here
