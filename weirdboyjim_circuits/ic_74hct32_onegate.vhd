@@ -41,7 +41,7 @@ architecture Behavioral of ic_74hct32_onegate is
 
 	component GATE_NAND2 is
 		generic (
-			delay_nand2 : TIME := 1 ps
+			delay_nand2 : TIME := 0 ps
 		);
 		port (
 			A,B : in STD_LOGIC;
@@ -52,7 +52,7 @@ architecture Behavioral of ic_74hct32_onegate is
 
 	component GATE_NOT is
 		generic (
-			delay_not : TIME := 1 ps
+			delay_not : TIME := 0 ps
 		);
 		port (
 			A : in STD_LOGIC;
