@@ -30,6 +30,14 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity weirdboyjim_uart is
+port (
+	signal tx : out std_logic;
+	signal rx : in std_logic;
+	signal UartClock : in std_logic;
+	signal txData : in std_logic_vector(7 downto 0);
+	signal txClock : in std_logic;
+	signal TFcount_slv30 : std_logic_vector(3 downto 0)
+);
 end weirdboyjim_uart;
 
 -- https://easyeda.com/weirdboyjim/UART
@@ -95,15 +103,13 @@ architecture Behavioral of weirdboyjim_uart is
 	end component ic_sn74als165;
 	for all : ic_sn74als165 use entity WORK.ic_sn74als165(Behavioral);
 
-	signal tx,txStart,txDataReady,txDataRead,txClock,UartClock,TFDataRead : std_logic;
-	signal TFcount_slv30 : std_logic_vector(3 downto 0);
-	signal txData : std_logic_vector(7 downto 0);
-	signal u9_1a,u9_1b,u9_2a,u9_2b,u9_3a,u9_3b,u9_4a,u9_4b,u9_1y,u9_2y,u9_3y,u9_4y : std_logic;
-	signal u8_1a,u8_1b,u8_2a,u8_2b,u8_3a,u8_3b,u8_4a,u8_4b,u8_1y,u8_2y,u8_3y,u8_4y : std_logic;
-	signal u5_d0,u5_d1,u5_d2,u5_d3,u5_q0,u5_q1,u5_q2,u5_q3,u5_cpd,u5_cpu,u5_pl,u5_tcu,u5_tcd,u5_mr : std_logic;
-	signal u7_d0,u7_d1,u7_d2,u7_d3,u7_q0,u7_q1,u7_q2,u7_q3,u7_cpd,u7_cpu,u7_pl,u7_tcu,u7_tcd,u7_mr : std_logic;
-	signal u10_sh_ld,u10_clk,u10_clk_inh,u10_ser,u10_d0,u10_d1,u10_d2,u10_d3,u10_d4,u10_d5,u10_d6,u10_d7,u10_q7,u10_q7_not : std_logic;
-	signal u11_sh_ld,u11_clk,u11_clk_inh,u11_ser,u11_d0,u11_d1,u11_d2,u11_d3,u11_d4,u11_d5,u11_d6,u11_d7,u11_q7,u11_q7_not : std_logic;
+	signal txStart,txDataReady,txDataRead,TFDataRead : std_logic := '0';
+	signal u9_1a,u9_1b,u9_2a,u9_2b,u9_3a,u9_3b,u9_4a,u9_4b,u9_1y,u9_2y,u9_3y,u9_4y : std_logic := '0';
+	signal u8_1a,u8_1b,u8_2a,u8_2b,u8_3a,u8_3b,u8_4a,u8_4b,u8_1y,u8_2y,u8_3y,u8_4y : std_logic := '0';
+	signal u5_d0,u5_d1,u5_d2,u5_d3,u5_q0,u5_q1,u5_q2,u5_q3,u5_cpd,u5_cpu,u5_pl,u5_tcu,u5_tcd,u5_mr : std_logic := '0';
+	signal u7_d0,u7_d1,u7_d2,u7_d3,u7_q0,u7_q1,u7_q2,u7_q3,u7_cpd,u7_cpu,u7_pl,u7_tcu,u7_tcd,u7_mr : std_logic := '0';
+	signal u10_sh_ld,u10_clk,u10_clk_inh,u10_ser,u10_d0,u10_d1,u10_d2,u10_d3,u10_d4,u10_d5,u10_d6,u10_d7,u10_q7,u10_q7_not : std_logic := '0';
+	signal u11_sh_ld,u11_clk,u11_clk_inh,u11_ser,u11_d0,u11_d1,u11_d2,u11_d3,u11_d4,u11_d5,u11_d6,u11_d7,u11_q7,u11_q7_not : std_logic := '0';
 
 begin
 
@@ -220,7 +226,7 @@ begin
 	U10_connect10 : u10_d5 <= txData(0);
 	U10_connect11 : u10_d6 <= '0';
 	U10_connect12 : u10_d7 <= '1';
-	U10_connect13 : u10_q7 <= tx;
+	U10_connect13 : tx <= u10_q7;
 	U10_connect14 : u10_q7_not <= 'X';
 
 	U11_inst : ic_sn74als165 port map (
