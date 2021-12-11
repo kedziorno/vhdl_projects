@@ -72,7 +72,7 @@ BEGIN
 uut: weirdboyjim_uart PORT MAP (
 tx => tx,
 rx => rx,
-UartClock => not UartClock2,
+UartClock => UartClock,
 txData => txData,
 txClock => txClock,
 TFcount_slv30 => TFcount_slv30,
