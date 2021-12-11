@@ -69,7 +69,6 @@ begin
 	inst_not1b : GATE_NOT port map (A => i_B, B => not1b);
 	inst_nand2 : GATE_NOR2 port map (A => not1a, B => not1b, C => nor2out);
 	inst_not2 : GATE_NOT port map (A => nor2out, B => not2);
-	inst_not3 : GATE_NOT port map (A => not2, B => not3);
-	o_Y <= not3;
+	o_Y <= not2;
 
 end Behavioral;
