@@ -82,18 +82,10 @@ UartClock <= '1';
 wait for UartClock_period/2;
 end process;
 
-txClock_process : process
-begin
-txClock <= '0';
-wait for txClock_period/2;
-txClock <= '1';
-wait for txClock_period/2;
-end process;
-
-TFcount_process : process(txClock)
+TFcount_process : process(UartClock)
 	variable vtemp : std_logic_vector(3 downto 0);
 begin
-	if (rising_edge(txClock)) then
+	if (rising_edge(UartClock)) then
 		vtemp := std_logic_vector(to_unsigned(to_integer(unsigned(vtemp)) + 1,4));
 	else
 		vtemp := vtemp;
