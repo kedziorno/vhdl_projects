@@ -39,15 +39,15 @@ end converted_ldcpe2fft;
 
 architecture Behavioral of converted_ldcpe2fft is
 
-	component FF_D_POSITIVE_EDGE is
-	port (
-	S : in std_logic;
-	R : in std_logic;
-	C : in std_logic;
-	D : in STD_LOGIC;
-	Q1,Q2:out STD_LOGIC);
-	end component FF_D_POSITIVE_EDGE;
-	for all : FF_D_POSITIVE_EDGE use entity WORK.FF_D_POSITIVE_EDGE(D_PE_LUT_2);
+--	component FF_D_POSITIVE_EDGE is
+--	port (
+--	S : in std_logic;
+--	R : in std_logic;
+--	C : in std_logic;
+--	D : in STD_LOGIC;
+--	Q1,Q2:out STD_LOGIC);
+--	end component FF_D_POSITIVE_EDGE;
+--	for all : FF_D_POSITIVE_EDGE use entity WORK.FF_D_POSITIVE_EDGE(D_PE_LUT_2);
 
 --	component delayed_programmable_circuit is
 --	port (
@@ -72,7 +72,7 @@ architecture Behavioral of converted_ldcpe2fft is
 begin
 
 	i_sd_not <= not i_sd;
---	q2 <= not q1;
+	q2 <= not q1;
 
 	o_q1 <= q1;
 	o_q2 <= q2;
@@ -99,39 +99,39 @@ begin
 	);
 
 --	xorgate_delay : dpc_xorout <= xorout after 10 ns; -- XXX must be clock_period/2
-	xorgate_delay : dpc_xorout <= xorout after 100 ps;
+	xorgate_delay : dpc_xorout <= xorout;
 
-	ffd : FF_D_POSITIVE_EDGE
-	port map (
-	S => i_sd,
-	R => i_rd,
-	C => '1',
-	D => dpc_xorout,
-	Q1 => q1,
-	Q2 => q2
-	);
+--	ffd : FF_D_POSITIVE_EDGE
+--	port map (
+--	S => i_sd,
+--	R => i_rd,
+--	C => '1',
+--	D => dpc_xorout,
+--	Q1 => q1,
+--	Q2 => q2
+--	);
 
 --	FDCPE_inst : FDCPE
 --	generic map (INIT => '0')
 --	port map (
 --		Q => q1,
---		C => '1',
+--		C => dpc_xorout,
 --		CE => '1',
 --		CLR => i_rd,
---		D => xorout,
+--		D => dpc_xorout,
 --		PRE => i_sd_not
 --	);
 
---	LDCPE_inst : LDCPE
---	generic map (INIT => '0') --Initial value of latch ('0' or '1')
---	port map (
---		Q => q1, -- Data output
---		CLR => i_rd, -- Asynchronous clear/reset input
---		D => xorout, -- Data input
---		G => '1', -- Gate input
---		GE => '1', -- Gate enable input
---		PRE => i_sd_not -- Asynchronous preset/set input
---	);
+	LDCPE_inst : LDCPE
+	generic map (INIT => '0') --Initial value of latch ('0' or '1')
+	port map (
+		Q => q1, -- Data output
+		CLR => i_rd, -- Asynchronous clear/reset input
+		D => dpc_xorout, -- Data input
+		G => '1', -- Gate input
+		GE => '1', -- Gate enable input
+		PRE => i_sd_not -- Asynchronous preset/set input
+	);
 
 end Behavioral;
 

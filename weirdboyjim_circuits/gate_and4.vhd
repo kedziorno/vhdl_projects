@@ -25,11 +25,11 @@ LUT4_inst : LUT4
 generic map (
 	INIT => "1000000000000000")
 port map (
-	O	=> T,
+	O	=> E,
 	I0 => A,
 	I1 => B,
 	I2 => C,
 	I3 => D
 );
-E <= T after delay_and4;
+--E <= T after delay_and4;
 end architecture GATE_AND4_LUT;

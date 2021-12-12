@@ -61,18 +61,16 @@ signal i_reset : std_logic;
 signal tx : std_logic;
 
 -- Clock period definitions
---constant UartClock_period : time := 200 ps;
-constant UartClock_period : time := 20 ns;
---constant txClock_period : time := 200 ps;
-constant txClock_period : time := 20 ns;
-constant t : integer := 16;
+constant UartClock_period : time := 250 us;
+constant txClock_period : time := 10 ns;
+constant t : integer := 100;
 
 BEGIN
 
 uut: weirdboyjim_uart PORT MAP (
 tx => tx,
 rx => rx,
-UartClock => UartClock,
+UartClock => not UartClock,
 txData => txData,
 txClock => txClock,
 TFcount_slv30 => TFcount_slv30,
@@ -83,9 +81,9 @@ i_reset => i_reset
 UartClock_process : process
 begin
 UartClock <= '0';
-wait for UartClock_period/2;
+wait for UartClock_period - 100 ps;
 UartClock <= '1';
-wait for UartClock_period/2;
+wait for 100 ps;
 end process;
 
 UartClock_process2 : process(UartClock)
@@ -132,15 +130,20 @@ i_reset <= '1';
 wait for UartClock_period;
 i_reset <= '0';
 txData <= "10101011";
---txData <= "11010101";
---txData <= "01010100";
---txData <= "00101010";
---txData <= "11111111";
---txData <= "00000000";
-wait for UartClock_period*10;
+wait for UartClock_period*t;
+txData <= "11010101";
+wait for UartClock_period*t;
+txData <= "01010100";
+wait for UartClock_period*t;
+txData <= "00101010";
+wait for UartClock_period*t;
+txData <= "11111111";
+wait for UartClock_period*t;
+txData <= "00000000";
+wait for UartClock_period*t;
 
 -- insert stimulus here
-
+report "done" severity failure;
 wait;
 end process;
 

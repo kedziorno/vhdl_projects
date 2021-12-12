@@ -26,10 +26,10 @@ LUT3_inst : LUT3
 generic map (
 	INIT => "01111111")
 port map (
-	O	=> T,
+	O	=> D,
 	I0 => A,
 	I1 => B,
 	I2 => C
 );
-D <= T after delay_nand3;
+--D <= T after delay_nand3;
 end architecture GATE_NAND3_LUT;

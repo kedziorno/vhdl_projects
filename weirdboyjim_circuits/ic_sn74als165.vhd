@@ -74,7 +74,7 @@ architecture Behavioral of ic_sn74als165 is
 	end component GATE_OR;
 	for all : GATE_OR use entity WORK.GATE_OR(GATE_OR_LUT);
 
-	signal q,i_d,gate_nand2_u,gate_nand2_d : std_logic_vector(7 downto 0);
+	signal q,i_d,gate_nand2_u,gate_nand2_d,gate_nand2_u_not,gate_nand2_d_not : std_logic_vector(7 downto 0);
 	signal i_sh_ld_not : std_logic;
 	signal clock_pulse : std_logic;
 
@@ -112,9 +112,9 @@ begin
 				Q => q(0),
 				C => clock_pulse,
 				CE => i_clk_inh,
-				CLR => not gate_nand2_d(0),
+				CLR => gate_nand2_d_not(0),
 				D => i_ser,
-				PRE => not gate_nand2_u(0)
+				PRE => gate_nand2_u_not(0)
 			);
 		end generate fdcpe_first;
 		fdcpe_chain : if (i > 0) generate
@@ -124,12 +124,20 @@ begin
 				Q => q(i),
 				C => clock_pulse,
 				CE => i_clk_inh,
-				CLR => not gate_nand2_d(i),
+				CLR => gate_nand2_d_not(i),
 				D => q(i-1),
-				PRE => not gate_nand2_u(i)
+				PRE => gate_nand2_u_not(i)
 			);
 		end generate fdcpe_chain;
 	end generate fdcpe_generate;
+
+	gate_nand2_d_not_generate : for i in 0 to 7 generate
+		gate_nand2_d_not_inst : GATE_NOT port map (A => gate_nand2_d(i), B => gate_nand2_d_not(i));
+	end generate gate_nand2_d_not_generate;
+
+	gate_nand2_u_not_generate : for i in 0 to 7 generate
+		gate_nand2_u_not_inst : GATE_NOT port map (A => gate_nand2_u(i), B => gate_nand2_u_not(i));
+	end generate gate_nand2_u_not_generate;
 
 end Behavioral;
 
