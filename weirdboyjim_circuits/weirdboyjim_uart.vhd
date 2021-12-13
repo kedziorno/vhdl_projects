@@ -194,7 +194,7 @@ begin
 	U8_connect5 : u8_2b <= '0';
 --	U8_connect6 : u8_2y <= 'X';
 	U8_connect7 : u8_3a <= u7_tcu;
-	U8_connect8 : txStart <= u8_4y after 1 ns; -- XXX for sim
+	U8_connect8 : txStart <= u8_4y; -- XXX for sim
 	U8 : u8_3b <= txStart;
 	U8_connect9 : TFDataRead <= u8_3y;
 	U8_connect10 : u8_4a <= TFDataRead;
@@ -218,18 +218,18 @@ begin
 		o_q7_not => u10_q7_not
 	);
 
-	U10_connect1 : u10_sh_ld <= not txStart;
+	U10_connect1 : u10_sh_ld <= txStart;
 	U10_connect2 : u10_clk <= itxClock;
 	U10_connect3 : u10_clk_inh <= '1';
 	U10_connect4 : u10_ser <= u11_q7;
-	U10_connect5 : u10_d0 <= txData(0);
-	U10_connect6 : u10_d1 <= txData(1);
-	U10_connect7 : u10_d2 <= txData(2);
-	U10_connect8 : u10_d3 <= txData(3);
-	U10_connect9 : u10_d4 <= txData(4);
-	U10_connect10 : u10_d5 <= txData(5);
-	U10_connect11 : u10_d6 <= txData(6);
-	U10_connect12 : u10_d7 <= txData(7);
+	U10_connect5 : u10_d0 <= txData(5);
+	U10_connect6 : u10_d1 <= txData(4);
+	U10_connect7 : u10_d2 <= txData(3);
+	U10_connect8 : u10_d3 <= txData(2);
+	U10_connect9 : u10_d4 <= txData(1);
+	U10_connect10 : u10_d5 <= txData(0);
+	U10_connect11 : u10_d6 <= '0';
+	U10_connect12 : u10_d7 <= '1';
 	U10_connect13 : tx <= u10_q7;
 --	U10_connect14 : u10_q7_not <= 'X';
 
@@ -250,7 +250,7 @@ begin
 		o_q7_not => u11_q7_not
 	);
 
-	U11_connect1 : u11_sh_ld <= not txStart;
+	U11_connect1 : u11_sh_ld <= txStart;
 	U11_connect2 : u11_clk <= itxClock;
 	U11_connect3 : u11_clk_inh <= '1';
 	U11_connect4 : u11_ser <= '1';
@@ -260,8 +260,8 @@ begin
 	U11_connect8 : u11_d3 <= '1';
 	U11_connect9 : u11_d4 <= '1';
 	U11_connect10 : u11_d5 <= '1';
-	U11_connect11 : u11_d6 <= '1';
-	U11_connect12 : u11_d7 <= '1';
+	U11_connect11 : u11_d6 <= txData(7);
+	U11_connect12 : u11_d7 <= txData(6);
 --	U11_connect13 : u11_q7 <= u10_ser;
 --	U11_connect14 : u11_q7_not <= 'X';
 

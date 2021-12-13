@@ -29,10 +29,10 @@ LUT2_inst : LUT2
 generic map (
 	INIT => "0001")
 port map (
-	O	=> C, -- LUT general output
+	O => T, -- LUT general output
 	I0 => A, -- LUT input
 	I1 => B -- LUT input
 );
 -- End of LUT2_inst instantiation
---C <= T after delay_nor2;
+C <= T after delay_nor2;
 end architecture GATE_NOR2_LUT;

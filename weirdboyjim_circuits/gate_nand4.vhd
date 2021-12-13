@@ -56,12 +56,12 @@ gate_nand4_LUT4_L : LUT4
 generic map (
 	INIT => X"7FFF")
 port map (
-	O => E, -- LUT local output
+	O => T, -- LUT local output
 	I0 => A, -- LUT input
 	I1 => B, -- LUT input
 	I2 => C, -- LUT input
 	I3 => D -- LUT input
 );
 -- End of LUT4_inst instantiation
---E <= T after DELAY_NAND4;
+E <= T after DELAY_NAND4;
 end architecture GATE_NAND4_LUT;

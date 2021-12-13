@@ -27,9 +27,9 @@ LUT2_inst : LUT2
 generic map (
 	INIT => "1110")
 port map (
-	O	=> C,
+	O => T,
 	I0 => A_not,
 	I1 => B_not
 );
---C <= T after delay_or2_bar;
+C <= T after delay_or2_bar;
 end architecture GATE_OR2_BAR_LUT;

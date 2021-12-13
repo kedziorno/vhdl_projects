@@ -156,15 +156,15 @@ begin
 	q1 <= q1out;
 	q2 <= q2out;
 
-	g5 : GATE_NOT port map (A => S_latch1, B => S_latch);
-	g6 : GATE_NOT port map (A => R_latch1, B => R_latch);
+--	g5 : GATE_NOT port map (A => S_latch1, B => S_latch);
+--	g6 : GATE_NOT port map (A => R_latch1, B => R_latch);
 
 	g0 : GATE_NOT port map (A => D, B => D_not);
 
 	g1 : GATE_AND port map (A => D, B => C, C => S_latch1);
 	g2 : GATE_AND port map (A => D_not, B => C, C => R_latch1);
 
-	g3 : GATE_NOR2 port map (A => S_latch, B => q2out, C => q1out);
-	g4 : GATE_NOR2 port map (A => R_latch, B => q1out, C => q2out);
+	g3 : GATE_NOR2 port map (A => S_latch1, B => q2out, C => q1out);
+	g4 : GATE_NOR2 port map (A => R_latch1, B => q1out, C => q2out);
 
 end architecture D_PE_LUT_2;
