@@ -39,15 +39,15 @@ end converted_ldcpe2fft;
 
 architecture Behavioral of converted_ldcpe2fft is
 
-	component FF_D_POSITIVE_EDGE is
-	port (
-	S : in std_logic;
-	R : in std_logic;
-	C : in std_logic;
-	D : in STD_LOGIC;
-	Q1,Q2:out STD_LOGIC);
-	end component FF_D_POSITIVE_EDGE;
-	for all : FF_D_POSITIVE_EDGE use entity WORK.FF_D_POSITIVE_EDGE(D_PE_LUT_2);
+--	component FF_D_POSITIVE_EDGE is
+--	port (
+--	S : in std_logic;
+--	R : in std_logic;
+--	C : in std_logic;
+--	D : in STD_LOGIC;
+--	Q1,Q2:out STD_LOGIC);
+--	end component FF_D_POSITIVE_EDGE;
+--	for all : FF_D_POSITIVE_EDGE use entity WORK.FF_D_POSITIVE_EDGE(D_PE_LUT_2);
 
 --	component delayed_programmable_circuit is
 --	port (
@@ -75,7 +75,7 @@ architecture Behavioral of converted_ldcpe2fft is
 	end component GATE_NOT;
 	for all : GATE_NOT use entity WORK.GATE_NOT(GATE_NOT_LUT);
 
-	signal d,i_sd_not,dpc_xorout,dpc_q1 : std_logic := '0';
+	signal d,i_sd_not,dpc_xorout,dpc_q1,q1_not : std_logic := '0';
 	signal xorout : std_logic := '0';
 	signal q1 : std_logic := '1';
 	signal q2 : std_logic := '0';
@@ -116,25 +116,29 @@ begin
 
 --	xorgate_delay : dpc_xorout <= xorout after 10 ns; -- XXX must be clock_period/2
 --	xorgate_delay : dpc_xorout <= xorout after 1 ns;
-	q1_delay : dpc_q1 <= q1 after 1 ps;
-	g0_first_not : GATE_NOT generic map (1 ps) port map (A => xorout, B => chain_not(0));
-	g0_last_not : GATE_NOT generic map (1 ps) port map (A => chain_not(255), B => dpc_xorout);
+--	q1_delay : dpc_q1 <= q1 after 1 ns;
+
+	q1_first_not : GATE_NOT generic map (0 ns) port map (A => q1, B => q1_not);
+	q1_last_not : GATE_NOT generic map (0 ns) port map (A => q1_not, B => dpc_q1);
+
+	g0_first_not : GATE_NOT generic map (0 ps) port map (A => xorout, B => chain_not(0));
+	g0_last_not : GATE_NOT generic map (0 ps) port map (A => chain_not(255), B => dpc_xorout);
 
 	g0 : for i in 0 to 255 generate
 		g0_chain : if (i>0) generate
-			g0_chain_not : GATE_NOT generic map (1 ps) port map (A => chain_not(i-1), B => chain_not(i));
+			g0_chain_not : GATE_NOT generic map (0 ns) port map (A => chain_not(i-1), B => chain_not(i));
 		end generate g0_chain;
 	end generate g0;
 
-	ffd : FF_D_POSITIVE_EDGE
-	port map (
-	S => i_sd,
-	R => i_rd,
-	C => '1',
-	D => dpc_xorout,
-	Q1 => q1,
-	Q2 => open
-	);
+--	ffd : FF_D_POSITIVE_EDGE
+--	port map (
+--	S => i_sd,
+--	R => i_rd,
+--	C => '1',
+--	D => dpc_xorout,
+--	Q1 => q1,
+--	Q2 => q2
+--	);
 
 --	FDCPE_inst : FDCPE
 --	generic map (INIT => '0')
@@ -147,16 +151,16 @@ begin
 --		PRE => i_sd_not
 --	);
 
---	LDCPE_inst : LDCPE
---	generic map (INIT => '0') --Initial value of latch ('0' or '1')
---	port map (
---		Q => q1, -- Data output
---		CLR => i_rd, -- Asynchronous clear/reset input
---		D => dpc_xorout, -- Data input
---		G => '1', -- Gate input
---		GE => '1', -- Gate enable input
---		PRE => i_sd_not -- Asynchronous preset/set input
---	);
+	LDCPE_inst : LDCPE
+	generic map (INIT => '0') --Initial value of latch ('0' or '1')
+	port map (
+		Q => q1, -- Data output
+		CLR => i_rd, -- Asynchronous clear/reset input
+		D => dpc_xorout, -- Data input
+		G => '1', -- Gate input
+		GE => '1', -- Gate enable input
+		PRE => i_sd_not -- Asynchronous preset/set input
+	);
 
 end Behavioral;
 
