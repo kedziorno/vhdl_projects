@@ -27,7 +27,7 @@ LUT2_inst : LUT2
 generic map (
 	INIT => "1110")
 port map (
-	O	=> T,
+	O => T,
 	I0 => A_not,
 	I1 => B_not
 );

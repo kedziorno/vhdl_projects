@@ -25,7 +25,7 @@ LUT3_inst : LUT3
 generic map (
 	INIT => "10000000")
 port map (
-	O	=> T,
+	O => T,
 	I0 => A,
 	I1 => B,
 	I2 => C

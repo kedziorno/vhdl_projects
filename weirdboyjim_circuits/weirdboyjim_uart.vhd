@@ -112,6 +112,8 @@ architecture Behavioral of weirdboyjim_uart is
 	signal u10_sh_ld,u10_clk,u10_clk_inh,u10_ser,u10_d0,u10_d1,u10_d2,u10_d3,u10_d4,u10_d5,u10_d6,u10_d7,u10_q7,u10_q7_not : std_logic;
 	signal u11_sh_ld,u11_clk,u11_clk_inh,u11_ser,u11_d0,u11_d1,u11_d2,u11_d3,u11_d4,u11_d5,u11_d6,u11_d7,u11_q7,u11_q7_not : std_logic;
 
+	signal a1 : std_logic;
+
 begin
 
 	U9_inst : ic_74hct32 port map (
@@ -173,7 +175,7 @@ begin
 --	U7_connect8 : u7_q3 <= 'X';
 	U7_connect9 : u7_cpd <= '1';
 	U7_connect10 : u7_cpu <= itxClock;
-	U7_connect11 : u7_pl <= u8_4y;
+	U7_connect11 : u7_pl <= txStart;
 --	U7_connect12 : u7_tcu <= u8_3a;
 --	U7_connect13 : u7_tcd <= 'X';
 	U7_connect14 : u7_mr <= i_reset;
@@ -192,9 +194,10 @@ begin
 	U8_connect5 : u8_2b <= '0';
 --	U8_connect6 : u8_2y <= 'X';
 	U8_connect7 : u8_3a <= u7_tcu;
-	U8_connect8 : u8_3b <= u8_4y;
+	U8_connect8 : txStart <= u8_4y; -- XXX for sim
+	U8 : u8_3b <= txStart;
 	U8_connect9 : TFDataRead <= u8_3y;
-	U8_connect10 : u8_4a <= u8_3y;
+	U8_connect10 : u8_4a <= TFDataRead;
 	U8_connect11 : u8_4b <= u8_1y;
 	U8_connect12 : txStart <= u8_4y;
 

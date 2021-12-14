@@ -56,10 +56,10 @@ gate_nand_LUT2_L : LUT2
 generic map (
 	INIT => "0111")
 port map (
-	O	=> C, -- LUT local output
+	O => T, -- LUT local output
 	I0 => A, -- LUT input
 	I1 => B -- LUT input
 );
 -- End of LUT2_inst instantiation
---C <= T after DELAY_NAND;
+C <= T after DELAY_NAND;
 end architecture GATE_NAND_LUT;
