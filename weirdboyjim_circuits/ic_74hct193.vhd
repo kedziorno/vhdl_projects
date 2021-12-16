@@ -242,11 +242,9 @@ begin
 		end generate ff_jk_chain_generate;
 	end generate ff_jk_generate;
 
-	-- XXX re must equal 100 ps
-	edge_detector_re_not1 : GATE_NOT generic map (33 ps) port map (A => i_cpu, B => edre_not1);
-	edge_detector_re_not2 : GATE_NOT generic map (33 ps) port map (A => edre_not1, B => edre_not2);
-	edge_detector_re_not3 : GATE_NOT generic map (34 ps) port map (A => edre_not2, B => edre_not3);
---	edge_detector_re_not4 : GATE_NOT generic map (1 ns) port map (A => edre_not3, B => edre_not4);
+	edge_detector_re_not1 : GATE_NOT generic map (1 ps) port map (A => i_cpu, B => edre_not1);
+	edge_detector_re_not2 : GATE_NOT generic map (0 ps) port map (A => edre_not1, B => edre_not2);
+	edge_detector_re_not3 : GATE_NOT generic map (0 ps) port map (A => edre_not2, B => edre_not3);
 	edge_detector_re_and : GATE_AND port map (A => i_cpu, B => edre_not3, C => edre_out);
 
 end Behavioral;

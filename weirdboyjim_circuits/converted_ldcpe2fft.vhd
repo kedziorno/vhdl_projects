@@ -50,7 +50,7 @@ architecture Behavioral of converted_ldcpe2fft is
 		Q1,Q2 : inout STD_LOGIC
 	);
 	end component FF_D_GATED;
-	for all : FF_D_GATED use entity WORK.FF_D_GATED(GATED_D_NAND_LUT);
+	for all : FF_D_GATED use entity WORK.FF_D_GATED(GATED_D_NOR_LUT);
 
 --	component FF_D_POSITIVE_EDGE is
 --	port (
@@ -124,11 +124,11 @@ begin
 	port map (
 		O => xorout, -- XOR output signal
 		CI => i_t, -- Carry input signal
-		LI => dpc_q1 -- LUT4 input signal
+		LI => q1 -- LUT4 input signal
 	);
 
 --	xorgate_delay : dpc_xorout <= xorout after 10 ns; -- XXX must be clock_period/2
-	xorgate_delay : dpc_xorout <= xorout after 1 ns;
+	xorgate_delay : dpc_xorout <= xorout after 1 ps;
 --	q1_delay : dpc_q1 <= q1 after 1 ns;
 
 --	q1_first_not : GATE_NOT generic map (0 ns) port map (A => q1, B => q1_not);
