@@ -242,7 +242,7 @@ begin
 		end generate ff_jk_chain_generate;
 	end generate ff_jk_generate;
 
-	edge_detector_re_not1 : GATE_NOT generic map (1 ps) port map (A => i_cpu, B => edre_not1);
+	edge_detector_re_not1 : GATE_NOT generic map (10 ns) port map (A => i_cpu, B => edre_not1);
 	edge_detector_re_not2 : GATE_NOT generic map (0 ps) port map (A => edre_not1, B => edre_not2);
 	edge_detector_re_not3 : GATE_NOT generic map (0 ps) port map (A => edre_not2, B => edre_not3);
 	edge_detector_re_and : GATE_AND port map (A => i_cpu, B => edre_not3, C => edre_out);
