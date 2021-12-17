@@ -61,9 +61,9 @@ signal i_reset : std_logic;
 signal tx : std_logic;
 
 -- Clock period definitions
-constant UartClock_period : time := 100 ns;
-constant txClock_period : time := 10 ns;
 constant t : integer := 16;
+constant UartClock_period : time := 10 ms;
+constant txClock_period : time := UartClock_period/t;
 signal tf_flag : std_logic := '0';
 
 BEGIN
@@ -89,22 +89,22 @@ wait for UartClock_period/2;
 --wait for 100 ps;
 end process;
 
-UartClock_process2 : process(UartClock)
-	variable vtemp : integer range 0 to t-1;
-begin
-	if (rising_edge(UartClock)) then
-		if (vtemp = t-1) then
-			UartClock2 <= '1';
-			vtemp := 0;
-		else
-			UartClock2 <= '0';
-			vtemp := vtemp + 1;
-		end if;
-	else
-		vtemp := vtemp;
-		UartClock2 <= '0';
-	end if;
-end process;
+--UartClock_process2 : process(UartClock)
+--	variable vtemp : integer range 0 to t-1;
+--begin
+--	if (rising_edge(UartClock)) then
+--		if (vtemp = t-1) then
+--			UartClock2 <= '1';
+--			vtemp := 0;
+--		else
+--			UartClock2 <= '0';
+--			vtemp := vtemp + 1;
+--		end if;
+--	else
+--		vtemp := vtemp;
+--		UartClock2 <= '0';
+--	end if;
+--end process;
 
 txClock_process : process
 begin
@@ -115,37 +115,39 @@ wait for txClock_period/2;
 end process;
 
 TFcount_process : process(txClock)
-	variable vtemp : std_logic_vector(3 downto 0);
+	variable vtemp : integer range 0 to 15 := 0;
 begin
 	if (rising_edge(txClock)) then
-		vtemp := std_logic_vector(to_unsigned(to_integer(unsigned(vtemp)) + 1,4));
-	else
-		vtemp := vtemp;
+		if (vtemp = 15) then
+			vtemp := 0;
+		else
+			vtemp := vtemp + 1;
+		end if;
 	end if;
-	TFcount_slv30 <= vtemp;
+	TFcount_slv30 <= std_logic_vector(to_unsigned(vtemp,4));
 end process;
 
-tf_flag <= '1' when TFcount_slv30 = "1111" else '0';
+tf_flag <= '1' when TFcount_slv30 = "0000" else '0';
 
 -- Stimulus process
 stim_proc: process
 begin
 -- hold reset state for 100 ns.
 i_reset <= '1';
-wait for UartClock_period;
+wait for txClock_period;
 i_reset <= '0';
 txData <= "10101011";
-wait for UartClock_period*t*3;
+wait for txClock_period*t;
 txData <= "11010101";
-wait for UartClock_period*t*3;
+wait for txClock_period*t;
 txData <= "01010100";
-wait for UartClock_period*t*3;
+wait for txClock_period*t;
 txData <= "00101010";
-wait for UartClock_period*t*3;
+wait for txClock_period*t;
 txData <= "11111111";
-wait for UartClock_period*t*3;
+wait for txClock_period*t;
 txData <= "00000000";
-wait for UartClock_period*t*3;
+wait for txClock_period*t;
 
 -- insert stimulus here
 report "done" severity failure;
