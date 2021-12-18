@@ -39,6 +39,19 @@ end converted_ldcpe2fft;
 
 architecture Behavioral of converted_ldcpe2fft is
 
+--	component FF_D_DUAL_EDGE_TRIGGERED is
+--	port (D,C:in STD_LOGIC;Q:out STD_LOGIC);
+--	end component FF_D_DUAL_EDGE_TRIGGERED;
+--	for all : FF_D_DUAL_EDGE_TRIGGERED use entity WORK.FF_D_DUAL_EDGE_TRIGGERED(D_DET_LUT);
+
+--	component FF_D_MASTER_SLAVE is
+--	port (
+--	C,D:in STD_LOGIC;
+--	Q1,Q2:inout STD_LOGIC
+--	);
+--	end component FF_D_MASTER_SLAVE;
+--	for all : FF_D_MASTER_SLAVE use entity WORK.FF_D_MASTER_SLAVE(D_MS_LUT);
+
 	component FF_D_GATED is
 	generic (
 		delay_and : TIME := 0 ns;
@@ -93,7 +106,7 @@ architecture Behavioral of converted_ldcpe2fft is
 	signal q1 : std_logic := '1';
 	signal q2 : std_logic := '0';
 
-	signal chain_not : std_logic_vector(255 downto 0);
+	signal chain_not : std_logic_vector(1847 downto 0);
 	signal first_not,last_not : std_logic;
 	attribute KEEP : string;
 	attribute KEEP of chain_not : signal is "true";
@@ -138,13 +151,14 @@ begin
 --	q1_first_not : GATE_NOT generic map (0 ns) port map (A => q1, B => q1_not);
 --	q1_last_not : GATE_NOT generic map (1 ns) port map (A => q1_not, B => dpc_q1);
 
-	g0_first_not : GATE_NOT generic map (0 ps) port map (A => xorout, B => chain_not(0));
-	g0_last_not : GATE_NOT generic map (0 ps) port map (A => chain_not(255), B => first_not);
-	dpc_xorout <= first_not after 256*1 ns; -- XXX for sim, must be 256*not_delay
+	g0_first_not : GATE_NOT generic map (1 ns) port map (A => xorout, B => chain_not(0));
+	g0_last_not : GATE_NOT generic map (1 ns) port map (A => chain_not(1847), B => first_not);
+	dpc_xorout <= first_not after (1848+2)*1 ns; -- XXX for sim, must be 256*not_delay
+--	dpc_xorout <= first_not after 0 ns;
 
-	g0 : for i in 1 to 255 generate
+	g0 : for i in 1 to 1847 generate
 --		g0_chain : if (i>0) generate
-			g0_chain_not : GATE_NOT generic map (0 ps) port map (A => chain_not(i-1), B => chain_not(i));
+			g0_chain_not : GATE_NOT generic map (1 ns) port map (A => chain_not(i-1), B => chain_not(i));
 --		end generate g0_chain;
 	end generate g0;
 
@@ -180,6 +194,7 @@ begin
 --		PRE => i_sd_not -- Asynchronous preset/set input
 --	);
 
+-- XXX work
 	ffd : FF_D_GATED
 	port map (
 		D => dpc_xorout,
@@ -189,5 +204,23 @@ begin
 		Q2 => q2
 	);
 
-end Behavioral;
+-- XXX fail
+--	ffd : FF_D_MASTER_SLAVE
+--	port map (
+--		C => '1', -- XXX must have clock
+----		D => xorout,
+--		D => dpc_xorout,
+--		Q1 => q1,
+--		Q2 => q2
+--	);
 
+-- XXX fail
+--	ffd : FF_D_DUAL_EDGE_TRIGGERED
+--	port map (
+--	--	D => xorout,
+--		D => dpc_xorout,
+--		C => i_t,
+--		Q => q1
+--	);
+
+end Behavioral;
