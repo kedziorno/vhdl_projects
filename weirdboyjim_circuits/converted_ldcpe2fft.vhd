@@ -106,7 +106,7 @@ architecture Behavioral of converted_ldcpe2fft is
 	signal q1 : std_logic := '1';
 	signal q2 : std_logic := '0';
 
-	signal chain_not : std_logic_vector(255 downto 0);
+	signal chain_not : std_logic_vector(1847 downto 0);
 	signal first_not,last_not : std_logic;
 	attribute KEEP : string;
 	attribute KEEP of chain_not : signal is "true";
@@ -151,14 +151,14 @@ begin
 --	q1_first_not : GATE_NOT generic map (0 ns) port map (A => q1, B => q1_not);
 --	q1_last_not : GATE_NOT generic map (1 ns) port map (A => q1_not, B => dpc_q1);
 
-	g0_first_not : GATE_NOT generic map (0 ps) port map (A => xorout, B => chain_not(0));
-	g0_last_not : GATE_NOT generic map (0 ps) port map (A => chain_not(255), B => first_not);
-	dpc_xorout <= first_not after 256*1 ns; -- XXX for sim, must be 256*not_delay
+	g0_first_not : GATE_NOT generic map (1 ns) port map (A => xorout, B => chain_not(0));
+	g0_last_not : GATE_NOT generic map (1 ns) port map (A => chain_not(1847), B => first_not);
+	dpc_xorout <= first_not after (1848+2)*1 ns; -- XXX for sim, must be 256*not_delay
 --	dpc_xorout <= first_not after 0 ns;
 
-	g0 : for i in 1 to 255 generate
+	g0 : for i in 1 to 1847 generate
 --		g0_chain : if (i>0) generate
-			g0_chain_not : GATE_NOT generic map (0 ps) port map (A => chain_not(i-1), B => chain_not(i));
+			g0_chain_not : GATE_NOT generic map (1 ns) port map (A => chain_not(i-1), B => chain_not(i));
 --		end generate g0_chain;
 	end generate g0;
 

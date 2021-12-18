@@ -62,7 +62,7 @@ signal tx : std_logic;
 
 -- Clock period definitions
 constant t : integer := 16;
-constant UartClock_period : time := 100 us;
+constant UartClock_period : time := 10000 us;
 constant txClock_period : time := UartClock_period/t;
 signal tf_flag : std_logic := '0';
 
