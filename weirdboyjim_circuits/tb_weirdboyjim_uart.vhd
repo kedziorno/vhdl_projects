@@ -137,17 +137,17 @@ i_reset <= '1';
 wait for txClock_period;
 i_reset <= '0';
 txData <= "10101011";
-wait for UartClock_period*100; --txClock_period*t;
+wait for txClock_period*t;
 txData <= "11010101";
-wait for UartClock_period*100; --txClock_period*t;
+wait for txClock_period*t;
 txData <= "01010100";
-wait for UartClock_period*100; --txClock_period*t;
+wait for txClock_period*t;
 txData <= "00101010";
-wait for UartClock_period*100; --txClock_period*t;
+wait for txClock_period*t;
 txData <= "11111111";
-wait for UartClock_period*100; --txClock_period*t;
+wait for txClock_period*t;
 txData <= "00000000";
-wait for UartClock_period*100; --txClock_period*t;
+wait for txClock_period*t;
 
 -- insert stimulus here
 report "done" severity failure;

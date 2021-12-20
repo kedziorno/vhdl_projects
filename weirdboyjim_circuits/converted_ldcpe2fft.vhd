@@ -39,14 +39,14 @@ end converted_ldcpe2fft;
 
 architecture Behavioral of converted_ldcpe2fft is
 
-component delayed_circuit is
-port (
-i_clock : in std_logic;
-i_input : in std_logic;
-o_output : out std_logic
-);
-end component delayed_circuit;
-for all : delayed_circuit use entity WORK.delayed_circuit(Behavioral);
+	component delayed_circuit is
+	port (
+	i_clock : in std_logic;
+	i_input : in std_logic;
+	o_output : out std_logic
+	);
+	end component delayed_circuit;
+	for all : delayed_circuit use entity WORK.delayed_circuit(Behavioral);
 
 --	component FF_D_DUAL_EDGE_TRIGGERED is
 --	port (D,C:in STD_LOGIC;Q:out STD_LOGIC);
@@ -123,7 +123,9 @@ for all : delayed_circuit use entity WORK.delayed_circuit(Behavioral);
 begin
 
 t <= i_t after 0 ns;
-first_not <= xorout after 0 ns;
+
+--dpc_xorout <= xorout after 0.999 ns; -- XXX dc off
+--first_not <= xorout after 0 ns;
 dc : delayed_circuit
 port map (
 	i_clock => 'X',

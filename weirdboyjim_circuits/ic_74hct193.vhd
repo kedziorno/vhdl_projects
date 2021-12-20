@@ -188,19 +188,19 @@ begin
 	i_cpu_not_inst : GATE_NOT port map (A => i_cpu, B => i_cpu_not);
 	i_cpd_not_inst : GATE_NOT port map (A => i_cpd, B => i_cpd_not);
 
-	ff_jk_first_nor2 : GATE_NOR2 port map (A => edre_out, B => i_cpd_not, C => ff_jk_t(0));
+	ff_jk_first_nor2 : GATE_NOR2 generic map (0 ns) port map (A => edre_out, B => i_cpd_not, C => ff_jk_t(0));
 
 	gate_and2_u_inst1 : GATE_AND port map (A => ff_jk_q1(0), B => edre_out, C => gate_and2_u);
 	gate_and2_d_inst1 : GATE_AND port map (A => ff_jk_q2(0), B => i_cpd_not, C => gate_and2_d);
-	ff_jk_chain1_nor2 : GATE_NOR2 port map (A => gate_and2_u, B => gate_and2_d, C => ff_jk_t(1));
+	ff_jk_chain1_nor2 : GATE_NOR2 generic map (0 ns) port map (A => gate_and2_u, B => gate_and2_d, C => ff_jk_t(1));
 
 	gate_and3_u_inst2 : GATE_AND3 port map (A => ff_jk_q1(1), B => ff_jk_q1(0), C => edre_out, D => gate_and3_u);
 	gate_and3_d_inst2 : GATE_AND3 port map (A => ff_jk_q2(1), B => ff_jk_q2(0), C => i_cpd_not, D => gate_and3_d);
-	ff_jk_chain2_nor2 : GATE_NOR2 port map (A => gate_and3_u, B => gate_and3_d, C => ff_jk_t(2));
+	ff_jk_chain2_nor2 : GATE_NOR2 generic map (0 ns) port map (A => gate_and3_u, B => gate_and3_d, C => ff_jk_t(2));
 
 	gate_and4_u_inst3 : GATE_AND4 port map (A => ff_jk_q1(2), B => ff_jk_q1(1), C => ff_jk_q1(0), D => edre_out, E => gate_and4_u);
 	gate_and4_d_inst3 : GATE_AND4 port map (A => ff_jk_q2(2), B => ff_jk_q2(1), C => ff_jk_q2(0), D => i_cpd_not, E => gate_and4_d);
-	ff_jk_chain3_nor2 : GATE_NOR2 port map (A => gate_and4_u, B => gate_and4_d, C => ff_jk_t(3));
+	ff_jk_chain3_nor2 : GATE_NOR2 generic map (0 ns) port map (A => gate_and4_u, B => gate_and4_d, C => ff_jk_t(3));
 
 	gate_nand3_inst1 : GATE_NAND3 port map (A => i_pl, B => i_mr_not, C => i_d0, D => gate_nand3_slv30(0));
 	gate_nand2_inst1 : GATE_NAND2 port map (A => i_pl, B => gate_nand3_slv30(0), C => gate_or2_bar_slv30(0));
@@ -243,7 +243,7 @@ begin
 		end generate ff_jk_chain_generate;
 	end generate ff_jk_generate;
 
-	edge_detector_re_not1 : GATE_NOT generic map (P1_CV1 * 1 ns) port map (A => i_cpu, B => edre_not1);
+	edge_detector_re_not1 : GATE_NOT generic map (0.2 ns) port map (A => i_cpu, B => edre_not1);
 	edge_detector_re_not2 : GATE_NOT generic map (0 ps) port map (A => edre_not1, B => edre_not2);
 	edge_detector_re_not3 : GATE_NOT generic map (0 ps) port map (A => edre_not2, B => edre_not3);
 	edge_detector_re_and : GATE_AND port map (A => i_cpu, B => edre_not3, C => edre_out);

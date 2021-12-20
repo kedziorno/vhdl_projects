@@ -55,7 +55,7 @@ architecture Behavioral of delayed_circuit is
 	signal q1,q2 : std_logic;
 	signal tq1,tq2 : std_logic;
 
-	constant N : integer := 6;
+	constant N : integer := 1;
 	constant N2 : integer := 2**N;
 
 	signal tv1 : std_logic_vector(31 downto 0) := (others => '0');
