@@ -49,7 +49,7 @@ architecture LUT of FF_JK is
 
 	component GATE_AND is
 	generic (
-	delay_and : TIME := 1 ps
+	delay_and : TIME := 0 ps
 	);
 	port (
 	A,B : in STD_LOGIC;
@@ -60,7 +60,7 @@ architecture LUT of FF_JK is
 
 	component GATE_NAND is
 	Generic (
-	DELAY_NAND : time := 1 ps
+	DELAY_NAND : time := 0 ps
 	);
 	Port (
 	A,B : in  STD_LOGIC;
@@ -71,7 +71,7 @@ architecture LUT of FF_JK is
 
 	component GATE_NAND3 is
 	Generic (
-	DELAY_NAND3 : time := 1 ps
+	DELAY_NAND3 : time := 0 ps
 	);
 	Port (
 	A,B,C : in  STD_LOGIC;
@@ -82,7 +82,7 @@ architecture LUT of FF_JK is
 
 	component GATE_NAND4 is
 	Generic (
-	DELAY_NAND4 : time := 1 ps
+	DELAY_NAND4 : time := 0 ps
 	);
 	Port (
 	A,B,C,D : in  STD_LOGIC;
@@ -93,7 +93,7 @@ architecture LUT of FF_JK is
 
 	component GATE_NOT is
 	generic (
-	delay_not : TIME := 1 ps
+	delay_not : TIME := 0 ps
 	);
 	port (
 	A : in STD_LOGIC;
@@ -135,7 +135,7 @@ begin
 --	sn <= sk after W_NAND2;
 
 	-- nand2 1d plus i_r bar
-	nand2_1d_1 : GATE_NAND3 GENERIC MAP (1 ns)
+	nand2_1d_1 : GATE_NAND3 GENERIC MAP (W_NAND3)
 	PORT MAP (A=>sj,B=>sn,C=>i_rb,D=>sp);
 --	so <= not (sj and sn and not i_r);
 --	sp <= so after 1 ns;
@@ -153,7 +153,7 @@ begin
 --	su <= st after W_NAND2;
 
 	-- nand2 q1
-	nand2_q1 : GATE_NAND GENERIC MAP (1 ns)
+	nand2_q1 : GATE_NAND GENERIC MAP (W_NAND)
 	PORT MAP (A=>ss,B=>q2,C=>sx);
 --	sw <= ss nand q2;
 --	sx <= sw after 1 ns;
@@ -164,7 +164,7 @@ begin
 --	sy <= su nand q1;
 --	sz <= sy after W_NAND2;
 
-	q1_out : GATE_AND GENERIC MAP (1 ns)
+	q1_out : GATE_AND GENERIC MAP (W_AND)
 	PORT MAP (A=>sx,B=>i_rb,C=>q1);
 --	q1 <= sx and not i_r after 1 ns; -- XXX metastable
 	q2_out : BUF PORT MAP (I=>sz,O=>q2);

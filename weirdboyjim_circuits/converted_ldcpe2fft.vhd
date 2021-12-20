@@ -39,6 +39,15 @@ end converted_ldcpe2fft;
 
 architecture Behavioral of converted_ldcpe2fft is
 
+component delayed_circuit is
+port (
+i_clock : in std_logic;
+i_input : in std_logic;
+o_output : out std_logic
+);
+end component delayed_circuit;
+for all : delayed_circuit use entity WORK.delayed_circuit(Behavioral);
+
 --	component FF_D_DUAL_EDGE_TRIGGERED is
 --	port (D,C:in STD_LOGIC;Q:out STD_LOGIC);
 --	end component FF_D_DUAL_EDGE_TRIGGERED;
@@ -101,7 +110,7 @@ architecture Behavioral of converted_ldcpe2fft is
 	end component GATE_NOT;
 	for all : GATE_NOT use entity WORK.GATE_NOT(GATE_NOT_LUT);
 
-	signal d,i_sd_not,dpc_xorout,dpc_q1,q1_not,xorout_not : std_logic := '0';
+	signal t,d,i_sd_not,dpc_xorout,dpc_q1,q1_not,xorout_not : std_logic := '0';
 	signal xorout : std_logic := '0';
 	signal q1 : std_logic := '1';
 	signal q2 : std_logic := '0';
@@ -113,8 +122,18 @@ architecture Behavioral of converted_ldcpe2fft is
 
 begin
 
+t <= i_t after 0 ns;
+first_not <= xorout after 0 ns;
+dc : delayed_circuit
+port map (
+	i_clock => 'X',
+--	i_input => xorout,
+	i_input => t,
+--	i_input => first_not,
+	o_output => dpc_xorout
+);
+
 	i_sd_not <= not i_sd;
---	q2 <= not q1;
 
 	o_q1 <= q1;
 	o_q2 <= q2;
@@ -132,11 +151,11 @@ begin
 --		o_output => dpc_xorout
 --	);
 
---	XORCY_inst : xorout <= i_t xor q1 after 99 ps; -- XXX half cycle 199 ps
+--	XORCY_inst : xorout <= t xor q1 after 99 ps; -- XXX half cycle 199 ps
 	XORCY_inst : XORCY
 	port map (
 		O => xorout, -- XOR output signal
-		CI => i_t, -- Carry input signal
+		CI => t, -- Carry input signal
 --		LI => dpc_q1 -- LUT4 input signal
 		LI => q1 -- LUT4 input signal
 	);
@@ -151,16 +170,16 @@ begin
 --	q1_first_not : GATE_NOT generic map (0 ns) port map (A => q1, B => q1_not);
 --	q1_last_not : GATE_NOT generic map (1 ns) port map (A => q1_not, B => dpc_q1);
 
-	g0_first_not : GATE_NOT generic map (1 ns) port map (A => xorout, B => chain_not(0));
-	g0_last_not : GATE_NOT generic map (1 ns) port map (A => chain_not(1847), B => first_not);
-	dpc_xorout <= first_not after (1848+2)*1 ns; -- XXX for sim, must be 256*not_delay
+--	g0_first_not : GATE_NOT generic map (1 ns) port map (A => xorout, B => chain_not(0));
+--	g0_last_not : GATE_NOT generic map (1 ns) port map (A => chain_not(1847), B => first_not);
+--	dpc_xorout <= first_not after (1848+2)*1 ns; -- XXX for sim, must be 256*not_delay
 --	dpc_xorout <= first_not after 0 ns;
 
-	g0 : for i in 1 to 1847 generate
+--	g0 : for i in 1 to 1847 generate
 --		g0_chain : if (i>0) generate
-			g0_chain_not : GATE_NOT generic map (1 ns) port map (A => chain_not(i-1), B => chain_not(i));
+--			g0_chain_not : GATE_NOT generic map (1 ns) port map (A => chain_not(i-1), B => chain_not(i));
 --		end generate g0_chain;
-	end generate g0;
+--	end generate g0;
 
 --	ffd : FF_D_POSITIVE_EDGE
 --	port map (
@@ -183,6 +202,7 @@ begin
 --		PRE => i_sd_not
 --	);
 
+--	q2 <= not q1;
 --	LDCPE_inst : LDCPE
 --	generic map (INIT => '0') --Initial value of latch ('0' or '1')
 --	port map (
@@ -219,7 +239,7 @@ begin
 --	port map (
 --	--	D => xorout,
 --		D => dpc_xorout,
---		C => i_t,
+--		C => t,
 --		Q => q1
 --	);
 

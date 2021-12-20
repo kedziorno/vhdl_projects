@@ -31,7 +31,7 @@ use UNISIM.VComponents.all;
 
 entity GATE_NAND4 is
 Generic (
-DELAY_NAND4 : time := 1 ps
+DELAY_NAND4 : time := 0 ps
 );
 Port (
 A,B,C,D : in  STD_LOGIC;

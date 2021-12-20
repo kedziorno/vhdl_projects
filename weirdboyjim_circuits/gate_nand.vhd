@@ -31,7 +31,7 @@ use UNISIM.VComponents.all;
 
 entity GATE_NAND is
 Generic (
-DELAY_NAND : time := 1 ps
+DELAY_NAND : time := 0 ps
 );
 Port (
 A,B : in  STD_LOGIC;
@@ -42,8 +42,7 @@ end GATE_NAND;
 architecture GATE_NAND_BEHAVIORAL_1 of GATE_NAND is
 	signal T : std_logic;
 begin
-T <= A nand B;
-C <= T after DELAY_NAND;
+C <= A nand B after DELAY_NAND;
 end GATE_NAND_BEHAVIORAL_1;
 
 architecture GATE_NAND_LUT of GATE_NAND is

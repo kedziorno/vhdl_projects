@@ -51,10 +51,10 @@ begin
 
 -- https://en.wikipedia.org/wiki/Flip-flop_%28electronics%29#/media/File:Edge_triggered_D_flip_flop_with_set_and_reset.svg
 g1 : Q1 <= not (S and setd and Q2) after 0 ps;
-g2 : Q2 <= not (Q1 and resetu and R) after 1 ps;
+g2 : Q2 <= not (Q1 and resetu and R) after 0 ps;
 g3 : setu <= not (S and resetd and setd) after 0 ps;
-g4 : setd <= not (setu and C and R) after 1 ps;
-g5 : resetu <= not (setd and C and resetd) after 1 ps;
+g4 : setd <= not (setu and C and R) after 0 ps;
+g5 : resetu <= not (setd and C and resetd) after 0 ps;
 g6 : resetd <= not (resetu and D and R) after 0 ps;
 
 end architecture Behavioral_D_PE;
@@ -127,7 +127,7 @@ architecture D_PE_LUT_2 of FF_D_POSITIVE_EDGE is
 
 	component GATE_NOR2 is
 	generic (
-		delay_nor2 : TIME := 1 ps
+		delay_nor2 : TIME := 0 ps
 	);
 	port (
 		A,B : in STD_LOGIC;

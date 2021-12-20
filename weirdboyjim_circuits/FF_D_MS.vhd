@@ -8,7 +8,7 @@ end entity FF_D_MASTER_SLAVE;
 -- https://en.wikipedia.org/wiki/Flip-flop_(electronics)#Master%E2%80%93slave_edge-triggered_D_flip-flop
 architecture Behavioral_D_MS of FF_D_MASTER_SLAVE is
 component GAND is
-generic (delay_and : time := 1 ps);
+generic (delay_and : time := 0 ps);
 port (A,B:in STD_LOGIC;C:out STD_LOGIC);
 end component GAND;
 component GN is
@@ -34,7 +34,7 @@ end architecture Behavioral_D_MS;
 architecture D_MS_LUT of FF_D_MASTER_SLAVE is
 
 	component GAND is
-		generic (delay_and : time := 1 ps);
+		generic (delay_and : time := 0 ps);
 		port (A,B:in STD_LOGIC;C:out STD_LOGIC);
 	end component GAND;
 	for all : GAND use entity WORK.GATE_AND(GATE_AND_LUT);
