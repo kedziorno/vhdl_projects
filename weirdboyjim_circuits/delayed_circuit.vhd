@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use WORK.p_package1.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -65,7 +66,7 @@ begin
 
 t <= i_input after 0 ns;
 p3 : process (t,q2) is
-	constant cv2 : integer := 10;
+	constant cv2 : integer := P1_CV1;
 	type state is (a,b,c);
 	variable vs : state;
 	variable v1 : integer range 0 to N2-1 := 0;

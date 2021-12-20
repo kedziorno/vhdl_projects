@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use WORK.p_package1.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -242,7 +243,7 @@ begin
 		end generate ff_jk_chain_generate;
 	end generate ff_jk_generate;
 
-	edge_detector_re_not1 : GATE_NOT generic map (1 ns) port map (A => i_cpu, B => edre_not1);
+	edge_detector_re_not1 : GATE_NOT generic map (P1_CV1 * 1 ns) port map (A => i_cpu, B => edre_not1);
 	edge_detector_re_not2 : GATE_NOT generic map (0 ps) port map (A => edre_not1, B => edre_not2);
 	edge_detector_re_not3 : GATE_NOT generic map (0 ps) port map (A => edre_not2, B => edre_not3);
 	edge_detector_re_and : GATE_AND port map (A => i_cpu, B => edre_not3, C => edre_out);
