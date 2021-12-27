@@ -45,7 +45,8 @@ i_rd : IN  std_logic;
 o_q1 : OUT  std_logic;
 o_q2 : OUT  std_logic
 );
-END COMPONENT;
+END COMPONENT converted_ldcpe2fft;
+for all : converted_ldcpe2fft use entity WORK.converted_ldcpe2fft(Behavioral);
 
 --Inputs
 signal i_t : std_logic := '0';
@@ -81,18 +82,29 @@ end process;
 -- Stimulus process
 stim_proc : process
 begin
-i_rd <= '1';
-wait for clock_period;
-i_rd <= '0';
 i_sd <= '1';
-i_rd <= '1' after clock_period*9.3;
-i_t <= '1' after clock_period*9;
-wait for clock_period*20;
+wait for clock_period*1;
+i_sd <= '0';
+i_rd <= '1';
+wait for clock_period*1;
+i_rd <= '0';
+i_t <= '1'; wait for clock_period*9;
+i_t <= '0'; wait for clock_period*11;
+i_t <= '1'; wait for clock_period*13;
+i_t <= '0'; wait for clock_period*15;
+i_t <= '1'; wait for clock_period*17;
+i_t <= '0'; wait for clock_period*19;
+i_t <= '1'; wait for clock_period*21;
+i_t <= '1'; wait for clock_period*23;
+i_t <= '1'; wait for clock_period*25;
+wait for clock_period*200;
 i_sd <= '0';
 i_rd <= '0';
 -- insert stimulus here
 wait for clock_period;
 i_t <= '0';
+
+report "done" severity failure;
 wait;
 end process;
 

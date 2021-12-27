@@ -7,7 +7,7 @@ S : in std_logic;
 R : in std_logic;
 C : in std_logic;
 D : in STD_LOGIC;
-Q1,Q2:inout STD_LOGIC);
+Q1,Q2:out STD_LOGIC);
 end entity FF_D_POSITIVE_EDGE;
 
 -- https://en.wikipedia.org/wiki/Flip-flop_(electronics)#Classical_positive-edge-triggered_D_flip-flop
@@ -29,6 +29,7 @@ architecture Behavioral_D_PE of FF_D_POSITIVE_EDGE is
 
 constant WAIT_NAND3 : time := 0 ps;
 signal setu,setd,resetu,resetd : std_logic;
+signal q1out,q2out : std_logic;
 
 begin
 
@@ -50,8 +51,10 @@ begin
 --gD: GAND generic map (DELAY_AND) port map (C,Z,O);
 
 -- https://en.wikipedia.org/wiki/Flip-flop_%28electronics%29#/media/File:Edge_triggered_D_flip_flop_with_set_and_reset.svg
-g1 : Q1 <= not (S and setd and Q2) after 0 ps;
-g2 : Q2 <= not (Q1 and resetu and R) after 0 ps;
+Q1 <= q1out;
+Q2 <= q2out;
+g1 : q1out <= not (S and setd and q2out) after 0 ps;
+g2 : q2out <= not (q1out and resetu and R) after 0 ps;
 g3 : setu <= not (S and resetd and setd) after 0 ps;
 g4 : setd <= not (setu and C and R) after 0 ps;
 g5 : resetu <= not (setd and C and resetd) after 0 ps;
@@ -168,3 +171,34 @@ begin
 	g4 : GATE_NOR2 port map (A => R_latch1, B => q1out, C => q2out);
 
 end architecture D_PE_LUT_2;
+
+-- https://en.wikipedia.org/wiki/Flip-flop_(electronics)#/media/File:Edge_triggered_D_flip_flop_with_set_and_reset.svg
+architecture D_PE_LUT_3 of FF_D_POSITIVE_EDGE is
+
+	component GATE_NAND3 is
+	generic (
+		delay_nand3 : TIME := 0 ns
+	);
+	port (
+		A,B,C : in STD_LOGIC;
+		D : out STD_LOGIC
+	);
+	end component GATE_NAND3;
+	for all : GATE_NAND3 use entity WORK.GATE_NAND3(GATE_NAND3_LUT);
+
+	signal E,F,G,H : std_logic;
+	signal q1out,q2out : std_logic;
+
+begin
+
+	Q1 <= q1out;
+	Q2 <= q2out;
+
+	g0 : GATE_NAND3 port map (A => S, B => H, C => F, D => E);
+	g1 : GATE_NAND3 port map (A => E, B => C, C => R, D => F);
+	g2 : GATE_NAND3 port map (A => F, B => C, C => H, D => G);
+	g3 : GATE_NAND3 port map (A => G, B => D, C => R, D => H);
+	g4 : GATE_NAND3 port map (A => S, B => F, C => q2out, D => q1out);
+	g5 : GATE_NAND3 port map (A => q1out, B => G, C => R, D => q2out);
+
+end architecture D_PE_LUT_3;
