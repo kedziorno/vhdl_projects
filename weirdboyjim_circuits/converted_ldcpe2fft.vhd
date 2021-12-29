@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use WORK.p_package1.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -39,14 +40,14 @@ end converted_ldcpe2fft;
 
 architecture Behavioral of converted_ldcpe2fft is
 
-	component delayed_circuit is
-	port (
-	i_clock : in std_logic;
-	i_input : in std_logic;
-	o_output : out std_logic
-	);
-	end component delayed_circuit;
-	for all : delayed_circuit use entity WORK.delayed_circuit(Behavioral);
+--	component delayed_circuit is
+--	port (
+--	i_clock : in std_logic;
+--	i_input : in std_logic;
+--	o_output : out std_logic
+--	);
+--	end component delayed_circuit;
+--	for all : delayed_circuit use entity WORK.delayed_circuit(Behavioral);
 
 --	component FF_D_DUAL_EDGE_TRIGGERED is
 --	port (S,R,D,C:in STD_LOGIC;Q:out STD_LOGIC);
@@ -60,19 +61,19 @@ architecture Behavioral of converted_ldcpe2fft is
 --	);
 --	end component FF_D_MASTER_SLAVE;
 --	for all : FF_D_MASTER_SLAVE use entity WORK.FF_D_MASTER_SLAVE(D_MS_LUT);
-
-	component FF_D_GATED is
-	generic (
-		delay_and : TIME := 0 ns;
-		delay_or : TIME := 0 ns;
-		delay_not : TIME := 0 ns
-	);
-	port (
-		D,E : in STD_LOGIC;
-		Q1,Q2 : out STD_LOGIC
-	);
-	end component FF_D_GATED;
-	for all : FF_D_GATED use entity WORK.FF_D_GATED(GATED_D_NOR_LUT);
+--
+--	component FF_D_GATED is
+--	generic (
+--		delay_and : TIME := 0 ns;
+--		delay_or : TIME := 0 ns;
+--		delay_not : TIME := 0 ns
+--	);
+--	port (
+--		D,E : in STD_LOGIC;
+--		Q1,Q2 : out STD_LOGIC
+--	);
+--	end component FF_D_GATED;
+--	for all : FF_D_GATED use entity WORK.FF_D_GATED(GATED_D_NOR_LUT);
 --	for all : FF_D_GATED use entity WORK.FF_D_GATED(GATED_D_NAND_LUT);
 --	for all : FF_D_GATED use entity WORK.FF_D_GATED(Behavioral_GATED_D_NAND);
 --	for all : FF_D_GATED use entity WORK.FF_D_GATED(Behavioral_GATED_D_NOR);
@@ -113,6 +114,16 @@ architecture Behavioral of converted_ldcpe2fft is
 --	end component GATE_NOT;
 --	for all : GATE_NOT use entity WORK.GATE_NOT(GATE_NOT_LUT);
 
+	component FF_JK is
+	port (
+		i_r : in STD_LOGIC;
+		J,K,C : in STD_LOGIC;
+		Q1 : out STD_LOGIC;
+		Q2 : out STD_LOGIC
+	);
+	end component FF_JK;
+	for all : FF_JK use entity WORK.FF_JK(LUT);
+
 	signal t,d,i_sd_not,dpc_xorout,dpc_q1,q1_not,xorout_not : std_logic;
 	signal xorout : std_logic;
 	signal q1 : std_logic;
@@ -125,18 +136,18 @@ architecture Behavioral of converted_ldcpe2fft is
 
 begin
 
-t <= i_t after 0 ns;
+t <= i_t after P1_CV1 * 1 ns;
 
---dpc_xorout <= xorout after 1 ns; -- XXX dc off
+dpc_xorout <= xorout after P1_CV1 * 1 ns; -- XXX dc off
 --first_not <= xorout after 0 ns;
-dc : delayed_circuit
-port map (
-	i_clock => 'X',
-	i_input => xorout,
---	i_input => t,
---	i_input => first_not,
-	o_output => dpc_xorout
-);
+--dc : delayed_circuit
+--port map (
+--	i_clock => 'X',
+--	i_input => xorout,
+----	i_input => t,
+----	i_input => first_not,
+--	o_output => dpc_xorout
+--);
 
 	i_sd_not <= not i_sd;
 
@@ -186,16 +197,6 @@ port map (
 --		end generate g0_chain;
 --	end generate g0;
 
---	ffd : FF_D_POSITIVE_EDGE
---	port map (
---	S => i_sd,
---	R => i_rd,
---	C => '1',
---	D => dpc_xorout,
---	Q1 => q1,
---	Q2 => q2
---	);
-
 --	q2 <= not q1;
 --	FDCPE_inst : FDCPE
 --	generic map (INIT => '0')
@@ -221,24 +222,34 @@ port map (
 --	);
 
 -- XXX work
-	ffd : FF_D_GATED
-	generic map (
-		delay_and => 0 ns,
-		delay_or => 0 ns,
-		delay_not => 0 ns
-	)
-	port map (
-		D => dpc_xorout,
---		D => xorout,
-		E => t,
-		Q1 => q1,
-		Q2 => q2
-	);
+--	ffd : FF_D_GATED
+--	generic map (
+--		delay_and => 1 ns,
+--		delay_or => 0 ns,
+--		delay_not => 0 ns
+--	)
+--	port map (
+--		D => dpc_xorout,
+----		D => xorout,
+--		E => t,
+--		Q1 => q1,
+--		Q2 => q2
+--	);
+
+--	ffd : FF_D_POSITIVE_EDGE
+--	port map (
+--	S => i_sd,
+--	R => i_rd,
+--	C => '1',
+--	D => dpc_xorout,
+--	Q1 => q1,
+--	Q2 => q2
+--	);
 
 -- XXX fail
 --	ffd : FF_D_MASTER_SLAVE
 --	port map (
---		C => '1', -- XXX must have clock
+--		C => t, -- XXX must have clock
 ----		D => xorout,
 --		D => dpc_xorout,
 --		Q1 => q1,
@@ -254,8 +265,18 @@ port map (
 ----		D => xorout,
 --		D => dpc_xorout,
 ----		C => xorout,
---		C => '1',
+--		C => t,
 --		Q => q1
 --	);
+
+	ffd : FF_JK
+	port map (
+		i_r => i_rd,
+		J => dpc_xorout,
+		K => dpc_xorout,
+		C => t,
+		Q1 => q1,
+		Q2 => q2
+	);
 
 end Behavioral;

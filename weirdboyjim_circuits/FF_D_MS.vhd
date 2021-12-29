@@ -56,12 +56,12 @@ begin
 	Q1 <= q1out;
 	Q2 <= q2out;
 
-	g1: GN generic map (1 ns) port map (A => C, B => X);
+	g1: GN port map (A => C, B => X);
 	g2: GAND port map (A => D, B => X, C => sa); g3: GN port map (A => sa, B => Y);
 	g4: GN port map (A => X, B => U);
-	g5: GAND generic map (1 ns) port map (A => X, B => Y, C => sb); g6: GN port map (A => sb, B => V);
-	g7: GAND generic map (3 ns) port map (A => Y, B => W, C => sc); g8: GN port map (A => sc, B => Z);
-	g9: GAND generic map (6 ns) port map (A => V, B => Z, C => sd); g10: GN port map (A => sd, B => W);
+	g5: GAND port map (A => X, B => Y, C => sb); g6: GN port map (A => sb, B => V);
+	g7: GAND port map (A => Y, B => W, C => sc); g8: GN port map (A => sc, B => Z);
+	g9: GAND port map (A => V, B => Z, C => sd); g10: GN port map (A => sd, B => W);
 	g11: GAND port map (A => Z, B => U, C => se); g12: GN port map (A => se, B => O);
 	g13: GAND port map (A => O, B => U, C => sf); g14: GN port map (A => sf, B => P);
 	g15: GAND port map (A => O, B => q2out, C => sg); g16: GN port map (A => sg, B => q1out);

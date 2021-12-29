@@ -167,7 +167,7 @@ architecture Behavioral of ic_74hct193 is
 	for all : converted_ldcpe2fft use entity WORK.converted_ldcpe2fft(Behavioral);
 
 	signal ff_jk_t,ff_jk_t_dc,ff_jk_t_dc_not : std_logic_vector(3 downto 0);
-	signal ff_jk_q1,ff_jk_q2 : std_logic_vector(3 downto 0);
+	signal ff_jk_q1,ff_jk_q2,ff_jk_q1_dc : std_logic_vector(3 downto 0);
 	signal ff_jk_r : std_logic_vector(3 downto 0);
 	signal i_cpu_not,i_cpd_not,i_mr_not : std_logic;
 	signal ibuf_i_cpu_not,ibuf_i_cpd_not : std_logic;
@@ -187,14 +187,14 @@ begin
 		dc : delayed_circuit
 		port map (
 			i_clock => 'X',
-			i_input => not ff_jk_t(i),
-			o_output => ff_jk_t_dc(i)
+			i_input => ff_jk_q1(i),
+			o_output => ff_jk_q1_dc(i)
 		);
 	end generate g0_dc;
 
-	g0_dc_not : for i in 0 to 3 generate
-		dc_not : GATE_NOT port map (A => ff_jk_t_dc(i), B => ff_jk_t_dc_not(i));
-	end generate g0_dc_not;
+--	g0_dc_not : for i in 0 to 3 generate
+--		dc_not : GATE_NOT port map (A => ff_jk_t_dc(i), B => ff_jk_t_dc_not(i));
+--	end generate g0_dc_not;
 
 	o_q0 <= ff_jk_q1(0);
 	o_q1 <= ff_jk_q1(1);
@@ -247,7 +247,7 @@ begin
 	ff_jk_generate : for i in 0 to 3 generate
 		ff_jk_first_generate : if (i = 0) generate
 			ff_jk_first : converted_ldcpe2fft port map (
-				i_t => ff_jk_t_dc_not(0),
+				i_t => ff_jk_t(0),
 				i_sd => gate_nand3_slv30(0),
 				i_rd => ff_jk_r(0),
 				o_q1 => ff_jk_q1(0),
@@ -256,7 +256,7 @@ begin
 		end generate ff_jk_first_generate;
 		ff_jk_chain_generate : if (i > 0) generate
 			ff_jk_chain : converted_ldcpe2fft port map (
-				i_t => ff_jk_t_dc_not(i),
+				i_t => ff_jk_t(i),
 				i_sd => gate_nand3_slv30(i),
 				i_rd => ff_jk_r(i),
 				o_q1 => ff_jk_q1(i),

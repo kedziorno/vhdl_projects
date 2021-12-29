@@ -46,7 +46,7 @@ C <= A nand B after DELAY_NAND;
 end GATE_NAND_BEHAVIORAL_1;
 
 architecture GATE_NAND_LUT of GATE_NAND is
---	signal T : std_logic;
+	signal T : std_logic;
 begin
 -- LUT2: 2-input Look-Up Table with general output
 -- Spartan-3
