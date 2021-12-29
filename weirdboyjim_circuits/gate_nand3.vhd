@@ -5,7 +5,7 @@ use UNISIM.vcomponents.all;
 
 entity GATE_NAND3 is
 generic (
-delay_nand3 : TIME := 1 ps
+delay_nand3 : TIME := 0 ps
 );
 port (
 A,B,C : in STD_LOGIC;

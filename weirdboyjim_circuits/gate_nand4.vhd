@@ -31,7 +31,7 @@ use UNISIM.VComponents.all;
 
 entity GATE_NAND4 is
 Generic (
-DELAY_NAND4 : time := 1 ps
+DELAY_NAND4 : time := 0 ps
 );
 Port (
 A,B,C,D : in  STD_LOGIC;
@@ -47,7 +47,7 @@ E <= T after DELAY_NAND4;
 end GATE_NAND4_BEHAVIORAL_1;
 
 architecture GATE_NAND4_LUT of GATE_NAND4 is
---	signal T : std_logic;
+	signal T : std_logic;
 begin
 -- LUT4: 4-input Look-Up Table with general output
 -- Spartan-3

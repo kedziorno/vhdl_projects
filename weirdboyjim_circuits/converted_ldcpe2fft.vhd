@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use WORK.p_package1.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -39,8 +40,17 @@ end converted_ldcpe2fft;
 
 architecture Behavioral of converted_ldcpe2fft is
 
+--	component delayed_circuit is
+--	port (
+--	i_clock : in std_logic;
+--	i_input : in std_logic;
+--	o_output : out std_logic
+--	);
+--	end component delayed_circuit;
+--	for all : delayed_circuit use entity WORK.delayed_circuit(Behavioral);
+
 --	component FF_D_DUAL_EDGE_TRIGGERED is
---	port (D,C:in STD_LOGIC;Q:out STD_LOGIC);
+--	port (S,R,D,C:in STD_LOGIC;Q:out STD_LOGIC);
 --	end component FF_D_DUAL_EDGE_TRIGGERED;
 --	for all : FF_D_DUAL_EDGE_TRIGGERED use entity WORK.FF_D_DUAL_EDGE_TRIGGERED(D_DET_LUT);
 
@@ -51,19 +61,22 @@ architecture Behavioral of converted_ldcpe2fft is
 --	);
 --	end component FF_D_MASTER_SLAVE;
 --	for all : FF_D_MASTER_SLAVE use entity WORK.FF_D_MASTER_SLAVE(D_MS_LUT);
-
-	component FF_D_GATED is
-	generic (
-		delay_and : TIME := 0 ns;
-		delay_or : TIME := 0 ns;
-		delay_not : TIME := 0 ns
-	);
-	port (
-		D,E : in STD_LOGIC;
-		Q1,Q2 : inout STD_LOGIC
-	);
-	end component FF_D_GATED;
-	for all : FF_D_GATED use entity WORK.FF_D_GATED(GATED_D_NOR_LUT);
+--
+--	component FF_D_GATED is
+--	generic (
+--		delay_and : TIME := 0 ns;
+--		delay_or : TIME := 0 ns;
+--		delay_not : TIME := 0 ns
+--	);
+--	port (
+--		D,E : in STD_LOGIC;
+--		Q1,Q2 : out STD_LOGIC
+--	);
+--	end component FF_D_GATED;
+--	for all : FF_D_GATED use entity WORK.FF_D_GATED(GATED_D_NOR_LUT);
+--	for all : FF_D_GATED use entity WORK.FF_D_GATED(GATED_D_NAND_LUT);
+--	for all : FF_D_GATED use entity WORK.FF_D_GATED(Behavioral_GATED_D_NAND);
+--	for all : FF_D_GATED use entity WORK.FF_D_GATED(Behavioral_GATED_D_NOR);
 
 --	component FF_D_POSITIVE_EDGE is
 --	port (
@@ -71,7 +84,7 @@ architecture Behavioral of converted_ldcpe2fft is
 --	R : in std_logic;
 --	C : in std_logic;
 --	D : in STD_LOGIC;
---	Q1,Q2:out STD_LOGIC);
+--	Q1,Q2:inout STD_LOGIC);
 --	end component FF_D_POSITIVE_EDGE;
 --	for all : FF_D_POSITIVE_EDGE use entity WORK.FF_D_POSITIVE_EDGE(D_PE_LUT_2);
 
@@ -90,21 +103,31 @@ architecture Behavioral of converted_ldcpe2fft is
 --	end component delayed_programmable_circuit;
 --	for all : delayed_programmable_circuit use entity WORK.delayed_programmable_circuit(Behavioral);
 
-	component GATE_NOT is
-	generic (
-		delay_not : TIME := 0 ps
-	);
-	port (
-		A : in STD_LOGIC;
-		B : out STD_LOGIC
-	);
-	end component GATE_NOT;
-	for all : GATE_NOT use entity WORK.GATE_NOT(GATE_NOT_LUT);
+--	component GATE_NOT is
+--	generic (
+--		delay_not : TIME := 0 ps
+--	);
+--	port (
+--		A : in STD_LOGIC;
+--		B : out STD_LOGIC
+--	);
+--	end component GATE_NOT;
+--	for all : GATE_NOT use entity WORK.GATE_NOT(GATE_NOT_LUT);
 
-	signal d,i_sd_not,dpc_xorout,dpc_q1,q1_not,xorout_not : std_logic := '0';
-	signal xorout : std_logic := '0';
-	signal q1 : std_logic := '1';
-	signal q2 : std_logic := '0';
+	component FF_JK is
+	port (
+		i_r : in STD_LOGIC;
+		J,K,C : in STD_LOGIC;
+		Q1 : out STD_LOGIC;
+		Q2 : out STD_LOGIC
+	);
+	end component FF_JK;
+	for all : FF_JK use entity WORK.FF_JK(LUT);
+
+	signal t,d,i_sd_not,dpc_xorout,dpc_q1,q1_not,xorout_not : std_logic;
+	signal xorout : std_logic;
+	signal q1 : std_logic;
+	signal q2 : std_logic;
 
 	signal chain_not : std_logic_vector(1847 downto 0);
 	signal first_not,last_not : std_logic;
@@ -113,8 +136,20 @@ architecture Behavioral of converted_ldcpe2fft is
 
 begin
 
+t <= i_t after P1_CV1 * 1 ns;
+
+dpc_xorout <= xorout after P1_CV1 * 1 ns; -- XXX dc off
+--first_not <= xorout after 0 ns;
+--dc : delayed_circuit
+--port map (
+--	i_clock => 'X',
+--	i_input => xorout,
+----	i_input => t,
+----	i_input => first_not,
+--	o_output => dpc_xorout
+--);
+
 	i_sd_not <= not i_sd;
---	q2 <= not q1;
 
 	o_q1 <= q1;
 	o_q2 <= q2;
@@ -132,11 +167,11 @@ begin
 --		o_output => dpc_xorout
 --	);
 
---	XORCY_inst : xorout <= i_t xor q1 after 99 ps; -- XXX half cycle 199 ps
+--	XORCY_inst : xorout <= t xor q1 after 1 ns; -- XXX half cycle 199 ps
 	XORCY_inst : XORCY
 	port map (
 		O => xorout, -- XOR output signal
-		CI => i_t, -- Carry input signal
+		CI => t, -- Carry input signal
 --		LI => dpc_q1 -- LUT4 input signal
 		LI => q1 -- LUT4 input signal
 	);
@@ -151,38 +186,30 @@ begin
 --	q1_first_not : GATE_NOT generic map (0 ns) port map (A => q1, B => q1_not);
 --	q1_last_not : GATE_NOT generic map (1 ns) port map (A => q1_not, B => dpc_q1);
 
-	g0_first_not : GATE_NOT generic map (1 ns) port map (A => xorout, B => chain_not(0));
-	g0_last_not : GATE_NOT generic map (1 ns) port map (A => chain_not(1847), B => first_not);
-	dpc_xorout <= first_not after (1848+2)*1 ns; -- XXX for sim, must be 256*not_delay
+--	g0_first_not : GATE_NOT generic map (1 ns) port map (A => xorout, B => chain_not(0));
+--	g0_last_not : GATE_NOT generic map (1 ns) port map (A => chain_not(1847), B => first_not);
+--	dpc_xorout <= first_not after (1848+2)*1 ns; -- XXX for sim, must be 256*not_delay
 --	dpc_xorout <= first_not after 0 ns;
 
-	g0 : for i in 1 to 1847 generate
+--	g0 : for i in 1 to 1847 generate
 --		g0_chain : if (i>0) generate
-			g0_chain_not : GATE_NOT generic map (1 ns) port map (A => chain_not(i-1), B => chain_not(i));
+--			g0_chain_not : GATE_NOT generic map (1 ns) port map (A => chain_not(i-1), B => chain_not(i));
 --		end generate g0_chain;
-	end generate g0;
+--	end generate g0;
 
---	ffd : FF_D_POSITIVE_EDGE
---	port map (
---	S => i_sd,
---	R => i_rd,
---	C => '1',
---	D => dpc_xorout,
---	Q1 => q1,
---	Q2 => q2
---	);
-
+--	q2 <= not q1;
 --	FDCPE_inst : FDCPE
 --	generic map (INIT => '0')
 --	port map (
 --		Q => q1,
---		C => dpc_xorout,
+--		C => t,
 --		CE => '1',
 --		CLR => i_rd,
 --		D => dpc_xorout,
 --		PRE => i_sd_not
 --	);
 
+--	q2 <= not q1;
 --	LDCPE_inst : LDCPE
 --	generic map (INIT => '0') --Initial value of latch ('0' or '1')
 --	port map (
@@ -195,19 +222,34 @@ begin
 --	);
 
 -- XXX work
-	ffd : FF_D_GATED
-	port map (
-		D => dpc_xorout,
---		D => xorout,
-		E => '1',
-		Q1 => q1,
-		Q2 => q2
-	);
+--	ffd : FF_D_GATED
+--	generic map (
+--		delay_and => 1 ns,
+--		delay_or => 0 ns,
+--		delay_not => 0 ns
+--	)
+--	port map (
+--		D => dpc_xorout,
+----		D => xorout,
+--		E => t,
+--		Q1 => q1,
+--		Q2 => q2
+--	);
+
+--	ffd : FF_D_POSITIVE_EDGE
+--	port map (
+--	S => i_sd,
+--	R => i_rd,
+--	C => '1',
+--	D => dpc_xorout,
+--	Q1 => q1,
+--	Q2 => q2
+--	);
 
 -- XXX fail
 --	ffd : FF_D_MASTER_SLAVE
 --	port map (
---		C => '1', -- XXX must have clock
+--		C => t, -- XXX must have clock
 ----		D => xorout,
 --		D => dpc_xorout,
 --		Q1 => q1,
@@ -215,12 +257,26 @@ begin
 --	);
 
 -- XXX fail
+--	q2 <= not q1;
 --	ffd : FF_D_DUAL_EDGE_TRIGGERED
 --	port map (
---	--	D => xorout,
+--		S => i_sd,
+--		R => i_rd,
+----		D => xorout,
 --		D => dpc_xorout,
---		C => i_t,
+----		C => xorout,
+--		C => t,
 --		Q => q1
 --	);
+
+	ffd : FF_JK
+	port map (
+		i_r => i_rd,
+		J => dpc_xorout,
+		K => dpc_xorout,
+		C => t,
+		Q1 => q1,
+		Q2 => q2
+	);
 
 end Behavioral;
