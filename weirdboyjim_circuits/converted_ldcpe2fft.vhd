@@ -39,14 +39,14 @@ end converted_ldcpe2fft;
 
 architecture Behavioral of converted_ldcpe2fft is
 
---	component delayed_circuit is
---	port (
---	i_clock : in std_logic;
---	i_input : in std_logic;
---	o_output : out std_logic
---	);
---	end component delayed_circuit;
---	for all : delayed_circuit use entity WORK.delayed_circuit(Behavioral);
+	component delayed_circuit is
+	port (
+	i_clock : in std_logic;
+	i_input : in std_logic;
+	o_output : out std_logic
+	);
+	end component delayed_circuit;
+	for all : delayed_circuit use entity WORK.delayed_circuit(Behavioral);
 
 --	component FF_D_DUAL_EDGE_TRIGGERED is
 --	port (S,R,D,C:in STD_LOGIC;Q:out STD_LOGIC);
@@ -72,8 +72,8 @@ architecture Behavioral of converted_ldcpe2fft is
 		Q1,Q2 : out STD_LOGIC
 	);
 	end component FF_D_GATED;
---	for all : FF_D_GATED use entity WORK.FF_D_GATED(GATED_D_NOR_LUT);
-	for all : FF_D_GATED use entity WORK.FF_D_GATED(GATED_D_NAND_LUT);
+	for all : FF_D_GATED use entity WORK.FF_D_GATED(GATED_D_NOR_LUT);
+--	for all : FF_D_GATED use entity WORK.FF_D_GATED(GATED_D_NAND_LUT);
 --	for all : FF_D_GATED use entity WORK.FF_D_GATED(Behavioral_GATED_D_NAND);
 --	for all : FF_D_GATED use entity WORK.FF_D_GATED(Behavioral_GATED_D_NOR);
 
@@ -127,16 +127,16 @@ begin
 
 t <= i_t after 0 ns;
 
-dpc_xorout <= xorout after 1 ns; -- XXX dc off
+--dpc_xorout <= xorout after 1 ns; -- XXX dc off
 --first_not <= xorout after 0 ns;
---dc : delayed_circuit
---port map (
---	i_clock => 'X',
-----	i_input => xorout,
+dc : delayed_circuit
+port map (
+	i_clock => 'X',
+	i_input => xorout,
 --	i_input => t,
-----	i_input => first_not,
---	o_output => dpc_xorout
---);
+--	i_input => first_not,
+	o_output => dpc_xorout
+);
 
 	i_sd_not <= not i_sd;
 
@@ -223,7 +223,7 @@ dpc_xorout <= xorout after 1 ns; -- XXX dc off
 -- XXX work
 	ffd : FF_D_GATED
 	generic map (
-		delay_and => 100 ns,
+		delay_and => 0 ns,
 		delay_or => 0 ns,
 		delay_not => 0 ns
 	)

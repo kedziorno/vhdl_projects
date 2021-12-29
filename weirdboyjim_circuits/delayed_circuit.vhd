@@ -55,7 +55,7 @@ architecture Behavioral of delayed_circuit is
 	signal q1,q2 : std_logic;
 	signal tq1,tq2 : std_logic;
 
-	constant N : integer := 16;
+	constant N : integer := 8; --14;
 	constant N2 : integer := 2**N;
 
 	signal tv1 : std_logic_vector(31 downto 0) := (others => '0');
@@ -66,7 +66,7 @@ begin
 
 t <= i_input after 0 ns;
 p3 : process (t,q2) is
-	constant cv2 : integer := P1_CV1;
+	constant cv2 : integer := P1_CV2;
 	type state is (a,b,c);
 	variable vs : state;
 	variable v1 : integer range 0 to N2-1 := 0;

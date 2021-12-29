@@ -13,6 +13,7 @@ use IEEE.STD_LOGIC_1164.all;
 package p_package1 is
 
 constant P1_CV1 : integer := 10;
+constant P1_CV2 : integer := (P1_CV1*10)/2;
 
 -- type <new_type> is
 --  record
