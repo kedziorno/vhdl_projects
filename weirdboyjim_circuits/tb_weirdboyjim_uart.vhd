@@ -138,43 +138,43 @@ i_reset <= '0';
 wait for txClock_period;
 
 txData <= "00000000";
-wait for (txClock_period*t)*512;
+wait for (txClock_period*t)*256;
 i_reset <= '1';
 wait for txClock_period;
 i_reset <= '0';
 
 txData <= "10101011";
-wait for (txClock_period*t)*512;
+wait for (txClock_period*t)*256;
 i_reset <= '1';
 wait for txClock_period;
 i_reset <= '0';
 
 txData <= "11010101";
-wait for (txClock_period*t)*512;
+wait for (txClock_period*t)*256;
 i_reset <= '1';
 wait for txClock_period;
 i_reset <= '0';
 
 txData <= "01010100";
-wait for (txClock_period*t)*512;
+wait for (txClock_period*t)*256;
 i_reset <= '1';
 wait for txClock_period;
 i_reset <= '0';
 
 txData <= "00101010";
-wait for (txClock_period*t)*512;
+wait for (txClock_period*t)*256;
 i_reset <= '1';
 wait for txClock_period;
 i_reset <= '0';
 
 txData <= "11111111";
-wait for (txClock_period*t)*512;
+wait for (txClock_period*t)*256;
 i_reset <= '1';
 wait for txClock_period;
 i_reset <= '0';
 
 txData <= "00000000";
-wait for (txClock_period*t)*512;
+wait for (txClock_period*t)*256;
 i_reset <= '1';
 wait for txClock_period;
 i_reset <= '0';
