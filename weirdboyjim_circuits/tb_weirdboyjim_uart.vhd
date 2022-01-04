@@ -62,7 +62,7 @@ signal tx : std_logic;
 
 -- Clock period definitions
 constant t : integer := 2**4;
-constant UartClock_period : time := 1 us;
+constant UartClock_period : time := 1 ms;
 constant txClock_period : time := UartClock_period/t;
 signal tf_flag : std_logic := '0';
 
@@ -132,23 +132,52 @@ tf_flag <= '1' when TFcount_slv30 = "0000" else '0';
 -- Stimulus process
 stim_proc: process
 begin
--- hold reset state for 100 ns.
 i_reset <= '1';
 wait for txClock_period;
 i_reset <= '0';
 wait for txClock_period;
-txData <= "10101011";
-wait for txClock_period*t*1000;
-txData <= "11010101";
-wait for txClock_period*t*1000;
-txData <= "01010100";
-wait for txClock_period*t*1000;
-txData <= "00101010";
-wait for txClock_period*t*1000;
-txData <= "11111111";
-wait for txClock_period*t*1000;
+
 txData <= "00000000";
-wait for txClock_period*t*1000;
+wait for (txClock_period*t)*512;
+i_reset <= '1';
+wait for txClock_period;
+i_reset <= '0';
+
+txData <= "10101011";
+wait for (txClock_period*t)*512;
+i_reset <= '1';
+wait for txClock_period;
+i_reset <= '0';
+
+txData <= "11010101";
+wait for (txClock_period*t)*512;
+i_reset <= '1';
+wait for txClock_period;
+i_reset <= '0';
+
+txData <= "01010100";
+wait for (txClock_period*t)*512;
+i_reset <= '1';
+wait for txClock_period;
+i_reset <= '0';
+
+txData <= "00101010";
+wait for (txClock_period*t)*512;
+i_reset <= '1';
+wait for txClock_period;
+i_reset <= '0';
+
+txData <= "11111111";
+wait for (txClock_period*t)*512;
+i_reset <= '1';
+wait for txClock_period;
+i_reset <= '0';
+
+txData <= "00000000";
+wait for (txClock_period*t)*512;
+i_reset <= '1';
+wait for txClock_period;
+i_reset <= '0';
 
 -- insert stimulus here
 report "done" severity failure;
