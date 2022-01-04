@@ -15,12 +15,12 @@ end entity FF_JK;
 architecture LUT of FF_JK is
 
 	constant W_NOT : time := 0 ns;
-	constant W_AND : time := 0 ns;
-	constant W_NAND2 : time := 1 ns;
+	constant W_AND : time := 1 ns;
+	constant W_NAND2 : time := 0 ns;
 	constant W_NAND3 : time := 0 ns;
 	constant W_NAND4 : time := 0 ns;
 	constant W_NAND : time := W_NAND2;
-	constant W_Q1MS : time := 0 ns;
+	constant W_Q1MS : time := 1 ns;
 	constant W_Q2MS : time := 0 ns;
 	constant W_C : time := 0 ns;
 	constant W_NOTC : time := 0 ns;
