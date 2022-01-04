@@ -43,7 +43,7 @@ architecture Behavioral of ic_sn74als165 is
 
 	component GATE_NAND2 is
 	generic (
-		delay_nand2 : TIME := 0 ps
+		delay_nand2 : TIME := 0 ns
 	);
 	port (
 		A,B : in STD_LOGIC;
@@ -54,7 +54,7 @@ architecture Behavioral of ic_sn74als165 is
 
 	component GATE_NOT is
 	generic (
-		delay_not : TIME := 0 ps
+		delay_not : TIME := 0 ns
 	);
 	port (
 		A : in STD_LOGIC;
@@ -65,7 +65,7 @@ architecture Behavioral of ic_sn74als165 is
 
 	component GATE_OR is
 	generic (
-		delay_or : TIME := 0 ps
+		delay_or : TIME := 0 ns
 	);
 	port (
 		A,B : in STD_LOGIC;
@@ -75,7 +75,7 @@ architecture Behavioral of ic_sn74als165 is
 	for all : GATE_OR use entity WORK.GATE_OR(GATE_OR_LUT);
 
 	signal q,i_d,gate_nand2_u,gate_nand2_d,gate_nand2_u_not,gate_nand2_d_not : std_logic_vector(7 downto 0);
-	signal i_sh_ld_not : std_logic;
+	signal i_sh_ld_not,i_clk_inh_not : std_logic;
 	signal clock_pulse : std_logic;
 
 begin
@@ -94,7 +94,7 @@ begin
 
 	i_sh_ld_not_inst : GATE_NOT port map (A => i_sh_ld, B => i_sh_ld_not);
 
-	i_clk_inst : GATE_OR port map (A => i_clk, B => not i_clk_inh, C => clock_pulse);
+	i_clk_inst : GATE_OR port map (A => i_clk, B => i_clk_inh, C => clock_pulse);
 
 	generate_nand2_up : for i in 0 to 7 generate
 		nand2_up : GATE_NAND2 port map (A => i_sh_ld_not, B => i_d(i), C => gate_nand2_u(i));
@@ -111,7 +111,7 @@ begin
 			port map (
 				Q => q(0),
 				C => clock_pulse,
-				CE => i_clk_inh,
+				CE => '1',
 				CLR => gate_nand2_d_not(0),
 				D => i_ser,
 				PRE => gate_nand2_u_not(0)
@@ -123,7 +123,7 @@ begin
 			port map (
 				Q => q(i),
 				C => clock_pulse,
-				CE => i_clk_inh,
+				CE => '1',
 				CLR => gate_nand2_d_not(i),
 				D => q(i-1),
 				PRE => gate_nand2_u_not(i)

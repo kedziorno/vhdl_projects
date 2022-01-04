@@ -62,7 +62,7 @@ signal tx : std_logic;
 
 -- Clock period definitions
 constant t : integer := 2**4;
-constant UartClock_period : time := 100 us;
+constant UartClock_period : time := 1 us;
 constant txClock_period : time := UartClock_period/t;
 signal tf_flag : std_logic := '0';
 
@@ -136,18 +136,19 @@ begin
 i_reset <= '1';
 wait for txClock_period;
 i_reset <= '0';
+wait for txClock_period;
 txData <= "10101011";
-wait for txClock_period*t*t;
+wait for txClock_period*t*1000;
 txData <= "11010101";
-wait for txClock_period*t*t;
+wait for txClock_period*t*1000;
 txData <= "01010100";
-wait for txClock_period*t*t;
+wait for txClock_period*t*1000;
 txData <= "00101010";
-wait for txClock_period*t*t;
+wait for txClock_period*t*1000;
 txData <= "11111111";
-wait for txClock_period*t*t;
+wait for txClock_period*t*1000;
 txData <= "00000000";
-wait for txClock_period*t*t;
+wait for txClock_period*t*1000;
 
 -- insert stimulus here
 report "done" severity failure;
