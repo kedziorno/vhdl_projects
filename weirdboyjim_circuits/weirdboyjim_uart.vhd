@@ -152,7 +152,7 @@ begin
 	U5_connect8 : itxClock <= u5_q3;
 	U5_connect9 : u5_cpd <= '1';
 	U5_connect10 : u5_cpu <= UartClock;
-	U5_connect11 : u5_pl <= '0';
+	U5_connect11 : u5_pl <= '1';
 --	U5_connect12 : u5_tcu <= 'X';
 --	U5_connect13 : u5_tcd <= 'X';
 	U5_connect14 : u5_mr <= i_reset;
@@ -175,7 +175,7 @@ begin
 --	U7_connect8 : u7_q3 <= 'X';
 	U7_connect9 : u7_cpd <= '1';
 	U7_connect10 : u7_cpu <= itxClock;
-	U7_connect11 : u7_pl <= txStart;
+	U7_connect11 : u7_pl <= u8_4y;
 --	U7_connect12 : u7_tcu <= u8_3a;
 --	U7_connect13 : u7_tcd <= 'X';
 	U7_connect14 : u7_mr <= i_reset;
@@ -195,9 +195,9 @@ begin
 --	U8_connect6 : u8_2y <= 'X';
 	U8_connect7 : u8_3a <= u7_tcu;
 	U8_connect8 : txStart <= u8_4y; -- XXX for sim
-	U8 : u8_3b <= txStart;
+	U8 : u8_3b <= u8_4y;
 	U8_connect9 : TFDataRead <= u8_3y;
-	U8_connect10 : u8_4a <= TFDataRead;
+	U8_connect10 : u8_4a <= u8_3y;
 	U8_connect11 : u8_4b <= u8_1y;
 	U8_connect12 : txStart <= u8_4y;
 
@@ -220,7 +220,7 @@ begin
 
 	U10_connect1 : u10_sh_ld <= txStart;
 	U10_connect2 : u10_clk <= itxClock;
-	U10_connect3 : u10_clk_inh <= '1';
+	U10_connect3 : u10_clk_inh <= '0';
 	U10_connect4 : u10_ser <= u11_q7;
 	U10_connect5 : u10_d0 <= txData(5);
 	U10_connect6 : u10_d1 <= txData(4);
@@ -252,7 +252,7 @@ begin
 
 	U11_connect1 : u11_sh_ld <= txStart;
 	U11_connect2 : u11_clk <= itxClock;
-	U11_connect3 : u11_clk_inh <= '1';
+	U11_connect3 : u11_clk_inh <= '0';
 	U11_connect4 : u11_ser <= '1';
 	U11_connect5 : u11_d0 <= '1';
 	U11_connect6 : u11_d1 <= '1';

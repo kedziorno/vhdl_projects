@@ -136,9 +136,9 @@ architecture Behavioral of converted_ldcpe2fft is
 
 begin
 
-t <= i_t after P1_CV1 * 1 ns;
+t <= i_t after 1 ns;
 
-dpc_xorout <= xorout after P1_CV1 * 1 ns; -- XXX dc off
+dpc_xorout <= xorout after 1 ns; -- XXX dc off
 --first_not <= xorout after 0 ns;
 --dc : delayed_circuit
 --port map (
