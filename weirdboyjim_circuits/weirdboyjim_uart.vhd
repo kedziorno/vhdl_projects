@@ -32,7 +32,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity weirdboyjim_uart is
 port (
 	signal i_reset : in std_logic;
-	signal UartClock : in std_logic;
+	signal txUartClock : in std_logic;
+	signal rxUartClock : in std_logic;
 	signal tx : out std_logic;
 	signal txData : in std_logic_vector(7 downto 0);
 	signal txClock : in std_logic;
@@ -167,7 +168,7 @@ begin
 --	U5_connect7 : u5_q2 <= 'X';
 	U5_connect8 : itxClock <= u5_q3;
 	U5_connect9 : u5_cpd <= '1';
-	U5_connect10 : u5_cpu <= UartClock;
+	U5_connect10 : u5_cpu <= txUartClock;
 	U5_connect11 : u5_pl <= '1';
 --	U5_connect12 : u5_tcu <= 'X';
 --	U5_connect13 : u5_tcd <= 'X';
@@ -341,7 +342,7 @@ begin
 --	U3_connect7 : u3_q2 <= 'X';
 	U3_connect8 : RevClock <= u3_q3;
 	U3_connect9 : u3_cpd <= '1';
-	U3_connect10 : u3_cpu <= UartClock;
+	U3_connect10 : u3_cpu <= rxUartClock;
 	U3_connect11 : u3_pl <= '1';
 --	U3_connect12 : u3_tcu <= 'X';
 --	U3_connect13 : u3_tcd <= 'X';
