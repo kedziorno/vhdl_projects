@@ -39,26 +39,28 @@ ARCHITECTURE behavior OF tb_weirdboyjim_uart IS
 
 COMPONENT weirdboyjim_uart
 PORT(
-tx : OUT  std_logic;
-rx : IN  std_logic;
-UartClock : IN  std_logic;
-txData : IN  std_logic_vector(7 downto 0);
-txClock : IN  std_logic;
-TFcount_slv30 : IN  std_logic_vector(3 downto 0);
-i_reset : IN  std_logic
+signal i_reset : in std_logic;
+signal UartClock : in std_logic;
+signal tx : out std_logic;
+signal txData : in std_logic_vector(7 downto 0);
+signal txClock : in std_logic;
+signal TFcount_slv30 : std_logic_vector(3 downto 0);
+signal Rx : in std_logic;
+signal RevData : out std_logic_vector(7 downto 0)
 );
 END COMPONENT;
 
 --Inputs
-signal rx : std_logic := '0';
-signal UartClock,UartClock2 : std_logic := '0';
+signal i_reset : std_logic;
+signal UartClock,UartClock2 : std_logic;
 signal txData : std_logic_vector(7 downto 0) := (others => '0');
 signal txClock : std_logic := '0';
 signal TFcount_slv30 : std_logic_vector(3 downto 0) := (others => '0');
-signal i_reset : std_logic;
+signal Rx : std_logic;
 
 --Outputs
 signal tx : std_logic;
+signal RevData : std_logic_vector(7 downto 0);
 
 -- Clock period definitions
 constant t : integer := 2**4;
@@ -69,13 +71,14 @@ signal tf_flag : std_logic := '0';
 BEGIN
 
 uut: weirdboyjim_uart PORT MAP (
-tx => tx,
-rx => rx,
+i_reset => i_reset,
 UartClock => UartClock,
+tx => tx,
 txData => txData,
 txClock => txClock,
 TFcount_slv30 => TFcount_slv30,
-i_reset => i_reset
+Rx => Rx,
+RevData => RevData
 );
 
 -- Clock process definitions
@@ -131,53 +134,46 @@ tf_flag <= '1' when TFcount_slv30 = "0000" else '0';
 
 -- Stimulus process
 stim_proc: process
+constant N : integer := 7;
+type va is array(integer range <>) of std_logic_vector(7 downto 0);
+constant v : va(0 to N-1) := (
+"00000000",
+"10101011",
+"11010101",
+"01010100",
+"00101010",
+"11111111",
+"00000000"
+);
 begin
-i_reset <= '1';
-wait for txClock_period;
-i_reset <= '0';
-wait for txClock_period;
 
-txData <= "00000000";
-wait for (txClock_period*t)*256;
-i_reset <= '1';
-wait for txClock_period;
-i_reset <= '0';
+tx_l0 : for txi in 0 to v'length - 1 loop
+	i_reset <= '1';
+	wait for txClock_period;
+	i_reset <= '0';
+	txData <= v(txi);
+	wait for (txClock_period*t)*256;
+end loop tx_l0;
 
-txData <= "10101011";
-wait for (txClock_period*t)*256;
 i_reset <= '1';
-wait for txClock_period;
+wait for (txClock_period*t)*256;
 i_reset <= '0';
 
-txData <= "11010101";
-wait for (txClock_period*t)*256;
-i_reset <= '1';
-wait for txClock_period;
-i_reset <= '0';
-
-txData <= "01010100";
-wait for (txClock_period*t)*256;
-i_reset <= '1';
-wait for txClock_period;
-i_reset <= '0';
-
-txData <= "00101010";
-wait for (txClock_period*t)*256;
-i_reset <= '1';
-wait for txClock_period;
-i_reset <= '0';
-
-txData <= "11111111";
-wait for (txClock_period*t)*256;
-i_reset <= '1';
-wait for txClock_period;
-i_reset <= '0';
-
-txData <= "00000000";
-wait for (txClock_period*t)*256;
-i_reset <= '1';
-wait for txClock_period;
-i_reset <= '0';
+rx_l0 : for rxi in 0 to v'length - 1 loop
+	i_reset <= '1';
+	wait for txClock_period;
+	i_reset <= '0';
+	Rx <= '0';
+	wait for UartClock_period*t;
+	rx_l1 : for j in 0 to 7 loop
+		Rx <= v(rxi)(j);
+		wait for UartClock_period*t;
+	end loop rx_l1;
+	Rx <= '1';
+	wait for UartClock_period*t;
+	Rx <= 'U';
+	wait for UartClock_period*t*10;
+end loop rx_l0;
 
 -- insert stimulus here
 report "done" severity failure;
