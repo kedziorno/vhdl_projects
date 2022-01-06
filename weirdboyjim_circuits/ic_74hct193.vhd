@@ -179,7 +179,8 @@ architecture Behavioral of ic_74hct193 is
 	signal gate_or2_bar_slv30 : std_logic_vector(3 downto 0);
 	signal gate_nand3_slv30 : std_logic_vector(3 downto 0);
 
-	signal edre_not1,edre_not2,edre_not3,edre_not4,edre_out : std_logic;
+	signal edre_not1_cpu,edre_not2_cpu,edre_not3_cpu,edre_not4_cpu,edre_out_cpu : std_logic;
+	signal edre_not1_cpd,edre_not2_cpd,edre_not3_cpd,edre_not4_cpd,edre_out_cpd : std_logic;
 
 begin
 
@@ -211,18 +212,18 @@ begin
 	i_cpu_not_inst : GATE_NOT port map (A => i_cpu, B => i_cpu_not);
 	i_cpd_not_inst : GATE_NOT port map (A => i_cpd, B => i_cpd_not);
 
-	ff_jk_first_nor2 : GATE_NOR2 port map (A => edre_out, B => i_cpd_not, C => ff_jk_t(0));
+	ff_jk_first_nor2 : GATE_NOR2 port map (A => edre_out_cpu, B => edre_out_cpd, C => ff_jk_t(0));
 
-	gate_and2_u_inst1 : GATE_AND port map (A => ff_jk_q1(0), B => edre_out, C => gate_and2_u);
-	gate_and2_d_inst1 : GATE_AND port map (A => ff_jk_q2(0), B => i_cpd_not, C => gate_and2_d);
+	gate_and2_u_inst1 : GATE_AND port map (A => ff_jk_q1(0), B => edre_out_cpu, C => gate_and2_u);
+	gate_and2_d_inst1 : GATE_AND port map (A => ff_jk_q2(0), B => edre_out_cpd, C => gate_and2_d);
 	ff_jk_chain1_nor2 : GATE_NOR2 port map (A => gate_and2_u, B => gate_and2_d, C => ff_jk_t(1));
 
-	gate_and3_u_inst2 : GATE_AND3 port map (A => ff_jk_q1(1), B => ff_jk_q1(0), C => edre_out, D => gate_and3_u);
-	gate_and3_d_inst2 : GATE_AND3 port map (A => ff_jk_q2(1), B => ff_jk_q2(0), C => i_cpd_not, D => gate_and3_d);
+	gate_and3_u_inst2 : GATE_AND3 port map (A => ff_jk_q1(1), B => ff_jk_q1(0), C => edre_out_cpu, D => gate_and3_u);
+	gate_and3_d_inst2 : GATE_AND3 port map (A => ff_jk_q2(1), B => ff_jk_q2(0), C => edre_out_cpd, D => gate_and3_d);
 	ff_jk_chain2_nor2 : GATE_NOR2 port map (A => gate_and3_u, B => gate_and3_d, C => ff_jk_t(2));
 
-	gate_and4_u_inst3 : GATE_AND4 port map (A => ff_jk_q1(2), B => ff_jk_q1(1), C => ff_jk_q1(0), D => edre_out, E => gate_and4_u);
-	gate_and4_d_inst3 : GATE_AND4 port map (A => ff_jk_q2(2), B => ff_jk_q2(1), C => ff_jk_q2(0), D => i_cpd_not, E => gate_and4_d);
+	gate_and4_u_inst3 : GATE_AND4 port map (A => ff_jk_q1(2), B => ff_jk_q1(1), C => ff_jk_q1(0), D => edre_out_cpu, E => gate_and4_u);
+	gate_and4_d_inst3 : GATE_AND4 port map (A => ff_jk_q2(2), B => ff_jk_q2(1), C => ff_jk_q2(0), D => edre_out_cpd, E => gate_and4_d);
 	ff_jk_chain3_nor2 : GATE_NOR2 port map (A => gate_and4_u, B => gate_and4_d, C => ff_jk_t(3));
 
 	gate_nand3_inst1 : GATE_NAND3 port map (A => i_pl_not, B => i_mr_not, C => i_d0, D => gate_nand3_slv30(0));
@@ -242,8 +243,8 @@ begin
 	gate_or2_bar_inst3 : GATE_OR2_BAR port map (A => i_mr_not, B => gate_or2_bar_slv30(2), C => ff_jk_r(2));
 	gate_or2_bar_inst4 : GATE_OR2_BAR port map (A => i_mr_not, B => gate_or2_bar_slv30(3), C => ff_jk_r(3));
 
-	gate_nand5_tcu_not : GATE_NAND5 port map (a => edre_out, b => ff_jk_q1(0), c => ff_jk_q1(1), d => ff_jk_q1(2), e => ff_jk_q1(3), f => o_tcu);
-	gate_nand5_tcd_not : GATE_NAND5 port map (a => i_cpd_not, b => ff_jk_q2(0), c => ff_jk_q2(1), d => ff_jk_q2(2), e => ff_jk_q2(3), f => o_tcd);
+	gate_nand5_tcu_not : GATE_NAND5 port map (a => edre_out_cpu, b => ff_jk_q1(0), c => ff_jk_q1(1), d => ff_jk_q1(2), e => ff_jk_q1(3), f => o_tcu);
+	gate_nand5_tcd_not : GATE_NAND5 port map (a => edre_out_cpd, b => ff_jk_q2(0), c => ff_jk_q2(1), d => ff_jk_q2(2), e => ff_jk_q2(3), f => o_tcd);
 
 	ff_jk_generate : for i in 0 to 3 generate
 		ff_jk_first_generate : if (i = 0) generate
@@ -266,9 +267,14 @@ begin
 		end generate ff_jk_chain_generate;
 	end generate ff_jk_generate;
 
-	edge_detector_re_not1 : GATE_NOT generic map (1 ns) port map (A => i_cpu_not, B => edre_not1);
-	edge_detector_re_not2 : GATE_NOT generic map (0 ps) port map (A => edre_not1, B => edre_not2);
-	edge_detector_re_not3 : GATE_NOT generic map (0 ps) port map (A => edre_not2, B => edre_not3);
-	edge_detector_re_and : GATE_AND port map (A => i_cpu_not, B => edre_not3, C => edre_out);
+	edge_detector_re_not1_cpu_not : GATE_NOT generic map (1 ns) port map (A => i_cpu_not, B => edre_not1_cpu);
+	edge_detector_re_not2_cpu_not : GATE_NOT generic map (0 ps) port map (A => edre_not1_cpu, B => edre_not2_cpu);
+	edge_detector_re_not3_cpu_not : GATE_NOT generic map (0 ps) port map (A => edre_not2_cpu, B => edre_not3_cpu);
+	edge_detector_re_and_cpu_not : GATE_AND port map (A => i_cpu_not, B => edre_not3_cpu, C => edre_out_cpu);
+
+	edge_detector_re_not1_cpd_not : GATE_NOT generic map (1 ns) port map (A => i_cpd_not, B => edre_not1_cpd);
+	edge_detector_re_not2_cpd_not : GATE_NOT generic map (0 ps) port map (A => edre_not1_cpd, B => edre_not2_cpd);
+	edge_detector_re_not3_cpd_not : GATE_NOT generic map (0 ps) port map (A => edre_not2_cpd, B => edre_not3_cpd);
+	edge_detector_re_and_cpd_not : GATE_AND port map (A => i_cpd_not, B => edre_not3_cpd, C => edre_out_cpd);
 
 end Behavioral;
