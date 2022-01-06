@@ -188,6 +188,26 @@ constant v : va(0 to N-1) := (
 "00000000",
 "11111111"
 );
+
+function vec2str(vec: std_logic_vector) return string is
+variable result: string(0 to vec'left);
+begin
+for i in vec'range loop
+if (vec(i) = '1') then
+result(i) := '1';
+elsif (vec(i) = '0') then
+result(i) := '0';
+elsif (vec(i) = 'X') then
+result(i) := 'X';
+elsif (vec(i) = 'U') then
+result(i) := 'U';
+else
+result(i) := '?';
+end if;
+end loop;
+return result;
+end;
+
 begin
 
 i_reset <= '1';
@@ -211,25 +231,28 @@ i_reset <= '0';
 --wait for uartClockPeriod;
 
 tx_run <= '0';
-rx_run <= '1';
+--rx_run <= '1';
 
 wait for uartClockPeriod;
 
 rx_l0 : for rxi in 0 to v'length - 1 loop
 	i_reset <= '1';
-	wait for rxUartClock_period*2;
+	wait for rxUartClock_period;
 	i_reset <= '0';
---	wait for rxUartClock_period*256;
-	Rx <= '0';
+	wait for rxUartClock_period;
+	rx_run <= '1';
+	wait for rxUartClock_period;
+	Rx <= '0'; -- XXX start bit
 	wait for rxUartClock_period*t;
 	rx_l1 : for j in 0 to 7 loop
-		Rx <= v(rxi)(j);
+		Rx <= v(rxi)(j); -- XXX look and fix data order
 		wait for rxUartClock_period*t;
 	end loop rx_l1;
-	Rx <= '1';
-	wait for rxUartClock_period*t;
-	Rx <= '1';
+--	Rx <= '1'; -- XXX stop bit
+--	wait for rxUartClock_period*t;
+	rx_run <= '0';
 	wait for rxUartClock_period*t*10;
+	assert (v(rxi) = RevData) report "rx : " & vec2str(RevData) & " expected " & vec2str(v(rxi)) severity warning;
 end loop rx_l0;
 
 wait for uartClockPeriod;
