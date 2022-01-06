@@ -36,7 +36,6 @@ port (
 	signal rxUartClock : in std_logic;
 	signal tx : out std_logic;
 	signal txData : in std_logic_vector(7 downto 0);
-	signal txClock : in std_logic;
 	signal TFcount_slv30 : std_logic_vector(3 downto 0);
 	signal Rx : in std_logic;
 	signal RevData : out std_logic_vector(7 downto 0)
@@ -129,7 +128,7 @@ architecture Behavioral of weirdboyjim_uart is
 	signal u3_d0,u3_d1,u3_d2,u3_d3,u3_q0,u3_q1,u3_q2,u3_q3,u3_cpd,u3_cpu,u3_pl,u3_tcu,u3_tcd,u3_mr : std_logic;
 	signal u4_dsa,u4_dsb,u4_cp,u4_mr,u4_q0,u4_q1,u4_q2,u4_q3,u4_q4,u4_q5,u4_q6,u4_q7 : std_logic;
 
-	signal Dev12_Assert,StatusCopy,ByteRev,RevClock : std_logic;
+	signal Dev12_Assert,StatusCopy,ByteRev,RevClock : std_logic := '0';
 
 begin
 
@@ -303,7 +302,7 @@ begin
 	U1_connect11 : u1_pl <= u2_3y;
 --	U1_connect12 : u1_tcu <= 'X';
 	U1_connect13 : u2_4b <= u1_tcd;
-	U1_connect14 : u1_mr <= i_reset;
+	U1_connect14 : u1_mr <= i_reset; --'1';
 
 	U2_inst : ic_74hct00 port map (
 		i_1a => u2_1a, i_1b => u2_1b, o_1y => u2_1y,
@@ -320,7 +319,6 @@ begin
 --	U2_connect6 : u2_2y <= 'X';
 	U2_connect7 : u2_3a <= Rx;
 	U2_connect9 : u2_3b <= u2_4y;
-	U2_connect10 : TFDataRead <= u2_3y;
 	U2_connect11 : u2_4a <= u2_3y;
 	U2_connect12 : u2_4b <= u1_tcd;
 	U2_connect13 : ByteRev <= u2_4y;
@@ -346,7 +344,7 @@ begin
 	U3_connect11 : u3_pl <= '1';
 --	U3_connect12 : u3_tcu <= 'X';
 --	U3_connect13 : u3_tcd <= 'X';
-	U3_connect14 : u3_mr <= u2_4y;
+	U3_connect14 : u3_mr <= i_reset; --u2_4y;
 
 	U4_inst : ic_74hct164 port map (
 		i_dsa => U4_dsa,
