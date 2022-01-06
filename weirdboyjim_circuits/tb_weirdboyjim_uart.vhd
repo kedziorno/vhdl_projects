@@ -64,7 +64,7 @@ signal RevData : std_logic_vector(7 downto 0);
 -- Clock period definitions
 signal uartClock : std_logic;
 constant t : integer := 2**4;
-constant uartClockPeriod : time := 0.5 ms;
+constant uartClockPeriod : time := 1 ms;
 constant txUartClock_period : time := uartClockPeriod;
 constant rxUartClock_period : time := uartClockPeriod;
 
@@ -191,7 +191,7 @@ constant v : va(0 to N-1) := (
 begin
 
 i_reset <= '1';
-wait for uartClockPeriod*2;
+wait for uartClockPeriod;
 i_reset <= '0';
 
 --tx_run <= '1';
@@ -216,6 +216,10 @@ rx_run <= '1';
 wait for uartClockPeriod;
 
 rx_l0 : for rxi in 0 to v'length - 1 loop
+	i_reset <= '1';
+	wait for rxUartClock_period*2;
+	i_reset <= '0';
+--	wait for rxUartClock_period*256;
 	Rx <= '0';
 	wait for rxUartClock_period*t;
 	rx_l1 : for j in 0 to 7 loop
@@ -226,10 +230,6 @@ rx_l0 : for rxi in 0 to v'length - 1 loop
 	wait for rxUartClock_period*t;
 	Rx <= '1';
 	wait for rxUartClock_period*t*10;
---	i_reset <= '1';
---	wait for rxUartClock_period*2;
---	i_reset <= '0';
---	wait for rxUartClock_period*256;
 end loop rx_l0;
 
 wait for uartClockPeriod;
