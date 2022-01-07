@@ -246,7 +246,8 @@ rx_l0 : for rxi in 0 to v'length - 1 loop
 		wait for rxUartClock_period*t;
 	end loop rx_l1;
 	Rx <= '1'; -- XXX stop bit
-	wait for rxUartClock_period*t;
+--	wait for rxUartClock_period*t; -- XXX t
+	wait for rxUartClock_period; -- XXX 1/t
 	rx_run <= '0';
 	wait for rxUartClock_period*t;
 	Rx <= '1';
