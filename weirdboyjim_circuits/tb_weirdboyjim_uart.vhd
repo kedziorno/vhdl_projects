@@ -27,6 +27,7 @@
 --------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
+USE std.textio.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -188,7 +189,10 @@ constant v : va(0 to N-1) := (
 "00000000",
 "11111111"
 );
-
+type tsa is array(0 to N-1) of time;
+variable ts : tsa := (others => 0 ns);
+file wbj_ts : text open write_mode is "wbj_ts.txt";
+variable wbj_ts_row : line;
 function vec2str(vec: std_logic_vector) return string is
 variable result: string(0 to vec'left);
 begin
@@ -244,11 +248,24 @@ rx_l0 : for rxi in 0 to v'length - 1 loop
 	Rx <= '1'; -- XXX stop bit
 	wait for rxUartClock_period*t;
 	rx_run <= '0';
+	wait for rxUartClock_period*t;
+	Rx <= '1';
 	wait for rxUartClock_period*t*10;
-	assert (v(rxi) = RevData) report "rx : " & vec2str(RevData) & " expected " & vec2str(v(rxi)) severity warning;
+	if (v(rxi) /= RevData) then
+		assert (v(rxi) = RevData) report "rx : " & vec2str(RevData) & " expected " & vec2str(v(rxi)) severity warning;
+		ts(rxi) := now;
+	end if;
 end loop rx_l0;
 
 wait for uartClockPeriod;
+
+l10 : for i in 0 to ts'length-1 loop
+	report "add timestamps marker " & time'image(ts(i)) & " to file";
+	write(wbj_ts_row,time'image(ts(i)));
+	writeline(wbj_ts,wbj_ts_row);
+end loop l10;
+
+file_close(wbj_ts);
 
 -- insert stimulus here
 report "done" severity failure;
