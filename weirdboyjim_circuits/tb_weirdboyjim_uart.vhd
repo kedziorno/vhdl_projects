@@ -213,27 +213,20 @@ begin
 i_reset <= '1';
 wait for uartClockPeriod;
 i_reset <= '0';
+wait for uartClockPeriod;
 
---tx_run <= '1';
---rx_run <= '0';
---
---wait for uartClockPeriod;
---
 --tx_l0 : for txi in 0 to v'length - 1 loop
---	txData <= v(txi);
---	wait for txUartClock_period*256;
 --	i_reset <= '1';
 --	wait for txUartClock_period;
 --	i_reset <= '0';
+--	wait for txUartClock_period;
+--	tx_run <= '1';
+--	wait for txUartClock_period;
+--	txData <= v(txi);
 --	wait for txUartClock_period*256;
+--	tx_run <= '0';
+--	wait for txUartClock_period*t*10;
 --end loop tx_l0;
---
---wait for uartClockPeriod;
-
-tx_run <= '0';
---rx_run <= '1';
-
-wait for uartClockPeriod;
 
 rx_l0 : for rxi in 0 to v'length - 1 loop
 	i_reset <= '1';
@@ -248,17 +241,12 @@ rx_l0 : for rxi in 0 to v'length - 1 loop
 		Rx <= v(rxi)(j); -- XXX look and fix data order
 		wait for rxUartClock_period*t;
 	end loop rx_l1;
---	Rx <= '1'; -- XXX stop bit
---	wait for rxUartClock_period*t;
+	Rx <= '1'; -- XXX stop bit
+	wait for rxUartClock_period*t;
 	rx_run <= '0';
 	wait for rxUartClock_period*t*10;
 	assert (v(rxi) = RevData) report "rx : " & vec2str(RevData) & " expected " & vec2str(v(rxi)) severity warning;
 end loop rx_l0;
-
-wait for uartClockPeriod;
-
-tx_run <= '0';
-rx_run <= '0';
 
 wait for uartClockPeriod;
 
