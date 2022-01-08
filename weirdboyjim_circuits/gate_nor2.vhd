@@ -5,7 +5,7 @@ use UNISIM.vcomponents.all;
 
 entity GATE_NOR2 is
 generic (
-delay_nor2 : TIME := 0 ps
+delay_nor2 : TIME := 0 ns
 );
 port (
 A,B : in STD_LOGIC;

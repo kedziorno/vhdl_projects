@@ -7,7 +7,8 @@ S : in std_logic;
 R : in std_logic;
 C : in std_logic;
 D : in STD_LOGIC;
-Q1,Q2:out STD_LOGIC);
+Q1,Q2:out STD_LOGIC
+);
 end entity FF_D_POSITIVE_EDGE;
 
 -- https://en.wikipedia.org/wiki/Flip-flop_(electronics)#Classical_positive-edge-triggered_D_flip-flop
