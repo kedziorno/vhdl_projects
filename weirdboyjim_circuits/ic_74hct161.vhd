@@ -26,8 +26,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
+library UNISIM;
+use UNISIM.VComponents.all;
 
 entity ic_74hct161 is
 port (
@@ -137,17 +137,17 @@ architecture Behavioral of ic_74hct161 is
 	end component GATE_NAND5;
 	for all : GATE_NAND5 use entity WORK.my_nand5(Behavioral);
 
-	component FF_D_POSITIVE_EDGE is
-	port (
-		S : in std_logic;
-		R : in std_logic;
-		C : in std_logic;
-		D : in STD_LOGIC;
-		Q1,Q2:out STD_LOGIC
-	);
-	end component FF_D_POSITIVE_EDGE;
-	for all : FF_D_POSITIVE_EDGE use entity WORK.FF_D_POSITIVE_EDGE(D_PE_LUT_1);
---	for all : FF_D_POSITIVE_EDGE use entity WORK.FF_D_POSITIVE_EDGE(D_PE_LUT_2);
+--	component FF_D_POSITIVE_EDGE is
+--	port (
+--		S : in std_logic;
+--		R : in std_logic;
+--		C : in std_logic;
+--		D : in STD_LOGIC;
+--		Q1,Q2:out STD_LOGIC
+--	);
+--	end component FF_D_POSITIVE_EDGE;
+----	for all : FF_D_POSITIVE_EDGE use entity WORK.FF_D_POSITIVE_EDGE(D_PE_LUT_1);
+----	for all : FF_D_POSITIVE_EDGE use entity WORK.FF_D_POSITIVE_EDGE(D_PE_LUT_2);
 --	for all : FF_D_POSITIVE_EDGE use entity WORK.FF_D_POSITIVE_EDGE(D_PE_LUT_3);
 
 	signal i_pe_b_not,i_pe_b_not_not,i_cp_not,i_mr_b_not,i_cet_cep_nand2 : std_logic;
@@ -226,14 +226,23 @@ begin
 	inst_g33 : GATE_NOR2
 	port map (A => g36, B => g37, C => ffd3_d);
 
-	ffd0 : FF_D_POSITIVE_EDGE
-	port map (S => '0', R => i_mr_b_not, C => i_cp_not, D => not ffd0_d, Q1 => ffd0_q1, Q2 => ffd0_q2);
-	ffd1 : FF_D_POSITIVE_EDGE
-	port map (S => '0', R => i_mr_b_not, C => i_cp_not, D => not ffd1_d, Q1 => ffd1_q1, Q2 => ffd1_q2);
-	ffd2 : FF_D_POSITIVE_EDGE
-	port map (S => '0', R => i_mr_b_not, C => i_cp_not, D => not ffd2_d, Q1 => ffd2_q1, Q2 => ffd2_q2);
-	ffd3 : FF_D_POSITIVE_EDGE
-	port map (S => '0', R => i_mr_b_not, C => i_cp_not, D => not ffd3_d, Q1 => ffd3_q1, Q2 => ffd3_q2);
+--	ffd0 : FF_D_POSITIVE_EDGE
+--	port map (S => not i_mr_b_not, R => i_mr_b_not, C => i_cp_not, D => not ffd0_d, Q1 => ffd0_q1, Q2 => ffd0_q2);
+--	ffd1 : FF_D_POSITIVE_EDGE
+--	port map (S => not i_mr_b_not, R => i_mr_b_not, C => i_cp_not, D => not ffd1_d, Q1 => ffd1_q1, Q2 => ffd1_q2);
+--	ffd2 : FF_D_POSITIVE_EDGE
+--	port map (S => not i_mr_b_not, R => i_mr_b_not, C => i_cp_not, D => not ffd2_d, Q1 => ffd2_q1, Q2 => ffd2_q2);
+--	ffd3 : FF_D_POSITIVE_EDGE
+--	port map (S => not i_mr_b_not, R => i_mr_b_not, C => i_cp_not, D => not ffd3_d, Q1 => ffd3_q1, Q2 => ffd3_q2);
+
+	ffd0_q2 <= not ffd0_q1;
+	ffd0 : FDCE generic map (INIT => '0') port map (Q => ffd0_q1, C => i_cp_not, CE => '1', CLR => i_mr_b_not, D => not ffd0_d);
+	ffd1_q2 <= not ffd1_q1;
+	ffd1 : FDCE generic map (INIT => '0') port map (Q => ffd1_q1, C => i_cp_not, CE => '1', CLR => i_mr_b_not, D => not ffd1_d);
+	ffd2_q2 <= not ffd2_q1;
+	ffd2 : FDCE generic map (INIT => '0') port map (Q => ffd2_q1, C => i_cp_not, CE => '1', CLR => i_mr_b_not, D => not ffd2_d);
+	ffd3_q2 <= not ffd3_q1;
+	ffd3 : FDCE generic map (INIT => '0') port map (Q => ffd3_q1, C => i_cp_not, CE => '1', CLR => i_mr_b_not, D => not ffd3_d);
 
 	inst_o_tc : GATE_NAND5
 	port map (a => ffd0_q1, b => ffd1_q1, c => ffd2_q1, d => ffd3_q1, e => i_cet, f => o_tc);

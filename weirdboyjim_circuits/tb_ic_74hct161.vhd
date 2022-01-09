@@ -74,10 +74,22 @@ signal o_q2 : std_logic;
 signal o_q3 : std_logic;
 signal o_tc : std_logic;
 
+signal vtemp1,vtemp2 : std_logic_vector(3 downto 0);
+
 signal clock : std_logic;
 constant clock_period : time := 20 ns;
 
 BEGIN
+
+vtemp1(0) <= o_q0;
+vtemp1(1) <= o_q1;
+vtemp1(2) <= o_q2;
+vtemp1(3) <= o_q3;
+
+vtemp2(0) <= i_d0;
+vtemp2(1) <= i_d1;
+vtemp2(2) <= i_d2;
+vtemp2(3) <= i_d3;
 
 uut: ic_74hct161 PORT MAP (
 i_d0 => i_d0,
@@ -104,14 +116,56 @@ clock <= '1';
 wait for clock_period/2;
 end process;
 
+i_cp <= clock;
+
 -- Stimulus process
 stim_proc : process
 begin
 -- hold reset state for 100 ns.
+i_mr_b <= '0';
 wait for 100 ns;
+i_mr_b <= '1';
 wait for clock_period*10;
+i_pe_b <= '1';
+wait for clock_period;
+i_cet <= '1';
+i_cep <= '1';
+wait for clock_period;
+i_d0 <= '0';
+i_d1 <= '0';
+i_d2 <= '0';
+i_d3 <= '0';
+i_pe_b <= '0';
+wait for clock_period;
+i_pe_b <= '1';
+wait for clock_period*7;
+i_d0 <= '1';
+i_d1 <= '1';
+i_d2 <= '1';
+i_d3 <= '1';
+i_pe_b <= '0';
+wait for clock_period;
+i_pe_b <= '1';
+wait for clock_period*5;
+i_d0 <= '1';
+i_d1 <= '0';
+i_d2 <= '0';
+i_d3 <= '1';
+i_pe_b <= '0';
+wait for clock_period;
+i_pe_b <= '1';
+wait for clock_period*7;
+i_d0 <= '0';
+i_d1 <= '1';
+i_d2 <= '0';
+i_d3 <= '1';
+i_pe_b <= '0';
+wait for clock_period;
+i_pe_b <= '1';
+wait for clock_period*5;
 
 -- insert stimulus here
+report "done" severity failure;
 
 wait;
 end process;
