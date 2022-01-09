@@ -2,9 +2,9 @@
 -- Company: 
 -- Engineer:
 --
--- Create Date:   18:41:12 01/08/2022
+-- Create Date:   16:21:12 01/09/2022
 -- Design Name:   
--- Module Name:   /home/user/workspace/vhdl_projects/weirdboyjim_circuits/tb_ic_74hct161.vhd
+-- Module Name:   /home/user/workspace/vhdl_projects/weirdboyjim_circuits/tb_ic_74hct163.vhd
 -- Project Name:  weirdboyjim_circuits
 -- Target Device:  
 -- Tool versions:  
@@ -32,12 +32,12 @@ USE ieee.std_logic_1164.ALL;
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
 
-ENTITY tb_ic_74hct161 IS
-END tb_ic_74hct161;
+ENTITY tb_ic_74hct163 IS
+END tb_ic_74hct163;
 
-ARCHITECTURE behavior OF tb_ic_74hct161 IS
+ARCHITECTURE behavior OF tb_ic_74hct163 IS
 
-COMPONENT ic_74hct161
+COMPONENT ic_74hct163
 PORT(
 i_d0 : IN  std_logic;
 i_d1 : IN  std_logic;
@@ -91,7 +91,7 @@ vtemp2(1) <= i_d1;
 vtemp2(2) <= i_d2;
 vtemp2(3) <= i_d3;
 
-uut: ic_74hct161 PORT MAP (
+uut: ic_74hct163 PORT MAP (
 i_d0 => i_d0,
 i_d1 => i_d1,
 i_d2 => i_d2,
@@ -118,13 +118,13 @@ end process;
 
 i_cp <= clock;
 
--- 74hc161.pdf, p6
-i_d2 <= '1' after clock_period*0.5, '0' after clock_period*4;
-i_d3 <= '1' after clock_period*0.5, '0' after clock_period*4;
-i_mr_b <= '0' after clock_period*2.25, '1' after clock_period*2.75;
-i_pe_b <= '0' after clock_period*3.125, '1' after clock_period*3.625;
-i_cep <= '1' after clock_period*3.75, '0' after clock_period*9.75, '1' after clock_period*12.75;
-i_cet <= '1' after clock_period*3.75, '0' after clock_period*12.75;
+-- 74hct163.pdf,p6
+i_d2 <= '1' after clock_period*0.5, '0' after clock_period*5;
+i_d3 <= '1' after clock_period*0.5, '0' after clock_period*5;
+i_mr_b <= '0' after clock_period*3, '1' after clock_period*3.75;
+i_pe_b <= '0' after clock_period*4, '1' after clock_period*4.625;
+i_cep <= '1' after clock_period*4.75, '0' after clock_period*10.75, '1' after clock_period*13.75;
+i_cet <= '1' after clock_period*4.75, '0' after clock_period*13.75;
 
 -- Stimulus process
 stim_proc : process

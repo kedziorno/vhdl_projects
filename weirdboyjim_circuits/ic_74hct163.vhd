@@ -2,9 +2,9 @@
 -- Company: 
 -- Engineer: 
 -- 
--- Create Date:    16:56:14 01/08/2022 
+-- Create Date:    16:20:14 01/09/2022 
 -- Design Name: 
--- Module Name:    ic_74hct161 - Behavioral 
+-- Module Name:    ic_74hct163 - Behavioral 
 -- Project Name: 
 -- Target Devices: 
 -- Tool versions: 
@@ -29,7 +29,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 library UNISIM;
 use UNISIM.VComponents.all;
 
-entity ic_74hct161 is
+entity ic_74hct163 is
 port (
 	signal i_d0,i_d1,i_d2,i_d3 : in std_logic;
 	signal i_cet : in std_logic;
@@ -40,9 +40,9 @@ port (
 	signal o_q0,o_q1,o_q2,o_q3 : out std_logic;
 	signal o_tc : out std_logic
 );
-end ic_74hct161;
+end ic_74hct163;
 
-architecture Behavioral of ic_74hct161 is
+architecture Behavioral of ic_74hct163 is
 
 	component GATE_NOT is
 	generic (
@@ -158,16 +158,19 @@ architecture Behavioral of ic_74hct161 is
 	signal g20,g21,g22 : std_logic;
 	signal g30,g31,g32,g33,g34,g35,g36,g37 : std_logic;
 	signal g40,g41,g42 : std_logic;
-	
+	signal g50,g51 : std_logic;
 
 begin
 
-	inst_i_pe_b_not : GATE_NOT
-	port map (A => i_pe_b, B => i_pe_b_not);
-	inst_i_cp_not : GATE_NOT
-	port map (A => i_cp, B => i_cp_not);
 	inst_i_mr_b_not : GATE_NOT
 	port map (A => i_mr_b, B => i_mr_b_not);
+	inst_i_pe_b_mr_b_nor2 : GATE_NOR2
+	port map (A => i_pe_b, B => i_mr_b_not, C => g50);
+	inst_g50 : GATE_NOR2
+	port map (A => i_mr_b_not, B => g50, C => g51);
+
+	inst_i_cp_not : GATE_NOT
+	port map (A => i_cp, B => i_cp_not);
 
 	inst_i_cet_cep_nand2 : GATE_NAND2
 	port map (A => i_cet, B => i_cep, C => i_cet_cep_nand2);
@@ -199,30 +202,30 @@ begin
 	port map (A => i_pe_b_not, B => i_pe_b_not_not);
 
 	inst_g20 : GATE_AND2
-	port map (A => i_d0, B => i_pe_b_not, C => g30);
+	port map (A => i_d0, B => g50, C => g30);
 	inst_g21 : GATE_AND2
-	port map (A => g20, B => i_pe_b_not_not, C => g31);
+	port map (A => g20, B => g51, C => g31);
 	inst_g30 : GATE_NOR2
 	port map (A => g30, B => g31, C => ffd0_d);
 
 	inst_g22 : GATE_AND2
-	port map (A => i_d1, B => i_pe_b_not, C => g32);
+	port map (A => i_d1, B => g50, C => g32);
 	inst_g23 : GATE_AND2
-	port map (A => g21, B => i_pe_b_not_not, C => g33);
+	port map (A => g21, B => g51, C => g33);
 	inst_g31 : GATE_NOR2
 	port map (A => g32, B => g33, C => ffd1_d);
 
 	inst_g24 : GATE_AND2
-	port map (A => i_d2, B => i_pe_b_not, C => g34);
+	port map (A => i_d2, B => g50, C => g34);
 	inst_g25 : GATE_AND2
-	port map (A => g22, B => i_pe_b_not_not, C => g35);
+	port map (A => g22, B => g51, C => g35);
 	inst_g32 : GATE_NOR2
 	port map (A => g34, B => g35, C => ffd2_d);
 
 	inst_g26 : GATE_AND2
-	port map (A => i_d3, B => i_pe_b_not, C => g36);
+	port map (A => i_d3, B => g50, C => g36);
 	inst_g27 : GATE_AND2
-	port map (A => g42, B => i_pe_b_not_not, C => g37);
+	port map (A => g42, B => g51, C => g37);
 	inst_g33 : GATE_NOR2
 	port map (A => g36, B => g37, C => ffd3_d);
 
@@ -246,7 +249,7 @@ begin
 
 	inst_o_tc : GATE_NAND5
 	port map (a => ffd0_q1, b => ffd1_q1, c => ffd2_q1, d => ffd3_q1, e => i_cet, f => tc_not);
-	inst_tc_not : GATE_NOT
+	inst_o_tc_not : GATE_NOT
 	port map (A => tc_not, B => o_tc);
 
 	inst_o_q0 : GATE_NOT
