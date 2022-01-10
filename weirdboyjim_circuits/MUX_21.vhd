@@ -13,7 +13,7 @@ C:out STD_LOGIC
 );
 end entity MUX_21;
 
-architecture MUX_21_BEHAVIORAL_1 of MUX_21 is
+architecture MUX_21_LUT_1 of MUX_21 is
 component GAND is
 generic (delay_and : time := 0 ns);
 port (A,B:in STD_LOGIC;C:out STD_LOGIC);
@@ -35,4 +35,4 @@ g1: GN generic map (delay_not) port map (S,sa);
 g3: GAND generic map (delay_and) port map (A,S,sb);
 g4: GAND generic map (delay_and) port map (B,sa,sc);
 g5: GOR generic map (delay_or) port map (sb,sc,C);
-end architecture MUX_21_BEHAVIORAL_1;
+end architecture MUX_21_LUT_1;
