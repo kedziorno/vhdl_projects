@@ -8,9 +8,11 @@ end entity FF_E_LATCH;
 -- https://en.wikipedia.org/wiki/Flip-flop_(electronics)#Earle_latch
 architecture Behavioral_E_LATCH of FF_E_LATCH is
 component GAND is
+generic (delay_and : time := 0 ns);
 port (A,B:in STD_LOGIC;C:out STD_LOGIC);
 end component GAND;
 component GN is
+generic (delay_not : time := 1 ns);
 port (A:in STD_LOGIC;B:out STD_LOGIC);
 end component GN;
 for all : GAND use entity WORK.GATE_AND(GATE_AND_BEHAVIORAL_1);

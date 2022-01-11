@@ -172,21 +172,40 @@ architecture Behavioral of ic_74hct161 is
 --	for all : FF_D_GATED use entity WORK.FF_D_GATED(GATED_D_NOR_LUT);
 ----	for all : FF_D_GATED use entity WORK.FF_D_GATED(GATED_D_NAND_LUT);
 
-	component FF_D_DUAL_EDGE_TRIGGERED is
-	generic (
-	delay_not : time := 1 ns;
-	delay_and : time := 1 ns;
-	delay_or : time := 1 ns;
-	delay_nor2 : time := 1 ns;
-	delay_nand2 : time := 1 ns;
-	delay_nand3 : time := 1 ns
-	);
-	port (
-		S,R,D,C : in STD_LOGIC;
-		Q:out STD_LOGIC
-	);
-	end component FF_D_DUAL_EDGE_TRIGGERED;
-	for all : FF_D_DUAL_EDGE_TRIGGERED use entity WORK.FF_D_DUAL_EDGE_TRIGGERED(D_DET_LUT);
+--	component FF_D_DUAL_EDGE_TRIGGERED is
+--	generic (
+--	delay_not : time := 1 ns;
+--	delay_and : time := 1 ns;
+--	delay_or : time := 1 ns;
+--	delay_nor2 : time := 1 ns;
+--	delay_nand2 : time := 1 ns;
+--	delay_nand3 : time := 1 ns
+--	);
+--	port (
+--		S,R,D,C : in STD_LOGIC;
+--		Q:out STD_LOGIC
+--	);
+--	end component FF_D_DUAL_EDGE_TRIGGERED;
+--	for all : FF_D_DUAL_EDGE_TRIGGERED use entity WORK.FF_D_DUAL_EDGE_TRIGGERED(D_DET_LUT);
+
+--	component FF_E_LATCH is
+--	port (
+--		D,E_H,E_L:in STD_LOGIC;
+--		Q:inout STD_LOGIC
+--	);
+--	end component FF_E_LATCH;
+--	for all : FF_E_LATCH use entity WORK.FF_E_LATCH(Behavioral_E_LATCH);
+
+--	component FF_SR_GATED is
+--	port (
+--		S,R,E : in STD_LOGIC;
+--		Q1,Q2 : inout STD_LOGIC
+--	);
+--	end component FF_SR_GATED;
+----	for all : FF_SR_GATED use entity WORK.FF_SR_GATED(Behavioral_GATED_SR_1);
+----	for all : FF_SR_GATED use entity WORK.FF_SR_GATED(Behavioral_GATED_SR_2);
+----	for all : FF_SR_GATED use entity WORK.FF_SR_GATED(LUT_GATED_SR_1);
+--	for all : FF_SR_GATED use entity WORK.FF_SR_GATED(LUT_GATED_SR_2);
 
 	signal i_pe_b_not,i_pe_b_not_not,i_cp_not,i_mr_b_not,i_cet_cep_nand2,tc_not : std_logic;
 	signal ffd0_q1,ffd1_q1,ffd2_q1,ffd3_q1 : std_logic;
@@ -263,14 +282,30 @@ begin
 	inst_g33 : GATE_NOR2
 	port map (A => g36, B => g37, C => ffd3_d);
 
-	ffd0_q2 <= not ffd0_q1;
-	ffd0 : FF_D_DUAL_EDGE_TRIGGERED port map (S => not i_mr_b_not, R => i_mr_b_not, Q => ffd0_q1, C => i_cp_not, D => not ffd0_d);
-	ffd1_q2 <= not ffd1_q1;
-	ffd1 : FF_D_DUAL_EDGE_TRIGGERED port map (S => not i_mr_b_not, R => i_mr_b_not, Q => ffd1_q1, C => i_cp_not, D => not ffd1_d);
-	ffd2_q2 <= not ffd2_q1;
-	ffd2 : FF_D_DUAL_EDGE_TRIGGERED port map (S => not i_mr_b_not, R => i_mr_b_not, Q => ffd2_q1, C => i_cp_not, D => not ffd2_d);
-	ffd3_q2 <= not ffd3_q1;
-	ffd3 : FF_D_DUAL_EDGE_TRIGGERED port map (S => not i_mr_b_not, R => i_mr_b_not, Q => ffd3_q1, C => i_cp_not, D => not ffd3_d);
+--	-- XXX dont work
+--	ffd0 : FF_SR_GATED port map (S => ffd0_d, R => not ffd0_d, Q1 => ffd0_q1, Q2 => ffd0_q2, E => not i_mr_b_not);
+--	ffd1 : FF_SR_GATED port map (S => ffd1_d, R => not ffd1_d, Q1 => ffd1_q1, Q2 => ffd1_q2, E => not i_mr_b_not);
+--	ffd2 : FF_SR_GATED port map (S => ffd2_d, R => not ffd2_d, Q1 => ffd2_q1, Q2 => ffd2_q2, E => not i_mr_b_not);
+--	ffd3 : FF_SR_GATED port map (S => ffd3_d, R => not ffd3_d, Q1 => ffd3_q1, Q2 => ffd3_q2, E => not i_mr_b_not);
+
+--	-- XXX work but wo clock
+--	ffd0_q2 <= not ffd0_q1;
+--	ffd0 : FF_E_LATCH port map (E_H => not i_mr_b_not, E_L => i_mr_b_not, Q => ffd0_q1, D => not ffd0_d);
+--	ffd1_q2 <= not ffd1_q1;
+--	ffd1 : FF_E_LATCH port map (E_H => not i_mr_b_not, E_L => i_mr_b_not, Q => ffd1_q1, D => not ffd1_d);
+--	ffd2_q2 <= not ffd2_q1;
+--	ffd2 : FF_E_LATCH port map (E_H => not i_mr_b_not, E_L => i_mr_b_not, Q => ffd2_q1, D => not ffd2_d);
+--	ffd3_q2 <= not ffd3_q1;
+--	ffd3 : FF_E_LATCH port map (E_H => not i_mr_b_not, E_L => i_mr_b_not, Q => ffd3_q1, D => not ffd3_d);
+
+--	ffd0_q2 <= not ffd0_q1;
+--	ffd0 : FF_D_DUAL_EDGE_TRIGGERED port map (S => not i_mr_b_not, R => i_mr_b_not, Q => ffd0_q1, C => i_cp_not, D => not ffd0_d);
+--	ffd1_q2 <= not ffd1_q1;
+--	ffd1 : FF_D_DUAL_EDGE_TRIGGERED port map (S => not i_mr_b_not, R => i_mr_b_not, Q => ffd1_q1, C => i_cp_not, D => not ffd1_d);
+--	ffd2_q2 <= not ffd2_q1;
+--	ffd2 : FF_D_DUAL_EDGE_TRIGGERED port map (S => not i_mr_b_not, R => i_mr_b_not, Q => ffd2_q1, C => i_cp_not, D => not ffd2_d);
+--	ffd3_q2 <= not ffd3_q1;
+--	ffd3 : FF_D_DUAL_EDGE_TRIGGERED port map (S => not i_mr_b_not, R => i_mr_b_not, Q => ffd3_q1, C => i_cp_not, D => not ffd3_d);
 
 --	ffd0 : FF_D_GATED
 --	port map (E => i_cp_not, D => not ffd0_d, Q1 => ffd0_q1, Q2 => ffd0_q2);
@@ -299,14 +334,14 @@ begin
 --	ffd3 : FF_D_POSITIVE_EDGE
 --	port map (S => '0', R => i_mr_b_not, C => not i_cp_not, D => not ffd3_d, Q1 => ffd3_q1, Q2 => ffd3_q2);
 
---	ffd0_q2 <= not ffd0_q1;
---	ffd0 : FDCE generic map (INIT => '0') port map (Q => ffd0_q1, C => not i_cp_not, CE => '1', CLR => i_mr_b_not, D => not ffd0_d);
---	ffd1_q2 <= not ffd1_q1;
---	ffd1 : FDCE generic map (INIT => '0') port map (Q => ffd1_q1, C => not i_cp_not, CE => '1', CLR => i_mr_b_not, D => not ffd1_d);
---	ffd2_q2 <= not ffd2_q1;
---	ffd2 : FDCE generic map (INIT => '0') port map (Q => ffd2_q1, C => not i_cp_not, CE => '1', CLR => i_mr_b_not, D => not ffd2_d);
---	ffd3_q2 <= not ffd3_q1;
---	ffd3 : FDCE generic map (INIT => '0') port map (Q => ffd3_q1, C => not i_cp_not, CE => '1', CLR => i_mr_b_not, D => not ffd3_d);
+	ffd0_q2 <= not ffd0_q1;
+	ffd0 : FDCE generic map (INIT => '0') port map (Q => ffd0_q1, C => not i_cp_not, CE => '1', CLR => i_mr_b_not, D => not ffd0_d);
+	ffd1_q2 <= not ffd1_q1;
+	ffd1 : FDCE generic map (INIT => '0') port map (Q => ffd1_q1, C => not i_cp_not, CE => '1', CLR => i_mr_b_not, D => not ffd1_d);
+	ffd2_q2 <= not ffd2_q1;
+	ffd2 : FDCE generic map (INIT => '0') port map (Q => ffd2_q1, C => not i_cp_not, CE => '1', CLR => i_mr_b_not, D => not ffd2_d);
+	ffd3_q2 <= not ffd3_q1;
+	ffd3 : FDCE generic map (INIT => '0') port map (Q => ffd3_q1, C => not i_cp_not, CE => '1', CLR => i_mr_b_not, D => not ffd3_d);
 
 	inst_o_tc : GATE_NAND5
 	port map (a => ffd0_q1, b => ffd1_q1, c => ffd2_q1, d => ffd3_q1, e => i_cet, f => tc_not);
