@@ -15,8 +15,12 @@
    <WVObjectSize size="11" />
    <wave_markers>
       <marker time="150000000" label="" />
-      <marker time="200000000" label="" />
       <marker time="225000000" label="" />
+      <marker time="200034000" label="" />
+      <marker time="700000000" label="" />
+      <marker time="750000000" label="" />
+      <marker time="775000000" label="" />
+      <marker time="0" label="" />
    </wave_markers>
    <wvobject fp_name="/tb_top/uut/i_clock" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">i_clock</obj_property>
