@@ -22,6 +22,8 @@ architecture Behavioral of top is
 signal counter : integer range 0 to 2**16-1;
 signal enable : std_logic;
 signal tick1,tick2 : std_logic;
+type states is (a,b,c,d);
+signal state : states;
 
 begin
 
@@ -103,40 +105,38 @@ begin
 end process pcnt;
 
 p0 : process (i_clock,i_reset,tick1,tick2) is
-	type states is (a,b,c,d);
-	variable state : states;
 begin
 	if (i_reset = '1') then
-		state := a;
+		state <= a;
 		enable <= '0';
 		o_cycles <= (others => '0');
 	elsif(rising_edge(i_clock)) then
 		case (state) is
 			when a =>
 				if (i_push = '1') then
-					state := b;
+					state <= b;
 				else
-					state := a;
+					state <= a;
 				end if;
 			when b =>
 				if (tick1 = '1') then
 					enable <= '1';
-					state := c;
+					state <= c;
 				else
 					enable <= '0';
-					state := a;
+					state <= a;
 				end if;
 			when c =>
 				if (tick2 = '1') then
 					enable <= '0';
-					state := d;
+					state <= d;
 				else
 					enable <= '1';
-					state := c;
+					state <= c;
 				end if;
 			when d =>
 				o_cycles <= std_logic_vector(to_unsigned(counter,16));
-				state := a;
+				state <= a;
 		end case;
 	end if;
 end process p0;

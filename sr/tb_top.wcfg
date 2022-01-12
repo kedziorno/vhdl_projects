@@ -12,7 +12,12 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="10" />
+   <WVObjectSize size="11" />
+   <wave_markers>
+      <marker time="150000000" label="" />
+      <marker time="200000000" label="" />
+      <marker time="225000000" label="" />
+   </wave_markers>
    <wvobject fp_name="/tb_top/uut/i_clock" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">i_clock</obj_property>
       <obj_property name="ObjectShortName">i_clock</obj_property>
@@ -53,5 +58,9 @@
    <wvobject fp_name="/tb_top/uut/tick2" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">tick2</obj_property>
       <obj_property name="ObjectShortName">tick2</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/state" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">state</obj_property>
+      <obj_property name="ObjectShortName">state</obj_property>
    </wvobject>
 </wave_config>
