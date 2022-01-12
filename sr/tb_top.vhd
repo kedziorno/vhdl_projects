@@ -56,21 +56,37 @@ i_clock <= '1';
 wait for i_clock_period/2;
 end process;
 
-i_phase2 <= '1' after i_clock_period*20,'0' after i_clock_period*50;
-i_phase1 <= '1' after i_clock_period*15,'0' after i_clock_period*45;
+i_phase1 <= 
+'1' after i_clock_period*20,
+'0' after i_clock_period*50,
+'1' after i_clock_period*70,
+'0' after i_clock_period*100;
+i_phase2 <= 
+'1' after i_clock_period*15,
+'0' after i_clock_period*45,
+'1' after i_clock_period*75,
+'0' after i_clock_period*105;
 
 -- Stimulus process
 stim_proc: process
 begin		
 -- hold reset state for 100 ns.
 i_reset <= '1';
-wait for 100 ns;
+wait for i_clock_period*1.3;
 i_reset <= '0';
 wait for i_clock_period*2.5;
 i_push <= '1';
 wait for i_clock_period*1;
 i_push <= '0';
-wait for i_clock_period*40;
+wait for i_clock_period*46;
+i_reset <= '1';
+wait for i_clock_period*1.3;
+i_reset <= '0';
+wait for i_clock_period*2.5;
+i_push <= '1';
+wait for i_clock_period*1;
+i_push <= '0';
+wait for i_clock_period*55;
 -- insert stimulus here 
 report "done" severity failure;
 end process;

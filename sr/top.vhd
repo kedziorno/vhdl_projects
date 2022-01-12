@@ -119,7 +119,7 @@ begin
 					state <= a;
 				end if;
 			when b =>
-				if (tick1 = '1') then
+				if (tick1 = '1' or tick2 = '1') then
 					enable <= '1';
 					state <= c;
 				else
@@ -127,7 +127,7 @@ begin
 					state <= b;
 				end if;
 			when c =>
-				if (tick2 = '1') then
+				if (tick2 = '1' or tick1 = '1') then
 					enable <= '0';
 					state <= d;
 				else
