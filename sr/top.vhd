@@ -124,7 +124,7 @@ begin
 					state <= c;
 				else
 					enable <= '0';
-					state <= a;
+					state <= b;
 				end if;
 			when c =>
 				if (tick2 = '1') then
