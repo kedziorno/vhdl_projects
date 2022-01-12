@@ -66,11 +66,11 @@ begin
 i_reset <= '1';
 wait for 100 ns;
 i_reset <= '0';
-wait for i_clock_period*5;
+wait for i_clock_period*2.5;
 i_push <= '1';
 wait for i_clock_period*1;
 i_push <= '0';
-wait for i_clock_period*35;
+wait for i_clock_period*40;
 -- insert stimulus here 
 report "done" severity failure;
 end process;
