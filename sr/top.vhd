@@ -25,17 +25,21 @@ signal tick1,tick2 : std_logic;
 type states is (a,b,c,d);
 signal state : states;
 
+--signal fd1q,fd2q,fd1qn,fd2qn,lock,ando1,ando2 : std_logic;
+
 begin
 
--- phase detector
+---- phase detector
+--fd1qn <= not fd1q;
+--fd2qn <= not fd2q;
+--lock <= fd1qn nand fd2qn;
 --FDCPE_inst1 : FDCPE generic map (INIT => '0')
 --port map (Q => fd1q, C => i_phase1, CE => '1', CLR => ando2, D => '1', PRE => '0');
 --FDCPE_inst2 : FDCPE generic map (INIT => '0')
 --port map (Q => fd2q, C => i_phase2, CE => '1', CLR => ando2, D => '1', PRE => '0');
 --MULT_AND_inst : MULT_AND
 --port map (LO => ando1, I0 => fd1q, I1 => fd2q);
---ando2 <= ando1 after 1 ns;
---o_cycles <= fd1q;
+--ando2 <= ando1 after 0 ns;
 
 pre1 : process (i_clock,i_reset,i_phase1) is
 	type states is (a,b,c);
