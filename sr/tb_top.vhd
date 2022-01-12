@@ -70,7 +70,7 @@ wait for i_clock_period*5;
 i_push <= '1';
 wait for i_clock_period*1;
 i_push <= '0';
-wait for i_clock_period*150;
+wait for i_clock_period*35;
 -- insert stimulus here 
 report "done" severity failure;
 end process;
