@@ -14,18 +14,6 @@
       </db_ref>
    </db_ref_list>
    <WVObjectSize size="21" />
-   <wave_markers>
-      <marker time="6330000000" label="" />
-      <marker time="6430000000" label="" />
-      <marker time="7430000000" label="" />
-      <marker time="7670000000" label="" />
-      <marker time="6750000000" label="" />
-      <marker time="7990000000" label="" />
-      <marker time="6470000000" label="" />
-      <marker time="7710000000" label="" />
-      <marker time="6050000000" label="" />
-      <marker time="7066000000" label="" />
-   </wave_markers>
    <wvobject fp_name="/tb_top/uut/i_clock" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">i_clock</obj_property>
       <obj_property name="ObjectShortName">i_clock</obj_property>
@@ -101,12 +89,12 @@
       <obj_property name="ObjectShortName">bcd_busy</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_top/uut/bcd_binary" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">bcd_binary[9:0]</obj_property>
-      <obj_property name="ObjectShortName">bcd_binary[9:0]</obj_property>
+      <obj_property name="ElementShortName">bcd_binary[15:0]</obj_property>
+      <obj_property name="ObjectShortName">bcd_binary[15:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_top/uut/bcd_digits" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">bcd_digits[11:0]</obj_property>
-      <obj_property name="ObjectShortName">bcd_digits[11:0]</obj_property>
+      <obj_property name="ElementShortName">bcd_digits[15:0]</obj_property>
+      <obj_property name="ObjectShortName">bcd_digits[15:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_top/uut/g_board_clock" type="other" db_ref_id="1">
       <obj_property name="ElementShortName">g_board_clock</obj_property>
