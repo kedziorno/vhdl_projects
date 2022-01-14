@@ -6,40 +6,112 @@ use IEEE.NUMERIC_STD.ALL;
 library UNISIM;
 use UNISIM.VComponents.all;
 
+use WORK.p_constants.ALL;
+
 entity top is
+generic (
+	constant G_BOARD_CLOCK : integer := G_BOARD_CLOCK;
+	constant G_LCD_CLOCK_DIVIDER : integer := G_LCD_CLOCK_DIVIDER
+);
 port (
 	signal i_clock : in std_logic;
 	signal i_reset : in std_logic;
 	signal i_push : in std_logic;
 	signal i_phase1 : in std_logic;
 	signal i_phase2 : in std_logic;
-	signal o_cycles : out std_logic_vector(15 downto 0)
+	signal o_anode : out std_logic_vector(3 downto 0);
+	signal o_segment : out std_logic_vector(6 downto 0)
 );
 end top;
 
 architecture Behavioral of top is
 
+type LCDHex is array(3 downto 0) of std_logic_vector(3 downto 0);
+signal LCDChar : LCDHex;
 signal counter : integer range 0 to 2**16-1;
 signal enable : std_logic;
 signal tick1,tick2 : std_logic;
 type states is (a,b,c,d);
 signal state : states;
-
---signal fd1q,fd2q,fd1qn,fd2qn,lock,ando1,ando2 : std_logic;
+signal lcd_clock : std_logic;
+signal cycles : std_logic_vector(15 downto 0);
 
 begin
 
----- phase detector
---fd1qn <= not fd1q;
---fd2qn <= not fd2q;
---lock <= fd1qn nand fd2qn;
---FDCPE_inst1 : FDCPE generic map (INIT => '0')
---port map (Q => fd1q, C => i_phase1, CE => '1', CLR => ando2, D => '1', PRE => '0');
---FDCPE_inst2 : FDCPE generic map (INIT => '0')
---port map (Q => fd2q, C => i_phase2, CE => '1', CLR => ando2, D => '1', PRE => '0');
---MULT_AND_inst : MULT_AND
---port map (LO => ando1, I0 => fd1q, I1 => fd2q);
---ando2 <= ando1 after 0 ns;
+plcddiv : process (i_clock,i_reset) is
+	constant clock_divider : integer := G_BOARD_CLOCK / 1000 / G_LCD_CLOCK_DIVIDER;
+	variable clock_out : std_logic;
+	variable counter : integer range 0 to clock_divider - 1 := 0;
+begin
+	if (i_reset = '1') then
+		clock_out := '0';
+		counter := 0;
+	elsif (rising_edge(i_clock)) then
+		if (counter = clock_divider-1) then
+			clock_out := '1';
+			counter := 0;
+		else
+			clock_out := '0';
+			counter := counter + 1;
+		end if;
+	end if;
+	lcd_clock <= clock_out;
+end process plcddiv;
+
+plcdanode : process (lcd_clock) is
+	variable count : integer range 0 to 3 := 0;
+begin
+	if (rising_edge(lcd_clock)) then
+		case count is
+			when 0 =>
+				o_anode(3 downto 0) <= "0111";
+			when 1 =>
+				o_anode(3 downto 0) <= "1011";
+			when 2 =>
+				o_anode(3 downto 0) <= "1101";
+			when 3 =>
+				o_anode(3 downto 0) <= "1110";
+			when others =>
+				o_anode(3 downto 0) <= "1111";
+		end case;
+		if (count = 3) then
+			count := 0;			
+		else
+			count := count + 1;
+		end if;
+	end if;
+end process plcdanode;
+
+plcdsegment : process (lcd_clock) is
+	variable count : integer range 0 to 3 := 0;
+begin
+	if (rising_edge(lcd_clock)) then
+		case to_integer(unsigned(LCDChar(count))) is
+			when 0 => o_segment <= "1000000"; -- 0
+			when 1 => o_segment <= "1111001"; -- 1
+			when 2 => o_segment <= "0100100"; -- 2
+			when 3 => o_segment <= "0110000"; -- 3
+			when 4 => o_segment <= "0011001"; -- 4
+			when 5 => o_segment <= "0010010"; -- 5
+			when 6 => o_segment <= "0000010"; -- 6
+			when 7 => o_segment <= "1111000"; -- 7
+			when 8 => o_segment <= "0000000"; -- 8
+			when 9 => o_segment <= "0010000"; -- 9
+			when 10 => o_segment <= "0001000"; -- a
+			when 11 => o_segment <= "0000011"; -- b
+			when 12 => o_segment <= "1000110"; -- c
+			when 13 => o_segment <= "0100001"; -- d
+			when 14 => o_segment <= "0000110"; -- e
+			when 15 => o_segment <= "0001110"; -- f
+			when others => null;
+		end case;
+		if (count = 3) then
+			count := 0;
+		else
+			count := count + 1;
+		end if;
+	end if;
+end process plcdsegment;
 
 pre1 : process (i_clock,i_reset,i_phase1) is
 	type states is (a,b,c);
@@ -108,12 +180,13 @@ begin
 	end if;
 end process pcnt;
 
+LCDChar <= (cycles(3 downto 0),cycles(7 downto 4),cycles(11 downto 8),cycles(15 downto 12));
 p0 : process (i_clock,i_reset,tick1,tick2) is
 begin
 	if (i_reset = '1') then
 		state <= a;
 		enable <= '0';
-		o_cycles <= (others => '0');
+		cycles <= (others => '0');
 	elsif(rising_edge(i_clock)) then
 		case (state) is
 			when a =>
@@ -139,7 +212,7 @@ begin
 					state <= c;
 				end if;
 			when d =>
-				o_cycles <= std_logic_vector(to_unsigned(counter,16));
+				cycles <= std_logic_vector(to_unsigned(counter,16));
 				state <= a;
 		end case;
 	end if;

@@ -3,6 +3,8 @@ USE ieee.std_logic_1164.ALL;
 
 USE ieee.numeric_std.ALL;
 
+USE WORK.p_constants.ALL;
+
 ENTITY tb_top IS
 END tb_top;
 
@@ -11,13 +13,18 @@ ARCHITECTURE behavior OF tb_top IS
 -- Component Declaration for the Unit Under Test (UUT)
 
 COMPONENT top
-PORT(
-i_clock : IN  std_logic;
-i_reset : IN  std_logic;
-i_push : IN  std_logic;
-i_phase1 : IN  std_logic;
-i_phase2 : IN  std_logic;
-o_cycles : OUT  std_logic_vector(15 downto 0)
+GENERIC (
+constant G_BOARD_CLOCK : integer := G_BOARD_CLOCK;
+constant G_LCD_CLOCK_DIVIDER : integer := G_LCD_CLOCK_DIVIDER
+);
+PORT (
+signal i_clock : in std_logic;
+signal i_reset : in std_logic;
+signal i_push : in std_logic;
+signal i_phase1 : in std_logic;
+signal i_phase2 : in std_logic;
+signal o_anode : out std_logic_vector(3 downto 0);
+signal o_segment : out std_logic_vector(6 downto 0)
 );
 END COMPONENT;
 
@@ -30,10 +37,11 @@ signal i_phase1 : std_logic := '0';
 signal i_phase2 : std_logic := '0';
 
 --Outputs
-signal o_cycles : std_logic_vector(15 downto 0);
+signal o_anode : std_logic_vector(3 downto 0);
+signal o_segment : std_logic_vector(6 downto 0);
 
 -- Clock period definitions
-constant i_clock_period : time := 10 ns;
+constant i_clock_period : time := (1_000_000_000 / G_BOARD_CLOCK) * 1 ns;
 
 BEGIN
 
@@ -44,7 +52,8 @@ i_reset => i_reset,
 i_push => i_push,
 i_phase1 => i_phase1,
 i_phase2 => i_phase2,
-o_cycles => o_cycles
+o_anode => o_anode,
+o_segment => o_segment
 );
 
 -- Clock process definitions
@@ -86,7 +95,7 @@ wait for i_clock_period*2.5;
 i_push <= '1';
 wait for i_clock_period*1;
 i_push <= '0';
-wait for i_clock_period*55;
+wait for 10000 ms;
 -- insert stimulus here 
 report "done" severity failure;
 end process;
