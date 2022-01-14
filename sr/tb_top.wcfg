@@ -14,9 +14,25 @@
       </db_ref>
    </db_ref_list>
    <WVObjectSize size="21" />
+   <wave_markers>
+      <marker time="6330000000" label="" />
+      <marker time="6430000000" label="" />
+      <marker time="7430000000" label="" />
+      <marker time="7670000000" label="" />
+      <marker time="6750000000" label="" />
+      <marker time="7990000000" label="" />
+      <marker time="6470000000" label="" />
+      <marker time="7710000000" label="" />
+      <marker time="6050000000" label="" />
+      <marker time="7066000000" label="" />
+   </wave_markers>
    <wvobject fp_name="/tb_top/uut/i_clock" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">i_clock</obj_property>
       <obj_property name="ObjectShortName">i_clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/state" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">state</obj_property>
+      <obj_property name="ObjectShortName">state</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_top/uut/i_reset" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">i_reset</obj_property>
@@ -42,23 +58,23 @@
       <obj_property name="ElementShortName">o_segment[6:0]</obj_property>
       <obj_property name="ObjectShortName">o_segment[6:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb_top/uut/state" type="other" db_ref_id="1">
-      <obj_property name="ElementShortName">state</obj_property>
-      <obj_property name="ObjectShortName">state</obj_property>
-   </wvobject>
    <wvobject fp_name="/tb_top/uut/lcdchar" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">lcdchar[3:0]</obj_property>
       <obj_property name="ObjectShortName">lcdchar[3:0]</obj_property>
       <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb_top/uut/counter" type="other" db_ref_id="1">
-      <obj_property name="ElementShortName">counter</obj_property>
-      <obj_property name="ObjectShortName">counter</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+      <obj_property name="CustomSignalColor">#ff00ff</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_top/uut/cycles" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">cycles[15:0]</obj_property>
       <obj_property name="ObjectShortName">cycles[15:0]</obj_property>
       <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+      <obj_property name="CustomSignalColor">#ffff00</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/counter" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">counter</obj_property>
+      <obj_property name="ObjectShortName">counter</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_top/uut/enable" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">enable</obj_property>

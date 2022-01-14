@@ -196,9 +196,9 @@ begin
 end process pcnt;
 
 LCDChar <= (
-'0' & bcd_digits(2 downto 0),
-'0' & bcd_digits(6 downto 3),
-'0' & bcd_digits(10 downto 7),
+bcd_digits(3 downto 0),
+bcd_digits(7 downto 4),
+bcd_digits(11 downto 8),
 x"0"
 );
 
