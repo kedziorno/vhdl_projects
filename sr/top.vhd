@@ -199,7 +199,7 @@ LCDChar <= (
 bcd_digits(3 downto 0),
 bcd_digits(7 downto 4),
 bcd_digits(11 downto 8),
-x"0"
+bcd_digits(15 downto 12)
 );
 
 p0 : process (i_clock,i_reset,tick1,tick2) is
