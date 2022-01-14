@@ -6,13 +6,14 @@
       <db_ref path="/home/user/workspace/sr/sr/tb_top_isim_beh.wdb" id="1" type="auto">
          <top_modules>
             <top_module name="numeric_std" />
+            <top_module name="p_constants" />
             <top_module name="std_logic_1164" />
             <top_module name="tb_top" />
             <top_module name="vcomponents" />
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="17" />
+   <WVObjectSize size="21" />
    <wvobject fp_name="/tb_top/uut/i_clock" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">i_clock</obj_property>
       <obj_property name="ObjectShortName">i_clock</obj_property>
@@ -41,13 +42,23 @@
       <obj_property name="ElementShortName">o_segment[6:0]</obj_property>
       <obj_property name="ObjectShortName">o_segment[6:0]</obj_property>
    </wvobject>
+   <wvobject fp_name="/tb_top/uut/state" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">state</obj_property>
+      <obj_property name="ObjectShortName">state</obj_property>
+   </wvobject>
    <wvobject fp_name="/tb_top/uut/lcdchar" type="array" db_ref_id="1">
       <obj_property name="ElementShortName">lcdchar[3:0]</obj_property>
       <obj_property name="ObjectShortName">lcdchar[3:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_top/uut/counter" type="other" db_ref_id="1">
       <obj_property name="ElementShortName">counter</obj_property>
       <obj_property name="ObjectShortName">counter</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/cycles" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cycles[15:0]</obj_property>
+      <obj_property name="ObjectShortName">cycles[15:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_top/uut/enable" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">enable</obj_property>
@@ -61,18 +72,25 @@
       <obj_property name="ElementShortName">tick2</obj_property>
       <obj_property name="ObjectShortName">tick2</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb_top/uut/state" type="other" db_ref_id="1">
-      <obj_property name="ElementShortName">state</obj_property>
-      <obj_property name="ObjectShortName">state</obj_property>
-   </wvobject>
    <wvobject fp_name="/tb_top/uut/lcd_clock" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">lcd_clock</obj_property>
       <obj_property name="ObjectShortName">lcd_clock</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb_top/uut/cycles" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">cycles[15:0]</obj_property>
-      <obj_property name="ObjectShortName">cycles[15:0]</obj_property>
-      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   <wvobject fp_name="/tb_top/uut/bcd_enable" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bcd_enable</obj_property>
+      <obj_property name="ObjectShortName">bcd_enable</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/bcd_busy" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">bcd_busy</obj_property>
+      <obj_property name="ObjectShortName">bcd_busy</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/bcd_binary" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">bcd_binary[9:0]</obj_property>
+      <obj_property name="ObjectShortName">bcd_binary[9:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/bcd_digits" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">bcd_digits[11:0]</obj_property>
+      <obj_property name="ObjectShortName">bcd_digits[11:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_top/uut/g_board_clock" type="other" db_ref_id="1">
       <obj_property name="ElementShortName">g_board_clock</obj_property>

@@ -26,13 +26,30 @@ end top;
 
 architecture Behavioral of top is
 
-type states is (a,b,c,d);
+type states is (a,b,c,d,e,f);
 signal state : states;
 type LCDHex is array(3 downto 0) of std_logic_vector(3 downto 0);
 signal LCDChar : LCDHex;
 signal counter : integer range 0 to 2**16-1;
 signal cycles : std_logic_vector(15 downto 0);
-signal enable,tick1,tick2,lcd_clock : std_logic;
+signal enable,tick1,tick2,lcd_clock,bcd_enable,bcd_busy : std_logic;
+signal bcd_binary : std_logic_vector(G_BCD_BITS-1 downto 0);
+signal bcd_digits : std_logic_vector(G_BCD_DIGITS*4-1 downto 0);
+
+-- XXX based on https://forum.digikey.com/t/binary-to-bcd-converter-vhdl/12530
+COMPONENT binary_to_bcd IS
+  GENERIC(
+    bits   : INTEGER := G_BCD_BITS;  --size of the binary input numbers in bits
+    digits : INTEGER := G_BCD_DIGITS);  --number of BCD digits to convert to
+  PORT(
+    clk     : IN    STD_LOGIC;                             --system clock
+    reset_n : IN    STD_LOGIC;                             --active low asynchronus reset
+    ena     : IN    STD_LOGIC;                             --latches in new binary number and starts conversion
+    binary  : IN    STD_LOGIC_VECTOR(bits-1 DOWNTO 0);     --binary number to convert
+    busy    : OUT  STD_LOGIC;                              --indicates conversion in progress
+    bcd     : OUT  STD_LOGIC_VECTOR(digits*4-1 DOWNTO 0)); --resulting BCD number
+END COMPONENT binary_to_bcd;
+for all : binary_to_bcd use entity WORK.binary_to_bcd(logic);
 
 begin
 
@@ -178,13 +195,21 @@ begin
 	end if;
 end process pcnt;
 
-LCDChar <= (cycles(3 downto 0),cycles(7 downto 4),cycles(11 downto 8),cycles(15 downto 12));
+LCDChar <= (
+'0' & bcd_digits(2 downto 0),
+'0' & bcd_digits(6 downto 3),
+'0' & bcd_digits(10 downto 7),
+x"0"
+);
+
 p0 : process (i_clock,i_reset,tick1,tick2) is
 begin
 	if (i_reset = '1') then
 		state <= a;
 		enable <= '0';
 		cycles <= (others => '0');
+		bcd_enable <= '0';
+		bcd_binary <= (others => '0');
 	elsif(rising_edge(i_clock)) then
 		case (state) is
 			when a =>
@@ -211,10 +236,33 @@ begin
 				end if;
 			when d =>
 				cycles <= std_logic_vector(to_unsigned(counter,16));
-				state <= a;
+				state <= e;
+			when e =>
+				bcd_enable <= '1';
+				bcd_binary <= cycles(G_BCD_BITS-1 downto 0);
+				state <= f;
+			when f =>
+				if (bcd_busy = '1') then
+					state <= f;
+					bcd_enable <= '1';
+				else
+					state <= a;
+					bcd_enable <= '0';
+				end if;
 		end case;
 	end if;
 end process p0;
+
+bcd : binary_to_bcd
+generic map (bits => G_BCD_BITS, digits => G_BCD_DIGITS)
+port map (
+clk => i_clock,
+reset_n => not i_reset,
+ena => bcd_enable,
+binary => bcd_binary,
+busy => bcd_busy,
+bcd => bcd_digits
+);
 
 end Behavioral;
 
