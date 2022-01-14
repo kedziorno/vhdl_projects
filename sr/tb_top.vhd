@@ -43,7 +43,6 @@ signal o_segment : std_logic_vector(6 downto 0);
 -- Clock period definitions
 constant i_clock_period : time := (1_000_000_000 / G_BOARD_CLOCK) * 1 ns;
 
-constant C_WAIT_LCD : time := 4.99 us;
 
 constant PHASE_OFFSET1 : integer := 20;
 constant PHASE_LENGTH1 : integer := 5;
@@ -75,25 +74,6 @@ i_clock <= '1';
 wait for i_clock_period/2;
 end process;
 
-i_phase1 <=
-'1' after C_WAIT_LCD + i_clock_period*PHASE_OFFSET1,
-'0' after C_WAIT_LCD + i_clock_period*PHASE_OFFSET1 + i_clock_period*PHASE_LENGTH1;
---'1' after C_WAIT_LCD + i_clock_period*PHASE_OFFSET2,
---'0' after C_WAIT_LCD + i_clock_period*PHASE_OFFSET2 + i_clock_period*PHASE_LENGTH2;
-
-i_phase2 <=
-'1' after C_WAIT_LCD + i_clock_period*PHASE_OFFSET1 + i_clock_period*PHASE_DIFFER1,
-'0' after C_WAIT_LCD + i_clock_period*PHASE_OFFSET1 + i_clock_period*PHASE_LENGTH1 + i_clock_period*PHASE_DIFFER1;
---'1' after C_WAIT_LCD + i_clock_period*PHASE_OFFSET2 + i_clock_period*PHASE_LENGTH2,
---'0' after C_WAIT_LCD + i_clock_period*PHASE_OFFSET2 + i_clock_period*PHASE_LENGTH2;
-
-i_push <=
-'1' after C_WAIT_LCD + i_clock_period*PHASE_OFFSET1 - i_clock_period*1,
-'0' after C_WAIT_LCD + i_clock_period*PHASE_OFFSET1;
-
-i_reset <=
-'1' after C_WAIT_LCD + i_clock_period*PHASE_OFFSET1 - i_clock_period*2,
-'0' after C_WAIT_LCD + i_clock_period*PHASE_OFFSET1 - i_clock_period*1;
 
 --i_phase1 <=
 --'1' after C_WAIT_LCD + i_clock_period*20,
@@ -129,9 +109,39 @@ i_reset <=
 
 -- Stimulus process
 stim_proc: process
+	constant C_WAIT_LCD : time := 4.99 us;
+	constant N : integer := 3;
+	type vsubarray is array(0 to 2) of integer range 0 to 2**16-1;
+	type subarray is array(integer range <>) of vsubarray;
+	variable v : subarray(0 to N-1) := (
+		-- 0 => offset, 1 => length, 2 => differ
+		(1,1,1),
+		(65,12,7),
+		(80,17,9)
+	);
+	variable a,b,c : integer range 0 to 2**16-1 := 0;
 begin
-wait for C_WAIT_LCD;
+--wait for C_WAIT_LCD;
 --wait until o_segment /= "10000000";
+
+l0 : for i in 0 to N-1 loop
+	a := a + v(i)(0);
+	b := b + v(i)(1);
+	c := c + v(i)(2);
+	i_phase1 <=
+	'1' after C_WAIT_LCD + (a * i_clock_period),
+	'0' after C_WAIT_LCD + (a * i_clock_period) + (b * i_clock_period);
+	i_phase2 <=
+	'1' after C_WAIT_LCD + (a * i_clock_period) + (c * i_clock_period),
+	'0' after C_WAIT_LCD + (a * i_clock_period) + (b * i_clock_period) + (c * i_clock_period);
+	i_push <=
+	'1' after C_WAIT_LCD + (a * i_clock_period) - i_clock_period*1,
+	'0' after C_WAIT_LCD + (a * i_clock_period);
+	i_reset <=
+	'1' after C_WAIT_LCD + (a * i_clock_period) - i_clock_period*2,
+	'0' after C_WAIT_LCD + (a * i_clock_period) - i_clock_period*1;
+	wait for i_clock_period;
+end loop l0;
 
 wait for 3000 us; -- wait for all
 -- insert stimulus here 
