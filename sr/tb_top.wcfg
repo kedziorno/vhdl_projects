@@ -12,16 +12,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="11" />
-   <wave_markers>
-      <marker time="150000000" label="" />
-      <marker time="225000000" label="" />
-      <marker time="200034000" label="" />
-      <marker time="700000000" label="" />
-      <marker time="750000000" label="" />
-      <marker time="775000000" label="" />
-      <marker time="0" label="" />
-   </wave_markers>
+   <WVObjectSize size="17" />
    <wvobject fp_name="/tb_top/uut/i_clock" type="logic" db_ref_id="1">
       <obj_property name="ElementShortName">i_clock</obj_property>
       <obj_property name="ObjectShortName">i_clock</obj_property>
@@ -42,10 +33,17 @@
       <obj_property name="ElementShortName">i_phase2</obj_property>
       <obj_property name="ObjectShortName">i_phase2</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb_top/uut/o_cycles" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">o_cycles[15:0]</obj_property>
-      <obj_property name="ObjectShortName">o_cycles[15:0]</obj_property>
-      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   <wvobject fp_name="/tb_top/uut/o_anode" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">o_anode[3:0]</obj_property>
+      <obj_property name="ObjectShortName">o_anode[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/o_segment" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">o_segment[6:0]</obj_property>
+      <obj_property name="ObjectShortName">o_segment[6:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/lcdchar" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">lcdchar[3:0]</obj_property>
+      <obj_property name="ObjectShortName">lcdchar[3:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/tb_top/uut/counter" type="other" db_ref_id="1">
       <obj_property name="ElementShortName">counter</obj_property>
@@ -66,5 +64,22 @@
    <wvobject fp_name="/tb_top/uut/state" type="other" db_ref_id="1">
       <obj_property name="ElementShortName">state</obj_property>
       <obj_property name="ObjectShortName">state</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/lcd_clock" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">lcd_clock</obj_property>
+      <obj_property name="ObjectShortName">lcd_clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/cycles" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">cycles[15:0]</obj_property>
+      <obj_property name="ObjectShortName">cycles[15:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/g_board_clock" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">g_board_clock</obj_property>
+      <obj_property name="ObjectShortName">g_board_clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_top/uut/g_lcd_clock_divider" type="other" db_ref_id="1">
+      <obj_property name="ElementShortName">g_lcd_clock_divider</obj_property>
+      <obj_property name="ObjectShortName">g_lcd_clock_divider</obj_property>
    </wvobject>
 </wave_config>
