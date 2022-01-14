@@ -26,15 +26,13 @@ end top;
 
 architecture Behavioral of top is
 
+type states is (a,b,c,d);
+signal state : states;
 type LCDHex is array(3 downto 0) of std_logic_vector(3 downto 0);
 signal LCDChar : LCDHex;
 signal counter : integer range 0 to 2**16-1;
-signal enable : std_logic;
-signal tick1,tick2 : std_logic;
-type states is (a,b,c,d);
-signal state : states;
-signal lcd_clock : std_logic;
 signal cycles : std_logic_vector(15 downto 0);
+signal enable,tick1,tick2,lcd_clock : std_logic;
 
 begin
 
