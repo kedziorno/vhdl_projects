@@ -41,16 +41,22 @@ signal o_anode : std_logic_vector(3 downto 0);
 signal o_segment : std_logic_vector(6 downto 0);
 
 -- Clock period definitions
-constant i_clock_period : time := (1_000_000_000 / G_BOARD_CLOCK) * 1 ns;
+--constant i_clock_period : time := (1_000_000_000 / G_BOARD_CLOCK) * 1 ns;
+constant i_clock_period : time := 1 ns;
 
+constant C_WAIT_LCD : time := 1 us;
+constant N : integer := 3;
+type vsubarray is array(0 to 2) of integer range 0 to 2**16-1;
+type subarray is array(integer range <>) of vsubarray;
+signal v : subarray(0 to N-1) := (
+	-- 0 => offset, 1 => length, 2 => differ
+	(1,1,1),
+	(65,12,7),
+	(80,17,9)
+);
 
-constant PHASE_OFFSET1 : integer := 20;
-constant PHASE_LENGTH1 : integer := 5;
-constant PHASE_DIFFER1 : integer := 3;
-
-constant PHASE_OFFSET2 : integer := 65;
-constant PHASE_LENGTH2 : integer := 12;
-constant PHASE_DIFFER2 : integer := 7;
+signal a,b,c : integer range 0 to 2**16-1 := 0;
+signal flag : std_logic;
 
 BEGIN
 
@@ -74,77 +80,73 @@ i_clock <= '1';
 wait for i_clock_period/2;
 end process;
 
-
---i_phase1 <=
---'1' after C_WAIT_LCD + i_clock_period*20,
---'0' after C_WAIT_LCD + i_clock_period*50,
---'1' after C_WAIT_LCD + i_clock_period*70,
---'0' after C_WAIT_LCD + i_clock_period*100,
---'1' after C_WAIT_LCD + i_clock_period*70000,
---'0' after C_WAIT_LCD + i_clock_period*100000
---;
---i_phase2 <=
---'1' after C_WAIT_LCD + i_clock_period*15,
---'0' after C_WAIT_LCD + i_clock_period*45,
---'1' after C_WAIT_LCD + i_clock_period*82,
---'0' after C_WAIT_LCD + i_clock_period*112,
---'1' after C_WAIT_LCD + i_clock_period*82000,
---'0' after C_WAIT_LCD + i_clock_period*112000;
+--process (i_clock)
+----	variable a,b,c : integer range 0 to 2**16-1 := 0;
+--variable i : integer range 0 to N-1 := 0;
+--begin
+--if (rising_edge(i_clock)) then
+--	if (i = N-1) then
+--		i := 0;
+--flag <= '0';
+--	
+--	else
+--	flag <= '1';
 --
---i_reset <=
---'1' after C_WAIT_LCD + i_clock_period*1.3,
---'0' after C_WAIT_LCD + i_clock_period*2.5,
---'1' after C_WAIT_LCD + i_clock_period*3,
---'0' after C_WAIT_LCD + i_clock_period*4,
---'1' after C_WAIT_LCD + i_clock_period*82000,
---'0' after C_WAIT_LCD + i_clock_period*82001;
+--		i := i + 1;
+--	a <= v(i)(0);
+--	b <= v(i)(1);
+--	c <= v(i)(2);
+--report " a = " & integer'image(a) & " b=" & integer'image(b) & " c=" & integer'image(c);
+--	
+--	end if;
 --
---i_push <=
---'1' after C_WAIT_LCD + i_clock_period*1,
---'0' after C_WAIT_LCD + i_clock_period*46,
---'1' after C_WAIT_LCD + i_clock_period*47,
---'0' after C_WAIT_LCD + i_clock_period*48,
---'1' after C_WAIT_LCD + i_clock_period*112000,
---'0' after C_WAIT_LCD + i_clock_period*112001;
+--end if;
+--
+--end process;
+--
 
--- Stimulus process
-stim_proc: process
-	constant C_WAIT_LCD : time := 4.99 us;
-	constant N : integer := 3;
-	type vsubarray is array(0 to 2) of integer range 0 to 2**16-1;
-	type subarray is array(integer range <>) of vsubarray;
-	variable v : subarray(0 to N-1) := (
-		-- 0 => offset, 1 => length, 2 => differ
-		(1,1,1),
-		(65,12,7),
-		(80,17,9)
-	);
-	variable a,b,c : integer range 0 to 2**16-1 := 0;
+process (i_clock)
+variable i : integer range 0 to N-1;
+variable a,b,c : integer range 0 to 2**16-1 := 0;
 begin
---wait for C_WAIT_LCD;
---wait until o_segment /= "10000000";
+if (rising_edge(i_clock)) then
+if (i = N-1) then
+i := 0;
+else
+i := i + 1;
+end if;
+a := a + v(i)(0);
+b := b + v(i)(1);
+c := c + v(i)(2);
+report " a = " & integer'image(a) & " b=" & integer'image(b) & " c=" & integer'image(c);
+i_phase1 <= transport '1' after (a * i_clock_period);
+i_phase1 <= transport '0' after (a * i_clock_period) + (b * i_clock_period);
+i_phase2 <= transport '1' after (a * i_clock_period) + (c * i_clock_period);
+i_phase2 <= transport '0' after (a * i_clock_period) + (b * i_clock_period) + (c * i_clock_period);
 
+end if;
+end process;
+
+stim_proc : process
+--	variable a,b,c : integer range 0 to 2**16-1 := 0;
+begin
 l0 : for i in 0 to N-1 loop
-	a := a + v(i)(0);
-	b := b + v(i)(1);
-	c := c + v(i)(2);
-	i_phase1 <=
-	'1' after C_WAIT_LCD + (a * i_clock_period),
-	'0' after C_WAIT_LCD + (a * i_clock_period) + (b * i_clock_period);
-	i_phase2 <=
-	'1' after C_WAIT_LCD + (a * i_clock_period) + (c * i_clock_period),
-	'0' after C_WAIT_LCD + (a * i_clock_period) + (b * i_clock_period) + (c * i_clock_period);
-	i_push <=
-	'1' after C_WAIT_LCD + (a * i_clock_period) - i_clock_period*1,
-	'0' after C_WAIT_LCD + (a * i_clock_period);
-	i_reset <=
-	'1' after C_WAIT_LCD + (a * i_clock_period) - i_clock_period*2,
-	'0' after C_WAIT_LCD + (a * i_clock_period) - i_clock_period*1;
-	wait for i_clock_period;
+--	a <= a + v(i)(0);
+--	b <= b + v(i)(1);
+--	c <= c + v(i)(2);
+--	i_push <=
+--	'1' after C_WAIT_LCD + (a * i_clock_period) - i_clock_period*1,
+--	'0' after C_WAIT_LCD + (a * i_clock_period);
+--	i_reset <=
+--	'1' after C_WAIT_LCD + (a * i_clock_period) - i_clock_period*2,
+--	'0' after C_WAIT_LCD + (a * i_clock_period) - i_clock_period*1;
 end loop l0;
+wait;
+end process;
 
-wait for 3000 us; -- wait for all
--- insert stimulus here 
+process
+begin
+wait for 10 us;
 report "done" severity failure;
 end process;
 
