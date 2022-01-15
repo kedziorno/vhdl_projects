@@ -41,22 +41,21 @@ signal o_anode : std_logic_vector(3 downto 0);
 signal o_segment : std_logic_vector(6 downto 0);
 
 -- Clock period definitions
---constant i_clock_period : time := (1_000_000_000 / G_BOARD_CLOCK) * 1 ns;
-constant i_clock_period : time := 1 ns;
+constant i_clock_period : time := (1_000_000_000 / G_BOARD_CLOCK) * 1 ns;
+--constant i_clock_period : time := 1 ns;
 
-constant C_WAIT_LCD : time := 1 us;
-constant N : integer := 3;
+constant C_WAIT : time := 1 us;
+constant N : integer := 5;
 type vsubarray is array(0 to 2) of integer range 0 to 2**16-1;
 type subarray is array(integer range <>) of vsubarray;
 signal v : subarray(0 to N-1) := (
 	-- 0 => offset, 1 => length, 2 => differ
 	(1,1,1),
-	(65,12,7),
-	(80,17,9)
+	(60,30,7),
+	(120,30,9),
+	(180,30,11),
+	(240,30,13)
 );
-
-signal a,b,c : integer range 0 to 2**16-1 := 0;
-signal flag : std_logic;
 
 BEGIN
 
@@ -80,72 +79,42 @@ i_clock <= '1';
 wait for i_clock_period/2;
 end process;
 
---process (i_clock)
-----	variable a,b,c : integer range 0 to 2**16-1 := 0;
---variable i : integer range 0 to N-1 := 0;
---begin
---if (rising_edge(i_clock)) then
---	if (i = N-1) then
---		i := 0;
---flag <= '0';
---	
---	else
---	flag <= '1';
---
---		i := i + 1;
---	a <= v(i)(0);
---	b <= v(i)(1);
---	c <= v(i)(2);
---report " a = " & integer'image(a) & " b=" & integer'image(b) & " c=" & integer'image(c);
---	
---	end if;
---
---end if;
---
---end process;
---
-
-process (i_clock)
-variable i : integer range 0 to N-1;
-variable a,b,c : integer range 0 to 2**16-1 := 0;
+process (i_clock,i_reset)
+	variable i : integer range 0 to N-1;
+	variable a,b,c : integer range 0 to 2**16-1;
+	variable diff : time;
 begin
-if (rising_edge(i_clock)) then
-if (i = N-1) then
-i := 0;
-else
-i := i + 1;
-end if;
-a := a + v(i)(0);
-b := b + v(i)(1);
-c := c + v(i)(2);
-report " a = " & integer'image(a) & " b=" & integer'image(b) & " c=" & integer'image(c);
-i_phase1 <= transport '1' after (a * i_clock_period);
-i_phase1 <= transport '0' after (a * i_clock_period) + (b * i_clock_period);
-i_phase2 <= transport '1' after (a * i_clock_period) + (c * i_clock_period);
-i_phase2 <= transport '0' after (a * i_clock_period) + (b * i_clock_period) + (c * i_clock_period);
-
-end if;
-end process;
-
-stim_proc : process
---	variable a,b,c : integer range 0 to 2**16-1 := 0;
-begin
-l0 : for i in 0 to N-1 loop
---	a <= a + v(i)(0);
---	b <= b + v(i)(1);
---	c <= c + v(i)(2);
---	i_push <=
---	'1' after C_WAIT_LCD + (a * i_clock_period) - i_clock_period*1,
---	'0' after C_WAIT_LCD + (a * i_clock_period);
---	i_reset <=
---	'1' after C_WAIT_LCD + (a * i_clock_period) - i_clock_period*2,
---	'0' after C_WAIT_LCD + (a * i_clock_period) - i_clock_period*1;
-end loop l0;
-wait;
+	if (i_reset = '1') then
+		a := 0;
+		b := 0;
+		c := 0;
+		i := 0;
+		diff := 0 ns;
+	elsif (rising_edge(i_clock)) then
+		if (i = N-1) then
+			i := N-1;
+		else
+			i := i + 1;
+			a := v(i)(0);
+			b := v(i)(1);
+			c := v(i)(2);
+			diff := i * i_clock_period + i_clock_period/2;
+			report " a = " & integer'image(a) & " b=" & integer'image(b) & " c=" & integer'image(c);
+		end if;
+		i_phase1 <= transport '1'
+		after C_WAIT + (a * i_clock_period) - time(diff);
+		i_phase1 <= transport '0'
+		after C_WAIT + (a * i_clock_period) + (b * i_clock_period) - time(diff);
+		i_phase2 <= transport '1'
+		after C_WAIT + (a * i_clock_period) + (c * i_clock_period) - time(diff);
+		i_phase2 <= transport '0'
+		after C_WAIT + (a * i_clock_period) + (b * i_clock_period) + (c * i_clock_period) - time(diff);
+	end if;
 end process;
 
 process
 begin
+i_reset <= '1', '0' after i_clock_period;
 wait for 10 us;
 report "done" severity failure;
 end process;
