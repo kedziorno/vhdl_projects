@@ -73,10 +73,13 @@ begin
 	lcd_clock <= clock_out;
 end process plcddiv;
 
-plcdanode : process (lcd_clock) is
+plcdanode : process (lcd_clock,i_reset) is
 	variable count : integer range 0 to 3 := 0;
 begin
-	if (rising_edge(lcd_clock)) then
+	if (i_reset = '1') then
+		o_anode <= (others => '1');
+		count := 0;
+	elsif (rising_edge(lcd_clock)) then
 		case count is
 			when 0 =>
 				o_anode(3 downto 0) <= "0111";
@@ -97,10 +100,13 @@ begin
 	end if;
 end process plcdanode;
 
-plcdsegment : process (lcd_clock) is
+plcdsegment : process (lcd_clock,i_reset) is
 	variable count : integer range 0 to 3 := 0;
 begin
-	if (rising_edge(lcd_clock)) then
+	if (i_reset = '1') then
+		o_segment <= (others => '0');
+		count := 0;
+	elsif (rising_edge(lcd_clock)) then
 		case to_integer(unsigned(LCDChar(count))) is
 			when 0 => o_segment <= "1000000"; -- 0
 			when 1 => o_segment <= "1111001"; -- 1
