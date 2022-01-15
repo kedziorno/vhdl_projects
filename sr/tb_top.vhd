@@ -44,14 +44,14 @@ signal o_segment : std_logic_vector(6 downto 0);
 constant i_clock_period : time := (1_000_000_000 / G_BOARD_CLOCK) * 1 ns;
 --constant i_clock_period : time := 1 ns;
 
-constant C_WAIT : time := 1 us;
-constant N : integer := 28;
+constant C_WAIT : time := 1 us; -- wait for LCD initialize
+constant N : integer := 28; -- number of tests, apart from 0 and MAX-1
 type vsubarray is array(0 to 2) of integer range 0 to 2**16-1;
 type subarray is array(integer range <>) of vsubarray;
 signal v : subarray(0 to N-1) := (
 	-- 0 => offset, 1 => length, 2 => differ
 	(0,0,0), -- MAX start, not using
-	(60,30,7),
+	(60,30,7), -- first tested values
 	(120,30,9),
 	(180,30,11),
 	(240,30,13),
@@ -77,7 +77,7 @@ signal v : subarray(0 to N-1) := (
 	(51190,2000,1999),
 	(55200,2000,2000),
 	(59210,2000,4003), -- 4004 dont work, because on this ts we have reset
-	(63220,2000,0000),
+	(63220,2000,0000), --last tested values
 	(2**16-1,2**16-1,2**16-1) -- XXX max end, not using
 );
 
@@ -120,6 +120,7 @@ begin
 --			report " a = " & integer'image(a) & " b=" & integer'image(b) & " c=" & integer'image(c);
 --			report " diff = " & time'image(diff);
 		end if;
+		-- all signals below have calulated waitings
 		i_phase1 <= transport '1'
 		after C_WAIT + (a * i_clock_period) - time(diff);
 		i_phase1 <= transport '0'
@@ -139,9 +140,10 @@ begin
 	end if;
 end process;
 
+-- process to wait for all tests
 process
 begin
-wait for 70 us;
+wait for 70 us; -- must have timestamp after all tests
 report "done" severity failure;
 end process;
 
