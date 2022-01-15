@@ -45,16 +45,17 @@ constant i_clock_period : time := (1_000_000_000 / G_BOARD_CLOCK) * 1 ns;
 --constant i_clock_period : time := 1 ns;
 
 constant C_WAIT : time := 1 us;
-constant N : integer := 5;
+constant N : integer := 6;
 type vsubarray is array(0 to 2) of integer range 0 to 2**16-1;
 type subarray is array(integer range <>) of vsubarray;
 signal v : subarray(0 to N-1) := (
 	-- 0 => offset, 1 => length, 2 => differ
-	(1,1,1),
+	(0,0,0), -- MAX start, not using
 	(60,30,7),
 	(120,30,9),
 	(180,30,11),
-	(240,30,13)
+	(240,30,13),
+	(2**16-1,2**16-1,2**16-1) -- XXX max end, not using
 );
 
 BEGIN
@@ -98,8 +99,9 @@ begin
 			a := v(i)(0);
 			b := v(i)(1);
 			c := v(i)(2);
-			diff := i * i_clock_period + i_clock_period/2;
-			report " a = " & integer'image(a) & " b=" & integer'image(b) & " c=" & integer'image(c);
+			diff := (i * i_clock_period) - i_clock_period/2;
+--			report " a = " & integer'image(a) & " b=" & integer'image(b) & " c=" & integer'image(c);
+--			report " diff = " & time'image(diff);
 		end if;
 		i_phase1 <= transport '1'
 		after C_WAIT + (a * i_clock_period) - time(diff);
