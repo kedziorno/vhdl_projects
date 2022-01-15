@@ -109,12 +109,19 @@ begin
 		after C_WAIT + (a * i_clock_period) + (c * i_clock_period) - time(diff);
 		i_phase2 <= transport '0'
 		after C_WAIT + (a * i_clock_period) + (b * i_clock_period) + (c * i_clock_period) - time(diff);
+		i_reset <= transport '1'
+		after C_WAIT + (a * i_clock_period) - i_clock_period*4 - time(diff);
+		i_reset <= transport '0'
+		after C_WAIT + (a * i_clock_period) - i_clock_period*3 - time(diff);
+		i_push <= transport '1'
+		after C_WAIT + (a * i_clock_period) - i_clock_period*2 - time(diff);
+		i_push <= transport '0'
+		after C_WAIT + (a * i_clock_period) - i_clock_period*1 - time(diff);
 	end if;
 end process;
 
 process
 begin
-i_reset <= '1', '0' after i_clock_period;
 wait for 10 us;
 report "done" severity failure;
 end process;
