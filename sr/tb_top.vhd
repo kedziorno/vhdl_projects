@@ -45,7 +45,7 @@ constant i_clock_period : time := (1_000_000_000 / G_BOARD_CLOCK) * 1 ns;
 --constant i_clock_period : time := 1 ns;
 
 constant C_WAIT : time := 1 us;
-constant N : integer := 6;
+constant N : integer := 28;
 type vsubarray is array(0 to 2) of integer range 0 to 2**16-1;
 type subarray is array(integer range <>) of vsubarray;
 signal v : subarray(0 to N-1) := (
@@ -55,6 +55,29 @@ signal v : subarray(0 to N-1) := (
 	(120,30,9),
 	(180,30,11),
 	(240,30,13),
+	-- XXX in cycles , a(i)=a(i-1)+2*b+10,b=x,c=value>=b => false
+	(1010,1000,112),
+	(3020,1000,152),
+	(5030,1000,274),
+	(7040,1000,275),
+	(9050,1000,491),
+	(11060,1000,619),
+	(13070,1000,632),
+	(15080,1000,835),
+	(17090,1000,874),
+	(19100,1000,999),
+	(21110,1000,1000),
+	(23120,2000,1999),
+	(27130,2000,1890),
+	(31140,2000,1999),
+	(35150,2000,1999),
+	(39160,2000,1999),
+	(43170,2000,1999),
+	(47180,2000,1999),
+	(51190,2000,1999),
+	(55200,2000,2000),
+	(59210,2000,4003), -- 4004 dont work, because on this ts we have reset
+	(63220,2000,0000),
 	(2**16-1,2**16-1,2**16-1) -- XXX max end, not using
 );
 
@@ -81,17 +104,11 @@ wait for i_clock_period/2;
 end process;
 
 process (i_clock,i_reset)
-	variable i : integer range 0 to N-1;
-	variable a,b,c : integer range 0 to 2**16-1;
-	variable diff : time;
+	variable i : integer range 0 to N-1 := 0;
+	variable a,b,c : integer range 0 to 2**16-1 := 0;
+	variable diff : time := 0 ns;
 begin
-	if (i_reset = '1') then
-		a := 0;
-		b := 0;
-		c := 0;
-		i := 0;
-		diff := 0 ns;
-	elsif (rising_edge(i_clock)) then
+	if (rising_edge(i_clock)) then
 		if (i = N-1) then
 			i := N-1;
 		else
@@ -124,7 +141,7 @@ end process;
 
 process
 begin
-wait for 10 us;
+wait for 70 us;
 report "done" severity failure;
 end process;
 
