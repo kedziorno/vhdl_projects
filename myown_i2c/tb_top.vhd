@@ -41,6 +41,7 @@ ARCHITECTURE behavior OF tb_top IS
 COMPONENT top
 PORT(
 clk : IN  std_logic;
+rst : IN  std_logic;
 btn_1 : IN  std_logic;
 sda : OUT  std_logic;
 scl : OUT  std_logic
@@ -50,6 +51,7 @@ END COMPONENT;
 --Inputs
 signal clk : std_logic := '0';
 signal btn_1 : std_logic := '0';
+signal rst : std_logic := '0';
 
 --Outputs
 signal sda : std_logic;
@@ -63,6 +65,7 @@ BEGIN
 -- Instantiate the Unit Under Test (UUT)
 uut: top PORT MAP (
 clk => clk,
+rst => rst,
 btn_1 => btn_1,
 sda => sda,
 scl => scl
@@ -77,10 +80,12 @@ clk <= '1';
 wait for clk_period/2;
 end process;
 
+rst <= '1', '0' after clk_period;
 -- Stimulus process
 stim_proc: process
 begin
 -- hold reset state for 100 ns.
+wait for 100 ns;
 btn_1 <= '1';
 wait for 100 ns;
 btn_1 <= '0';
