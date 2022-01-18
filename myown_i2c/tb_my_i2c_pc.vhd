@@ -55,7 +55,7 @@ signal i_clock : std_logic := '0';
 signal i_reset : std_logic := '0';
 signal i_slave_address : std_logic_vector(0 to 6) := "0011110";
 signal i_bytes_to_send : std_logic_vector(0 to 7) := "11010101";
-signal i_enable : std_logic := '1';
+signal i_enable : std_logic := '0';
 
 --Outputs
 signal o_busy : std_logic;
@@ -93,10 +93,11 @@ i_reset <= '1', '0' after 1 ns;
 -- Stimulus process
 stim_proc: process
 begin
--- hold reset state for 100 ns.
-wait for i_clock_period*10;
--- insert stimulus here
-wait;
+i_enable <= '1';
+wait for 10 ns;
+i_enable <= '0';
+wait for 1 ns;
+report "done" severity failure;
 end process;
 
 END;
