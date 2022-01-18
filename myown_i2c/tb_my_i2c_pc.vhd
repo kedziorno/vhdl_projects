@@ -53,9 +53,9 @@ END COMPONENT;
 --Inputs
 signal i_clock : std_logic := '0';
 signal i_reset : std_logic := '0';
-signal i_slave_address : std_logic_vector(0 to 6) := (others => '0');
-signal i_bytes_to_send : std_logic_vector(0 to 7) := (others => '0');
-signal i_enable : std_logic := '0';
+signal i_slave_address : std_logic_vector(0 to 6) := "0011110";
+signal i_bytes_to_send : std_logic_vector(0 to 7) := "11010101";
+signal i_enable : std_logic := '1';
 
 --Outputs
 signal o_busy : std_logic;

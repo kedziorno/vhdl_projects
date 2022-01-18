@@ -48,19 +48,12 @@ end my_i2c_pc;
 architecture Behavioral of my_i2c_pc is
 
 	constant delay_and : time := 0 ns;
-	constant delay_nand : time := 0 ns;
-	constant delay_and3 : time := 0 ns;
+	constant delay_or : time := 0 ns;
 	constant delay_not : time := 0 ns;
+	constant delay_nand : time := 0 ns;
 	constant delay_nand2 : time := 0 ns;
 	constant delay_nand3 : time := 0 ns;
-
---	component FF_E_LATCH is
---	generic (delay_and : time := 0 ns; delay_and3 : time := 0 ns; delay_not : time := 0 ns; delay_nand2 : time := 0 ns; delay_nand3 : time := 0 ns);
---	port (D,E_H,E_L:in STD_LOGIC; Q:out STD_LOGIC);
---	end component FF_E_LATCH;
-----	for all : FF_E_LATCH use entity WORK.FF_E_LATCH(Behavioral_E_LATCH);
-----	for all : FF_E_LATCH use entity WORK.FF_E_LATCH(LUT_E_LATCH);
---	for all : FF_E_LATCH use entity WORK.FF_E_LATCH(LUT_E_LATCH_NAND);
+	constant delay_and3 : time := 0 ns;
 
 	component GATE_NOT is
 	generic (delay_not : TIME := 0 ns);
@@ -80,12 +73,20 @@ architecture Behavioral of my_i2c_pc is
 	end component GATE_NAND;
 	for all : GATE_NAND use entity WORK.GATE_NAND(GATE_NAND_LUT);
 
+	component MUX_41 is
+	generic (delay_and : TIME := 0 ns; delay_or : TIME := 0 ns; delay_not : TIME := 0 ns);
+	port (S1,S2,A,B,C,D:in STD_LOGIC; E:out STD_LOGIC);
+	end component MUX_41;
+	for all : MUX_41 use entity WORK.MUX_41(Behavioral);
+
 	constant N : integer := 10;
-	signal a,b,c,d : std_logic;
-	signal sda_start : std_logic_vector(N-1 downto 0);
-	signal sda_start_condition,sdasc_out : std_logic;
-	signal sdasc_chain : std_logic_vector(N/2-1 downto 0);
-	signal e : std_logic;
+	signal a,b,c,d,e : std_logic;
+	signal sda_chain : std_logic_vector(N-1 downto 0);
+	signal sda_condition_chain : std_logic_vector(N/2-1 downto 0);
+	signal sda_start_condition_out : std_logic;
+	signal sda_start_condition : std_logic;
+	signal sda_stop_condition_out : std_logic;
+	signal sda_stop_condition : std_logic;
 
 begin
 
@@ -98,36 +99,50 @@ LDCPE2_inst : LDCPE
 generic map (INIT => '0') port map (Q => d, CLR => i_reset, D => c, G => '1', GE => '1', PRE => i_reset);
 
 -- generate N latch chain
-sda_start_generate : for i in 0 to N-1 generate
-	sda_start_first : if (i=0) generate
-		sda_start_inst : LDCPE generic map (INIT => '0') port map (Q => sda_start(0), D => e, CLR => i_reset, G => '1', GE => '1', PRE => i_reset);
-	end generate sda_start_first;
-	sda_start_chain : if (i>0 and i<N-1) generate
-		sda_start_inst : LDCPE generic map (INIT => '0') port map (Q => sda_start(i), D => sda_start(i-1), CLR => i_reset, G => '1', GE => '1', PRE => i_reset);
-	end generate sda_start_chain;
-	sda_start_last : if (i=N-1) generate
-		sda_start_inst : LDCPE generic map (INIT => '0') port map (Q => sda_start(N-1), D => sda_start(i-1), CLR => i_reset, G => '1', GE => '1', PRE => i_reset);
-	end generate sda_start_last;
-end generate sda_start_generate;
+sda_chain_generate : for i in 0 to N-1 generate
+	sda_chain_first : if (i=0) generate
+		sda_chain_f : LDCPE generic map (INIT => '0') port map (Q => sda_chain(0), D => e, CLR => i_reset, G => '1', GE => '1', PRE => i_reset);
+	end generate sda_chain_first;
+	sda_chain_middle : if (i>0 and i<N-1) generate
+		sda_chain_m : LDCPE generic map (INIT => '0') port map (Q => sda_chain(i), D => sda_chain(i-1), CLR => i_reset, G => '1', GE => '1', PRE => i_reset);
+	end generate sda_chain_middle;
+	sda_chain_last : if (i=N-1) generate
+		sda_chain_l : LDCPE generic map (INIT => '0') port map (Q => sda_chain(N-1), D => sda_chain(i-1), CLR => i_reset, G => '1', GE => '1', PRE => i_reset);
+	end generate sda_chain_last;
+end generate sda_chain_generate;
 
 -- generate start condition after N/2 cycles
-sdasc_generate : for i in 0 to N/2 generate
-	asd1 : if (i=0) generate
-		aaa : GATE_AND generic map (delay_and => delay_and) port map (A => sda_start(i), B => not sda_start(i+1), C => sdasc_chain(0));	
-	end generate asd1;
-	asd2 : if (i>0 and i<N/2) generate
-		aaa : GATE_NAND generic map (delay_nand => delay_nand) port map (A => sdasc_chain(i-1), B => sda_start(i+1), C => sdasc_chain(i));
-	end generate asd2;
-	asd3 : if (i=N/2) generate
-		aaa : GATE_NAND generic map (delay_nand => delay_nand) port map (A => sdasc_chain(i-1), B => not sda_start(i+1), C => sdasc_out);
-	end generate asd3;
-end generate sdasc_generate;
+sda_start_condition_generate : for i in 0 to N/2 generate
+	sda_start_condition_first : if (i=0) generate
+		sda_start_condition_f : GATE_AND generic map (delay_and => delay_and) port map (A => sda_chain(i), B => not sda_chain(i+1), C => sda_condition_chain(0));	
+	end generate sda_start_condition_first;
+	sda_start_condition_middle : if (i>0 and i<N/2) generate
+		sda_start_condition_m : GATE_NAND generic map (delay_nand => delay_nand) port map (A => sda_condition_chain(i-1), B => sda_chain(i+1), C => sda_condition_chain(i));
+	end generate sda_start_condition_middle;
+	sda_start_condition_last : if (i=N/2) generate
+		sda_start_condition_l : GATE_NAND generic map (delay_nand => delay_nand) port map (A => sda_condition_chain(i-1), B => not sda_chain(i+1), C => sda_start_condition);
+	end generate sda_start_condition_last;
+end generate sda_start_condition_generate;
 
-sdasc_inst : LDCPE generic map (INIT => '0') port map (Q => sda_start_condition, D => '0', CLR => sdasc_out, G => '1', GE => '1', PRE => not sdasc_out);
+---- generate stop condition after N/2 cycles
+--sda_stop_condition_generate : for i in 0 to N/2 generate
+--	sda_stop_condition_first : if (i=0) generate
+--		sda_stop_condition : GATE_AND generic map (delay_and => delay_and) port map (A => sda_start(i), B => not sda_start(i+1), C => sdasc_chain(0));	
+--	end generate sda_stop_condition_first;
+--	sda_stop_condition_middle : if (i>0 and i<N/2) generate
+--		aaa : GATE_NAND generic map (delay_nand => delay_nand) port map (A => sdasc_chain(i-1), B => sda_start(i+1), C => sdasc_chain(i));
+--	end generate sda_stop_condition_middle;
+--	sda_stop_condition_last : if (i=N/2) generate
+--		sda_stop_condition : GATE_NAND generic map (delay_nand => delay_nand) port map (A => sdasc_chain(i-1), B => not sda_start(i+1), C => sdasc_out);
+--	end generate sda_stop_condition_last;
+--end generate sda_stop_condition_generate;
 
-MUXCY_inst : MUXCY port map (O => e, CI => '0', DI => '1', S => sda_start(N-1));
+sdasc_inst : LDCPE generic map (INIT => '1') port map (Q => sda_start_condition_out, D => e, CLR => sda_start_condition and i_enable, G => '1', GE => '1', PRE => (not sda_start_condition) and i_enable);
 
-o_sda <= sda_start_condition;
+MUXCY_inst : MUXCY port map (O => e, CI => '0', DI => '1', S => sda_chain(N-1) and i_enable);
+
+m41_inst : MUX_41 generic map (delay_and => delay_and, delay_or => delay_or, delay_not => delay_not) port map (S1 => '0', S2 => '0', A => sda_stop_condition_out, B => '0', C => '0', D => sda_start_condition_out, E => o_sda);
+
 o_scl <= e;
 
 end architecture Behavioral;
