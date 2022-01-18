@@ -80,11 +80,12 @@ architecture Behavioral of my_i2c_pc is
 	end component GATE_NAND;
 	for all : GATE_NAND use entity WORK.GATE_NAND(GATE_NAND_LUT);
 
-	constant N : integer := 99;
+	constant N : integer := 10;
 	signal a,b,c,d : std_logic;
 	signal sda_start : std_logic_vector(N-1 downto 0);
 	signal sda_start_condition,sdasc_out : std_logic;
 	signal sdasc_chain : std_logic_vector(N/2-1 downto 0);
+	signal e : std_logic;
 
 begin
 
@@ -99,11 +100,14 @@ generic map (INIT => '0') port map (Q => d, CLR => i_reset, D => c, G => '1', GE
 -- generate N latch chain
 sda_start_generate : for i in 0 to N-1 generate
 	sda_start_first : if (i=0) generate
-		sda_start_inst : LDCPE generic map (INIT => '0') port map (Q => sda_start(0), D => d, CLR => i_reset, G => '1', GE => '1', PRE => i_reset);
+		sda_start_inst : LDCPE generic map (INIT => '0') port map (Q => sda_start(0), D => e, CLR => i_reset, G => '1', GE => '1', PRE => i_reset);
 	end generate sda_start_first;
-	sda_start_chain : if (i>0) generate
+	sda_start_chain : if (i>0 and i<N-1) generate
 		sda_start_inst : LDCPE generic map (INIT => '0') port map (Q => sda_start(i), D => sda_start(i-1), CLR => i_reset, G => '1', GE => '1', PRE => i_reset);
 	end generate sda_start_chain;
+	sda_start_last : if (i=N-1) generate
+		sda_start_inst : LDCPE generic map (INIT => '0') port map (Q => sda_start(N-1), D => sda_start(i-1), CLR => i_reset, G => '1', GE => '1', PRE => i_reset);
+	end generate sda_start_last;
 end generate sda_start_generate;
 
 -- generate start condition after N/2 cycles
@@ -120,5 +124,10 @@ sdasc_generate : for i in 0 to N/2 generate
 end generate sdasc_generate;
 
 sdasc_inst : LDCPE generic map (INIT => '0') port map (Q => sda_start_condition, D => '0', CLR => sdasc_out, G => '1', GE => '1', PRE => not sdasc_out);
+
+MUXCY_inst : MUXCY port map (O => e, CI => '0', DI => '1', S => sda_start(N-1));
+
+o_sda <= sda_start_condition;
+o_scl <= e;
 
 end architecture Behavioral;
