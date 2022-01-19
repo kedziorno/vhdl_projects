@@ -90,6 +90,7 @@ architecture Behavioral of my_i2c_pc is
 	signal sda_stop_condition : std_logic;
 	signal qmux : std_logic_vector(3 downto 0);
 	signal qnmux : std_logic_vector(3 downto 0);
+	signal encoder42 : std_logic_vector(1 downto 0);
 	signal all1_slv : std_logic_vector(N-1 downto 0);
 	signal all1 : std_logic;
 	signal all0_slv : std_logic_vector(N-1 downto 0);
@@ -228,23 +229,34 @@ end generate sda_stop_condition_generate;
 
 sdasc_inst1 : LDCPE generic map (INIT => '1') port map (Q => sda_start_condition_out, D => e, CLR => sda_start_condition and i_enable, G => '1', GE => '1', PRE => (not sda_start_condition) and i_enable);
 
-sdasc_inst2 : LDCPE generic map (INIT => '1') port map (Q => sda_stop_condition_out, D => not e, CLR => not sda_start_condition and i_enable, G => '1', GE => '1', PRE => sda_start_condition and i_enable);
+sdasc_inst2 : LDCPE generic map (INIT => '1') port map (Q => sda_stop_condition_out, D => e, CLR => sda_stop_condition and i_enable, G => '1', GE => '1', PRE => (not sda_stop_condition) and i_enable);
 
 MUXCY_inst : MUXCY port map (O => e, CI => '0', DI => '1', S => sda_chain(N-1) and i_enable);
 
-m41_inst : MUX_41 generic map (delay_and => delay_and, delay_or => delay_or, delay_not => delay_not) port map (S1 => '0', S2 => '0', A => sda_stop_condition_out, B => '0', C => '0', D => sda_start_condition_out, E => o_sda);
+m41_inst : MUX_41 generic map (delay_and => delay_and, delay_or => delay_or, delay_not => delay_not) port map (S1 => encoder42(0), S2 => encoder42(1), A => sda_stop_condition_out, B => '0', C => '0', D => sda_start_condition_out, E => o_sda);
 
 o_scl <= e;
 
+pencoder42 : process (qmux) is
+begin
+	case (qmux) is
+		when "0000" => encoder42 <= "00";
+		when "0001" => encoder42 <= "01";
+		when "0011" => encoder42 <= "10";
+		when "0111" => encoder42 <= "11";
+		when others => encoder42 <= "XX";
+	end case;
+end process pencoder42;
+
 mux_chain_generate : for i in 0 to 3 generate
 	a : if (i=0) generate
-		chaina : LDCPE generic map (INIT => '0') port map (Q => qmux(i), D => '1', CLR => qmux(3), G => '1', GE => i_enable, PRE => '0');
+		chaina : LDCPE generic map (INIT => '0') port map (Q => qmux(i), D => '1', CLR => qmux(3), G => all1, GE => i_enable and not all1, PRE => '0');
 	end generate a;
 	b : if (i>0 and i<3) generate
-		chainb : LDCPE generic map (INIT => '0') port map (Q => qmux(i), D => qmux(i-1), CLR => qmux(3), G => '1', GE => i_enable, PRE => '0');
+		chainb : LDCPE generic map (INIT => '0') port map (Q => qmux(i), D => qmux(i-1), CLR => qmux(3), G => all1, GE => i_enable and not all1, PRE => '0');
 	end generate b;
 	c : if (i=3) generate
-		chainc : LDCPE generic map (INIT => '0') port map (Q => qmux(i), D => qmux(i-1), CLR => qmux(3), G => '1', GE => i_enable, PRE => '0');
+		chainc : LDCPE generic map (INIT => '0') port map (Q => qmux(i), D => qmux(i-1), CLR => qmux(3), G => all1, GE => i_enable and not all1, PRE => '0');
 	end generate c;
 end generate mux_chain_generate;
 

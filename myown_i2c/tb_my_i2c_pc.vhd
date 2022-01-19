@@ -88,7 +88,7 @@ i_clock <= '1';
 wait for i_clock_period/2;
 end process;
 
-i_reset <= '1', '0' after 1 ns;
+i_reset <= '1', '0' after 1 ps;
 --i_reset <= i_clock;
 -- Stimulus process
 stim_proc: process
