@@ -63,7 +63,7 @@ signal o_sda : std_logic;
 signal o_scl : std_logic;
 
 -- Clock period definitions
-constant i_clock_period : time := 20 ns;
+constant i_clock_period : time := 1 ns;
 
 BEGIN
 
@@ -88,15 +88,13 @@ i_clock <= '1';
 wait for i_clock_period/2;
 end process;
 
-i_reset <= '1', '0' after 1 ps;
+i_reset <= '1', '0' after 1 ns;
 --i_reset <= i_clock;
 -- Stimulus process
 stim_proc: process
 begin
 i_enable <= '1';
-wait for 10 ns;
-i_enable <= '0';
-wait for 1 ns;
+wait for 100 * i_clock_period;
 report "done" severity failure;
 end process;
 
