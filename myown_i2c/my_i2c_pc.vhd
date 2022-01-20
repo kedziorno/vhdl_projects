@@ -25,7 +25,6 @@ use WORK.p_constants1.ALL;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 use IEEE.NUMERIC_STD.ALL;
-use ieee.std_logic_unsigned.all;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
@@ -40,6 +39,7 @@ port(
 i_clock : in std_logic;
 i_reset : in std_logic;
 i_slave_address : in std_logic_vector(0 to G_SLAVE_ADDRESS_SIZE-1);
+i_slave_rw : in std_logic;
 i_bytes_to_send : in std_logic_vector(0 to G_BYTE_SIZE-1);
 i_enable : in std_logic;
 o_busy : out std_logic;
@@ -58,8 +58,9 @@ architecture Behavioral of my_i2c_pc is
 	constant delay_nand2 : time := 0 ns;
 	constant delay_nand3 : time := 0 ns;
 	constant delay_and3 : time := 0 ns;
-	constant ADDRESS_SIZE : integer := 7+1;
+	constant ADDRESS_SIZE : integer := N/2;
 	constant BYTE_SIZE : integer := 8;
+	constant QMUX_SIZE : integer := N/2;
 
 	component GATE_NOT is
 	generic (delay_not : TIME := 0 ns);
@@ -111,9 +112,9 @@ architecture Behavioral of my_i2c_pc is
 	signal sda_start_condition : std_logic;
 	signal sda_stop_condition_out : std_logic;
 	signal sda_stop_condition : std_logic;
-	signal qmux : std_logic_vector(3 downto 0);
-	signal qnmux : std_logic_vector(3 downto 0);
-	signal encoder42 : std_logic_vector(1 downto 0);
+	signal qmux : std_logic_vector(QMUX_SIZE-1 downto 0);
+	signal qnmux : std_logic_vector(QMUX_SIZE-1 downto 0);
+	signal encoder_main : std_logic_vector(2 downto 0);
 	signal all1_slv : std_logic_vector(N-1 downto 0);
 	signal all1 : std_logic;
 	signal all0_slv : std_logic_vector(N-1 downto 0);
@@ -129,7 +130,7 @@ architecture Behavioral of my_i2c_pc is
 	signal clock : std_logic;
 	signal t1,t2 : std_logic;
 	signal amux : std_logic_vector(ADDRESS_SIZE-1 downto 0);
-	signal encoder83 : std_logic_vector(2 downto 0);
+	signal encoder_address : std_logic_vector(3 downto 0);
 	signal addressmux : std_logic;
 
 begin
@@ -219,7 +220,7 @@ sda_chain_generate : for i in 0 to N-1 generate
 	end generate sda_chain_last;
 end generate sda_chain_generate;
 
-sda_start_condition <= sda_condition_chain_start(6);
+sda_start_condition <= sda_condition_chain_start(N/2-1);
 sda_start_condition_generate : for i in 0 to N-1 generate
 	sda_start_condition_first : if (i=N-1) generate
 		sda_start_condition_f : GATE_NAND generic map (delay_nand => delay_nand) port map (A =>  not sda_condition_chain_start(i-1), B => sda_chain(i), C => sda_condition_chain_start(i));
@@ -232,7 +233,7 @@ sda_start_condition_generate : for i in 0 to N-1 generate
 	end generate sda_start_condition_last;
 end generate sda_start_condition_generate;
 
-sda_stop_condition <= sda_condition_chain_stop(2);
+sda_stop_condition <= sda_condition_chain_stop(N/2-1);
 sda_stop_condition_generate : for i in N-1 downto 0 generate
 	sda_stop_condition_first : if (i=N-1) generate
 		sda_stop_condition_f : GATE_NAND generic map (delay_nand => delay_nand) port map (A =>  sda_condition_chain_stop(i-1), B => not sda_chain(i), C => sda_condition_chain_stop(i));
@@ -254,50 +255,41 @@ sda_stop_condition_out <= sda_stop_condition when clock = '1' else '0';
 t1 <= sda_chain(N-1) and i_enable;
 MUXCY_inst : MUXCY port map (O => clock, CI => '0', DI => '1', S => t1);
 
-m41_inst : MUX_41 generic map (delay_and => delay_and, delay_or => delay_or, delay_not => delay_not) port map (S1 => encoder42(0), S2 => encoder42(1), A => sda_stop_condition_out, B => '0', C => addressmux, D => sda_start_condition_out, E => o_sda);
+m81_main_inst : MUX_81 generic map (delay_and => delay_and, delay_or => delay_or, delay_not => delay_not) port map (S0 => encoder_main(0), S1 => encoder_main(1), S2 => encoder_main(2), in0 => '1', in1 => '0', in2 => '0', in3 => sda_stop_condition_out, in4 => '0', in5 => i_slave_rw, in6 => addressmux, in7 => sda_start_condition_out, o => o_sda);
 
-o_scl <= clock when encoder42 /= "00" else '1';
+o_scl <= clock;
 
---encoder42 <=
---"00" when (qmux = "0000" and sda_condition_chain_start(N-1) = '1') else
---"11" when (qmux = "0111" and sda_condition_chain_stop(0) = '1');
-
-pencoder42 : process (qmux,amux) is
+pencoder_main : process (qmux,amux) is
+	constant concat : std_logic_vector(QMUX_SIZE-1 downto 0) := (others => '-');
+	variable qa : std_logic_vector(2*QMUX_SIZE-1 downto 0);
 begin
-	case (qmux&amux) is
-		when "0000"&"00000000" => encoder42 <= "00";
-		when "0000"&"00000111" => encoder42 <= "01";
-		when "0000"&"01111111" => encoder42 <= "01";
-		when "0000"&"00001111" => encoder42 <= "01";
-		when "0001"&"00000000" => encoder42 <= "01";
-		when "0001"&"00000001" => encoder42 <= "01";
-		when "0011"&"00000001" => encoder42 <= "01";
-		when "0011"&"00000011" => encoder42 <= "01";
-		when "0111"&"00000011" => encoder42 <= "01";
-		when "0111"&"00000111" => encoder42 <= "01";
-		when "0001"&"00001111" => encoder42 <= "01";
-		when "0001"&"00011111" => encoder42 <= "01";
-		when "0011"&"00011111" => encoder42 <= "01";
-		when "0111"&"00111111" => encoder42 <= "01";
-		when "0001"&"01111111" => encoder42 <= "01";
-		when "0011"&"00111111" => encoder42 <= "01";
-		when "0111"&"01111111" => encoder42 <= "01";
-		when "0011"&"01111111" => encoder42 <= "10";
-		when "0000"&"11111111" => encoder42 <= "11";
-		when others => encoder42 <= "XX";
-	end case;
-end process pencoder42;
+	qa := qmux&amux;
+	if    (std_match(qa,concat&"0000000000")) then encoder_main <= "000";
+	elsif (std_match(qa,concat&"0000000001")) then encoder_main <= "001";
+	elsif (std_match(qa,concat&"0000000011")) then encoder_main <= "001";
+	elsif (std_match(qa,concat&"0000000111")) then encoder_main <= "001";
+	elsif (std_match(qa,concat&"0000001111")) then encoder_main <= "001";
+	elsif (std_match(qa,concat&"0000011111")) then encoder_main <= "001";
+	elsif (std_match(qa,concat&"0000111111")) then encoder_main <= "001";
+	elsif (std_match(qa,concat&"0001111111")) then encoder_main <= "001";
+	elsif (std_match(qa,concat&"0011111111")) then encoder_main <= "010";
+	elsif (std_match(qa,concat&"0111111111")) then encoder_main <= "011";
+	elsif (std_match(qa,concat&"1111111111")) then encoder_main <= "100";
+	else
+	encoder_main <= "XXX";
+	end if;
+end process pencoder_main;
 
 t2 <= i_enable and not all1;
-mux_chain_generate : for i in 0 to 3 generate
+mux_chain_generate : for i in 0 to QMUX_SIZE-1 generate
 	a : if (i=0) generate
-		chaina : LDCPE generic map (INIT => '0') port map (Q => qmux(i), D => '1', CLR => qmux(3), G => all1, GE => t2, PRE => '0');
+		chaina : LDCPE generic map (INIT => '0') port map (Q => qmux(i), D => '1', CLR => qmux(QMUX_SIZE-1), G => all1, GE => t2, PRE => '0');
 	end generate a;
-	b : if (i>0 and i<3) generate
-		chainb : LDCPE generic map (INIT => '0') port map (Q => qmux(i), D => qmux(i-1), CLR => qmux(3), G => all1, GE => t2, PRE => '0');
+	b : if (i>0 and i<QMUX_SIZE-1) generate
+		chainb : LDCPE generic map (INIT => '0') port map (Q => qmux(i), D => qmux(i-1), CLR => qmux(QMUX_SIZE-1), G => all1, GE => t2, PRE => '0');
 	end generate b;
-	c : if (i=3) generate
-		chainc : LDCPE generic map (INIT => '0') port map (Q => qmux(i), D => qmux(i-1), CLR => qmux(3), G => all1, GE => t2, PRE => '0');
+	c : if (i=QMUX_SIZE-1) generate
+		chainc : LDCPE generic map (INIT => '0') port map (Q => qmux(i), D => qmux(i-1), CLR => qmux(QMUX_SIZE-1), G => all1, GE => t2, PRE => '0');
 	end generate c;
 end generate mux_chain_generate;
 
@@ -313,23 +305,24 @@ address_chain_generate : for i in 0 to ADDRESS_SIZE-1 generate
 	end generate address_chain_last;
 end generate address_chain_generate;
 
-pencoder83 : process (amux) is
+pencoder_address : process (amux) is
 begin
 	case (amux) is
-		when "00000000" => encoder83 <= "111";
-		when "00000001" => encoder83 <= "000";
-		when "00000011" => encoder83 <= "001";
-		when "00000111" => encoder83 <= "010";
-		when "00001111" => encoder83 <= "011";
-		when "00011111" => encoder83 <= "100";
-		when "00111111" => encoder83 <= "101";
-		when "01111111" => encoder83 <= "110";
-		when "11111111" => encoder83 <= "111";
-		when others => encoder83 <= "XXX";
+		when "0000000000" => encoder_address <= "0000";
+		when "0000000001" => encoder_address <= "0001";
+		when "0000000011" => encoder_address <= "0010";
+		when "0000000111" => encoder_address <= "0011";
+		when "0000001111" => encoder_address <= "0100";
+		when "0000011111" => encoder_address <= "0101";
+		when "0000111111" => encoder_address <= "0110";
+		when "0001111111" => encoder_address <= "0111";
+		when "0011111111" => encoder_address <= "1000";
+		when "0111111111" => encoder_address <= "1001";
+		when others => encoder_address <= "XXXX";
 	end case;
-end process pencoder83;
+end process pencoder_address;
 
-mux81_inst : MUX_81 generic map (delay_and => delay_and, delay_or => delay_or, delay_not => delay_not) port map (in0 => i_slave_address(0), in1 => i_slave_address(1), in2 => i_slave_address(2), in3 => i_slave_address(3), in4 => i_slave_address(4), in5 => i_slave_address(5), in6 => i_slave_address(6), in7 => '0', s0 => encoder83(0), s1 => encoder83(1), s2 => encoder83(2), o => addressmux);
+mux81_inst : MUX_81 generic map (delay_and => delay_and, delay_or => delay_or, delay_not => delay_not) port map (in0 => i_slave_address(0), in1 => i_slave_address(1), in2 => i_slave_address(2), in3 => i_slave_address(3), in4 => i_slave_address(4), in5 => i_slave_address(5), in6 => i_slave_address(6), in7 => '0', s0 => encoder_address(0), s1 => encoder_address(1), s2 => encoder_address(2), o => addressmux);
 
 --address_chain_generate : for i in 0 to ADDRESS_SIZE-1 generate
 --	address_chain_first : if (i=0) generate
