@@ -37,7 +37,12 @@ END tb_my_i2c_pc;
 
 ARCHITECTURE behavior OF tb_my_i2c_pc IS
 
+constant N : integer := 10;
+
 COMPONENT my_i2c_pc
+GENERIC(
+CONSTANT N : integer
+);
 PORT(
 i_clock : IN  std_logic;
 i_reset : IN  std_logic;
@@ -68,7 +73,11 @@ constant i_clock_period : time := 1 ns;
 BEGIN
 
 -- Instantiate the Unit Under Test (UUT)
-uut: my_i2c_pc PORT MAP (
+uut: my_i2c_pc
+GENERIC MAP (
+N => N
+)
+PORT MAP (
 i_clock => i_clock,
 i_reset => i_reset,
 i_slave_address => i_slave_address,
@@ -94,9 +103,10 @@ i_reset <= '1', '0' after 1 ns;
 stim_proc: process
 begin
 i_enable <= '1';
-wait for 65 * i_clock_period;
+-- start + address + rw + byte + ack + stop
+wait for (1 + 7 + 1 + 8 + 1 + 1) * i_clock_period * N;
 i_enable <= '0';
-wait for 10 * i_clock_period;
+wait for 1 * i_clock_period * N;
 report "done" severity failure;
 end process;
 

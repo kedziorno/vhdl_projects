@@ -33,6 +33,9 @@ library UNISIM;
 use UNISIM.VComponents.all;
 
 entity my_i2c_pc is
+generic(
+constant N : integer := 10
+);
 port(
 i_clock : in std_logic;
 i_reset : in std_logic;
@@ -92,7 +95,6 @@ architecture Behavioral of my_i2c_pc is
 	end component MUX_41;
 	for all : MUX_41 use entity WORK.MUX_41(Behavioral);
 
-	constant N : integer := 10;
 	signal a,b,c,d,e : std_logic;
 	signal sda_chain : std_logic_vector(N-1 downto 0);
 	signal sda_condition_chain_start : std_logic_vector(N-1 downto 0);
@@ -117,6 +119,7 @@ architecture Behavioral of my_i2c_pc is
 	signal right0_slv : std_logic_vector(N-1 downto 0);
 	signal right0 : std_logic;
 	signal clock : std_logic;
+	signal t1,t2 : std_logic;
 
 begin
 
@@ -237,7 +240,8 @@ sda_start_condition_out <= sda_start_condition when clock = '1' else '0';
 sda_stop_condition_out <= sda_stop_condition when clock = '1' else '0';
 --sdasc_inst2 : LDCPE generic map (INIT => '1') port map (Q => sda_stop_condition_out, D =>  '1', CLR => not sda_stop_condition and i_enable, G => i_clock, GE => not i_clock, PRE => sda_stop_condition and i_enable);
 
-MUXCY_inst : MUXCY port map (O => clock, CI => '0', DI => '1', S => sda_chain(N-1) and i_enable);
+t1 <= sda_chain(N-1) and i_enable;
+MUXCY_inst : MUXCY port map (O => clock, CI => '0', DI => '1', S => t1);
 
 m41_inst : MUX_41 generic map (delay_and => delay_and, delay_or => delay_or, delay_not => delay_not) port map (S1 => encoder42(0), S2 => encoder42(1), A => sda_stop_condition_out, B => '0', C => '0', D => sda_start_condition_out, E => o_sda);
 
@@ -254,15 +258,16 @@ begin
 	end case;
 end process pencoder42;
 
+t2 <= i_enable and not all1;
 mux_chain_generate : for i in 0 to 3 generate
 	a : if (i=0) generate
-		chaina : LDCPE generic map (INIT => '0') port map (Q => qmux(i), D => '1', CLR => qmux(3), G => all1, GE => i_enable and not all1, PRE => '0');
+		chaina : LDCPE generic map (INIT => '0') port map (Q => qmux(i), D => '1', CLR => qmux(3), G => all1, GE => t2, PRE => '0');
 	end generate a;
 	b : if (i>0 and i<3) generate
-		chainb : LDCPE generic map (INIT => '0') port map (Q => qmux(i), D => qmux(i-1), CLR => qmux(3), G => all1, GE => i_enable and not all1, PRE => '0');
+		chainb : LDCPE generic map (INIT => '0') port map (Q => qmux(i), D => qmux(i-1), CLR => qmux(3), G => all1, GE => t2, PRE => '0');
 	end generate b;
 	c : if (i=3) generate
-		chainc : LDCPE generic map (INIT => '0') port map (Q => qmux(i), D => qmux(i-1), CLR => qmux(3), G => all1, GE => i_enable and not all1, PRE => '0');
+		chainc : LDCPE generic map (INIT => '0') port map (Q => qmux(i), D => qmux(i-1), CLR => qmux(3), G => all1, GE => t2, PRE => '0');
 	end generate c;
 end generate mux_chain_generate;
 
