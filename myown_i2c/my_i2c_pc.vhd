@@ -58,7 +58,7 @@ architecture Behavioral of my_i2c_pc is
 	constant delay_nand2 : time := 0 ns;
 	constant delay_nand3 : time := 0 ns;
 	constant delay_and3 : time := 0 ns;
-	constant ADDRESS_SIZE : integer := N/2;
+	constant ADDRESS_SIZE : integer := 7;
 	constant BYTE_SIZE : integer := 8;
 	constant QMUX_SIZE : integer := N/2;
 
@@ -129,7 +129,8 @@ architecture Behavioral of my_i2c_pc is
 	signal right0 : std_logic;
 	signal clock : std_logic;
 	signal t1,t2 : std_logic;
-	signal amux : std_logic_vector(ADDRESS_SIZE-1 downto 0);
+	signal amux : std_logic_vector(N/2-1 downto 0);
+	signal acopy : std_logic_vector(ADDRESS_SIZE-1 downto 0);
 	signal encoder_address : std_logic_vector(3 downto 0);
 	signal addressmux : std_logic;
 
@@ -255,7 +256,8 @@ sda_stop_condition_out <= sda_stop_condition when clock = '1' else '0';
 t1 <= sda_chain(N-1) and i_enable;
 MUXCY_inst : MUXCY port map (O => clock, CI => '0', DI => '1', S => t1);
 
-m81_main_inst : MUX_81 generic map (delay_and => delay_and, delay_or => delay_or, delay_not => delay_not) port map (S0 => encoder_main(0), S1 => encoder_main(1), S2 => encoder_main(2), in0 => '1', in1 => '0', in2 => '0', in3 => sda_stop_condition_out, in4 => '0', in5 => i_slave_rw, in6 => addressmux, in7 => sda_start_condition_out, o => o_sda);
+-- in3 - ACK
+m81_main_inst : MUX_81 generic map (delay_and => delay_and, delay_or => delay_or, delay_not => delay_not) port map (S0 => encoder_main(0), S1 => encoder_main(1), S2 => encoder_main(2), in0 => sda_start_condition_out, in1 => addressmux, in2 => i_slave_rw, in3 => '1', in4 => sda_stop_condition_out, in5 => '0', in6 => '0', in7 => '1', o => o_sda);
 
 o_scl <= clock;
 
@@ -293,51 +295,54 @@ mux_chain_generate : for i in 0 to QMUX_SIZE-1 generate
 	end generate c;
 end generate mux_chain_generate;
 
-address_chain_generate : for i in 0 to ADDRESS_SIZE-1 generate
+address_chain_generate : for i in 0 to N/2-1 generate
 	address_chain_first : if (i=0) generate
 		address_chain_f : LDCPE generic map (INIT => '0') port map (Q => amux(i), D => '1', CLR => '0', G => left1, GE => not left1, PRE => '0');
 	end generate address_chain_first;
-	address_chain_middle : if (i>0 and i<ADDRESS_SIZE-1) generate
+	address_chain_middle : if (i>0 and i<N/2-1) generate
 		address_chain_m : LDCPE generic map (INIT => '0') port map (Q => amux(i), D => amux(i-1), CLR => '0', G => left1, GE => not left1, PRE => '0');
 	end generate address_chain_middle;
-	address_chain_last : if (i=ADDRESS_SIZE-1) generate
+	address_chain_last : if (i=N/2-1) generate
 		address_chain_l : LDCPE generic map (INIT => '0') port map (Q => amux(i), D => amux(i-1), CLR => '0', G => left1, GE => not left1, PRE => '0');
 	end generate address_chain_last;
 end generate address_chain_generate;
 
 pencoder_address : process (amux) is
 begin
-	case (amux) is
-		when "0000000000" => encoder_address <= "0000";
-		when "0000000001" => encoder_address <= "0001";
-		when "0000000011" => encoder_address <= "0010";
-		when "0000000111" => encoder_address <= "0011";
-		when "0000001111" => encoder_address <= "0100";
-		when "0000011111" => encoder_address <= "0101";
-		when "0000111111" => encoder_address <= "0110";
-		when "0001111111" => encoder_address <= "0111";
-		when "0011111111" => encoder_address <= "1000";
-		when "0111111111" => encoder_address <= "1001";
-		when others => encoder_address <= "XXXX";
-	end case;
+	if    (amux = "0000000000") then encoder_address <= "0000";
+	elsif (amux = "0000000001") then encoder_address <= "0001";
+	elsif (amux = "0000000011") then encoder_address <= "0010";
+	elsif (amux = "0000000111") then encoder_address <= "0011";
+	elsif (amux = "0000001111") then encoder_address <= "0100";
+	elsif (amux = "0000011111") then encoder_address <= "0101";
+	elsif (amux = "0000111111") then encoder_address <= "0110";
+	elsif (amux = "0001111111") then encoder_address <= "0111";
+	elsif (amux = "0011111111") then encoder_address <= "1000";
+	elsif (amux = "0111111111") then encoder_address <= "1001";
+	elsif (amux = "1111111111") then encoder_address <= "1010";
+	else
+	encoder_address <= "XXXX";
+	end if;
 end process pencoder_address;
 
-mux81_inst : MUX_81 generic map (delay_and => delay_and, delay_or => delay_or, delay_not => delay_not) port map (in0 => i_slave_address(0), in1 => i_slave_address(1), in2 => i_slave_address(2), in3 => i_slave_address(3), in4 => i_slave_address(4), in5 => i_slave_address(5), in6 => i_slave_address(6), in7 => '0', s0 => encoder_address(0), s1 => encoder_address(1), s2 => encoder_address(2), o => addressmux);
+--mux81_inst : MUX_81 generic map (delay_and => delay_and, delay_or => delay_or, delay_not => delay_not) port map (in0 => i_slave_address(0), in1 => i_slave_address(1), in2 => i_slave_address(2), in3 => i_slave_address(3), in4 => i_slave_address(4), in5 => i_slave_address(5), in6 => i_slave_address(6), in7 => '0', s0 => encoder_address(0), s1 => encoder_address(1), s2 => encoder_address(2), o => addressmux);
 
---address_chain_generate : for i in 0 to ADDRESS_SIZE-1 generate
---	address_chain_first : if (i=0) generate
---		address_chain_f : LDCPE generic map (INIT => '0') port map (Q => amux(i), D => '0', CLR => not i_slave_address(i), G => left1, GE => left1, PRE => i_slave_address(i));
---	end generate address_chain_first;
---	address_chain_middle : if (i>0 and i<ADDRESS_SIZE-1) generate
---		address_chain_m : LDCPE generic map (INIT => '0') port map (Q => amux(i), D => amux(i-1), CLR => not i_slave_address(i), G => left1, GE => left1, PRE => i_slave_address(i));
---	end generate address_chain_middle;
---	address_chain_last : if (i=ADDRESS_SIZE-1) generate
---		address_chain_l : LDCPE generic map (INIT => '0') port map (Q => amux(i), D => amux(i-1), CLR => not i_slave_address(i), G => left1, GE => left1, PRE => i_slave_address(i));
---	end generate address_chain_last;
---end generate address_chain_generate;
+mux81_inst : MUX_81 generic map (delay_and => delay_and, delay_or => delay_or, delay_not => delay_not) port map (in0 => '1', in1 => acopy(0), in2 => acopy(1), in3 => acopy(2), in4 => acopy(3), in5 => acopy(4), in6 => acopy(5), in7 => acopy(6), s0 => encoder_address(0), s1 => encoder_address(1), s2 => encoder_address(2), o => addressmux);
 
---address_chain_generate2 : for i in 0 to ADDRESS_SIZE-1 generate
---	address_chain_mux2 : LDCPE generic map (INIT => '0') port map (Q => amux(i), D => addressmux, CLR => '0', G => left1, GE => left1, PRE => '0');
---end generate address_chain_generate2;
+address_chain_copy_generate : for i in 0 to ADDRESS_SIZE-1 generate
+	address_chain_copy_first : if (i=0) generate
+		address_chain_copy_f : LDCPE generic map (INIT => '0') port map (Q => acopy(i), D => '0', CLR => not i_slave_address(i), G => left1, GE => left1, PRE => i_slave_address(i));
+	end generate address_chain_copy_first;
+	address_chain_copy_middle : if (i>0 and i<ADDRESS_SIZE-1) generate
+		address_chain_copy_m : LDCPE generic map (INIT => '0') port map (Q => acopy(i), D => acopy(i-1), CLR => not i_slave_address(i), G => left1, GE => left1, PRE => i_slave_address(i));
+	end generate address_chain_copy_middle;
+	address_chain_copy_last : if (i=ADDRESS_SIZE-1) generate
+		address_chain_copy_l : LDCPE generic map (INIT => '0') port map (Q => acopy(i), D => acopy(i-1), CLR => not i_slave_address(i), G => left1, GE => left1, PRE => i_slave_address(i));
+	end generate address_chain_copy_last;
+end generate address_chain_copy_generate;
+
+--address_chain_copy_generate : for i in 0 to ADDRESS_SIZE-1 generate
+--	address_chain_copy : LDCPE generic map (INIT => '0') port map (Q => acopy(i), D => i_slave_address(i), CLR => '0', G => left1, GE => left1, PRE => '0');
+--end generate address_chain_copy_generate;
 
 end architecture Behavioral;

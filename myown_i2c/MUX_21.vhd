@@ -32,7 +32,7 @@ for all : GN use entity WORK.GATE_NOT(GATE_NOT_LUT);
 signal sa,sb,sc : STD_LOGIC;
 begin
 g1: GN generic map (delay_not) port map (S,sa);
-g3: GAND generic map (delay_and) port map (A,S,sb);
-g4: GAND generic map (delay_and) port map (B,sa,sc);
+g3: GAND generic map (delay_and) port map (B,S,sb);
+g4: GAND generic map (delay_and) port map (A,sa,sc);
 g5: GOR generic map (delay_or) port map (sb,sc,C);
 end architecture MUX_21_LUT_1;
