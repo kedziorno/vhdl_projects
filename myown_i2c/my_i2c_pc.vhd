@@ -133,6 +133,10 @@ architecture Behavioral of my_i2c_pc is
 	signal acopy : std_logic_vector(ADDRESS_SIZE-1 downto 0);
 	signal encoder_address : std_logic_vector(3 downto 0);
 	signal addressmux : std_logic;
+	signal dmux : std_logic_vector(BYTE_SIZE downto 0);
+	signal dcopy : std_logic_vector(BYTE_SIZE-1 downto 0);
+	signal encoder_data : std_logic_vector(3 downto 0);
+	signal datamux : std_logic;
 
 begin
 
@@ -257,7 +261,7 @@ t1 <= sda_chain(N-1) and i_enable;
 MUXCY_inst : MUXCY port map (O => clock, CI => '0', DI => '1', S => t1);
 
 -- in3 - ACK
-m81_main_inst : MUX_81 generic map (delay_and => delay_and, delay_or => delay_or, delay_not => delay_not) port map (S0 => encoder_main(0), S1 => encoder_main(1), S2 => encoder_main(2), in0 => sda_start_condition_out, in1 => addressmux, in2 => i_slave_rw, in3 => '1', in4 => sda_stop_condition_out, in5 => '0', in6 => '0', in7 => '1', o => o_sda);
+m81_main_inst : MUX_81 generic map (delay_and => delay_and, delay_or => delay_or, delay_not => delay_not) port map (S0 => encoder_main(0), S1 => encoder_main(1), S2 => encoder_main(2), in0 => sda_start_condition_out, in1 => addressmux, in2 => i_slave_rw, in3 => '1', in4 => datamux, in5 => sda_stop_condition_out, in6 => '0', in7 => '1', o => o_sda);
 
 o_scl <= clock;
 
@@ -325,9 +329,7 @@ begin
 	end if;
 end process pencoder_address;
 
---mux81_inst : MUX_81 generic map (delay_and => delay_and, delay_or => delay_or, delay_not => delay_not) port map (in0 => i_slave_address(0), in1 => i_slave_address(1), in2 => i_slave_address(2), in3 => i_slave_address(3), in4 => i_slave_address(4), in5 => i_slave_address(5), in6 => i_slave_address(6), in7 => '0', s0 => encoder_address(0), s1 => encoder_address(1), s2 => encoder_address(2), o => addressmux);
-
-mux81_inst : MUX_81 generic map (delay_and => delay_and, delay_or => delay_or, delay_not => delay_not) port map (in0 => '1', in1 => acopy(0), in2 => acopy(1), in3 => acopy(2), in4 => acopy(3), in5 => acopy(4), in6 => acopy(5), in7 => acopy(6), s0 => encoder_address(0), s1 => encoder_address(1), s2 => encoder_address(2), o => addressmux);
+mux81_address_inst : MUX_81 generic map (delay_and => delay_and, delay_or => delay_or, delay_not => delay_not) port map (in0 => '1', in1 => acopy(0), in2 => acopy(1), in3 => acopy(2), in4 => acopy(3), in5 => acopy(4), in6 => acopy(5), in7 => acopy(6), s0 => encoder_address(0), s1 => encoder_address(1), s2 => encoder_address(2), o => addressmux);
 
 address_chain_copy_generate : for i in 0 to ADDRESS_SIZE-1 generate
 	address_chain_copy_first : if (i=0) generate
@@ -341,8 +343,48 @@ address_chain_copy_generate : for i in 0 to ADDRESS_SIZE-1 generate
 	end generate address_chain_copy_last;
 end generate address_chain_copy_generate;
 
---address_chain_copy_generate : for i in 0 to ADDRESS_SIZE-1 generate
---	address_chain_copy : LDCPE generic map (INIT => '0') port map (Q => acopy(i), D => i_slave_address(i), CLR => '0', G => left1, GE => left1, PRE => '0');
---end generate address_chain_copy_generate;
+o_busy <= dmux(0);
+data_chain_generate : for i in 0 to BYTE_SIZE generate
+	data_chain_first : if (i=0) generate
+		data_chain_f : LDCPE generic map (INIT => '0') port map (Q => dmux(i), D => '1', CLR => dmux(BYTE_SIZE), G => amux(N/2-1) and left1, GE => left1, PRE => '0');
+	end generate data_chain_first;
+	data_chain_middle : if (i>0 and i<BYTE_SIZE) generate
+		data_chain_m : LDCPE generic map (INIT => '0') port map (Q => dmux(i), D => dmux(i-1), CLR => dmux(BYTE_SIZE), G => amux(N/2-1) and not left1, GE => left1, PRE => '0');
+	end generate data_chain_middle;
+	data_chain_last : if (i=BYTE_SIZE) generate
+		data_chain_l : LDCPE generic map (INIT => '0') port map (Q => dmux(i), D => dmux(i-1), CLR => dmux(BYTE_SIZE), G => amux(N/2-1) and not left1, GE => left1, PRE => '0');
+	end generate data_chain_last;
+end generate data_chain_generate;
+
+pencoder_data : process (dmux) is
+begin
+	if    (dmux = "000000000") then encoder_data <= "0000";
+	elsif (dmux = "000000001") then encoder_data <= "0001";
+	elsif (dmux = "000000011") then encoder_data <= "0010";
+	elsif (dmux = "000000111") then encoder_data <= "0011";
+	elsif (dmux = "000001111") then encoder_data <= "0100";
+	elsif (dmux = "000011111") then encoder_data <= "0101";
+	elsif (dmux = "000111111") then encoder_data <= "0110";
+	elsif (dmux = "001111111") then encoder_data <= "0111";
+	elsif (dmux = "011111111") then encoder_data <= "1000";
+	elsif (dmux = "111111111") then encoder_data <= "1001";
+	else
+	encoder_data <= "XXXX";
+	end if;
+end process pencoder_data;
+
+mux81_data_inst : MUX_81 generic map (delay_and => delay_and, delay_or => delay_or, delay_not => delay_not) port map (in0 => dcopy(0), in1 => dcopy(1), in2 => dcopy(2), in3 => dcopy(3), in4 => dcopy(4), in5 => dcopy(5), in6 => dcopy(6), in7 => dcopy(7), s0 => encoder_data(0), s1 => encoder_data(1), s2 => encoder_data(2), o => datamux);
+
+data_chain_copy_generate : for i in 0 to BYTE_SIZE-1 generate
+	data_chain_copy_first : if (i=0) generate
+		data_chain_copy_f : LDCPE generic map (INIT => '0') port map (Q => dcopy(i), D => '0', CLR => not i_bytes_to_send(i), G => left1, GE => left1, PRE => i_bytes_to_send(i));
+	end generate data_chain_copy_first;
+	data_chain_copy_middle : if (i>0 and i<BYTE_SIZE-1) generate
+		data_chain_copy_m : LDCPE generic map (INIT => '0') port map (Q => dcopy(i), D => dcopy(i-1), CLR => not i_bytes_to_send(i), G => left1, GE => left1, PRE => i_bytes_to_send(i));
+	end generate data_chain_copy_middle;
+	data_chain_copy_last : if (i=BYTE_SIZE-1) generate
+		data_chain_copy_l : LDCPE generic map (INIT => '0') port map (Q => dcopy(i), D => dcopy(i-1), CLR => not i_bytes_to_send(i), G => left1, GE => left1, PRE => i_bytes_to_send(i));
+	end generate data_chain_copy_last;
+end generate data_chain_copy_generate;
 
 end architecture Behavioral;

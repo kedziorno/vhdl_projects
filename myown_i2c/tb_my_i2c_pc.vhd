@@ -61,7 +61,7 @@ signal i_clock : std_logic := '0';
 signal i_reset : std_logic := '0';
 signal i_slave_address : std_logic_vector(0 to 6) := "0011110";
 signal i_slave_rw : std_logic := '1';
-signal i_bytes_to_send : std_logic_vector(0 to 7) := "11010101";
+signal i_bytes_to_send : std_logic_vector(0 to 7);
 signal i_enable : std_logic := '0';
 
 --Outputs
@@ -71,6 +71,9 @@ signal o_scl : std_logic;
 
 -- Clock period definitions
 constant i_clock_period : time := 1 ns;
+
+constant V : integer := 5;
+constant T : time := (1+7+1+1+(2*V*(8+1))+1) * i_clock_period; -- start,address,rw,ack,N byte+ack,stop
 
 BEGIN
 
@@ -102,14 +105,25 @@ end process;
 
 i_reset <= '1', '0' after 1 ns;
 --i_reset <= i_clock;
+
+i_enable <= '1', '0' after T * N;
+
 -- Stimulus process
-stim_proc: process
+stim_proc : process
+	type adata is array(0 to V-1) of std_logic_vector(7 downto 0);
+	variable vdata : adata := (
+		"00000000",
+		"11010101",
+		"00101010",
+		"11010101",
+		"00101010"
+	);
 begin
-i_enable <= '1';
--- start + address + rw + byte + ack + stop
-wait for (1 + 7 + 1 + 8 + 1 + 1) * i_clock_period * N * 3;
-i_enable <= '0';
-wait for 1 * i_clock_period * N;
+l0 : for i in 0 to V-1 loop
+	i_bytes_to_send <= vdata(i);
+	wait until o_busy = '1';
+end loop l0;
+wait for (T+time(1000 ns));
 report "done" severity failure;
 end process;
 
