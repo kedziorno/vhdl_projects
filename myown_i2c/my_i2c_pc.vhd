@@ -145,6 +145,7 @@ architecture Behavioral of my_i2c_pc is
 	signal datamux_ack : std_logic;
 	signal t3,t4 : std_logic;
 	signal t5 : std_logic;
+	signal sda : std_logic;
 
 begin
 
@@ -282,9 +283,11 @@ mux_chain_generate : for i in 0 to QMUX_SIZE-1 generate
 end generate mux_chain_generate;
 
 -- in3 - ACK
-m81_main_inst : MUX_81 generic map (delay_and => delay_and, delay_or => delay_or, delay_not => delay_not) port map (S0 => encoder_main(0), S1 => encoder_main(1), S2 => encoder_main(2), in0 => sda_start_condition_out, in1 => addressmux, in2 => i_slave_rw, in3 => '1', in4 => datamux_ack, in5 => sda_stop_condition_out, in6 => '0', in7 => '1', o => o_sda);
+m81_main_inst : MUX_81 generic map (delay_and => delay_and, delay_or => delay_or, delay_not => delay_not) port map (S0 => encoder_main(0), S1 => encoder_main(1), S2 => encoder_main(2), in0 => sda_start_condition_out, in1 => addressmux, in2 => i_slave_rw, in3 => '1', in4 => datamux_ack, in5 => sda_stop_condition_out, in6 => '0', in7 => '1', o => sda);
 
-o_scl <= clock;
+OBUFT_sda_data_inst : OBUFT generic map (DRIVE => 12, IOSTANDARD => "DEFAULT", SLEW => "SLOW") port map (O => o_sda, I => sda, T => sda);
+
+OBUFT_scl_clock_inst : OBUFT generic map (DRIVE => 12, IOSTANDARD => "DEFAULT", SLEW => "SLOW") port map (O => o_scl, I => clock, T => clock);
 
 pencoder_main : process (amux,dmux,i_enable) is
 	constant size : integer := amux'length + dmux'length + 1;
