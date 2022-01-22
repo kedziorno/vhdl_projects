@@ -40,9 +40,6 @@ ARCHITECTURE behavior OF tb_my_i2c_pc IS
 constant N : integer := 20;
 
 COMPONENT my_i2c_pc
-GENERIC(
-CONSTANT N : integer
-);
 PORT(
 i_clock : IN  std_logic;
 i_reset : IN  std_logic;
@@ -79,9 +76,6 @@ BEGIN
 
 -- Instantiate the Unit Under Test (UUT)
 uut: my_i2c_pc
-GENERIC MAP (
-N => N
-)
 PORT MAP (
 i_clock => i_clock,
 i_reset => i_reset,

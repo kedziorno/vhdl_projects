@@ -32,9 +32,6 @@ library UNISIM;
 use UNISIM.VComponents.all;
 
 entity my_i2c_pc is
-generic(
-constant N : integer := 10
-);
 port(
 i_clock : in std_logic;
 i_reset : in std_logic;
@@ -49,6 +46,8 @@ o_scl : out std_logic
 end my_i2c_pc;
 
 architecture Behavioral of my_i2c_pc is
+
+	constant N : integer := 20;
 
 	constant delay_and : time := 0 ns;
 	constant delay_or : time := 0 ns;
@@ -288,7 +287,8 @@ m81_main_inst : MUX_81 generic map (delay_and => delay_and, delay_or => delay_or
 o_scl <= clock;
 
 pencoder_main : process (amux,dmux,i_enable) is
-	variable t : std_logic_vector(2*N/2+1 downto 0);
+	constant size : integer := amux'length + dmux'length + 1;
+	variable t : std_logic_vector(size-1 downto 0);
 begin
 	t := amux&dmux&i_enable;
 	if    (std_match(t,"000000000000000000000-")) then encoder_main <= "000"; -- start
@@ -301,15 +301,15 @@ begin
 	elsif (std_match(t,"000011111110000000000-")) then encoder_main <= "001"; -- address 6
 	elsif (std_match(t,"000111111110000000000-")) then encoder_main <= "010"; -- rw
 	elsif (std_match(t,"001111111110000000000-")) then encoder_main <= "011"; -- ack
-	elsif (std_match(t,"-111111111100000000011")) then encoder_main <= "100"; -- data
-	elsif (std_match(t,"-111111111100000000111")) then encoder_main <= "100"; -- data
-	elsif (std_match(t,"-111111111100000001111")) then encoder_main <= "100"; -- data
-	elsif (std_match(t,"-111111111100000011111")) then encoder_main <= "100"; -- data
-	elsif (std_match(t,"-111111111100000111111")) then encoder_main <= "100"; -- data
-	elsif (std_match(t,"-111111111100001111111")) then encoder_main <= "100"; -- data
-	elsif (std_match(t,"-111111111100011111111")) then encoder_main <= "100"; -- data
-	elsif (std_match(t,"-111111111100111111111")) then encoder_main <= "100"; -- data
-	elsif (std_match(t,"-111111111101111111111")) then encoder_main <= "100"; -- data
+	elsif (std_match(t,"-111111111100000000011")) then encoder_main <= "100"; -- data 0
+	elsif (std_match(t,"-111111111100000000111")) then encoder_main <= "100"; -- data 1
+	elsif (std_match(t,"-111111111100000001111")) then encoder_main <= "100"; -- data 2
+	elsif (std_match(t,"-111111111100000011111")) then encoder_main <= "100"; -- data 3
+	elsif (std_match(t,"-111111111100000111111")) then encoder_main <= "100"; -- data 4
+	elsif (std_match(t,"-111111111100001111111")) then encoder_main <= "100"; -- data 5
+	elsif (std_match(t,"-111111111100011111111")) then encoder_main <= "100"; -- data 6
+	elsif (std_match(t,"-111111111100111111111")) then encoder_main <= "100"; -- data 7
+	elsif (std_match(t,"-111111111101111111111")) then encoder_main <= "100"; -- data 8
 	elsif (std_match(t,"11111111111-----------")) then encoder_main <= "101"; -- stop
 	else encoder_main <= "XXX";
 	end if;
