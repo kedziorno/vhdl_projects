@@ -107,7 +107,7 @@ i_reset <= '1', '0' after 1 ns;
 --i_reset <= i_clock;
 
 --i_enable <= '1', '0' after T * N;
-i_enable <= '1';
+--i_enable <= '1';
 
 -- Stimulus process
 stim_proc : process
@@ -120,10 +120,13 @@ stim_proc : process
 		"00101010"
 	);
 begin
+i_enable <= '1';
 l0 : for i in 0 to V-1 loop
 	i_bytes_to_send <= vdata(i);
 	wait until o_busy = '1';
 end loop l0;
+wait for 10*i_clock_period;
+i_enable <= '0';
 wait for (T+time(2000 ns));
 report "done" severity failure;
 end process;
