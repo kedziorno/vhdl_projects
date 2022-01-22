@@ -73,7 +73,7 @@ signal o_scl : std_logic;
 constant i_clock_period : time := 1 ns;
 
 constant V : integer := 5;
-constant T : time := (1+7+1+1+(2*V*(8+1))+1) * i_clock_period; -- start,address,rw,ack,N byte+ack,stop
+constant T : time := (1+7+1+1+(3*V*(8+1))+1) * i_clock_period; -- start,address,rw,ack,N byte+ack,stop
 
 BEGIN
 
@@ -106,7 +106,8 @@ end process;
 i_reset <= '1', '0' after 1 ns;
 --i_reset <= i_clock;
 
-i_enable <= '1', '0' after T * N;
+--i_enable <= '1', '0' after T * N;
+i_enable <= '1';
 
 -- Stimulus process
 stim_proc : process
@@ -123,7 +124,7 @@ l0 : for i in 0 to V-1 loop
 	i_bytes_to_send <= vdata(i);
 	wait until o_busy = '1';
 end loop l0;
-wait for (T+time(1000 ns));
+wait for (T+time(2000 ns));
 report "done" severity failure;
 end process;
 
