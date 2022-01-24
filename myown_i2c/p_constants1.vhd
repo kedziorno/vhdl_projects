@@ -14,6 +14,10 @@ package p_constants1 is
 	(x"AE",x"D5",x"80",x"A8",x"1F",x"D3",x"00",x"40",x"8D",x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"8F",x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E",x"AF");
 
 	type array1 is array(natural range <>) of std_logic_vector(7 downto 0);
+<<<<<<< HEAD
+=======
+
+>>>>>>> myown_i2c
 end p_constants1;
 
 package body p_constants1 is

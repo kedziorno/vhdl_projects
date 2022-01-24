@@ -87,7 +87,11 @@ BEGIN
 		clk <= '1';
 		wait for clk_period/2;
 	end process;
+<<<<<<< HEAD
 
+=======
+ 
+>>>>>>> myown_i2c
 rst <= '1','0' after clk_period;
 
 	-- Stimulus process
