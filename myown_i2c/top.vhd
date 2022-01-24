@@ -33,7 +33,7 @@ entity top is
 Port(
 clk : in STD_LOGIC;
 rst : in STD_LOGIC;
-btn_1 : in STD_LOGIC;
+--btn_1 : in STD_LOGIC;
 sda : out STD_LOGIC;
 scl : out STD_LOGIC
 );
@@ -46,7 +46,7 @@ port
 (
 	i_clock : in std_logic;
 	i_reset : in std_logic;
-	i_button : in std_logic;
+--	i_button : in std_logic;
 	o_sda : out std_logic;
 	o_scl : out std_logic
 );
@@ -60,7 +60,7 @@ port map
 (
 	i_clock => clk,
 	i_reset => rst,
-	i_button => btn_1,
+--	i_button => btn_1,
 	o_sda => sda,
 	o_scl => scl
 );

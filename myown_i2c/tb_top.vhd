@@ -42,7 +42,7 @@ COMPONENT top
 PORT(
 clk : IN  std_logic;
 rst : IN  std_logic;
-btn_1 : IN  std_logic;
+--btn_1 : IN  std_logic;
 sda : OUT  std_logic;
 scl : OUT  std_logic
 );
@@ -66,7 +66,7 @@ BEGIN
 uut: top PORT MAP (
 clk => clk,
 rst => rst,
-btn_1 => btn_1,
+--btn_1 => btn_1,
 sda => sda,
 scl => scl
 );

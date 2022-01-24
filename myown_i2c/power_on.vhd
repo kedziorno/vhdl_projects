@@ -36,7 +36,7 @@ entity power_on is
 port (
 	i_clock : in std_logic;
 	i_reset : in std_logic;
-	i_button : in std_logic;
+--	i_button : in std_logic;
 	o_sda : out std_logic;
 	o_scl : out std_logic
 );
@@ -67,14 +67,15 @@ begin
 
 	clock_process : process (i_reset,i_clock) is
 --	constant clock_period : time := 18.368 us;
-		constant clock_period : time := 0.23368*2 us;
-		constant board_period : time := (1_000_000_000/G_BOARD_CLOCK) * 1 ns;
+--		constant clock_period : time := 467.36 ns;
+		constant clock_period : integer := 467; -- ns
+		constant board_period : integer := 20; -- ns
 		constant t : integer := (clock_period / board_period);
 		variable v : integer range 0 to t-1;
 	begin
 		if (i_reset = '1') then
 			v := 0;
-			report time'image(clock_period) & "," & time'image(board_period) & "," & integer'image(t);
+			report integer'image(clock_period) & "," & integer'image(board_period) & "," & integer'image(t);
 		elsif (rising_edge(i_clock)) then
 			if (v = t-1) then
 				v := 0;
@@ -99,34 +100,45 @@ begin
 		o_scl => o_scl
 	);
 
+	p1 : process (i_reset,i_clock) is
+	begin
+		if (i_reset = '1') then
+			prev_busy <= '0';
+		elsif (rising_edge(i_clock)) then
+			prev_busy <= busy;
+		end if;
+	end process p1;
+
 	p0 : process (busy,i_reset) is
 		variable v1 : integer;
 	begin
 		if (i_reset = '1') then
-			enable <= '0';
+			enable <= '1';
 			v1 := 0;
 			bytes_to_send <= sequence(v1);
-		else
+		elsif (rising_edge(busy)) then
 			prev_busy <= busy;
-			if (prev_busy = '0' and busy = '1') then
+--			if (prev_busy = '0' and busy = '1') then
 				bytes_to_send <= sequence(v1);
-			else
+--			else
 				if (v1 = BYTES_SEQUENCE_LENGTH-1) then
 					v1 := 0;
-					if (prev_busy = '1' and busy = '0') then
-						enable <= '0';
-					else
-						enable <= '1';
-					end if;
+					enable <= '0';
+--					if (prev_busy = '1' and busy = '0') then
+--						enable <= '0';
+--					else
+--						enable <= '1';
+--					end if;
 				else
 					v1 := v1 + 1;
-					if (prev_busy = '0' and busy = '1') then
-						enable <= '0';
-					else
-						enable <= '1';
-					end if;
+					enable <= '1';
+--					if (prev_busy = '0' and busy = '1') then
+--						enable <= '0';
+--					else
+--						enable <= '1';
+--					end if;
 				end if;
-			end if;
+--			end if;
 		end if;
 	end process;
 

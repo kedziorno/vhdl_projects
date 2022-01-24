@@ -40,7 +40,6 @@ C : out  STD_LOGIC
 end GATE_NAND;
 
 architecture GATE_NAND_BEHAVIORAL_1 of GATE_NAND is
-	signal T : std_logic;
 begin
 C <= A nand B after DELAY_NAND;
 end GATE_NAND_BEHAVIORAL_1;

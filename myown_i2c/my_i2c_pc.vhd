@@ -65,30 +65,35 @@ architecture Behavioral of my_i2c_pc is
 	generic (delay_not : TIME := 0 ns);
 	port (A : in STD_LOGIC; B : out STD_LOGIC);
 	end component GATE_NOT;
+--	for all : GATE_NOT use entity WORK.GATE_NOT(GATE_NOT_BEHAVIORAL_1);
 	for all : GATE_NOT use entity WORK.GATE_NOT(GATE_NOT_LUT);
 
 	component GATE_OR is
 	generic (delay_or : TIME := 0 ns);
 	port (A,B : in STD_LOGIC; C : out STD_LOGIC);
 	end component GATE_OR;
+--	for all : GATE_OR use entity WORK.GATE_OR(GATE_OR_BEHAVIORAL_1);
 	for all : GATE_OR use entity WORK.GATE_OR(GATE_OR_LUT);
 
 	component GATE_AND is
 	generic (delay_and : TIME := 0 ns);
 	port (A,B : in STD_LOGIC; C : out STD_LOGIC);
 	end component GATE_AND;
+--	for all : GATE_AND use entity WORK.GATE_AND(GATE_AND_BEHAVIORAL_1);
 	for all : GATE_AND use entity WORK.GATE_AND(GATE_AND_LUT);
 
 	component GATE_NAND is
 	generic (delay_nand : TIME := 0 ns);
 	port (A,B : in STD_LOGIC; C : out STD_LOGIC);
 	end component GATE_NAND;
+--	for all : GATE_NAND use entity WORK.GATE_NAND(GATE_NAND_BEHAVIORAL_1);
 	for all : GATE_NAND use entity WORK.GATE_NAND(GATE_NAND_LUT);
 
 	component GATE_NOR2 is
 	generic (delay_nor2 : TIME := 0 ns);
 	port (A,B : in STD_LOGIC; C : out STD_LOGIC);
 	end component GATE_NOR2;
+--	for all : GATE_NOR2 use entity WORK.GATE_NOR2(GATE_NOR2_BEHAVIORAL_1);
 	for all : GATE_NOR2 use entity WORK.GATE_NOR2(GATE_NOR2_LUT);
 
 	component MUX_21 is
@@ -146,6 +151,8 @@ architecture Behavioral of my_i2c_pc is
 	signal t3,t4 : std_logic;
 	signal t5 : std_logic;
 	signal sda : std_logic;
+	signal t4_not_left1 : std_logic;
+	signal t3_temp,t4_temp : std_logic;
 
 begin
 
@@ -176,6 +183,7 @@ begin
 			all0 <= all0_slv(i);
 		end generate all0_last;
 	end generate all0_generate;
+	pd0 : KEEPER port map (O => all0);
 
 	-- N/2 left have 1, N/2 right have 0
 	left1_generate : for i in 0 to N-1 generate
@@ -224,13 +232,13 @@ begin
 -- generate N latch chain
 sda_chain_generate : for i in 0 to N-1 generate
 	sda_chain_first : if (i=0) generate
-		sda_chain_f : LDCPE generic map (INIT => '0') port map (Q => sda_chain(i), D => clock, CLR => i_reset, G => i_clock, GE => not i_clock, PRE => i_reset);
+		sda_chain_f : LDCPE generic map (INIT => '0') port map (Q => sda_chain(i), D => clock, CLR => i_reset, G => i_clock, GE => not i_clock, PRE => '0');
 	end generate sda_chain_first;
 	sda_chain_middle : if (i>0 and i<N-1) generate
-		sda_chain_m : LDCPE generic map (INIT => '0') port map (Q => sda_chain(i), D => sda_chain(i-1), CLR => i_reset, G => i_clock, GE => not i_clock, PRE => i_reset);
+		sda_chain_m : LDCPE generic map (INIT => '0') port map (Q => sda_chain(i), D => sda_chain(i-1), CLR => i_reset, G => i_clock, GE => not i_clock, PRE => '0');
 	end generate sda_chain_middle;
 	sda_chain_last : if (i=N-1) generate
-		sda_chain_l : LDCPE generic map (INIT => '0') port map (Q => sda_chain(i), D => sda_chain(i-1), CLR => i_reset, G => i_clock, GE => not i_clock, PRE => i_reset);
+		sda_chain_l : LDCPE generic map (INIT => '0') port map (Q => sda_chain(i), D => sda_chain(i-1), CLR => i_reset, G => i_clock, GE => not i_clock, PRE => '0');
 	end generate sda_chain_last;
 end generate sda_chain_generate;
 
@@ -363,8 +371,14 @@ address_chain_copy_generate : for i in 0 to ADDRESS_SIZE-1 generate
 	end generate address_chain_copy_last;
 end generate address_chain_copy_generate;
 
-t3 <= amux(N/2-1) and left1;
-t4 <= amux(N/2-1) and not left1;
+--t3 <= amux(N/2-1) and left1;
+--t4 <= amux(N/2-1) and not left1;
+t3_and : GATE_AND generic map (delay_and => delay_and) port map (A => amux(N/2-1), B => left1, C => t3_temp);
+t3_ldcpe : LDCPE generic map (INIT => '0') port map (Q => t3, D => t3_temp, CLR => '0', G => '1', GE => '1', PRE => '0');
+t4_not : GATE_NOT generic map (delay_not => delay_not) port map (A => left1, B => t4_not_left1);
+t4_and : GATE_AND generic map (delay_and => delay_and) port map (A => amux(N/2-1), B => t4_not_left1, C => t4_temp);
+t4_ldcpe : LDCPE generic map (INIT => '0') port map (Q => t4, D => t4_temp, CLR => '0', G => '1', GE => '1', PRE => '0');
+
 o_busy <= dmux(0);
 data_chain_generate : for i in 0 to BYTE_SIZE+1 generate
 	data_chain_first : if (i=0) generate
