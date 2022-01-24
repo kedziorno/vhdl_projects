@@ -27,7 +27,8 @@
 --------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
- 
+USE WORK.p_constants1.ALL;
+
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
@@ -59,13 +60,14 @@ ARCHITECTURE behavior OF tb_power_on IS
    signal scl : std_logic;
 
    -- Clock period definitions
-   constant clock_period : time := 20 ns;
+   constant clock_period_50Mhz : time := (1_000_000_000/G_BOARD_CLOCK) * 1 ns;
+   signal clock_50mhz : std_logic;
 
 BEGIN
 
 	-- Instantiate the Unit Under Test (UUT)
 	uut: power_on PORT MAP (
-		i_clock => clock,
+		i_clock => clock_50mhz,
 		i_reset => reset,
 		i_button => button,
 		o_sda => sda,
@@ -73,30 +75,42 @@ BEGIN
 	);
 
 	-- Clock process definitions
-	clock_process :process
+	clock_process_50MHZ : process
 	begin
-		clock <= '0';
-		wait for clock_period/2;
-		clock <= '1';
-		wait for clock_period/2;
+		clock_50mhz <= '0';
+		wait for clock_period_50Mhz/2;
+		clock_50mhz <= '1';
+		wait for clock_period_50Mhz/2;
 	end process;
+
+--	clock_process : process (reset,clock_50mhz) is
+----	constant clock_period : time := 18.368 us;
+--		constant clock_period : time := 0.23368*2 us;
+--		constant t : integer := (clock_period / clock_period_50Mhz);
+--		variable v : integer range 0 to t-1;
+--	begin
+--		if (reset = '1') then
+--			v := 0;
+--			report "t : " & integer'image(t);
+--		elsif (rising_edge(clock_50mhz)) then
+--			if (v = t-1) then
+--				v := 0;
+--				clock <= '1';
+--			else
+--				v := v + 1;
+--				clock <= '0';
+--			end if;
+--		end if;
+--	end process clock_process;
 
 	-- Stimulus process
 	stim_proc: process
-		variable ping : integer := 5;
 	begin
-		loop0 : for i in 0 to ping-1 loop
-			reset <= '1';
-			wait for clock_period;
-			reset <= '0';
-			wait for clock_period;
-			button <= '1';
-			wait for clock_period;
-			button <= '0';
-			wait for clock_period;
-			wait until reset = '0' for 50 ms;
-		end loop loop0;
-		wait;
+		reset <= '1';
+		wait for clock_period_50mhz;
+		reset <= '0';
+		wait for 4500 us;
+		report "done" severity failure;
 	end process;
 
 END;

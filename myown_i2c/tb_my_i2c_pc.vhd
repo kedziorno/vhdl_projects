@@ -67,7 +67,8 @@ signal o_sda : std_logic;
 signal o_scl : std_logic;
 
 -- Clock period definitions
-constant i_clock_period : time := 1 ns;
+--constant i_clock_period : time := 18.368 us;
+constant i_clock_period : time := 0.23368*2 us;
 
 constant V : integer := 5;
 constant T : time := (1+7+1+1+(3*V*(8+1))+1) * i_clock_period; -- start,address,rw,ack,N byte+ack,stop

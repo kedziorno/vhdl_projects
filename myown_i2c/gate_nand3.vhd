@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ----------------------------------------------------------------------------------
 -- Company: 
 -- Engineer: 
@@ -31,47 +30,6 @@ library UNISIM;
 use UNISIM.VComponents.all;
 
 entity GATE_NAND3 is
-Generic (
-DELAY_NAND3 : time := 1 ps
-);
-Port (
-A,B,C : in  STD_LOGIC;
-D : out  STD_LOGIC
-);
-end GATE_NAND3;
-
-architecture GATE_NAND3_BEHAVIORAL_1 of GATE_NAND3 is
-	signal T : std_logic;
-begin
-T <= not (A and B and C);
-D <= T after DELAY_NAND3;
-end GATE_NAND3_BEHAVIORAL_1;
-
-architecture GATE_NAND3_LUT of GATE_NAND3 is
---	signal T : std_logic;
-begin
--- LUT3_D: 3-input Look-Up Table with general and local outputs
--- Spartan-3
--- Xilinx HDL Libraries Guide, version 14.7
-gate_nand3_LUT3_L : LUT3
-generic map (
-	INIT => "01111111")
-port map (
-	O => D, -- LUT local output
-	I0 => A, -- LUT input
-	I1 => B, -- LUT input
-	I2 => C -- LUT input
-);
--- End of LUT3_D_inst instantiation
---D <= T after DELAY_NAND3;
-end architecture GATE_NAND3_LUT;
-=======
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-library UNISIM;
-use UNISIM.vcomponents.all;
-
-entity GATE_NAND3 is
 generic (
 delay_nand3 : TIME := 0 ns
 );
@@ -101,4 +59,3 @@ port map (
 );
 D <= T after delay_nand3;
 end architecture GATE_NAND3_LUT;
->>>>>>> myown_i2c
