@@ -89,8 +89,9 @@ wait for 100 ns;
 btn_1 <= '1';
 wait for 100 ns;
 btn_1 <= '0';
-wait for clk_period*10;
+wait for 5000 us;
 -- insert stimulus here
+report "done" severity failure;
 wait;
 end process;
 

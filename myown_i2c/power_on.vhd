@@ -59,7 +59,8 @@ architecture Behavioral of power_on is
 	end component my_i2c_pc;
 	for all : my_i2c_pc use entity WORK.my_i2c_pc(Behavioral);
 
-	signal enable,busy,prev_busy : std_logic;
+	signal enable,busy : std_logic;
+--	signal prev_busy : std_logic;
 	signal bytes_to_send : std_logic_vector(0 to G_BYTE_SIZE-1);
 	signal clock : std_logic;
 
@@ -75,6 +76,7 @@ begin
 	begin
 		if (i_reset = '1') then
 			v := 0;
+			clock <= '0';
 			report integer'image(clock_period) & "," & integer'image(board_period) & "," & integer'image(t);
 		elsif (rising_edge(i_clock)) then
 			if (v = t-1) then
@@ -92,7 +94,7 @@ begin
 		i_clock => clock,
 		i_reset => i_reset,
 		i_slave_address => "0111100",
-		i_slave_rw => '0',
+		i_slave_rw => '1',
 		i_bytes_to_send => bytes_to_send,
 		i_enable => enable,
 		o_busy => busy,
@@ -100,14 +102,14 @@ begin
 		o_scl => o_scl
 	);
 
-	p1 : process (i_reset,i_clock) is
-	begin
-		if (i_reset = '1') then
-			prev_busy <= '0';
-		elsif (rising_edge(i_clock)) then
-			prev_busy <= busy;
-		end if;
-	end process p1;
+--	p1 : process (i_reset,i_clock) is
+--	begin
+--		if (i_reset = '1') then
+--			prev_busy <= '0';
+--		elsif (rising_edge(i_clock)) then
+--			prev_busy <= busy;
+--		end if;
+--	end process p1;
 
 	p0 : process (busy,i_reset) is
 		variable v1 : integer;
@@ -117,7 +119,7 @@ begin
 			v1 := 0;
 			bytes_to_send <= sequence(v1);
 		elsif (rising_edge(busy)) then
-			prev_busy <= busy;
+--			prev_busy <= busy;
 --			if (prev_busy = '0' and busy = '1') then
 				bytes_to_send <= sequence(v1);
 --			else
