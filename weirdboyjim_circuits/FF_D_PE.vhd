@@ -2,12 +2,20 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 entity FF_D_POSITIVE_EDGE is
+generic (
+delay_not : time := 0 ns;
+delay_and : time := 0 ns;
+delay_nor2 : time := 0 ns;
+delay_nand2 : time := 0 ns;
+delay_nand3 : time := 0 ns
+);
 port (
 S : in std_logic;
 R : in std_logic;
 C : in std_logic;
 D : in STD_LOGIC;
-Q1,Q2:out STD_LOGIC);
+Q1,Q2:out STD_LOGIC
+);
 end entity FF_D_POSITIVE_EDGE;
 
 -- https://en.wikipedia.org/wiki/Flip-flop_(electronics)#Classical_positive-edge-triggered_D_flip-flop
@@ -53,12 +61,12 @@ begin
 -- https://en.wikipedia.org/wiki/Flip-flop_%28electronics%29#/media/File:Edge_triggered_D_flip_flop_with_set_and_reset.svg
 Q1 <= q1out;
 Q2 <= q2out;
-g1 : q1out <= not (S and setd and q2out) after 0 ps;
-g2 : q2out <= not (q1out and resetu and R) after 0 ps;
-g3 : setu <= not (S and resetd and setd) after 0 ps;
-g4 : setd <= not (setu and C and R) after 0 ps;
-g5 : resetu <= not (setd and C and resetd) after 0 ps;
-g6 : resetd <= not (resetu and D and R) after 0 ps;
+g1 : q1out <= not (S and setd and q2out) after delay_nand3;
+g2 : q2out <= not (q1out and resetu and R) after delay_nand3;
+g3 : setu <= not (S and resetd and setd) after delay_nand3;
+g4 : setd <= not (setu and C and R) after delay_nand3;
+g5 : resetu <= not (setd and C and resetd) after delay_nand3;
+g6 : resetd <= not (resetu and D and R) after delay_nand3;
 
 end architecture Behavioral_D_PE;
 
@@ -66,7 +74,7 @@ architecture D_PE_LUT_1 of FF_D_POSITIVE_EDGE is
 
 	component GATE_NAND2 is
 	generic (
-		delay_nand2 : TIME := 0 ps
+		delay_nand2 : TIME := 0 ns
 	);
 	port (
 		A,B : in STD_LOGIC;
@@ -77,7 +85,7 @@ architecture D_PE_LUT_1 of FF_D_POSITIVE_EDGE is
 
 	component GATE_NAND3 is
 	generic (
-		delay_nand3 : TIME := 0 ps
+		delay_nand3 : TIME := 0 ns
 	);
 	port (
 		A,B,C : in STD_LOGIC;
@@ -88,7 +96,7 @@ architecture D_PE_LUT_1 of FF_D_POSITIVE_EDGE is
 
 	component GATE_NOT is
 	generic (
-		delay_not : TIME := 0 ps
+		delay_not : TIME := 0 ns
 	);
 	port (
 		A : in STD_LOGIC;
@@ -105,13 +113,13 @@ begin
 	q1 <= q1out;
 	q2 <= q2out;
 
-	g0 : GATE_NOT port map (A => D, B => D_not);
+	g0 : GATE_NOT generic map (delay_not) port map (A => D, B => D_not);
 
-	g1 : GATE_NAND2 port map (A => D, B => C, C => R_latch);
-	g2 : GATE_NAND2 port map (A => D_not, B => C, C => S_latch);
+	g1 : GATE_NAND2 generic map (delay_nand2) port map (A => D, B => C, C => R_latch);
+	g2 : GATE_NAND2 generic map (delay_nand2) port map (A => D_not, B => C, C => S_latch);
 
-	g3 : GATE_NAND3 port map (A => '0', B => S_latch, C => q2out, D => q1out);
-	g4 : GATE_NAND3 port map (A => '0', B => R_latch, C => q1out, D => q2out);
+	g3 : GATE_NAND3 generic map (delay_nand3) port map (A => '0', B => S_latch, C => q2out, D => q1out);
+	g4 : GATE_NAND3 generic map (delay_nand3) port map (A => '0', B => R_latch, C => q1out, D => q2out);
 
 end architecture D_PE_LUT_1;
 
@@ -119,7 +127,7 @@ architecture D_PE_LUT_2 of FF_D_POSITIVE_EDGE is
 
 	component GATE_AND is
 	generic (
-		delay_and : TIME := 0 ps
+		delay_and : TIME := 0 ns
 	);
 	port (
 		A,B : in STD_LOGIC;
@@ -130,7 +138,7 @@ architecture D_PE_LUT_2 of FF_D_POSITIVE_EDGE is
 
 	component GATE_NOR2 is
 	generic (
-		delay_nor2 : TIME := 0 ps
+		delay_nor2 : TIME := 0 ns
 	);
 	port (
 		A,B : in STD_LOGIC;
@@ -141,7 +149,7 @@ architecture D_PE_LUT_2 of FF_D_POSITIVE_EDGE is
 
 	component GATE_NOT is
 	generic (
-		delay_not : TIME := 0 ps
+		delay_not : TIME := 0 ns
 	);
 	port (
 		A : in STD_LOGIC;
@@ -159,16 +167,16 @@ begin
 	q1 <= q1out;
 	q2 <= q2out;
 
---	g5 : GATE_NOT port map (A => S_latch1, B => S_latch);
---	g6 : GATE_NOT port map (A => R_latch1, B => R_latch);
+--	g5 : GATE_NOT generic map (delay_not) port map (A => S_latch1, B => S_latch);
+--	g6 : GATE_NOT generic map (delay_not) port map (A => R_latch1, B => R_latch);
 
-	g0 : GATE_NOT port map (A => D, B => D_not);
+	g0 : GATE_NOT generic map (delay_not) port map (A => D, B => D_not);
 
-	g1 : GATE_AND port map (A => D, B => C, C => S_latch1);
-	g2 : GATE_AND port map (A => D_not, B => C, C => R_latch1);
+	g1 : GATE_AND generic map (delay_and) port map (A => D, B => C, C => S_latch1);
+	g2 : GATE_AND generic map (delay_and) port map (A => D_not, B => C, C => R_latch1);
 
-	g3 : GATE_NOR2 port map (A => S_latch1, B => q2out, C => q1out);
-	g4 : GATE_NOR2 port map (A => R_latch1, B => q1out, C => q2out);
+	g3 : GATE_NOR2 generic map (delay_nor2) port map (A => S_latch1, B => q2out, C => q1out);
+	g4 : GATE_NOR2 generic map (delay_nor2) port map (A => R_latch1, B => q1out, C => q2out);
 
 end architecture D_PE_LUT_2;
 
@@ -194,11 +202,11 @@ begin
 	Q1 <= q1out;
 	Q2 <= q2out;
 
-	g0 : GATE_NAND3 port map (A => S, B => H, C => F, D => E);
-	g1 : GATE_NAND3 port map (A => E, B => C, C => R, D => F);
-	g2 : GATE_NAND3 port map (A => F, B => C, C => H, D => G);
-	g3 : GATE_NAND3 port map (A => G, B => D, C => R, D => H);
-	g4 : GATE_NAND3 port map (A => S, B => F, C => q2out, D => q1out);
-	g5 : GATE_NAND3 port map (A => q1out, B => G, C => R, D => q2out);
+	g0 : GATE_NAND3 generic map (delay_nand3) port map (A => S, B => H, C => F, D => E);
+	g1 : GATE_NAND3 generic map (delay_nand3) port map (A => E, B => C, C => R, D => F);
+	g2 : GATE_NAND3 generic map (delay_nand3) port map (A => F, B => C, C => H, D => G);
+	g3 : GATE_NAND3 generic map (delay_nand3) port map (A => G, B => D, C => R, D => H);
+	g4 : GATE_NAND3 generic map (delay_nand3) port map (A => S, B => F, C => q2out, D => q1out);
+	g5 : GATE_NAND3 generic map (delay_nand3) port map (A => q1out, B => G, C => R, D => q2out);
 
 end architecture D_PE_LUT_3;
