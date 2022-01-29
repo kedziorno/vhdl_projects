@@ -131,40 +131,109 @@ architecture Behavioral of my_i2c_pc2 is
 
 	signal clock : std_logic;
 	signal clock_chain : std_logic_vector(N-1 downto 0);
+	constant clock_all0_constant : std_logic_vector(N-1 downto 0) := (others => '0');
+	constant clock_all1_constant : std_logic_vector(N-1 downto 0) := (others => '1');
 
 	signal data : std_logic;
 
-	constant start_condition_count : integer := N/2;
-	constant start_condition_bits : integer := 3;
-	signal start_condition : std_logic_vector(start_condition_bits-1 downto 0);
-	signal sda_start_counter_stop_flag : std_logic;
-	constant sda_start_counter_stop_constant : std_logic_vector(start_condition_bits-1 downto 0) := std_logic_vector(to_unsigned(start_condition_count,start_condition_bits));
+	constant sda_condition_count : integer := N;
+	constant sda_condition_bits : integer := 4;
+	signal sda_start : std_logic_vector(sda_condition_bits-1 downto 0);
+	signal sda_stop : std_logic_vector(sda_condition_bits-1 downto 0);
+	signal sda_condition_stop_flag : std_logic;
+	constant sda_condition_stop_constant : std_logic_vector(sda_condition_bits-1 downto 0) := std_logic_vector(to_unsigned(sda_condition_count-1,sda_condition_bits));
 
 	signal reset_or,reset_counter : std_logic;
 	signal sda_start_ldcpe,sda_stop_ldcpe : std_logic;
-	signal ffjkq1,ffjkq2 : std_logic;
+	signal ffjkq1,ffjkq2 : std_logic_vector(7 downto 0);
 	signal t1,t2 : std_logic;
+	signal rc_start : std_logic_vector(7 downto 0) := "00000000";
+	signal rc_start_1 : std_logic_vector(7 downto 0);
+	signal rc_start_mux : std_logic_vector(7 downto 0);
+	signal mux81_rc_start_select : std_logic_vector(2 downto 0) := "000";
+	type ta is array(integer range <>) of std_logic_vector(sda_condition_bits-1 downto 0);
+	signal rc_q : ta(0 to 7);
+	signal tick : std_logic_vector(7 downto 0);
+	signal tick_clock_all0 : std_logic;
+	signal tick_clock_all1 : std_logic;
 
 begin
+
+	p0 : process (i_clock,i_reset) is
+		constant C_W : integer := N-1;
+		variable vw : integer range 0 to C_W;
+		type states is (a,b,c);
+		variable state : states;
+	begin
+		if (i_reset = '1') then
+			state := a;
+			vw := 0;
+		elsif (rising_edge(i_clock)) then
+			case (state) is
+				when a =>
+					rc_start <= "00000001";
+					if (vw = C_W) then
+						state := b;
+						vw := 0;
+					else
+						state := a;
+						vw := vw + 1;
+					end if;
+				when b =>
+					rc_start <= "00000010";
+					if (vw = C_W) then
+						state := c;
+						vw := 0;
+					else
+						state := b;
+						vw := vw + 1;
+					end if;
+				when c =>
+					rc_start <= "00000100";
+					if (vw = C_W) then
+						state := a;
+						vw := 0;
+					else
+						state := c;
+						vw := vw + 1;
+					end if;
+			end case;
+		end if;
+	end process p0;
 
 	or_reset_conter_inst : GATE_OR
 	port map (A => i_reset, B => reset_counter, C => reset_or);
 
+	generate_mux21_rc_mrb : for i in 0 to 7 generate
+		mux21_rc_mrb : MUX_21
+		port map (S => rc_start(i), A => '1', B => '0', C => rc_start_1(i));
+	end generate generate_mux21_rc_mrb;
+
 	sda_start_counter : ripple_counter
-	generic map (N => start_condition_bits,MAX => start_condition_count,delay_mr => delay_mr)
-	port map (i_clock => i_clock,i_cpb => ffjkq2,i_mrb => reset_or,i_ud => sda_start_counter_stop_flag,o_q => start_condition);
+	generic map (N => sda_condition_bits,MAX => 2**sda_condition_bits-1)
+	port map (i_clock => i_clock,i_cpb => '1',i_mrb => rc_start_1(0),i_ud => '1',o_q => rc_q(0));
 
-	reset_counter <= '1' when start_condition = sda_start_counter_stop_constant else '0';
-	mux21_sda_start_counter_stop : MUX_21
-	port map (S => reset_or, A => '1', B => '0', C => sda_start_counter_stop_flag);
+	sda_stop_counter : ripple_counter
+	generic map (N => sda_condition_bits,MAX => 1)
+	port map (i_clock => i_clock,i_cpb => '1',i_mrb => rc_start_1(1),i_ud => '0',o_q => rc_q(1));
 
-	ffjk1 : FF_JK
-	port map (i_r => reset_or, J => '1', K => '1', C => clock_chain(0), Q1 => ffjkq1, Q2 => ffjkq2);
+	rc0 : ripple_counter
+	generic map (N => sda_condition_bits,MAX => 2**sda_condition_bits-1)
+	port map (i_clock => i_clock,i_cpb => '1',i_mrb => rc_start_1(2),i_ud => '1',o_q => rc_q(2));
 
-	t1 <= clock_chain(N-1) and sda_start_counter_stop_flag;
+	g1 : for i in 0 to 7 generate
+		tick(i) <= '1' when rc_q(i) = sda_condition_stop_constant else '0';
+	end generate g1;
+
+	g0 : for i in 0 to 7 generate
+		ffjk : FF_JK
+		port map (i_r => i_reset, J => '1', K => '1', C => tick(i), Q1 => ffjkq1(i), Q2 => ffjkq2(i));
+	end generate g0;
+
+	t1 <= clock_chain(N-1) and sda_condition_stop_flag;
 	sda_start_ldcpe_inst : LDCPE
 	port map (Q => sda_start_ldcpe, D => t1, CLR => '0', G => reset_or, GE => not reset_or, PRE => '0');
-	t2 <= clock_chain(0) and sda_start_counter_stop_flag;
+	t2 <= clock_chain(0) and sda_condition_stop_flag;
 	sda_stop_ldcpe_inst : LDCPE
 	port map (Q => sda_stop_ldcpe, D => t2, CLR => '0', G => reset_or, GE => not reset_or, PRE => '0');
 
@@ -190,5 +259,14 @@ begin
 
 	OBUFT_sda_data_inst : OBUFT
 	port map (O => o_sda, I => data, T => data);
+
+	tick_clock_all0 <= '1' when clock_chain = clock_all0_constant else '0';
+	tick_clock_all1 <= '1' when clock_chain = clock_all1_constant else '0';
+	reset_counter <= '1' when rc_q(0) = sda_condition_stop_constant else '0';
+--	mux21_sda_start_counter_stop : MUX_21
+--	port map (S => reset_or, A => '1', B => '0', C => sda_start_counter_stop_flag);
+
+--	mux81_rc_start_inst : MUX_81
+--	port map (S0 => mux81_rc_start_select(0), S1 => mux81_rc_start_select(1), S2 => mux81_rc_start_select(2), in0 => rc_start_1(0), in1 => rc_start_1(1), in2 => rc_start_1(2), in3 => rc_start_1(3), in4 => rc_start_1(4), in5 => rc_start_1(5), in6 => rc_start_1(6), in7 => rc_start_1(7), o => rc_start_mux(i));
 
 end architecture Behavioral;

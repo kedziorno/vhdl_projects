@@ -101,7 +101,7 @@ wait for i_clock_period/2;
 end process;
 
 --i_reset <= '1', '0' after 2000 ns;
-i_reset <= '1', '0' after i_clock_period;
+i_reset <= '1', '0' after 5*i_clock_period;
 --i_reset <= i_clock;
 
 --i_enable <= '1', '0' after T * N;
