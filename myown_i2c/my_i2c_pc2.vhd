@@ -146,7 +146,7 @@ architecture Behavioral of my_i2c_pc2 is
 	signal reset_or,reset_counter : std_logic;
 	signal sda_start_ldcpe,sda_stop_ldcpe : std_logic;
 	signal ffjkq1,ffjkq2 : std_logic_vector(7 downto 0);
-	signal t1,t2 : std_logic;
+	signal t1,t2,t3,t4 : std_logic;
 	signal rc_start : std_logic_vector(7 downto 0) := "00000000";
 	signal rc_start_1 : std_logic_vector(7 downto 0);
 	signal rc_start_mux : std_logic_vector(7 downto 0);
@@ -214,34 +214,31 @@ begin
 		port map (S => rc_start(i), A => '1', B => '0', C => rc_start_1(i));
 	end generate generate_mux21_rc_mrb;
 
+	t1 <= i_reset or reset_a1;
 	ripple_counter_main : ripple_counter
 	generic map (N => RC_MAIN_BITS,MAX => N*2)
-	port map (i_clock => i_clock,i_cpb => '1',i_mrb => i_reset or reset_a1,i_ud => '1',o_q => rc_main);
+	port map (i_clock => i_clock,i_cpb => '1',i_mrb => t1,i_ud => '1',o_q => rc_main);
 
-	a1 <= '1' when rc_main = std_logic_vector(to_unsigned(N/2,RC_MAIN_BITS)) else '0';
+	qwe : a1 <= '1' when rc_main = std_logic_vector(to_unsigned(N/2,RC_MAIN_BITS)) else '0';
 	reset_a1 <= '1' when rc_main = std_logic_vector(to_unsigned(N*2,RC_MAIN_BITS)) else '0';
 
 	sda_start_ldcpe_inst  : LDCPE generic map (INIT => '1')
 	port map (Q => sda_start_ldcpe, D => '0', CLR => '0', G => a1, GE => not a1, PRE => '0');
 	sda_stop_ldcpe_inst_prev : LDCPE generic map (INIT => '0')
 	port map (Q => omit_first_reset, D => '1', CLR => a1, G => a1, GE => a1, PRE => reset_a1);
+	t2 <= reset_a1 and omit_first_reset;
+	t3 <= a1 and not reset_a1 and omit_first_reset;
 	sda_stop_ldcpe_inst : LDCPE generic map (INIT => '0')
-	port map (Q => sda_stop_ldcpe, D => reset_a1 and omit_first_reset, CLR => '0', G => a1, GE => not a1, PRE => a1 and not reset_a1 and omit_first_reset);
-
---	t1 <= clock_chain(N-1) and sda_condition_stop_flag;
---	sda_start_ldcpe_inst : LDCPE
---	port map (Q => , D => t1, CLR => '0', G => reset_or, GE => not reset_or, PRE => '0');
---	t2 <= clock_chain(0) and sda_condition_stop_flag;
---	sda_stop_ldcpe_inst : LDCPE
---	port map (Q => sda_stop_ldcpe, D => t2, CLR => '0', G => reset_or, GE => not reset_or, PRE => '0');
+	port map (Q => sda_stop_ldcpe, D => t2, CLR => '0', G => a1, GE => not a1, PRE => t3);
 	
 	sda_start_counter : ripple_counter
 	generic map (N => sda_condition_bits,MAX => 2**sda_condition_bits-1)
 	port map (i_clock => i_clock,i_cpb => not tick_clock_all0,i_mrb => rc_start_1(0),i_ud => '1',o_q => rc_q(0));
 
+	t4 <= '1' and not reset_or;
 	sda_stop_counter : ripple_counter
 	generic map (N => sda_condition_bits,MAX => 1)
-	port map (i_clock => i_clock,i_cpb => '1' and not reset_or,i_mrb => rc_start_1(1),i_ud => '0',o_q => rc_q(1));
+	port map (i_clock => i_clock,i_cpb => t4,i_mrb => rc_start_1(1),i_ud => '0',o_q => rc_q(1));
 
 	rc0 : ripple_counter
 	generic map (N => sda_condition_bits,MAX => 2**sda_condition_bits-1)
@@ -274,7 +271,7 @@ begin
 	port map (O => o_scl, I => clock, T => clock);
 
 	m81_main_inst : MUX_81
-	port map (S0 => '0', S1 => '0', S2 => '0', in0 => not sda_stop_ldcpe, in1 => not sda_start_ldcpe, in2 => '0', in3 => '0', in4 => '0', in5 => '0', in6 => '0', in7 => '0', o => data);
+	port map (S0 => '1', S1 => '0', S2 => '0', in0 => sda_start_ldcpe, in1 => sda_stop_ldcpe, in2 => '0', in3 => '0', in4 => '0', in5 => '0', in6 => '0', in7 => '0', o => data);
 
 	OBUFT_sda_data_inst : OBUFT
 	port map (O => o_sda, I => data, T => data);
