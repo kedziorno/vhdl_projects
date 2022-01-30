@@ -132,7 +132,7 @@ i_reset <= '1', '0' after 5*i_clock_period;
 stim_proc : process
 begin
 i_enable <= '1';
-wait for 1000*i_clock_period;
+wait for 10000*i_clock_period;
 i_enable <= '0';
 wait for i_clock_period;
 report "done" severity failure;
