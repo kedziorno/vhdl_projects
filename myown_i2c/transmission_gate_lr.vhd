@@ -33,12 +33,12 @@ entity transmission_gate_lr is
 port (
 	io_a : in std_logic;
 	io_b : out std_logic;
-	i_s : in std_logic;
-	i_sb : in std_logic
+	i_s : in std_logic
+--	i_sb : in std_logic
 );
 end transmission_gate_lr;
 
 architecture Behavioral of transmission_gate_lr is
 begin
-	io_b <= io_a when i_s = '1' and i_sb = '0' else 'Z';
+	io_b <= io_a when i_s = '1' else 'Z';
 end Behavioral;
