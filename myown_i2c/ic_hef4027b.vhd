@@ -45,7 +45,7 @@ architecture Behavioral of ic_hef4027b is
 
 	constant delay_not : time := 0 ns;
 	constant delay_and : time := 0 ns;
-	constant delay_nor2 : time := 1 ns;
+	constant delay_nor2 : time := 0.001 ns;
 
 --	component transmission_gate_rl is
 --	port (
