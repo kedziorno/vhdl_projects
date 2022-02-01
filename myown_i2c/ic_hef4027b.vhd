@@ -43,7 +43,9 @@ end ic_hef4027b;
 
 architecture Behavioral of ic_hef4027b is
 
-	constant delay_not : time := 1 ns;
+	constant delay_not : time := 0 ns;
+	constant delay_and : time := 0 ns;
+	constant delay_nor2 : time := 1 ns;
 
 --	component transmission_gate_rl is
 --	port (
@@ -66,13 +68,13 @@ architecture Behavioral of ic_hef4027b is
 	for all : transmission_gate_lr use entity WORK.transmission_gate_lr(Behavioral);
 
 	component GATE_AND is
-	generic (delay_and : TIME := 0 ns);
+	generic (delay_and : TIME := delay_and);
 	port (A,B : in STD_LOGIC; C : out STD_LOGIC);
 	end component GATE_AND;
 	for all : GATE_AND use entity WORK.GATE_AND(GATE_AND_LUT);
 
 	component GATE_NOR2 is
-	generic (delay_nor2 : TIME := 0 ns);
+	generic (delay_nor2 : TIME := delay_nor2);
 	port (A,B : in STD_LOGIC; C : out STD_LOGIC);
 	end component GATE_NOR2;
 	for all : GATE_NOR2 use entity WORK.GATE_NOR2(GATE_NOR2_LUT);
@@ -83,7 +85,7 @@ architecture Behavioral of ic_hef4027b is
 	end component GATE_NOT;
 	for all : GATE_NOT use entity WORK.GATE_NOT(GATE_NOT_LUT);
 
-	signal cp,cp_not : std_logic;
+	signal cp,cp_not1,cp_not2,cp_not3 : std_logic;
 	signal s,sb : std_logic;
 	signal nor2_1,nor2_2,nor2_3,nor2_4,nor2_5 : std_logic;
 	signal j_nor2,k_and : std_logic;
@@ -91,10 +93,12 @@ architecture Behavioral of ic_hef4027b is
 
 begin
 
-	cp_inst : cp <= i_cp; -- cp_inst : GATE_NOT port map (A => i_cp, B => cp);
-	cp_not_inst : GATE_NOT port map (A => i_cp, B => cp_not);
-	s <= cp;
-	sb <= cp_not;
+--	cp_not_inst1 : GATE_NOT port map (A => i_cp, B => cp_not1);
+--	cp_not_inst2 : GATE_NOT port map (A => i_cp, B => cp_not2);
+	cp_not_inst3 : GATE_NOT port map (A => i_cp, B => cp_not3);
+--	s <= cp_not2;
+	s <= i_cp;
+	sb <= cp_not3;
 
 	j_nor2_inst : GATE_NOR2 port map (A => i_j, B => nor2_4, C => j_nor2);
 	k_and_inst : GATE_AND port map (A => nor2_4, B => i_k, C => k_and);

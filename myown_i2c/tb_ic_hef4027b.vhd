@@ -95,30 +95,63 @@ begin
 -- hold reset state for 100 ns.
 wait for 100 ns;
 -- insert stimulus here
-i_j <= '0';
-i_k <= '0';
-i_cd <= '0';
+-- XXX HEF4027B.pdf p.3 s.7
+-- nQ=H nQb=L
 i_sd <= '1';
-wait for clock_period*10;
-i_j <= '0';
-i_k <= '1';
 i_cd <= '0';
-i_sd <= '0';
+--i_cp <= 'X';
+i_j <= 'X';
+i_k <= 'X';
 wait for clock_period*10;
+-- nQ=L nQb=H
+i_sd <= '0';
+i_cd <= '1';
+--i_cp <= 'X';
+i_j <= 'X';
+i_k <= 'X';
+wait for clock_period*10;
+-- nQ=H nQb=H
+i_sd <= '1';
+i_cd <= '1';
+--i_cp <= 'X';
+i_j <= 'X';
+i_k <= 'X';
+wait for clock_period*10;
+-- nQ=nochange nQb=nochange
+i_sd <= '0';
+i_cd <= '0';
+--l0 : for i in 0 to 1 loop
+--i_cp <= '1'; wait for clock_period/2; i_cp <= '0'; wait for clock_period/2;
+--end loop l0;
+i_j <= '0';
+i_k <= '0';
+wait for clock_period*10;
+-- nQ=H nQb=L
+i_sd <= '0';
+i_cd <= '0';
+--l1 : for i in 0 to 1 loop
+--i_cp <= '1'; wait for clock_period/2; i_cp <= '0'; wait for clock_period/2;
+--end loop l1;
 i_j <= '1';
 i_k <= '0';
-i_cd <= '0';
-i_sd <= '0';
 wait for clock_period*10;
+-- nQ=L nQb=H
+i_sd <= '0';
+i_cd <= '0';
+--l2 : for i in 0 to 1 loop
+--i_cp <= '1'; wait for clock_period/2; i_cp <= '0'; wait for clock_period/2;
+--end loop l2;
+i_j <= '0';
+i_k <= '1';
+wait for clock_period*10;
+-- nQ=nQb nQb=nQ
+i_sd <= '0';
+i_cd <= '0';
+--l3 : for i in 0 to 1 loop
+--i_cp <= '1'; wait for clock_period/2; i_cp <= '0'; wait for clock_period/2;
+--end loop l3;
 i_j <= '1';
 i_k <= '1';
-i_cd <= '0';
-i_sd <= '0';
-wait for clock_period*10;
-i_j <= '0';
-i_k <= '0';
-i_cd <= '0';
-i_sd <= '0';
 wait for clock_period*10;
 
 report "done" severity failure;
