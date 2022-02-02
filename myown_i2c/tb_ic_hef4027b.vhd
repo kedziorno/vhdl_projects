@@ -89,6 +89,7 @@ wait for clock_period/2;
 end process;
 
 i_cp <=
+-- no change
 '1' after (200 ns + 30 * clock_period),
 '0' after (200 ns + 30 * clock_period) + 10 ns,
 '1' after (200 ns + 40 * clock_period),
@@ -97,14 +98,27 @@ i_cp <=
 '0' after (200 ns + 50 * clock_period) + 10 ns,
 '1' after (200 ns + 60 * clock_period),
 '0' after (200 ns + 60 * clock_period) + 10 ns,
+
 '1' after (200 ns + 70 * clock_period),
 '0' after (200 ns + 70 * clock_period) + 10 ns,
-'1' after (220 ns + 70 * clock_period),
-'0' after (220 ns + 70 * clock_period) + 10 ns,
-'1' after (240 ns + 70 * clock_period),
-'0' after (240 ns + 70 * clock_period) + 10 ns,
-'1' after (260 ns + 70 * clock_period),
-'0' after (260 ns + 70 * clock_period) + 10 ns
+
+'1' after (200 ns + 80 * clock_period),
+'0' after (200 ns + 80 * clock_period) + 10 ns,
+
+'1' after (200 ns + 90 * clock_period),
+'0' after (200 ns + 90 * clock_period) + 10 ns,
+
+'1' after (200 ns + 100 * clock_period),
+'0' after (200 ns + 100 * clock_period) + 10 ns,
+'1' after (220 ns + 100 * clock_period),
+'0' after (220 ns + 100 * clock_period) + 10 ns,
+'1' after (240 ns + 100 * clock_period),
+'0' after (240 ns + 100 * clock_period) + 10 ns,
+'1' after (260 ns + 100 * clock_period),
+'0' after (260 ns + 100 * clock_period) + 10 ns,
+'1' after (280 ns + 100 * clock_period),
+'0' after (280 ns + 100 * clock_period) + 10 ns
+
 ;
 -- Stimulus process
 stim_proc: process
@@ -130,6 +144,24 @@ i_sd <= '1';
 i_cd <= '1';
 i_j <= 'X';
 i_k <= 'X';
+wait for clock_period*10;
+-- nQ=nochange nQb=nochange
+i_sd <= '0';
+i_cd <= '0';
+i_j <= '0';
+i_k <= '0';
+wait for clock_period*10;
+-- nQ=nochange nQb=nochange
+i_sd <= '0';
+i_cd <= '0';
+i_j <= '0';
+i_k <= '0';
+wait for clock_period*10;
+-- nQ=nochange nQb=nochange
+i_sd <= '0';
+i_cd <= '0';
+i_j <= '0';
+i_k <= '0';
 wait for clock_period*10;
 -- nQ=nochange nQb=nochange
 i_sd <= '0';
