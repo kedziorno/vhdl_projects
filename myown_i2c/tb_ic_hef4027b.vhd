@@ -64,6 +64,7 @@ signal o_q : std_logic;
 signal o_qb : std_logic;
 
 constant clock_period : time := 20 ns;
+constant cp_period : time := 33.333 ns; -- max 99
 signal clock : std_logic;
 
 BEGIN
@@ -90,34 +91,34 @@ end process;
 
 i_cp <=
 -- no change
-'1' after (200 ns + 30 * clock_period),
-'0' after (200 ns + 30 * clock_period) + 10 ns,
-'1' after (200 ns + 40 * clock_period),
-'0' after (200 ns + 40 * clock_period) + 10 ns,
-'1' after (200 ns + 50 * clock_period),
-'0' after (200 ns + 50 * clock_period) + 10 ns,
-'1' after (200 ns + 60 * clock_period),
-'0' after (200 ns + 60 * clock_period) + 10 ns,
+'1' after (10*cp_period + 30 * clock_period),
+'0' after (10*cp_period + 30 * clock_period) + cp_period,
+'1' after (10*cp_period + 40 * clock_period),
+'0' after (10*cp_period + 40 * clock_period) + cp_period,
+'1' after (10*cp_period + 50 * clock_period),
+'0' after (10*cp_period + 50 * clock_period) + cp_period,
+'1' after (10*cp_period + 60 * clock_period),
+'0' after (10*cp_period + 60 * clock_period) + cp_period,
 
-'1' after (200 ns + 70 * clock_period),
-'0' after (200 ns + 70 * clock_period) + 10 ns,
+'1' after (10*cp_period + 70 * clock_period),
+'0' after (10*cp_period + 70 * clock_period) + cp_period,
 
-'1' after (200 ns + 80 * clock_period),
-'0' after (200 ns + 80 * clock_period) + 10 ns,
+'1' after (10*cp_period + 80 * clock_period),
+'0' after (10*cp_period + 80 * clock_period) + cp_period,
 
-'1' after (200 ns + 90 * clock_period),
-'0' after (200 ns + 90 * clock_period) + 10 ns,
+'1' after (10*cp_period + 90 * clock_period),
+'0' after (10*cp_period + 90 * clock_period) + cp_period,
 
-'1' after (200 ns + 100 * clock_period),
-'0' after (200 ns + 100 * clock_period) + 10 ns,
-'1' after (220 ns + 100 * clock_period),
-'0' after (220 ns + 100 * clock_period) + 10 ns,
-'1' after (240 ns + 100 * clock_period),
-'0' after (240 ns + 100 * clock_period) + 10 ns,
-'1' after (260 ns + 100 * clock_period),
-'0' after (260 ns + 100 * clock_period) + 10 ns,
-'1' after (280 ns + 100 * clock_period),
-'0' after (280 ns + 100 * clock_period) + 10 ns
+'1' after (10*cp_period + 0 ns + 100 * clock_period),
+'0' after (10*cp_period + 0 ns + 100 * clock_period) + cp_period,
+'1' after (10*cp_period + 100 ns + 100 * clock_period),
+'0' after (10*cp_period + 100 ns + 100 * clock_period) + cp_period,
+'1' after (10*cp_period + 200 ns + 100 * clock_period),
+'0' after (10*cp_period + 200 ns + 100 * clock_period) + cp_period,
+'1' after (10*cp_period + 300 ns + 100 * clock_period),
+'0' after (10*cp_period + 300 ns + 100 * clock_period) + cp_period,
+'1' after (10*cp_period + 400 ns + 100 * clock_period),
+'0' after (10*cp_period + 400 ns + 100 * clock_period) + cp_period
 
 ;
 -- Stimulus process
@@ -186,7 +187,7 @@ i_sd <= '0';
 i_cd <= '0';
 i_j <= '1';
 i_k <= '1';
-wait for clock_period*10*5;
+wait for clock_period*10*10;
 
 report "done" severity failure;
 end process;
