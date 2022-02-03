@@ -30,6 +30,10 @@ library UNISIM;
 use UNISIM.VComponents.all;
 
 entity transmission_gate_lr is
+generic (
+	delay_ab : time := 0 ns;
+	delay_abz : time := 0 ns
+);
 port (
 	io_a : in std_logic;
 	io_b : out std_logic;
@@ -40,5 +44,5 @@ end transmission_gate_lr;
 
 architecture Behavioral of transmission_gate_lr is
 begin
-	io_b <= io_a after 1 ns when i_s = '1' and i_sb = '0' else 'Z' after 1 ns when i_s = '0' and i_sb = '1';
+	io_b <= io_a after delay_ab when i_s = '1' and i_sb = '0' else 'Z' after delay_abz when i_s = '0' and i_sb = '1';
 end Behavioral;
