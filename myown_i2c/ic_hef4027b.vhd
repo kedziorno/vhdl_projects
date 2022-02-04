@@ -53,7 +53,7 @@ architecture Behavioral of ic_hef4027b is
 		delay_baz : time := 0 ns
 	);
 	port (
-		io_a : out std_logic;
+		io_a : inout std_logic;
 		io_b : in std_logic;
 		i_s : in std_logic;
 		i_sb : in std_logic
@@ -68,7 +68,7 @@ architecture Behavioral of ic_hef4027b is
 	);
 	port (
 		io_a : in std_logic;
-		io_b : out std_logic;
+		io_b : inout std_logic;
 		i_s : in std_logic;
 		i_sb : in std_logic
 	);

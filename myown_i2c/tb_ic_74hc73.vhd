@@ -62,6 +62,7 @@ signal o_q : std_logic;
 signal o_qb : std_logic;
 
 constant clock_period : time := 20 ns;
+constant cp_period : time := 20 ns;
 signal clock : std_logic;
 
 BEGIN
@@ -85,36 +86,37 @@ clock <= '1';
 wait for clock_period/2;
 end process;
 
-i_cpb <=
-'1' after (200 ns + 50 * clock_period),
-'0' after (200 ns + 50 * clock_period) + 10 ns,
-'1' after (200 ns + 100 * clock_period),
-'0' after (200 ns + 100 * clock_period) + 10 ns,
-'1' after (200 ns + 150 * clock_period),
-'0' after (200 ns + 150 * clock_period) + 10 ns,
-'1' after (200 ns + 200 * clock_period),
-'0' after (200 ns + 200 * clock_period) + 10 ns,
-
-'1' after (200 ns + 250 * clock_period),
-'0' after (200 ns + 250 * clock_period) + 10 ns,
-
-'1' after (200 ns + 300 * clock_period),
-'0' after (200 ns + 300 * clock_period) + 10 ns,
-
-'1' after (200 ns + 350 * clock_period),
-'0' after (200 ns + 350 * clock_period) + 10 ns,
-
-'1' after (1000 ns + 400 * clock_period),
-'0' after (1000 ns + 400 * clock_period) + 10 ns,
-'1' after (1200 ns + 400 * clock_period),
-'0' after (1200 ns + 400 * clock_period) + 10 ns,
-'1' after (1400 ns + 400 * clock_period),
-'0' after (1400 ns + 400 * clock_period) + 10 ns,
-'1' after (1600 ns + 400 * clock_period),
-'0' after (1600 ns + 400 * clock_period) + 10 ns,
-'1' after (1800 ns + 400 * clock_period),
-'0' after (1800 ns + 400 * clock_period) + 10 ns
-;
+i_cpb <= clock;
+--i_cpb <=
+--'1' after (200 ns + 50 * clock_period),
+--'0' after (200 ns + 50 * clock_period) + cp_period,
+--'1' after (200 ns + 100 * clock_period),
+--'0' after (200 ns + 100 * clock_period) + cp_period,
+--'1' after (200 ns + 150 * clock_period),
+--'0' after (200 ns + 150 * clock_period) + cp_period,
+--'1' after (200 ns + 200 * clock_period),
+--'0' after (200 ns + 200 * clock_period) + cp_period,
+--
+--'1' after (200 ns + 250 * clock_period),
+--'0' after (200 ns + 250 * clock_period) + cp_period,
+--
+--'1' after (200 ns + 300 * clock_period),
+--'0' after (200 ns + 300 * clock_period) + cp_period,
+--
+--'1' after (200 ns + 350 * clock_period),
+--'0' after (200 ns + 350 * clock_period) + cp_period,
+--
+--'1' after (1000 ns + 400 * clock_period),
+--'0' after (1000 ns + 400 * clock_period) + cp_period,
+--'1' after (1200 ns + 400 * clock_period),
+--'0' after (1200 ns + 400 * clock_period) + cp_period,
+--'1' after (1400 ns + 400 * clock_period),
+--'0' after (1400 ns + 400 * clock_period) + cp_period,
+--'1' after (1600 ns + 400 * clock_period),
+--'0' after (1600 ns + 400 * clock_period) + cp_period,
+--'1' after (1800 ns + 400 * clock_period),
+--'0' after (1800 ns + 400 * clock_period) + cp_period
+--;
 
 -- Stimulus process
 stim_proc: process
@@ -129,10 +131,10 @@ i_r <= '0';
 i_j <= '1';
 i_k <= '1';
 wait for 100*clock_period;
--- nQ=nq nQb=q toggle
+-- nQ=q nQb=nq hold nochange
 i_r <= '1';
-i_j <= '1';
-i_k <= '1';
+i_j <= '0';
+i_k <= '0';
 wait for 100*clock_period;
 -- nQ=0 nQb=1 load 0 reset
 i_r <= '1';
@@ -144,10 +146,10 @@ i_r <= '1';
 i_j <= '1';
 i_k <= '0';
 wait for 100*clock_period;
--- nQ=q nQb=nq hold nochange
+-- nQ=nq nQb=q toggle
 i_r <= '1';
-i_j <= '0';
-i_k <= '0';
+i_j <= '1';
+i_k <= '1';
 wait for 100*clock_period;
 
 report "done" severity failure;
