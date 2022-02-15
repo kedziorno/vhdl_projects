@@ -107,7 +107,7 @@ architecture Behavioral of ic_74hc73 is
 	signal tg1_b,tg2_b,tg3_b,tg4_b : std_logic;
 	signal r1,r2,nor2_r1_cp,k_not,k_nor2,j_not,j_and,i_jk,g4_out,g8_not,g8_not1 : std_logic;
 
-	constant const_tg : time := 1 ns;
+	constant const_tg : time := 0.1 ns;
 	constant tg1_ab  : time := const_tg;
 	constant tg1_abz : time := const_tg;
 	constant tg1_ba  : time := const_tg;
@@ -140,8 +140,8 @@ begin
 	j_and_inst : GATE_AND port map (A => tg3_b, B => j_not, C => j_and);
 	jk_nor2_inst : GATE_NOR2 port map (A => k_nor2, B => j_and, C => i_jk);
 
-	tg1_lr : transmission_gate_lr generic map (delay_ab => tg1_ab,delay_abz => tg1_abz) port map (io_a => i_jk, io_b => tg1_b, i_s => s, i_sb => sb);
-	tg1_rl : transmission_gate_rl generic map (delay_ba => tg1_ba,delay_baz => tg1_baz) port map (io_a => tg1_b, io_b => i_jk, i_s => s, i_sb => sb);
+	tg1_lr : transmission_gate_lr generic map (delay_ab => tg1_ab,delay_abz => tg1_abz) port map (io_a => i_jk, io_b => tg1_b, i_s => sb, i_sb => s);
+	tg1_rl : transmission_gate_rl generic map (delay_ba => tg1_ba,delay_baz => tg1_baz) port map (io_a => tg1_b, io_b => i_jk, i_s => sb, i_sb => s);
 
 	g5 : GATE_NAND port map (A => tg1_b, B => r2, C => g4_out);
 
@@ -153,8 +153,8 @@ begin
 	tg3_lr : transmission_gate_lr generic map (delay_ab => tg3_ab,delay_abz => tg3_abz) port map (io_a => g4_out, io_b => tg3_b, i_s => s, i_sb => sb);
 	tg3_rl : transmission_gate_rl generic map (delay_ba => tg3_ba,delay_baz => tg3_baz) port map (io_a => tg3_b, io_b => g4_out, i_s => s, i_sb => sb);
 
-	tg4_lr : transmission_gate_lr generic map (delay_ab => tg4_ab,delay_abz => tg4_abz) port map (io_a => tg3_b, io_b => tg4_b, i_s => s, i_sb => sb);
-	tg4_rl : transmission_gate_rl generic map (delay_ba => tg4_ba,delay_baz => tg4_baz) port map (io_a => tg4_b, io_b => tg3_b, i_s => s, i_sb => sb);
+	tg4_lr : transmission_gate_lr generic map (delay_ab => tg4_ab,delay_abz => tg4_abz) port map (io_a => tg3_b, io_b => tg4_b, i_s => sb, i_sb => s);
+	tg4_rl : transmission_gate_rl generic map (delay_ba => tg4_ba,delay_baz => tg4_baz) port map (io_a => tg4_b, io_b => tg3_b, i_s => sb, i_sb => s);
 
 	g8 : GATE_NOT port map (A => tg3_b, B => g8_not);
 

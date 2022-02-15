@@ -44,5 +44,5 @@ end transmission_gate_lr;
 
 architecture Behavioral of transmission_gate_lr is
 begin
-	io_b <= io_a after delay_ab when i_s = '1' and i_sb = '0' else 'Z' after delay_abz when i_s = '0' and i_sb = '1' else io_a after delay_ab;
+	io_b <= io_a after delay_ab when i_s = '1' and i_sb = '0' else 'Z' after delay_abz when i_s = '0' and i_sb = '1';
 end Behavioral;

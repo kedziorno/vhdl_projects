@@ -86,37 +86,37 @@ clock <= '1';
 wait for clock_period/2;
 end process;
 
-i_cpb <= clock;
---i_cpb <=
---'1' after (200 ns + 50 * clock_period),
---'0' after (200 ns + 50 * clock_period) + cp_period,
---'1' after (200 ns + 100 * clock_period),
---'0' after (200 ns + 100 * clock_period) + cp_period,
---'1' after (200 ns + 150 * clock_period),
---'0' after (200 ns + 150 * clock_period) + cp_period,
---'1' after (200 ns + 200 * clock_period),
---'0' after (200 ns + 200 * clock_period) + cp_period,
---
---'1' after (200 ns + 250 * clock_period),
---'0' after (200 ns + 250 * clock_period) + cp_period,
---
---'1' after (200 ns + 300 * clock_period),
---'0' after (200 ns + 300 * clock_period) + cp_period,
---
---'1' after (200 ns + 350 * clock_period),
---'0' after (200 ns + 350 * clock_period) + cp_period,
---
---'1' after (1000 ns + 400 * clock_period),
---'0' after (1000 ns + 400 * clock_period) + cp_period,
---'1' after (1200 ns + 400 * clock_period),
---'0' after (1200 ns + 400 * clock_period) + cp_period,
---'1' after (1400 ns + 400 * clock_period),
---'0' after (1400 ns + 400 * clock_period) + cp_period,
---'1' after (1600 ns + 400 * clock_period),
---'0' after (1600 ns + 400 * clock_period) + cp_period,
---'1' after (1800 ns + 400 * clock_period),
---'0' after (1800 ns + 400 * clock_period) + cp_period
---;
+--i_cpb <= clock;
+i_cpb <=
+'1' after (200 ns + 50 * clock_period),
+'0' after (200 ns + 50 * clock_period) + cp_period,
+'1' after (200 ns + 100 * clock_period),
+'0' after (200 ns + 100 * clock_period) + cp_period,
+'1' after (200 ns + 150 * clock_period),
+'0' after (200 ns + 150 * clock_period) + cp_period,
+'1' after (200 ns + 200 * clock_period),
+'0' after (200 ns + 200 * clock_period) + cp_period,
+
+'1' after (200 ns + 250 * clock_period),
+'0' after (200 ns + 250 * clock_period) + cp_period,
+
+'1' after (200 ns + 300 * clock_period),
+'0' after (200 ns + 300 * clock_period) + cp_period,
+
+'1' after (200 ns + 350 * clock_period),
+'0' after (200 ns + 350 * clock_period) + cp_period,
+
+'1' after (1000 ns + 400 * clock_period),
+'0' after (1000 ns + 400 * clock_period) + cp_period,
+'1' after (1200 ns + 400 * clock_period),
+'0' after (1200 ns + 400 * clock_period) + cp_period,
+'1' after (1400 ns + 400 * clock_period),
+'0' after (1400 ns + 400 * clock_period) + cp_period,
+'1' after (1600 ns + 400 * clock_period),
+'0' after (1600 ns + 400 * clock_period) + cp_period,
+'1' after (1800 ns + 400 * clock_period),
+'0' after (1800 ns + 400 * clock_period) + cp_period
+;
 
 -- Stimulus process
 stim_proc: process
