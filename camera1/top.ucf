@@ -1,0 +1,12 @@
+NET "i_clock" LOC="B8";
+NET "i_reset" LOC="B18";
+NET "o_r<1>" LOC="R9";
+NET "o_r<2>" LOC="T8";
+NET "o_r<3>" LOC="R8";
+NET "o_g<1>" LOC="N8";
+NET "o_g<2>" LOC="P8";
+NET "o_g<3>" LOC="P6";
+NET "o_b<2>" LOC="U5";
+NET "o_b<3>" LOC="U4";
+NET "o_h" LOC="T4";
+NET "o_v" LOC="U3";
