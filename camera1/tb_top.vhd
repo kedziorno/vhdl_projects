@@ -43,6 +43,7 @@ COMPONENT top
 PORT(
 i_clock : IN  std_logic;
 i_reset : IN  std_logic;
+i_sw : IN  std_logic_vector(7 downto 0);
 o_r : OUT  std_logic_vector(2 downto 0);
 o_g : OUT  std_logic_vector(2 downto 0);
 o_b : OUT  std_logic_vector(1 downto 0);
@@ -55,6 +56,7 @@ END COMPONENT;
 --Inputs
 signal i_clock : std_logic := '0';
 signal i_reset : std_logic := '0';
+signal i_sw : std_logic_vector(7 downto 0) := (others => '1');
 
 --Outputs
 signal o_r : std_logic_vector(2 downto 0);
@@ -72,6 +74,7 @@ BEGIN
 uut: top PORT MAP (
 i_clock => i_clock,
 i_reset => i_reset,
+i_sw => i_sw,
 o_r => o_r,
 o_g => o_g,
 o_b => o_b,
