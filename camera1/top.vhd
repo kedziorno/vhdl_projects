@@ -65,6 +65,9 @@ signal divv1 : std_logic;
 signal clock1_a,clock2_a : std_logic;
 signal clock1_b,clock2_b : std_logic;
 
+signal hh,hh1 : std_logic;
+signal vv,vv1 : std_logic;
+
 begin
 
 --DCM_SP_inst_vga : DCM_SP
@@ -265,8 +268,8 @@ end process p0;
 
 --clock_25mhz <= div1;
 ja(0) <= not i_reset;
-o_h <= ja(1);
-o_v <= ja(2);
+o_h <= hh1;
+o_v <= vv1;
 --o_h <= h;
 --o_v <= v;
 --ja(3) <= clock_25mhz;
@@ -279,12 +282,23 @@ ja(3) <= div1;
 --jc(2) <= clock_25mhz;
 --fb <= jc(3);
 
-IBUFG_inst2 : IBUFG
+IBUFG_clock : IBUFG
 generic map (IBUF_DELAY_VALUE => "0", IOSTANDARD => "DEFAULT")
 port map (O => div,I => i_clock);
-
-BUFG_inst2 : BUFG
+BUFG_clock : BUFG
 port map (O => div1, I => div);
+
+IBUFG_v : IBUFG
+generic map (IBUF_DELAY_VALUE => "0", IOSTANDARD => "DEFAULT")
+port map (O => vv,I => ja(2));
+BUFG_v : BUFG
+port map (O => vv1, I => vv);
+
+IBUFG_h : IBUFG
+generic map (IBUF_DELAY_VALUE => "0", IOSTANDARD => "DEFAULT")
+port map (O => hh,I => ja(1));
+BUFG_h : BUFG
+port map (O => hh1, I => hh);
 
 p1 : process (clock_25mhz,i_reset) is
 	constant C_H : integer := 800;
