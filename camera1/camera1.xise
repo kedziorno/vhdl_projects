@@ -28,6 +28,7 @@
       <association xil_pn:name="PostRouteSimulation" xil_pn:seqID="55"/>
       <association xil_pn:name="PostTranslateSimulation" xil_pn:seqID="55"/>
     </file>
+    <file xil_pn:name="top.cdc" xil_pn:type="FILE_CDC"/>
   </files>
 
   <properties>

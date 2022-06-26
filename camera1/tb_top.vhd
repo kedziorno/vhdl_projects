@@ -41,14 +41,15 @@ ARCHITECTURE behavior OF tb_top IS
 
 COMPONENT top
 PORT(
-i_clock : IN  std_logic;
-i_reset : IN  std_logic;
-i_sw : IN  std_logic_vector(7 downto 0);
-o_r : OUT  std_logic_vector(2 downto 0);
-o_g : OUT  std_logic_vector(2 downto 0);
-o_b : OUT  std_logic_vector(1 downto 0);
-o_h : OUT  std_logic;
-o_v : OUT  std_logic
+i_clock : in std_logic;
+i_reset : in std_logic;
+ja : inout std_logic_vector(7 downto 0);
+jb : inout std_logic_vector(7 downto 0);
+o_r : out std_logic_vector(3 downto 1);
+o_g : out std_logic_vector(3 downto 1);
+o_b : out std_logic_vector(3 downto 2);
+o_h : out std_logic;
+o_v : out std_logic
 );
 END COMPONENT;
 
@@ -56,7 +57,8 @@ END COMPONENT;
 --Inputs
 signal i_clock : std_logic := '0';
 signal i_reset : std_logic := '0';
-signal i_sw : std_logic_vector(7 downto 0) := (others => '1');
+signal ja : std_logic_vector(7 downto 0);
+signal jb : std_logic_vector(7 downto 0);
 
 --Outputs
 signal o_r : std_logic_vector(2 downto 0);
@@ -66,7 +68,7 @@ signal o_h : std_logic;
 signal o_v : std_logic;
 
 -- Clock period definitions
-constant i_clock_period : time := 20 ns;
+constant i_clock_period : time := 10 ns;
 
 BEGIN
 
@@ -74,7 +76,8 @@ BEGIN
 uut: top PORT MAP (
 i_clock => i_clock,
 i_reset => i_reset,
-i_sw => i_sw,
+ja => ja,
+jb => jb,
 o_r => o_r,
 o_g => o_g,
 o_b => o_b,
