@@ -2,7 +2,7 @@
 -- Company: 
 -- Engineer:
 --
--- Create Date:   21:33:49 06/23/2022
+-- Create Date:   00:42:29 06/28/2022
 -- Design Name:   
 -- Module Name:   /home/user/workspace/vhdl_projects/camera1/tb_top.vhd
 -- Project Name:  camera1
@@ -40,16 +40,24 @@ ARCHITECTURE behavior OF tb_top IS
 -- Component Declaration for the Unit Under Test (UUT)
 
 COMPONENT top
+GENERIC (
+constant G_BOARD_CLOCK : integer := 50_000_000;
+constant G_I2C_CLOCK : integer := 100_000;
+constant G_CONSTANT1 : integer := 10_000 -- XXX wait reset for simulation
+);
 PORT(
-i_clock : in std_logic;
-i_reset : in std_logic;
-ja : inout std_logic_vector(7 downto 0);
-jb : inout std_logic_vector(7 downto 0);
-o_r : out std_logic_vector(3 downto 1);
-o_g : out std_logic_vector(3 downto 1);
-o_b : out std_logic_vector(3 downto 2);
-o_h : out std_logic;
-o_v : out std_logic
+i_clock : IN  std_logic;
+i_reset : IN  std_logic;
+ja : INOUT  std_logic_vector(7 downto 0);
+jb : INOUT  std_logic_vector(7 downto 0);
+jc : INOUT  std_logic_vector(7 downto 0);
+o_r : OUT  std_logic_vector(3 downto 1);
+o_g : OUT  std_logic_vector(3 downto 1);
+o_b : OUT  std_logic_vector(3 downto 2);
+o_h : OUT  std_logic;
+o_v : OUT  std_logic;
+io_sda : INOUT  std_logic;
+io_scl : INOUT  std_logic
 );
 END COMPONENT;
 
@@ -57,18 +65,23 @@ END COMPONENT;
 --Inputs
 signal i_clock : std_logic := '0';
 signal i_reset : std_logic := '0';
+
+--BiDirs
 signal ja : std_logic_vector(7 downto 0);
 signal jb : std_logic_vector(7 downto 0);
+signal jc : std_logic_vector(7 downto 0);
+signal io_sda : std_logic;
+signal io_scl : std_logic;
 
 --Outputs
-signal o_r : std_logic_vector(2 downto 0);
-signal o_g : std_logic_vector(2 downto 0);
-signal o_b : std_logic_vector(1 downto 0);
+signal o_r : std_logic_vector(3 downto 1);
+signal o_g : std_logic_vector(3 downto 1);
+signal o_b : std_logic_vector(3 downto 2);
 signal o_h : std_logic;
 signal o_v : std_logic;
 
 -- Clock period definitions
-constant i_clock_period : time := 10 ns;
+constant i_clock_period : time := 20 ns;
 
 BEGIN
 
@@ -78,11 +91,14 @@ i_clock => i_clock,
 i_reset => i_reset,
 ja => ja,
 jb => jb,
+jc => jc,
 o_r => o_r,
 o_g => o_g,
 o_b => o_b,
 o_h => o_h,
 o_v => o_v
+--io_sda => io_sda,
+--io_scl => io_scl
 );
 
 -- Clock process definitions
@@ -99,11 +115,10 @@ stim_proc: process
 begin
 -- hold reset state for 100 ns.
 i_reset <= '1';
-wait for 100 ns;
+wait for i_clock_period*10;
 i_reset <= '0';
 wait for i_clock_period*10;
 -- insert stimulus here
-
 wait;
 end process;
 
