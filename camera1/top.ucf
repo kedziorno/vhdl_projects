@@ -47,5 +47,11 @@ NET "JC<5>"       LOC = "F14";     # Bank = 1, Pin name = IO_L21N_1, Type = I/O,
 NET "JC<6>"       LOC = "G16";     # Bank = 1, Pin name = IO_L18N_1, Type = I/O,                         Sch name = JC9
 NET "JC<7>"       LOC = "J12";     # Bank = 1, Pin name = IO_L15P_1/A2, Type = DUAL,                     Sch name = JC10
 
+NET "io_sda"       LOC = "J13";     # Bank = 1, Pin name = IO_L15N_1/A1, Type = DUAL,                     Sch name = JD1
+NET "io_scl"       LOC = "M18";     # Bank = 1, Pin name = IO_L08N_1, Type = I/O,                         Sch name = JD2
+
 NET "jc<3>" CLOCK_DEDICATED_ROUTE = FALSE;
-NET "ja<2>" CLOCK_DEDICATED_ROUTE = FALSE;
+#NET "ja<1>" CLOCK_DEDICATED_ROUTE = FALSE;
+#NET "ja<2>" CLOCK_DEDICATED_ROUTE = FALSE;
+#NET "i_clock" CLOCK_DEDICATED_ROUTE = FALSE;
+#PIN "DCM_SP_inst_vga.CLKIN" CLOCK_DEDICATED_ROUTE = FALSE;
