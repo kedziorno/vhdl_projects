@@ -21,25 +21,28 @@ entity ov7670_capture is
            vsync : in   STD_LOGIC;
            href  : in   STD_LOGIC;
            d     : in   STD_LOGIC_VECTOR (7 downto 0);
-           addr  : out  STD_LOGIC_VECTOR (17 downto 0);
-           dout  : out  STD_LOGIC_VECTOR (11 downto 0);
+           addr  : out  STD_LOGIC_VECTOR (14 downto 0);
+           dout  : out  STD_LOGIC_VECTOR (7 downto 0);
            we    : out  STD_LOGIC);
 end ov7670_capture;
 
 architecture Behavioral of ov7670_capture is
-   signal d_latch      : std_logic_vector(15 downto 0) := (others => '0');
-   signal address      : STD_LOGIC_VECTOR(17 downto 0) := (others => '0');
+   signal d_latch      : std_logic_vector(2*d'left+1 downto 0) := (others => '0');
+   signal address      : STD_LOGIC_VECTOR(addr'left downto 0) := (others => '0');
    signal line         : std_logic_vector(1 downto 0)  := (others => '0');
    signal href_last    : std_logic_vector(6 downto 0)  := (others => '0');
    signal we_reg       : std_logic := '0';
    signal href_hold    : std_logic := '0';
    signal latched_vsync : STD_LOGIC := '0';
    signal latched_href  : STD_LOGIC := '0';
-   signal latched_d     : STD_LOGIC_VECTOR (7 downto 0) := (others => '0');
+   signal latched_d     : STD_LOGIC_VECTOR (d'left downto 0) := (others => '0');
 begin
    addr <= address;
    we <= we_reg;
-   dout    <= d_latch(15 downto 12) & d_latch(10 downto 7) & d_latch(4 downto 1); 
+   dout    <= d_latch(15 downto 13) & d_latch(12 downto 10) & d_latch(9 downto 8); 
+--   dout    <= d_latch(7 downto 5) & d_latch(4 downto 2) & d_latch(1 downto 0); 
+--   dout    <= d_latch(10 downto 8) & d_latch(6 downto 4) & d_latch(1 downto 0); 
+--   dout    <= d_latch; 
    
 capture_process: process(pclk)
    begin
