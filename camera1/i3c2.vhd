@@ -119,7 +119,7 @@ cpu: process(clk)
          case state is 
             when STATE_I2C_START =>
                i2c_started <= '1';
-               i2c_scl <= 'Z';   
+               i2c_scl <= '1';   
 
                if bitcount = unsigned("0" & clk_divide(clk_divide'high downto 1)) then
                  i2c_sda <= '0';
@@ -146,7 +146,7 @@ cpu: process(clk)
                       
                -- raise the clock half way thorugh
                if bitcount = unsigned("0" & clk_divide(clk_divide'high downto 1)) then
-                  i2c_scl <= 'Z';
+                  i2c_scl <= '1';
                end if;
 
                -- Input bits three quarters through the cycle
@@ -183,7 +183,7 @@ cpu: process(clk)
                end if;
                
                if bitcount = unsigned("0" & clk_divide(clk_divide'high downto 1)) then
-                  i2c_scl <= 'Z';
+                  i2c_scl <= '1';
                end if;
 
                if bitcount = unsigned("00" & clk_divide(clk_divide'high downto 2)) then
@@ -298,10 +298,8 @@ cpu: process(clk)
                         
                      when OPCODE_NOP =>
                         pcnext       <= pcnext+1;
-												outputs(0) <= '1';
                      when others =>
                         error <= '1';
-												
                   end case;
                end if;
                

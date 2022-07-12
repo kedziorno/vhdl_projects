@@ -13,16 +13,15 @@ entity VGA is
            rez_320x240 : IN std_logic;
            Hsync,Vsync : out  STD_LOGIC;						-- les deux signaux de synchronisation pour l'écran VGA
 			  --Nblank : out  STD_LOGIC;								-- signal de commande du convertisseur N/A ADV7123
-           activeArea : out  STD_LOGIC;
+           activeArea : out  STD_LOGIC
 			  --Nsync : out  STD_LOGIC
-				video : out std_logic
 			  );	-- signaux de synchronisation et commande de l'écran TFT
 end VGA;
 
 architecture Behavioral of VGA is
 signal Hcnt:STD_LOGIC_VECTOR(9 downto 0):="0000000000";		-- pour le comptage des colonnes
 signal Vcnt:STD_LOGIC_VECTOR(9 downto 0):="1000001000";		-- pour le comptage des lignes
---signal video:STD_LOGIC;
+signal video:STD_LOGIC;
 constant HM: integer :=799;	--la taille maximale considéré 800 (horizontal)
 constant HD: integer :=640;	--la taille de l'écran (horizontal)
 constant HF: integer :=16;		--front porch
@@ -41,7 +40,7 @@ begin
 -- c-a-d du 0 à 799.
 	process(CLK25)
 		begin
-			if (rising_edge(CLK25)) then
+			if (CLK25'event and CLK25='1') then
 				if (Hcnt = HM) then
 					Hcnt <= "0000000000";
                if (Vcnt= VM) then
@@ -86,7 +85,7 @@ begin
 -- génération du signal de synchronisation horizontale Hsync:
 	process(CLK25)
 		begin
-			if (rising_edge(CLK25)) then
+			if (CLK25'event and CLK25='1') then
 				if (Hcnt >= (HD+HF) and Hcnt <= (HD+HF+HR-1)) then   --- Hcnt >= 656 and Hcnt <= 751
 					Hsync <= '0';
 				else
@@ -99,7 +98,7 @@ begin
 -- génération du signal de synchronisation verticale Vsync:
 	process(CLK25)
 		begin
-			if (rising_edge(CLK25)) then
+			if (CLK25'event and CLK25='1') then
 				if (Vcnt >= (VD+VF) and Vcnt <= (VD+VF+VR-1)) then  ---Vcnt >= 490 and vcnt<= 491
 					Vsync <= '0';
 				else
