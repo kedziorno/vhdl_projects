@@ -209,10 +209,10 @@ begin
 		constant CNUMPIXELS : integer := HREF1 - CDATALENGTH*2;
 		variable count : integer range 0 to CDATALENGTH - 1;
 		type tdata is array(0 to CDATALENGTH - 1) of std_logic_vector(7 downto 0);
-		constant startdata : tdata := (x"FF",x"FF",x"FF",x"FF",x"FF");
-		constant enddata : tdata := (x"FF",x"FF",x"FF",x"FF",x"FF");
-		constant odddata : std_logic_vector(7 downto 0) := x"FF";
-		constant evendata : std_logic_vector(7 downto 0) := x"FF";
+		constant startdata : tdata := (x"FF",x"EE",x"DD",x"CC",x"BB");
+		constant enddata : tdata := (x"AA",x"BB",x"CC",x"DD",x"EE");
+		constant odddata : std_logic_vector(7 downto 0) := x"AA";
+		constant evendata : std_logic_vector(7 downto 0) := x"55";
 		type states is (s1,s2,s3);
 		variable state : states;
 		variable vd : std_logic_vector(7 downto 0);

@@ -44,7 +44,6 @@ end top;
 
 architecture Behavioral of top is
 
-signal clock_25mhz : std_logic;
 signal h : std_logic;
 signal v : std_logic;
 signal display_flag : std_logic;
@@ -74,7 +73,7 @@ signal camera_io_scl,camera_io_sda,camera_o_vs,camera_o_hs,camera_o_pclk,camera_
 signal camera_o_d : std_logic_vector(7 downto 0);
 
 constant C_BRAM_VGA_WIDTH : integer := 8;
-constant C_BRAM_VGA_DEPTH : integer := 1;
+constant C_BRAM_VGA_DEPTH : integer := 2;
 component bram_vga is
 generic (
 constant WIDTH : integer := C_BRAM_VGA_WIDTH;
@@ -98,21 +97,35 @@ signal activeh : std_logic;
 
 begin
 
-mem : bram_vga
-port map (
-clka => bram_vga_clka,
-clkb => bram_vga_clkb,
-wea => bram_vga_wea,
-addra => bram_vga_addra,
-addrb => bram_vga_addrb,
-dina => bram_vga_dina,
-douta => bram_vga_douta
-);
+clock <= i_clock;
 
-bram_vga_clka <= clockbuf1; --clkdv_cam;
+bram_vga_clka <= clkdv_cam;
 bram_vga_clkb <= clkdv_vga;
-bram_vga_wea <= '1';
+bram_vga_wea <= camera_o_hs;
 bram_vga_dina <= camera_o_d;
+
+camera_i_rst <= not i_reset;
+camera_i_xclk <= clkdv_cam;
+o_h <= h;
+o_v <= v;
+
+--o_r(3) <= bram_vga_douta(7);
+--o_r(2) <= bram_vga_douta(6);
+--o_r(1) <= bram_vga_douta(5);
+--o_g(3) <= bram_vga_douta(4);
+--o_g(2) <= bram_vga_douta(3);
+--o_g(1) <= bram_vga_douta(2);
+--o_b(3) <= bram_vga_douta(1);
+--o_b(2) <= bram_vga_douta(0);
+
+o_r(3) <= bram_vga_douta(7) when display_flag = '1' else '0';
+o_r(2) <= bram_vga_douta(6) when display_flag = '1' else '0';
+o_r(1) <= bram_vga_douta(5) when display_flag = '1' else '0';
+o_g(3) <= bram_vga_douta(4) when display_flag = '1' else '0';
+o_g(2) <= bram_vga_douta(3) when display_flag = '1' else '0';
+o_g(1) <= bram_vga_douta(2) when display_flag = '1' else '0';
+o_b(3) <= bram_vga_douta(1) when display_flag = '1' else '0';
+o_b(2) <= bram_vga_douta(0) when display_flag = '1' else '0';
 
 pmemaddra : process (bram_vga_clka,i_reset) is
 	constant C_COUNT : integer := 2**C_BRAM_VGA_DEPTH;
@@ -128,8 +141,8 @@ begin
 				count := count + 1;
 			end if;
 		end if;
+		bram_vga_addra <= std_logic_vector(to_unsigned(count,C_BRAM_VGA_DEPTH));
 	end if;
-	bram_vga_addra <= std_logic_vector(to_unsigned(count,C_BRAM_VGA_DEPTH));
 end process pmemaddra;
 
 pmemaddrb : process (bram_vga_clkb,i_reset) is
@@ -139,18 +152,153 @@ begin
 	if (i_reset = '1') then
 		count := 0;
 	elsif(rising_edge(bram_vga_clkb)) then
-		if (camera_o_hs = '1') then
+		if (display_flag = '1') then
 			if (count = C_COUNT - 1) then
 				count := 0;
 			else
 				count := count + 1;
 			end if;
 		end if;
+		bram_vga_addrb <= std_logic_vector(to_unsigned(count,C_BRAM_VGA_DEPTH));
 	end if;
-	bram_vga_addrb <= std_logic_vector(to_unsigned(count,C_BRAM_VGA_DEPTH));
 end process pmemaddrb;
 
-clock <= i_clock;
+p3 : process (clkdv_vga,i_reset,h) is
+	constant C_PW : integer := 95;
+	constant C_FP : integer := 16;
+	constant C_BP : integer := 48;
+	constant C_DISP : integer := 640;
+	variable pwh : integer range 0 to C_PW - 1 := 0;
+	variable fph : integer range 0 to C_FP - 1 := 0;
+	variable bph : integer range 0 to C_BP - 1 := 0;
+	variable disph : integer range 0 to C_DISP - 1 := 0;
+	type statesh is (idleh,state_pwh,state_fph,state_disph,state_bph);
+	variable stateh : statesh;
+begin
+	if (i_reset = '1') then
+		fph := 0;
+		bph := 0;
+		disph := 0;
+		stateh := idleh;
+		display_flag <= '0';
+	elsif (rising_edge(clkdv_vga)) then
+		case (stateh) is
+			when idleh =>
+				display_flag <= '0';
+				h <= '0';
+				if (activeh = '1') then
+					stateh := state_pwh;
+				else
+					stateh := idleh;
+				end if;
+			when state_pwh =>
+				display_flag <= '0';
+				h <= '0';
+				if (pwh = C_PW - 1) then
+					stateh := state_bph;
+					pwh := 0;
+				else
+					stateh := state_pwh;
+					pwh := pwh + 1;
+				end if;
+			when state_bph =>
+				display_flag <= '0';
+				h <= '1';
+				if (bph = C_BP - 1) then
+					stateh := state_disph;
+					bph := 0;
+				else
+					stateh := state_bph;
+					bph := bph + 1;
+				end if;
+			when state_disph =>
+				display_flag <= '1';
+				h <= '1';
+				if (disph = C_DISP - 1) then
+					stateh := state_fph;
+					disph := 0;
+				else
+					stateh := state_disph;
+					disph := disph + 1;
+				end if;
+			when state_fph =>
+				display_flag <= '0';
+				h <= '1';
+				if (fph = C_FP - 1) then
+					stateh := idleh;
+					fph := 0;
+				else
+					stateh := state_fph;
+					fph := fph + 1;
+				end if;
+		end case;
+	end if;
+end process p3;
+
+p4 : process (clkdv_vga,i_reset,v) is
+	constant C_PW : integer := 1600;
+	constant C_FP : integer := 8000;
+	constant C_BP : integer := 33*800;--23200;
+	constant C_DISP : integer := 384000;
+	variable pwv : integer range 0 to C_PW - 1 := 0;
+	variable fpv : integer range 0 to C_FP - 1 := 0;
+	variable bpv : integer range 0 to C_BP - 1 := 0;
+	variable dispv : integer range 0 to C_DISP - 1 := 0;
+	type statesv is (state_pwv,state_fpv,state_dispv,state_bpv);
+	variable statev : statesv;
+begin
+	if (i_reset = '1') then
+		pwv := 0;
+		fpv := 0;
+		bpv := 0;
+		dispv := 0;
+		statev := state_pwv;
+		activeh <= '0';
+	elsif (rising_edge(clkdv_vga)) then
+		case (statev) is
+			when state_pwv =>
+				activeh <= '0';
+				v <= '0';
+				if (pwv = C_PW - 1) then
+					statev := state_bpv;
+					pwv := 0;
+				else
+					statev := state_pwv;
+					pwv := pwv + 1;
+				end if;
+			when state_bpv =>
+				activeh <= '0';
+				v <= '1';
+				if (bpv = C_BP - 1) then
+					statev := state_dispv;
+					bpv := 0;
+				else
+					statev := state_bpv;
+					bpv := bpv + 1;
+				end if;
+			when state_dispv =>
+				activeh <= '1';
+				v <= '1';
+				if (dispv = C_DISP - 1) then
+					statev := state_fpv;
+					dispv := 0;
+				else
+					statev := state_dispv;
+					dispv := dispv + 1;
+				end if;
+			when state_fpv =>
+				activeh <= '0';
+				v <= '1';
+				if (fpv = C_FP - 1) then
+					statev := state_pwv;
+					fpv := 0;
+				else
+					statev := state_fpv;
+					fpv := fpv + 1;
+				end if;
+		end case;
+	end if;
+end process p4;
 
 dcm_vga : DCM
 generic map (
@@ -238,6 +386,17 @@ port map (o => clockbuf2, i => clockbuf1);
 buf_clk_cam : bufg
 port map (o => clockbuf2b, i => clockbuf2a);
 
+mem : bram_vga
+port map (
+clka => bram_vga_clka,
+clkb => bram_vga_clkb,
+wea => bram_vga_wea,
+addra => bram_vga_addra,
+addrb => bram_vga_addrb,
+dina => bram_vga_dina,
+douta => bram_vga_douta
+);
+
 cam : camera
 port map (
 io_scl => camera_io_scl,
@@ -250,161 +409,5 @@ o_d => camera_o_d,
 i_rst => camera_i_rst,
 i_pwdn => camera_i_pwdn
 );
-
-camera_i_rst <= not i_reset;
-camera_i_xclk <= clkdv_cam;
-o_h <= h;
-o_v <= v;
-
-o_r(3) <= bram_vga_douta(7) when display_flag = '1' else '0';
-o_r(2) <= bram_vga_douta(6) when display_flag = '1' else '0';
-o_r(1) <= bram_vga_douta(5) when display_flag = '1' else '0';
-o_g(3) <= bram_vga_douta(4) when display_flag = '1' else '0';
-o_g(2) <= bram_vga_douta(3) when display_flag = '1' else '0';
-o_g(1) <= bram_vga_douta(2) when display_flag = '1' else '0';
-o_b(3) <= bram_vga_douta(1) when display_flag = '1' else '0';
-o_b(2) <= bram_vga_douta(0) when display_flag = '1' else '0';
-
-p3 : process (clkdv_vga,i_reset,h) is
-	constant C_PW : integer := 96;
-	constant C_FP : integer := 48;
-	constant C_BP : integer := 16;
-	constant C_DISP : integer := 640;
-	variable pwh : integer range 0 to C_PW - 1 := 0;
-	variable fph : integer range 0 to C_FP - 1 := 0;
-	variable bph : integer range 0 to C_BP - 1 := 0;
-	variable disph : integer range 0 to C_DISP - 1 := 0;
-	type statesh is (idleh,state_pwh,state_fph,state_disph,state_bph);
-	variable stateh : statesh;
-begin
-	if (i_reset = '1') then
-		fph := 0;
-		bph := 0;
-		disph := 0;
-		stateh := idleh;
-		display_flag <= '0';
-	elsif (rising_edge(clkdv_vga)) then
-		case (stateh) is
-			when idleh =>
-				display_flag <= '0';
-				h <= '0';
-				if (activeh = '1') then
-					stateh := state_pwh;
-				else
-					stateh := idleh;
-				end if;
-			when state_pwh =>
-				display_flag <= '0';
-				h <= '0';
-				if (pwh = C_PW - 1) then
-					stateh := state_fph;
-					pwh := 0;
-				else
-					stateh := state_pwh;
-					pwh := pwh + 1;
-				end if;
-			when state_fph =>
-				display_flag <= '0';
-				h <= '1';
-				if (fph = C_FP - 1) then
-					stateh := state_disph;
-					fph := 0;
-				else
-					stateh := state_fph;
-					fph := fph + 1;
-				end if;
-			when state_disph =>
-				display_flag <= '1';
-				h <= '1';
-				if (disph = C_DISP - 1) then
-					stateh := state_bph;
-					disph := 0;
-				else
-					stateh := state_disph;
-					disph := disph + 1;
-				end if;
-			when state_bph =>
-				display_flag <= '0';
-				h <= '1';
-				if (bph = C_BP - 1) then
-					stateh := idleh;
-					bph := 0;
-				else
-					stateh := state_bph;
-					bph := bph + 1;
-				end if;
-				display_flag <= '0';
-		end case;
-	end if;
-end process p3;
-
-p4 : process (clkdv_vga,i_reset,v) is
-	constant C_PW : integer := 1600;
-	constant C_FP : integer := 23200*4*2;
-	constant C_BP : integer := 8000*4*2;
-	constant C_DISP : integer := 384000/4;
-	variable pwv : integer range 0 to C_PW - 1 := 0;
-	variable fpv : integer range 0 to C_FP - 1 := 0;
-	variable bpv : integer range 0 to C_BP - 1 := 0;
-	variable dispv : integer range 0 to C_DISP - 1 := 0;
-	type statesv is (idlev,state_pwv,state_fpv,state_dispv,state_bpv);
-	variable statev : statesv;
-begin
-	if (i_reset = '1') then
-		pwv := 0;
-		fpv := 0;
-		bpv := 0;
-		dispv := 0;
-		statev := idlev;
-		activeh <= '0';
-	elsif (rising_edge(clkdv_vga)) then
-		case (statev) is
-			when idlev =>
-				activeh <= '0';
-				v <= '1';
-				statev := state_pwv;
-			when state_pwv =>
-				activeh <= '0';
-				v <= '0';
-				if (pwv = C_PW - 1) then
-					statev := state_fpv;
-					pwv := 0;
-				else
-					statev := state_pwv;
-					pwv := pwv + 1;
-				end if;
-			when state_fpv =>
-				activeh <= '0';
-				v <= '1';
-				if (fpv = C_FP - 1) then
-					statev := state_dispv;
-					fpv := 0;
-				else
-					statev := state_fpv;
-					fpv := fpv + 1;
-				end if;
-			when state_dispv =>
-				activeh <= '1';
-				v <= '1';
-				if (dispv = C_DISP - 1) then
-					statev := state_bpv;
-					dispv := 0;
-				else
-					statev := state_dispv;
-					dispv := dispv + 1;
-				end if;
-			when state_bpv =>
-				activeh <= '0';
-				v <= '1';
-				if (bpv = C_BP - 1) then
-					statev := idlev;
-					bpv := 0;
-				else
-					statev := state_bpv;
-					bpv := bpv + 1;
-				end if;
-		end case;
-	end if;
-end process p4;
 
 end Behavioral;

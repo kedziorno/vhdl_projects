@@ -65,8 +65,7 @@ begin
 		if (rising_edge(clkb)) then
 			read_addrb <= addrb;
 		end if;
-		douta <= RAM(conv_integer(read_addrb));
 	end process pb;
---	douta <= RAM(conv_integer(addrb));
+	douta <= RAM(conv_integer(addrb));
 
 end architecture simulation;
