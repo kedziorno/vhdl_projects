@@ -7,4 +7,5 @@
 [adc.gif](adc.gif)
 [ladder_r2r.gif](ladder_r2r.gif)
 [simple_logicanalyser.gif](simple_logicanalyser.gif)
+[simple_monitoring_4x_camera.gif](simple_monitoring_4x_camera.gif)
 #
