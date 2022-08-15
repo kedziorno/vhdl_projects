@@ -7,4 +7,5 @@
 [adc.gif](adc.gif)
 [ladder_r2r.gif](ladder_r2r.gif)
 [simple_logicanalyser.gif](simple_logicanalyser.gif)
+[3x_ov7670_st7735_16bit.gif](3x_ov7670_st7735_16bit.gif)
 #
