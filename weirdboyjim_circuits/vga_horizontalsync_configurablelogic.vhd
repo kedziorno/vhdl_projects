@@ -94,13 +94,13 @@ i_counter2_d3 <= i_startvaluereg8bit_1 (7);
 
 i_counter1_cp <= i_clock;
 i_counter1_cet <= o_counter8_tc;
-i_counter1_cep <= o_counter8_tc;
+i_counter1_cep <= '1';
 i_counter1_pe_b <= '1';
 i_counter1_mr_b <= i_reset;
 
 i_counter2_cp <= i_clock;
 i_counter2_cet <= o_counter1_tc;
-i_counter2_cep <= o_counter1_tc;
+i_counter2_cep <= '1';
 i_counter2_pe_b <= '1';
 i_counter2_mr_b <= i_reset;
 
@@ -115,13 +115,13 @@ i_counter4_d3 <= i_startvaluereg8bit_2 (7);
 
 i_counter3_cp <= i_clock;
 i_counter3_cet <= o_counter8_tc;
-i_counter3_cep <= o_counter8_tc;
+i_counter3_cep <= '1';
 i_counter3_pe_b <= '1';
 i_counter3_mr_b <= i_reset;
 
 i_counter4_cp <= i_clock;
 i_counter4_cet <= o_counter3_tc;
-i_counter4_cep <= o_counter3_tc;
+i_counter4_cep <= '1';
 i_counter4_pe_b <= '1';
 i_counter4_mr_b <= i_reset;
 
@@ -136,13 +136,13 @@ i_counter6_d3 <= i_startvaluereg8bit_3 (7);
 
 i_counter5_cp <= i_clock;
 i_counter5_cet <= o_counter8_tc;
-i_counter5_cep <= o_counter8_tc;
+i_counter5_cep <= '1';
 i_counter5_pe_b <= '1';
 i_counter5_mr_b <= i_reset;
 
 i_counter6_cp <= i_clock;
 i_counter6_cet <= o_counter5_tc;
-i_counter6_cep <= o_counter5_tc;
+i_counter6_cep <= '1';
 i_counter6_pe_b <= '1';
 i_counter6_mr_b <= i_reset;
 
@@ -163,7 +163,7 @@ i_counter7_mr_b <= i_reset;
 
 i_counter8_cp <= i_clock;
 i_counter8_cet <= o_counter7_tc;
-i_counter8_cep <= o_counter7_tc;
+i_counter8_cep <= '1';
 i_counter8_pe_b <= '1';
 i_counter8_mr_b <= i_reset;
 
