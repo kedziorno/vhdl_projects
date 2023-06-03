@@ -46,7 +46,7 @@ reset : IN  bit;
 B_in : IN  bit;
 NRZ_Mealy : OUT  bit;
 NRZ_Moore : OUT  bit;
-NRZI_Mealy : buffer  bit;
+NRZI_Mealy : OUT  bit;
 NRZI_Moore : OUT  bit;
 RZ : OUT  bit;
 Manchester : OUT  bit
