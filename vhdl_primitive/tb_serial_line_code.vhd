@@ -46,7 +46,7 @@ reset : IN  bit;
 B_in : IN  bit;
 NRZ_Mealy : OUT  bit;
 NRZ_Moore : OUT  bit;
-NRZI_Mealy : OUT  bit;
+NRZI_Mealy : buffer  bit;
 NRZI_Moore : OUT  bit;
 RZ : OUT  bit;
 Manchester : OUT  bit
@@ -120,6 +120,8 @@ B_in <= '1'; wait for clock_1_period;
 B_in <= '0'; wait for clock_1_period;
 B_in <= '0'; wait for clock_1_period;
 B_in <= '1'; wait for clock_1_period;
+B_in <= '0'; wait for clock_1_period;
+B_in <= '0'; wait for clock_1_period;
 B_in <= '0'; wait for clock_1_period;
 report "tb done" severity failure;
 end process;

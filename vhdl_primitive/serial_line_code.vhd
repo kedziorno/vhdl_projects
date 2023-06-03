@@ -37,7 +37,7 @@ signal reset : in bit;
 signal B_in : in bit;
 signal NRZ_Mealy : out bit;
 signal NRZ_Moore : out bit;
-signal NRZI_Mealy : out bit;
+signal NRZI_Mealy : buffer bit;
 signal NRZI_Moore : out bit;
 signal RZ : out bit;
 signal Manchester : out bit
@@ -47,7 +47,11 @@ end serial_line_code;
 architecture Behavioral of serial_line_code is
 
 signal bin : bit;
-signal manchaster1,manchaster2,manchaster3,manchaster4 : bit;
+signal pnrzi : bit;
+signal toggle : bit;
+
+signal reg1,reg2 : bit;
+signal prev : bit;
 
 begin
 
@@ -73,6 +77,76 @@ begin
     end if;
   end if;
 end process p_Manchester;
+
+p_NRZ_Mealy : process (clock_1) is
+begin
+  if (clock_1'event and clock_1 = '0') then
+    NRZ_Mealy <= B_in;
+  end if;
+end process p_NRZ_Mealy;
+
+p_NRZ_Moore : process (clock_1) is
+begin
+  if (clock_1'event and clock_1 = '1') then
+    NRZ_Moore <= B_in;
+  end if;
+end process p_NRZ_Moore;
+
+p_catch_1 : process (clock_1) is
+begin
+  if (clock_1'event and clock_1 = '0') then
+    if (reset = '1') then
+      reg1 <= '0';
+      reg2 <= '0';
+    else
+      reg1 <= B_in;
+      reg2 <= reg1;
+    end if;
+   end if;
+end process p_catch_1;
+
+p_NRZI_Mealy2 : process (clock_1) is
+begin
+  if (clock_1'event and clock_1 = '0') then
+    if (reset = '1') then
+      pnrzi <= '0';
+      toggle <= '0';
+    else
+      pnrzi <= B_in;
+      if (((B_in = '1' and reg2 = '1') or (B_in = '1' and reg2 = '0'))) then
+        toggle <= '1';
+      else
+        toggle <= '0';
+      end if;
+    end if;
+   end if;
+end process p_NRZI_Mealy2;
+
+p_prev : process (clock_1) is
+begin
+  if (clock_1'event and clock_1 = '0') then
+    if (reset = '1') then
+      prev <= '0';
+    else
+      prev <= NRZI_Mealy;
+    end if;
+  end if;
+end process p_prev;
+
+p_NRZI_Mealy1 : process (clock_1) is
+begin
+  if (clock_1'event and clock_1 = '0') then
+    if (reset = '1') then
+      NRZI_Mealy <= '0';
+    else
+      if (((B_in = '1' and reg2 = '1') or (B_in = '1' and reg2 = '0'))) then
+        NRZI_Mealy <= not NRZI_Mealy;
+      else
+        NRZI_Mealy <= NRZI_Mealy;
+      end if;
+    end if;
+  end if;
+end process p_NRZI_Mealy1;
 
 end Behavioral;
 
