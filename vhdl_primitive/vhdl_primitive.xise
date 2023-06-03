@@ -407,7 +407,7 @@
       <association xil_pn:name="PostTranslateSimulation" xil_pn:seqID="236"/>
     </file>
     <file xil_pn:name="serial_line_code.ucf" xil_pn:type="FILE_UCF">
-      <association xil_pn:name="Implementation" xil_pn:seqID="279"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
   </files>
 
@@ -722,6 +722,7 @@
     <binding xil_pn:location="/clock" xil_pn:name="ripple_counter.ucf"/>
     <binding xil_pn:location="/FF_D_DUAL_EDGE_TRIGGERED" xil_pn:name="delayed_programmable_circuit.ucf"/>
     <binding xil_pn:location="/inv_gate_multilevel_parallel_carry_forward" xil_pn:name="delayed_circuit.ucf"/>
+    <binding xil_pn:location="/serial_line_code" xil_pn:name="serial_line_code.ucf"/>
   </bindings>
 
   <libraries>

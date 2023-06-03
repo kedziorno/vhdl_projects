@@ -51,6 +51,8 @@ signal pnrzi : bit;
 
 signal pbin1,pbin2 : bit;
 signal nrzime : bit;
+signal nrzimo : bit;
+
 begin
 
 p_catch_clock : process (clock_2) is
@@ -119,5 +121,48 @@ begin
 end process p_NRZI_Mealy;
 NRZI_Mealy <= nrzime;
 
-end Behavioral;
+p_NRZI_Moore : process (clock_1) is
+begin
+  if (clock_1'event and clock_1 = '1') then
+    if (reset = '1') then
+      nrzimo <= '0';
+    else
+      nrzimo <= nrzime;
+    end if;
+  end if;
+end process p_NRZI_Moore;
+NRZI_Moore <= nrzimo;
 
+p_RZ : process (clock_1) is
+begin
+  if (clock_1'event and clock_1 = '0') then
+    if (reset = '1') then
+      RZ <= '0';
+    else
+      if (
+      ((nrzime = '0' and nrzimo = '1') or (nrzime = '1' and nrzimo = '0'))
+      --or ((nrzime = '0' or nrzimo = '0') or (nrzime = '1' or nrzimo = '1'))
+      ) then
+        RZ <= '0';
+      else
+        RZ <= '1';
+      end if;
+    end if;
+  end if;
+  if (clock_1'event and clock_1 = '1') then
+    if (reset = '1') then
+      RZ <= '0';
+    else
+      if (
+      ((nrzime = '0' and nrzimo = '1') or (nrzime = '1' and nrzimo = '0'))
+      --or ((nrzime = '0' and nrzimo = '0') or (nrzime = '1' and nrzimo = '1'))
+      ) then
+        RZ <= '0';
+      else
+        RZ <= '1';
+      end if;
+    end if;
+  end if;
+end process p_RZ;
+
+end Behavioral;
