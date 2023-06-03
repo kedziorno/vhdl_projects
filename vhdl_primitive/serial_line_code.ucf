@@ -1,0 +1,4 @@
+NET "clock_1" TNM_NET = "CLK_A";
+NET "clock_2" TNM_NET = "CLK_B";
+TIMESPEC "TS_CLKA" = PERIOD "CLK_A" 20 ns;
+TIMESPEC "TS_CLKB" = PERIOD "CLK_B" 10 ns;
