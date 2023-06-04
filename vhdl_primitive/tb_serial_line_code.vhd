@@ -68,8 +68,8 @@ signal RZ : bit;
 signal Manchester : bit;
 
 -- Clock period definitions
-constant clock_1_period : time := 20 ns; -- speed 1x
-constant clock_2_period : time := 10 ns; -- speed 2x
+constant clock_1_period : time := 10 ns; -- speed 1x
+constant clock_2_period : time := 5 ns; -- speed 2x
 
 BEGIN
 
