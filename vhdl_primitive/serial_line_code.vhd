@@ -47,7 +47,6 @@ end serial_line_code;
 architecture Behavioral of serial_line_code is
 
 signal bin : bit;
-signal pnrzi : bit;
 
 signal pbin1,pbin2 : bit;
 signal nrzime : bit;
