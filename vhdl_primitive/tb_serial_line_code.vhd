@@ -3,7 +3,7 @@
 -- Engineer:
 --
 -- Create Date:   20:19:55 06/03/2023
--- Design Name:   
+-- Design Name:   fig_3_24
 -- Module Name:   /home/user/workspace/vhdl_projects/vhdl_primitive/tb_serial_line_code.vhd
 -- Project Name:  vhdl_primitive
 -- Target Device:  

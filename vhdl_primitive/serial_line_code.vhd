@@ -3,7 +3,7 @@
 -- Engineer: 
 -- 
 -- Create Date:    19:58:09 06/03/2023 
--- Design Name: 
+-- Design Name:    fig_3_24
 -- Module Name:    serial_line_code - Behavioral 
 -- Project Name: 
 -- Target Devices: 
