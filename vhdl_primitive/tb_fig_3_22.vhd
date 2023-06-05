@@ -1,0 +1,113 @@
+--------------------------------------------------------------------------------
+-- Company: 
+-- Engineer:
+--
+-- Create Date:   13:09:27 06/05/2023
+-- Design Name:   
+-- Module Name:   /home/user/workspace/vhdl_projects/vhdl_primitive/tb_fig_3_22.vhd
+-- Project Name:  vhdl_primitive
+-- Target Device:  
+-- Tool versions:  
+-- Description:   
+-- 
+-- VHDL Test Bench Created by ISE for module: fig_3_22
+-- 
+-- Dependencies:
+-- 
+-- Revision:
+-- Revision 0.01 - File Created
+-- Additional Comments:
+--
+-- Notes: 
+-- This testbench has been automatically generated using types bit and
+-- bit_vector for the ports of the unit under test.  Xilinx recommends
+-- that these types always be used for the top-level I/O of a design in order
+-- to guarantee that the testbench will bind correctly to the post-implementation 
+-- simulation model.
+--------------------------------------------------------------------------------
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--USE ieee.numeric_std.ALL;
+
+ENTITY tb_fig_3_22 IS
+END tb_fig_3_22;
+
+ARCHITECTURE behavior OF tb_fig_3_22 IS 
+
+-- Component Declaration for the Unit Under Test (UUT)
+COMPONENT fig_3_22
+PORT(
+clk : IN  bit;
+reset : IN  bit;
+Bin : IN  bit;
+Bout : OUT  bit
+);
+END COMPONENT;
+
+--Inputs
+signal clk : bit := '0';
+signal reset : bit := '0';
+signal Bin : bit := '0';
+
+--Outputs
+signal Bout : bit;
+
+-- Clock period definitions
+constant clk_period : time := 10 ns;
+
+BEGIN
+
+-- Instantiate the Unit Under Test (UUT)
+uut: fig_3_22 PORT MAP (
+clk => clk,
+reset => reset,
+Bin => Bin,
+Bout => Bout
+);
+
+-- Clock process definitions
+clk_process :process
+begin
+clk <= '0';
+wait for clk_period/2;
+clk <= '1';
+wait for clk_period/2;
+end process;
+
+-- Stimulus process
+stim_proc: process
+begin
+-- hold reset state for 100 ns.
+reset <= '1';
+wait for 100 ns;
+reset <= '0';
+-- insert stimulus here
+
+Bin <= '1'; wait for clk_period;
+Bin <= '0'; wait for clk_period;
+Bin <= '0'; wait for clk_period;
+Bin <= '0'; wait for clk_period;
+
+wait for 10*clk_period;
+
+Bin <= '1'; wait for clk_period;
+Bin <= '0'; wait for clk_period;
+Bin <= '0'; wait for clk_period;
+Bin <= '0'; wait for clk_period;
+
+wait for 10*clk_period;
+
+Bin <= '1'; wait for clk_period;
+Bin <= '0'; wait for clk_period;
+Bin <= '0'; wait for clk_period;
+Bin <= '0'; wait for clk_period;
+
+wait for 10*clk_period;
+
+report "done tb" severity failure;
+end process;
+
+END;
