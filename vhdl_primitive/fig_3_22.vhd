@@ -31,10 +31,10 @@ use UNISIM.VComponents.all;
 
 entity fig_3_22 is
 port (
-clk : in bit;
-reset : in bit;
-Bin : in bit;
-Bout : out bit
+clk : in std_logic;
+reset : in std_logic;
+Bin : in std_logic;
+Bout : out std_logic
 );
 end fig_3_22;
 
@@ -75,25 +75,25 @@ signal gate1,gate2,gate3,gate4,gate5,gate6 : std_logic;
 
 begin
 
-binb <= not to_stdulogic(Bin);
+binb <= not Bin;
 
-inst_nand1 : NAND3 port map (O=>gate1, I0=>q0   , I1=>q1   , I2=>q2               );
-inst_nand2 : NAND3 port map (O=>gate2, I0=>q0   , I1=>q2b  , I2=>binb             );
-inst_nand3 : NAND3 port map (O=>gate3, I0=>q0b  , I1=>q1b  , I2=>to_stdulogic(Bin));
-inst_nand4 : NAND3 port map (O=>gate4, I0=>gate1, I1=>gate2, I2=>gate3            );
+inst_nand1 : NAND3 port map (O=>gate1, I0=>q0   , I1=>q1   , I2=>q2   );
+inst_nand2 : NAND3 port map (O=>gate2, I0=>q0   , I1=>q2b  , I2=>binb );
+inst_nand3 : NAND3 port map (O=>gate3, I0=>q0b  , I1=>q1b  , I2=>Bin  );
+inst_nand4 : NAND3 port map (O=>gate4, I0=>gate1, I1=>gate2, I2=>gate3);
 
-inst_FDRq0 : FDR port map (Q=>q0, C=>to_stdulogic(clk), D=>q1b  , R=>to_stdulogic(reset));
-inst_FDRq1 : FDR port map (Q=>q1, C=>to_stdulogic(clk), D=>q0   , R=>to_stdulogic(reset));
-inst_FDRq2 : FDR port map (Q=>q2, C=>to_stdulogic(clk), D=>gate4, R=>to_stdulogic(reset));
+inst_FDRq0 : FDR port map (Q=>q0, C=>clk, D=>q1b  , R=>reset);
+inst_FDRq1 : FDR port map (Q=>q1, C=>clk, D=>q0   , R=>reset);
+inst_FDRq2 : FDR port map (Q=>q2, C=>clk, D=>gate4, R=>reset);
 q0b <= not q0;
 q1b <= not q1;
 q2b <= not q2;
 
-inst_nand5 : NAND2 port map (O=>gate5, I0=>to_stdulogic(Bin), I1=>q2   );
-inst_nand6 : NAND2 port map (O=>gate6, I0=>binb,              I1=>q2b  );
-inst_nand7 : NAND2 port map (O=>boutb, I0=>gate5,             I1=>gate6);
+inst_nand5 : NAND2 port map (O=>gate5, I0=>Bin,   I1=>q2   );
+inst_nand6 : NAND2 port map (O=>gate6, I0=>binb,  I1=>q2b  );
+inst_nand7 : NAND2 port map (O=>boutb, I0=>gate5, I1=>gate6);
 
-Bout <= to_bit (boutb);
+Bout <= boutb;
 
 end Behavioral;
 
