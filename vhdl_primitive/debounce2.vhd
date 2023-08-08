@@ -29,7 +29,7 @@ use IEEE.NUMERIC_STD.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity debounce is
+entity debounce2 is
 Generic (
 	G_BOARD_CLOCK : integer := 50_000_000;
 	G_SIZE : integer := 8
@@ -42,7 +42,7 @@ Port (
 );
 end debounce;
 
-architecture Behavioral of debounce is
+architecture Behavioral of debounce2 is
 
 	COMPONENT clock_divider_cnt IS
 	Generic (

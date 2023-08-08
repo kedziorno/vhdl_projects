@@ -1,0 +1,2 @@
+NET "clk" TNM_NET = "CLK_A";
+TIMESPEC "TS_CLKA" = PERIOD "CLK_A" 10 ns;
