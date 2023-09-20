@@ -14,7 +14,6 @@
         <signal name="XLXN_13" />
         <signal name="XLXN_21" />
         <signal name="XLXN_22" />
-        <signal name="XLXN_78" />
         <signal name="clk_out" />
         <signal name="clk" />
         <port polarity="Output" name="clk_out" />
@@ -280,7 +279,7 @@
         </block>
         <block symbolname="title" name="XLXI_57">
             <attr value="Clock divided by 3 with 75% Duty Cycle" name="TitleFieldText" />
-            <attr value="Clock divided by 3 with 75% Duty Cycle" name="NameFieldText" />
+            <attr value="Karthik Vippala" name="NameFieldText" />
         </block>
     </netlist>
     <sheet sheetnum="1" width="3520" height="2720">
