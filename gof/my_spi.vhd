@@ -32,7 +32,7 @@ use WORK.st7735r_p_package.ALL;
 
 entity my_spi is
 generic (
-	C_CLOCK_COUNTER : integer
+	C_CLOCK_COUNTER : integer := 50_000_000
 );
 port (
 	i_clock : in std_logic;

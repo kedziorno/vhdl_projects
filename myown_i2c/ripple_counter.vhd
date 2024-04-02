@@ -78,6 +78,7 @@ architecture Behavioral of ripple_counter is
 	C : out STD_LOGIC
 	);
 	end component GATE_AND;
+--	for all : GATE_AND use entity WORK.GATE_AND(GATE_AND_BEHAVIORAL_1);
 	for all : GATE_AND use entity WORK.GATE_AND(GATE_AND_LUT);
 
 	component GATE_OR is
@@ -89,6 +90,7 @@ architecture Behavioral of ripple_counter is
 	C : out STD_LOGIC
 	);
 	end component GATE_OR;
+--	for all : GATE_OR use entity WORK.GATE_OR(GATE_OR_BEHAVIORAL_1);
 	for all : GATE_OR use entity WORK.GATE_OR(GATE_OR_LUT);
 
 	component GATE_NOT is
@@ -100,6 +102,7 @@ architecture Behavioral of ripple_counter is
 	B : out STD_LOGIC
 	);
 	end component GATE_NOT;
+--	for all : GATE_NOT use entity WORK.GATE_NOT(GATE_NOT_BEHAVIORAL_1);
 	for all : GATE_NOT use entity WORK.GATE_NOT(GATE_NOT_LUT);
 
 	signal cp,mr : std_logic;

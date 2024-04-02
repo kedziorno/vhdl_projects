@@ -44,7 +44,6 @@ ARCHITECTURE behavior OF tb_power_on IS
     PORT(
          i_clock : IN  std_logic;
          i_reset : IN std_logic;
-         i_button : in std_logic;
          o_sda : OUT  std_logic;
          o_scl : OUT  std_logic
         );
@@ -53,7 +52,6 @@ ARCHITECTURE behavior OF tb_power_on IS
    --Inputs
    signal clock : std_logic := '0';
    signal reset : std_logic := '0';
-   signal button : std_logic := '0';
 
  	--Outputs
    signal sda : std_logic;
@@ -69,7 +67,6 @@ BEGIN
 	uut: power_on PORT MAP (
 		i_clock => clock_50mhz,
 		i_reset => reset,
-		i_button => button,
 		o_sda => sda,
 		o_scl => scl
 	);
@@ -109,7 +106,7 @@ BEGIN
 		reset <= '1';
 		wait for clock_period_50mhz;
 		reset <= '0';
-		wait for 4500 us;
+		wait for 5000 us;
 		report "done" severity failure;
 	end process;
 

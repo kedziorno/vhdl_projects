@@ -100,7 +100,8 @@ rst <= '1','0' after clk_period;
 --		refresh <= '1';
 --		wait for 20 ns;
 --		refresh <= '0';
-		wait;
+      wait for 110 ms;
+      report "tb done" severity failure;
 	end process;
 
 END;

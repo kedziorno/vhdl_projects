@@ -54,6 +54,7 @@ architecture LUT of FF_JK is
 	C : out STD_LOGIC
 	);
 	end component GATE_AND;
+--	for all : GATE_AND use entity WORK.GATE_AND(GATE_AND_BEHAVIORAL_1);
 	for all : GATE_AND use entity WORK.GATE_AND(GATE_AND_LUT);
 
 	component GATE_NAND is
@@ -65,6 +66,7 @@ architecture LUT of FF_JK is
 	C : out  STD_LOGIC
 	);
 	end component GATE_NAND;
+--	for all : GATE_NAND use entity WORK.GATE_NAND(GATE_NAND_BEHAVIORAL_1);
 	for all : GATE_NAND use entity WORK.GATE_NAND(GATE_NAND_LUT);
 
 	component GATE_NAND3 is
@@ -76,6 +78,7 @@ architecture LUT of FF_JK is
 	D : out  STD_LOGIC
 	);
 	end component GATE_NAND3;
+--	for all : GATE_NAND3 use entity WORK.GATE_NAND3(GATE_NAND3_BEHAVIORAL_1);
 	for all : GATE_NAND3 use entity WORK.GATE_NAND3(GATE_NAND3_LUT);
 
 	component GATE_NAND4 is
@@ -87,6 +90,7 @@ architecture LUT of FF_JK is
 	E : out  STD_LOGIC
 	);
 	end component GATE_NAND4;
+--	for all : GATE_NAND4 use entity WORK.GATE_NAND4(GATE_NAND4_BEHAVIORAL_1);
 	for all : GATE_NAND4 use entity WORK.GATE_NAND4(GATE_NAND4_LUT);
 
 	component GATE_NOT is
@@ -98,6 +102,7 @@ architecture LUT of FF_JK is
 	B : out STD_LOGIC
 	);
 	end component GATE_NOT;
+--	for all : GATE_NOT use entity WORK.GATE_NOT(GATE_NOT_BEHAVIORAL_1);
 	for all : GATE_NOT use entity WORK.GATE_NOT(GATE_NOT_LUT);
 
 begin

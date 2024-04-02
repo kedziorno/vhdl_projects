@@ -89,12 +89,12 @@ architecture Behavioral of my_i2c_pc is
 --	for all : GATE_NAND use entity WORK.GATE_NAND(GATE_NAND_BEHAVIORAL_1);
 	for all : GATE_NAND use entity WORK.GATE_NAND(GATE_NAND_LUT);
 
-	component GATE_NOR2 is
-	generic (delay_nor2 : TIME := 0 ns);
-	port (A,B : in STD_LOGIC; C : out STD_LOGIC);
-	end component GATE_NOR2;
-	for all : GATE_NOR2 use entity WORK.GATE_NOR2(GATE_NOR2_BEHAVIORAL_1);
---	for all : GATE_NOR2 use entity WORK.GATE_NOR2(GATE_NOR2_LUT);
+--	component GATE_NOR2 is
+--	generic (delay_nor2 : TIME := 0 ns);
+--	port (A,B : in STD_LOGIC; C : out STD_LOGIC);
+--	end component GATE_NOR2;
+--	for all : GATE_NOR2 use entity WORK.GATE_NOR2(GATE_NOR2_BEHAVIORAL_1);
+----	for all : GATE_NOR2 use entity WORK.GATE_NOR2(GATE_NOR2_LUT);
 
 	component MUX_21 is
 	generic (delay_and : TIME := 0 ns; delay_or : TIME := 0 ns; delay_not : TIME := 0 ns);

@@ -88,9 +88,9 @@ signal RAMB16_S4_CLK,RAMB16_S4_EN,RAMB16_S4_SSR,RAMB16_S4_WE : std_logic;
 begin
 
 RAMB16_S4_ADDR(11 downto 0) <= i_MemAdr(12 downto 1) when (RamCS = '0' and (MemWR = '0' or MemOE = '0')) else (others => 'Z');
-o_MemDB <= RAMB16_S4_DO(2 downto 0) when (cstate = idle) else (others => 'Z');
-io_MemDB <= RAMB16_S4_DO(2 downto 0) when (RamCS = '0' and MemOE = '0') else (others => 'Z');
-RAMB16_S4_DI(2 downto 0) <= i_MemDB when (RamCS = '0' and MemWR = '0') else (others => 'Z');
+o_MemDB <= "0000000000000"&RAMB16_S4_DO(2 downto 0) when (cstate = idle) else (others => 'Z');
+io_MemDB <= "0000000000000"&RAMB16_S4_DO(2 downto 0) when (RamCS = '0' and MemOE = '0') else (others => 'Z');
+RAMB16_S4_DI(2 downto 0) <= i_MemDB(2 downto 0) when (RamCS = '0' and MemWR = '0') else (others => 'Z');
 RAMB16_S4_CLK <= i_clock;
 RAMB16_S4_EN <= not RamCS;
 RAMB16_S4_WE <= not MemWR;

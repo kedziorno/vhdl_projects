@@ -17,8 +17,8 @@
 -- Additional Comments: 
 --
 ----------------------------------------------------------------------------------
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
+--library IEEE;
+--use IEEE.STD_LOGIC_1164.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -44,21 +44,21 @@ use IEEE.STD_LOGIC_1164.ALL;
 -- ...........O...O
 -- ............OO
 
-entity memory1 is
-Generic (
-WIDTH : integer;
-HEIGHT : integer);
-Port (
-i_clk : in  STD_LOGIC;
-i_x : in  STD_LOGIC;
-i_y : in  STD_LOGIC;
-o_bit : out  STD_LOGIC);
-end memory1;
-
-architecture Behavioral of memory1 is
-type array1 is array(0 to WIDTH-1,0 to HEIGHT-1) of std_logic;
-begin
-
-
-end Behavioral;
+--entity memory1 is
+--Generic (
+--WIDTH : integer;
+--HEIGHT : integer);
+--Port (
+--i_clk : in  STD_LOGIC;
+--i_x : in  STD_LOGIC;
+--i_y : in  STD_LOGIC;
+--o_bit : out  STD_LOGIC);
+--end memory1;
+--
+--architecture Behavioral of memory1 is
+--type array1 is array(0 to WIDTH-1,0 to HEIGHT-1) of std_logic;
+--begin
+--
+--
+--end Behavioral;
 

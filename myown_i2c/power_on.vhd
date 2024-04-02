@@ -36,7 +36,6 @@ entity power_on is
 port (
 	i_clock : in std_logic;
 	i_reset : in std_logic;
---	i_button : in std_logic;
 	o_sda : out std_logic;
 	o_scl : out std_logic
 );

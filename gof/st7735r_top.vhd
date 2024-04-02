@@ -19,9 +19,9 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use WORK.p_package.ALL;
-use WORK.p_screen.ALL;
-use WORK.p_rom_data.ALL;
+--use WORK.p_package.ALL;
+--use WORK.p_screen.ALL;
+--use WORK.p_rom_data.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
