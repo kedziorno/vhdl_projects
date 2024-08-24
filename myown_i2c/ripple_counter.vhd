@@ -32,7 +32,14 @@ use UNISIM.VComponents.all;
 entity ripple_counter is
 Generic (
 N : integer := 32;
-MAX : integer := 1
+MAX : integer := 1;
+delay_and : time := 0 ns;
+delay_nand : time := 0 ns;
+delay_nand3 : time := 0 ns;
+delay_nand4 : time := 0 ns;
+delay_not : time := 0 ns;
+delay_or : time := 0 ns;
+delay_mr : time := 0 ns
 );
 Port (
 i_clock : in std_logic;
@@ -46,18 +53,25 @@ end ripple_counter;
 architecture Behavioral of ripple_counter is
 
 	component FF_JK is
+	generic (
+		delay_and : time := 0 ns;
+		delay_nand : time := 0 ns;
+		delay_nand3 : time := 0 ns;
+		delay_nand4 : time := 0 ns;
+		delay_not : time := 0 ns
+	);
 	port (
 	i_r:in STD_LOGIC;
 	J,K,C:in STD_LOGIC;
-	Q1:inout STD_LOGIC;
-	Q2:inout STD_LOGIC
+	Q1:out STD_LOGIC;
+	Q2:out STD_LOGIC
 	);
 	end component FF_JK;
 	for all : FF_JK use entity WORK.FF_JK(LUT);
 
 	component GATE_AND is
 	generic (
-	delay_and : TIME := 1 ns
+	delay_and : TIME := 0 ns
 	);
 	port (
 	A,B : in STD_LOGIC;
@@ -66,20 +80,9 @@ architecture Behavioral of ripple_counter is
 	end component GATE_AND;
 	for all : GATE_AND use entity WORK.GATE_AND(GATE_AND_LUT);
 
-	component GATE_AND_LUT2 is
-	generic (
-	delay_and : TIME := 1 ns
-	);
-	port (
-	A,B : in STD_LOGIC;
-	C : out STD_LOGIC
-	);
-	end component GATE_AND_LUT2;
-	for all : GATE_AND_LUT2 use entity WORK.GATE_AND(GATE_AND_LUT);
-
 	component GATE_OR is
 	generic (
-	delay_or : TIME := 1 ns
+	delay_or : TIME := 0 ns
 	);
 	port (
 	A,B : in STD_LOGIC;
@@ -90,7 +93,7 @@ architecture Behavioral of ripple_counter is
 
 	component GATE_NOT is
 	generic (
-	delay_not : TIME := 1 ns
+	delay_not : TIME := 0 ns
 	);
 	port (
 	A : in STD_LOGIC;
@@ -108,9 +111,9 @@ architecture Behavioral of ripple_counter is
 	constant a : std_logic_vector(N-1 downto 0) := std_logic_vector(to_unsigned(MAX,N));
 	constant b : std_logic_vector(N-1 downto 0) := std_logic_vector(to_unsigned(0,N));
 
-	constant WAIT_AND : time := 0 ps;
-	constant WAIT_OR : time := 0 ps;
-	constant WAIT_NOT : time := 0 ps;
+--	constant WAIT_AND : time := 0 ps;
+--	constant WAIT_OR : time := 0 ps;
+--	constant WAIT_NOT : time := 0 ps;
 
 --	attribute CLOCK_SIGNAL : string;
 --	attribute CLOCK_SIGNAL of i_clock : signal is "yes"; --{yes | no};
@@ -126,7 +129,7 @@ architecture Behavioral of ripple_counter is
 begin
 
 	ffjk_or(N-1) <= '0';
-	gand_lut2 : GATE_AND_LUT2 port map (A=>i_clock,B=>cp,C=>gated_clock); -- XXX ~20mhz
+	gand_lut2 : GATE_AND generic map (delay_and => delay_and) port map (A=>i_clock,B=>cp,C=>gated_clock); -- XXX ~20mhz
 --	BUFGCE_inst : BUFGCE port map ( -- XXX ~40mhz
 --	O => gated_clock, -- Clock buffer ouptput
 --	CE => cp, -- Clock enable input
@@ -135,38 +138,38 @@ begin
 	ud <= i_ud;
 	o_q <= q1;
 	cp <= i_cpb;
-	mr <= '1' when (q1 = a or i_mrb = '1') else '0';
+	mr <= '1' after delay_mr when (q1 = a or i_mrb = '1') else '0' after delay_mr;
 
-	g0_not_clock : GATE_NOT generic map (WAIT_NOT) port map (A=>ud,B=>udb);
+	g0_not_clock : GATE_NOT generic map (delay_not => delay_not) port map (A=>ud,B=>udb);
 
 	g0_and_u : for i in 0 to N-1 generate -- XXX omit last FF JK
 		g0_and_u_first : if (i=0) generate
-			g0_and_u_first : GATE_AND generic map (WAIT_AND) port map (A=>q1(i),B=>ud,C=>ffjk_and_u(i));
+			g0_and_u_first : GATE_AND generic map (delay_and => delay_and) port map (A=>q1(i),B=>ud,C=>ffjk_and_u(i));
 		end generate g0_and_u_first;
 		g0_and_u_chain : if (i>0) generate
-			g0_and_u_chain : GATE_AND generic map (WAIT_AND) port map (A=>q1(i),B=>ffjk_and_u(i-1),C=>ffjk_and_u(i));
+			g0_and_u_chain : GATE_AND generic map (delay_and => delay_and) port map (A=>q1(i),B=>ffjk_and_u(i-1),C=>ffjk_and_u(i));
 		end generate g0_and_u_chain;
 	end generate g0_and_u;
 
 	g0_and_d : for i in 0 to N-1 generate -- XXX omit last FF JK
 		g0_and_d_first : if (i=0) generate
-			g0_and_d_first : GATE_AND generic map (WAIT_AND) port map (A=>q2(i),B=>udb,C=>ffjk_and_d(i)); -- XXX udb make unconnected
+			g0_and_d_first : GATE_AND generic map (delay_and => delay_and) port map (A=>q2(i),B=>udb,C=>ffjk_and_d(i)); -- XXX udb make unconnected
 		end generate g0_and_d_first;
 		g0_and_d_chain : if (i>0) generate
-			g0_and_d_chain : GATE_AND generic map (WAIT_AND) port map (A=>q2(i),B=>ffjk_and_d(i-1),C=>ffjk_and_d(i));
+			g0_and_d_chain : GATE_AND generic map (delay_and => delay_and) port map (A=>q2(i),B=>ffjk_and_d(i-1),C=>ffjk_and_d(i));
 		end generate g0_and_d_chain;
 	end generate g0_and_d;
 
 	g0_or : for i in 0 to N-1 generate -- XXX omit last FF JK
-		g0_or_chain : GATE_OR generic map (WAIT_OR) port map (A=>ffjk_and_u(i),B=>ffjk_and_d(i),C=>ffjk_or(i));
+		g0_or_chain : GATE_OR generic map (delay_or => delay_or) port map (A=>ffjk_and_u(i),B=>ffjk_and_d(i),C=>ffjk_or(i));
 	end generate g0_or;
 
 	g0 : for i in 0 to N-1 generate
 		ffjk_first : if (i=0) generate
-			ffjk_first : FF_JK port map (i_r=>mr,J=>cp,K=>cp,C=>gated_clock,Q1=>q1(i),Q2=>open);
+			ffjk_first : FF_JK generic map (delay_and => delay_and, delay_nand => delay_nand, delay_nand3 => delay_nand3, delay_nand4 => delay_nand4, delay_not => delay_not) port map (i_r=>mr,J=>cp,K=>cp,C=>gated_clock,Q1=>q1(i),Q2=>q2(i));
 		end generate ffjk_first;
 		ffjk_chain : if (i>0) generate
-			ffjk_chain : FF_JK port map (i_r=>mr,J=>ffjk_or(i-1),K=>ffjk_or(i-1),C=>gated_clock,Q1=>q1(i),Q2=>open);
+			ffjk_chain : FF_JK generic map (delay_and => delay_and, delay_nand => delay_nand, delay_nand3 => delay_nand3, delay_nand4 => delay_nand4, delay_not => delay_not) port map (i_r=>mr,J=>ffjk_or(i-1),K=>ffjk_or(i-1),C=>gated_clock,Q1=>q1(i),Q2=>q2(i));
 		end generate ffjk_chain;
 	end generate g0;
 
