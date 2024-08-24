@@ -27,7 +27,7 @@
 --------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
-USE WORK.p_pkg1.ALL;
+USE WORK.p_constants1.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -39,17 +39,19 @@ END tb_test_oled;
 ARCHITECTURE behavior OF tb_test_oled IS 
  
     -- Component Declaration for the Unit Under Test (UUT)
- 
-    COMPONENT test_oled
-    PORT(
-         i_clk : IN  std_logic;
-         i_rst : IN  std_logic;
-         i_refresh : IN  std_logic;
-         i_char : in array1;
-         io_sda : INOUT  std_logic;
-         io_scl : INOUT  std_logic
-        );
-    END COMPONENT;
+		COMPONENT test_oled
+		GENERIC (
+		g_board_clock : integer := G_BOARD_CLOCK;
+		g_bus_clock : integer := G_BUS_CLOCK
+		);
+		PORT(
+		i_clk : IN  std_logic;
+		i_rst : IN  std_logic;
+		i_refresh : IN  std_logic;
+		io_sda : INOUT  std_logic;
+		io_scl : INOUT  std_logic
+		);
+		END COMPONENT;
     
 
    --Inputs
@@ -57,23 +59,25 @@ ARCHITECTURE behavior OF tb_test_oled IS
    signal rst : std_logic := '0';
    signal refresh : std_logic := '0';
 
-   signal text : array1(0 to 6-1) := (x"30",x"31",x"32",x"33",x"34",x"35"); -- 012345
-
 	--BiDirs
    signal sda : std_logic;
    signal scl : std_logic;
 
    -- Clock period definitions
-   constant clk_period : time := 20 ns;
- 
+	 constant clk_period : time := (1_000_000_000/G_BOARD_CLOCK) * 1 ns;
+
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
-	uut: test_oled PORT MAP (
+	uut: test_oled
+	GENERIC MAP (
+		G_BOARD_CLOCK => G_BOARD_CLOCK,
+		G_BUS_CLOCK => G_BUS_CLOCK
+	)
+	PORT MAP (
 		i_clk => clk,
 		i_rst => rst,
 		i_refresh => refresh,
-		i_char => text,
 		io_sda => sda,
 		io_scl => scl
 	);
@@ -86,7 +90,9 @@ BEGIN
 		clk <= '1';
 		wait for clk_period/2;
 	end process;
- 
+
+rst <= '1','0' after clk_period;
+
 	-- Stimulus process
 	stim_proc: process
 	begin

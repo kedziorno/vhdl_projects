@@ -37,18 +37,19 @@ i_enable : in std_logic;
 i_write : in std_logic;
 i_read : in std_logic;
 o_busy : out std_logic;
-i_MemAdr : in MemoryAddressALL;
+i_MemAdr : in MemoryAddress;
 i_MemDB : in MemoryDataByte;
 o_MemDB : out MemoryDataByte;
-io_MemOE : out std_logic;
-io_MemWR : out std_logic;
-io_RamAdv : out std_logic;
-io_RamCS : out std_logic;
-io_RamLB : out std_logic;
-io_RamCRE : out std_logic;
-io_RamUB : out std_logic;
-io_RamClk : out std_logic;
-io_MemAdr : out MemoryAddressALL;
+o_MemOE : out std_logic;
+o_MemWR : out std_logic;
+o_RamAdv : out std_logic;
+o_RamCS : out std_logic;
+o_RamCRE : out std_logic;
+o_RamLB : out std_logic;
+o_RamUB : out std_logic;
+--i_RamWait : in std_logic;
+o_RamClk : out std_logic;
+o_MemAdr : out MemoryAddress;
 io_MemDB : inout MemoryDataByte
 );
 end memorymodule;
@@ -77,20 +78,19 @@ architecture Behavioral of memorymodule is
 	signal RamCRE : std_logic;
 	signal RamUB : std_logic;
 	signal RamClk : std_logic;
-	signal MemAdr : MemoryAddressALL;
-	signal MemDB : MemoryDataByte;
+	signal MemAdr : MemoryAddress;
 
 begin
 
-	io_MemOE <= MemOE;
-	io_MemWR <= MemWR;
-	io_RamAdv <= RamAdv;
-	io_RamCS <= RamCS;
-	io_RamLB <= RamLB;
-	io_RamCRE <= RamCRE;
-	io_RamUB <= RamUB;
-	io_RamClk <= RamClk;
-	io_MemAdr <= MemAdr;
+	o_MemOE <= MemOE;
+	o_MemWR <= MemWR;
+	o_RamAdv <= RamAdv;
+	o_RamCS <= RamCS;
+	o_RamCRE <= RamCRE;
+	o_RamLB <= RamLB;
+	o_RamUB <= RamUB;
+	o_RamClk <= RamClk;
+	o_MemAdr <= MemAdr;
 
 	RamLB <= '0';
 	RamUB <= '0';
@@ -99,19 +99,23 @@ begin
 	RamClk <= '0';
 
 	MemAdr <= i_MemAdr when (RamCS = '0' and (MemWR = '0' or MemOE = '0')) else (others => 'Z');
-	o_MemDB <= io_MemDB when (cstate = idle) else (others => 'Z');
+	o_MemDB <= io_MemDB;
 	io_MemDB <= i_MemDB when (RamCS = '0' and MemWR = '0') else (others => 'Z');
 
 	p0 : process (i_clock) is
-		constant cw : integer := 6;
-		variable w : integer range 0 to cw := 0;
+		constant cw : integer := 3; -- XXX 3 is lowlest for properly mm working
+		variable w : integer range 0 to cw - 1 := 0;
 		variable t : std_logic_vector(G_MemoryData-1 downto 0);
-		variable tz : std_logic_vector(G_MemoryData-1 downto 0) := (others => 'Z');
 	begin
 		if (rising_edge(i_clock)) then
-			if (w > 0) then
+			if (w > 0) then -- XXX 40 ns
 				w := w - 1;
 			end if;
+--			if (w = 0) then -- XXX 60 ns
+--				w := cw - 1;
+--			else
+--				w := w - 1;
+--			end if;
 			case cstate is
 				when idle =>
 					if (i_enable = '1') then
@@ -142,7 +146,7 @@ begin
 					cstate <= wait1;
 					MemWR <= '0';
 					RamCS <= '0';
-					w := cw;
+					w := cw - 1;
 				when wait1 =>
 					if (w = 0) then
 						cstate <= write_disable;
@@ -164,7 +168,7 @@ begin
 					end if;
 				when read1 =>
 					cstate <= wait2;
-					w := cw;
+					w := cw - 1;
 				when wait2 =>
 					if (w = 0) then
 						cstate <= stop;

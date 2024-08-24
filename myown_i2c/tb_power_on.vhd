@@ -27,7 +27,8 @@
 --------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
- 
+USE WORK.p_constants1.ALL;
+
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
@@ -41,50 +42,75 @@ ARCHITECTURE behavior OF tb_power_on IS
  
     COMPONENT power_on
     PORT(
-         i_clk : IN  std_logic;
+         i_clock : IN  std_logic;
          i_reset : IN std_logic;
+         i_button : in std_logic;
          o_sda : OUT  std_logic;
          o_scl : OUT  std_logic
         );
     END COMPONENT;
 
    --Inputs
-   signal clk : std_logic := '0';
+   signal clock : std_logic := '0';
    signal reset : std_logic := '0';
+   signal button : std_logic := '0';
 
  	--Outputs
    signal sda : std_logic;
-   signal sck : std_logic;
+   signal scl : std_logic;
 
    -- Clock period definitions
-   constant clk_period : time := 20 ns;
+   constant clock_period_50Mhz : time := (1_000_000_000/G_BOARD_CLOCK) * 1 ns;
+   signal clock_50mhz : std_logic;
 
 BEGIN
 
 	-- Instantiate the Unit Under Test (UUT)
 	uut: power_on PORT MAP (
-		i_clk => clk,
+		i_clock => clock_50mhz,
 		i_reset => reset,
+		i_button => button,
 		o_sda => sda,
-		o_scl => sck
+		o_scl => scl
 	);
 
 	-- Clock process definitions
-	clk_process :process
+	clock_process_50MHZ : process
 	begin
-		clk <= '0';
-		wait for clk_period/2;
-		clk <= '1';
-		wait for clk_period/2;
+		clock_50mhz <= '0';
+		wait for clock_period_50Mhz/2;
+		clock_50mhz <= '1';
+		wait for clock_period_50Mhz/2;
 	end process;
+
+--	clock_process : process (reset,clock_50mhz) is
+----	constant clock_period : time := 18.368 us;
+--		constant clock_period : time := 0.23368*2 us;
+--		constant t : integer := (clock_period / clock_period_50Mhz);
+--		variable v : integer range 0 to t-1;
+--	begin
+--		if (reset = '1') then
+--			v := 0;
+--			report "t : " & integer'image(t);
+--		elsif (rising_edge(clock_50mhz)) then
+--			if (v = t-1) then
+--				v := 0;
+--				clock <= '1';
+--			else
+--				v := v + 1;
+--				clock <= '0';
+--			end if;
+--		end if;
+--	end process clock_process;
 
 	-- Stimulus process
 	stim_proc: process
 	begin
 		reset <= '1';
-		wait for 100us;
+		wait for clock_period_50mhz;
 		reset <= '0';
-		wait;
+		wait for 4500 us;
+		report "done" severity failure;
 	end process;
 
 END;
