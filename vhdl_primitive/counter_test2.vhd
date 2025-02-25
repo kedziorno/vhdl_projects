@@ -76,7 +76,6 @@ o_counter <= std_logic_vector (counter);
 --24
 --4%
 --Macro Statistics
---Macro Statistics
 --# Accumulators                                         : 1
 -- 32-bit up accumulator                                 : 1
 --# Xors                                                 : 1
@@ -87,7 +86,7 @@ begin
   if (i_reset = '1') then
     counter <= (others => '0');
   elsif (rising_edge (i_clock)) then
-    counter <= std_logic_vector (to_unsigned ((to_integer (unsigned (counter))) + to_integer (unsigned (step)), 32));
+    counter <= std_logic_vector (to_signed ((to_integer (signed (counter))) + to_integer (signed (step)), 32));
   end if;
 end process p0;
 zero_middle <= (others => ((i_a) and (not i_b)));
