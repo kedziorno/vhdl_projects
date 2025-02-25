@@ -80,17 +80,17 @@ o_counter <= std_logic_vector (counter);
 -- 32-bit up accumulator                                 : 1
 --# Xors                                                 : 1
 -- 1-bit xor2                                            : 1
---p0 : process (i_clock, i_reset) is
---  variable temp : std_logic;
---begin
---  if (i_reset = '1') then
---    counter <= (others => '0');
---  elsif (rising_edge (i_clock)) then
---    counter <= std_logic_vector (to_signed ((to_integer (signed (counter))) + to_integer (signed (step)), 32));
---  end if;
---end process p0;
---zero_middle <= (others => ((i_a) and (not i_b)));
---step <= (zero_middle) & (i_a xor i_b);
+p0 : process (i_clock, i_reset) is
+  variable temp : std_logic;
+begin
+  if (i_reset = '1') then
+    counter <= (others => '0');
+  elsif (rising_edge (i_clock)) then
+    counter <= std_logic_vector (to_signed ((to_integer (signed (counter))) + to_integer (signed (step)), 32));
+  end if;
+end process p0;
+zero_middle <= (others => ((i_a) and (not i_b)));
+step <= (zero_middle) & (i_a xor i_b);
 
 -- normal counter
 -- synthesis
@@ -117,18 +117,18 @@ o_counter <= std_logic_vector (counter);
 --Macro Statistics
 --# Counters                                             : 1
 -- 32-bit updown counter                                 : 1
-p1 : process (i_clock, i_reset) is
-  variable temp : std_logic;
-begin
-  if (i_reset = '1') then
-    counter <= (others => '0');
-  elsif (rising_edge (i_clock)) then
-    if (i_a = '1' and i_b = '0') then
-      counter <= std_logic_vector (to_signed ((to_integer (signed (counter))) - 1, 32));
-    elsif (i_a = '0' and i_b = '1') then
-      counter <= std_logic_vector (to_signed ((to_integer (signed (counter))) + 1, 32));
-    end if;
-  end if;
-end process p1;
+--p1 : process (i_clock, i_reset) is
+--  variable temp : std_logic;
+--begin
+--  if (i_reset = '1') then
+--    counter <= (others => '0');
+--  elsif (rising_edge (i_clock)) then
+--    if (i_a = '1' and i_b = '0') then
+--      counter <= std_logic_vector (to_signed ((to_integer (signed (counter))) - 1, 32));
+--    elsif (i_a = '0' and i_b = '1') then
+--      counter <= std_logic_vector (to_signed ((to_integer (signed (counter))) + 1, 32));
+--    end if;
+--  end if;
+--end process p1;
 
 end architecture behavioral;
