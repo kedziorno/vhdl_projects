@@ -31,7 +31,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 -- based on https://github.com/smunaut/ice40-playground/blob/d2fa0050129c14a7fc42f64f115366f6f2a51669/projects/usb_audio/rtl/audio_pcm.v#L221
 -- less resources
--- -use_new_parser yes
+-- -use_new_parser no
 entity counter_test2 is
 port (
 i_clock : in std_logic;
@@ -53,14 +53,14 @@ begin
 o_counter <= std_logic_vector (counter);
 
 -- LUT based counter
--- must wait one cycle for change +/- step (floating 1)
+-- must wait one cycle for change +/- step (floating 1) - nevermind - zero_middle out of p0
 -- synthesis
 --Number of Slices
---20
+--17
 --8672
 --0%
 --Number of Slice Flip Flops
---36
+--32
 --17344
 --0%
 --Number of 4 input LUTs
@@ -76,23 +76,22 @@ o_counter <= std_logic_vector (counter);
 --24
 --4%
 --Macro Statistics
---# Adders/Subtractors                                   : 1
--- 32-bit adder                                          : 1
---# Registers                                            : 62
--- Flip-Flops                                            : 62
+--Macro Statistics
+--# Accumulators                                         : 1
+-- 32-bit up accumulator                                 : 1
 --# Xors                                                 : 1
 -- 1-bit xor2                                            : 1
---p0 : process (i_clock, i_reset) is
---  variable temp : std_logic;
---begin
---  if (i_reset = '1') then
---    counter <= (others => '0');
---  elsif (rising_edge (i_clock)) then
---    counter <= std_logic_vector (to_unsigned ((to_integer (unsigned (counter))) + to_integer (unsigned (step)), 32));
---    zero_middle <= (others => ((i_a) and (not i_b)));
---  end if;
---end process p0;
---step <= (zero_middle) & (i_a xor i_b);
+p0 : process (i_clock, i_reset) is
+  variable temp : std_logic;
+begin
+  if (i_reset = '1') then
+    counter <= (others => '0');
+  elsif (rising_edge (i_clock)) then
+    counter <= std_logic_vector (to_unsigned ((to_integer (unsigned (counter))) + to_integer (unsigned (step)), 32));
+  end if;
+end process p0;
+zero_middle <= (others => ((i_a) and (not i_b)));
+step <= (zero_middle) & (i_a xor i_b);
 
 -- normal counter
 -- synthesis
@@ -119,18 +118,18 @@ o_counter <= std_logic_vector (counter);
 --Macro Statistics
 --# Counters                                             : 1
 -- 32-bit updown counter                                 : 1
-p1 : process (i_clock, i_reset) is
-  variable temp : std_logic;
-begin
-  if (i_reset = '1') then
-    counter <= (others => '0');
-  elsif (rising_edge (i_clock)) then
-    if (i_a = '1' and i_b = '0') then
-      counter <= std_logic_vector (to_signed ((to_integer (signed (counter))) - 1, 32));
-    elsif (i_a = '0' and i_b = '1') then
-      counter <= std_logic_vector (to_signed ((to_integer (signed (counter))) + 1, 32));
-    end if;
-  end if;
-end process p1;
+--p1 : process (i_clock, i_reset) is
+--  variable temp : std_logic;
+--begin
+--  if (i_reset = '1') then
+--    counter <= (others => '0');
+--  elsif (rising_edge (i_clock)) then
+--    if (i_a = '1' and i_b = '0') then
+--      counter <= std_logic_vector (to_signed ((to_integer (signed (counter))) - 1, 32));
+--    elsif (i_a = '0' and i_b = '1') then
+--      counter <= std_logic_vector (to_signed ((to_integer (signed (counter))) + 1, 32));
+--    end if;
+--  end if;
+--end process p1;
 
 end architecture behavioral;
