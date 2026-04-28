@@ -3,7 +3,8 @@ use IEEE.STD_LOGIC_1164.all;
 
 package p_constants1 is
 	constant G_BOARD_CLOCK : INTEGER := 50_000_000;
-	constant G_BUS_CLOCK : INTEGER := 400_000;
+	constant G_BUS_CLOCK : INTEGER := 12_000_000;
+--	constant G_BUS_CLOCK : INTEGER := 1_000_000;
 	constant G_BYTE_SIZE : integer := 8;
 	constant G_SLAVE_ADDRESS_SIZE : integer := 7;
 
