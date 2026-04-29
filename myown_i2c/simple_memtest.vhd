@@ -150,10 +150,15 @@ signal mem_op_st : std_logic;
 
 signal addr_i : std_logic_vector (c_addr_bits downto 1);
 
-type mop_states is (a, a1, b, b1, c, c1, d, d1, fail, pass);
+type mop_states is (a, a1, b, b1, c, c1, d, d1, d2, d3, d4, d5, d6, d7, d8, d9, fail, pass);
 signal mop_state : mop_states := a;
 
-signal dq_i_0, dq_i_1, dq_i_2, dq_i_3, dq_i_4, dq_i_5, dq_i_6, dq_i_7 : integer range 0 to 255;
+signal dq_i_0, dq_i_1, dq_i_2, dq_i_3, dq_i_4, dq_i_5, dq_i_6, dq_i_7 : integer range 0 to 9;
+
+signal temp1, temp, temp2 : unsigned (31 downto 0);
+signal q, n, i : integer;
+
+signal counter : integer range 0 to c_mem_sizes - 1;
 
 begin
 
@@ -196,14 +201,13 @@ oe_n <= oe_n_i;
 we_n <= we_n_i;
 
 p1_memory_operation : process (i_clk) is
-  variable counter : integer range 0 to c_mem_sizes - 1;
   constant c_w8 : integer := 5;
   variable w8 : integer range 0 to c_w8 - 1;
 begin
   if (rising_edge (i_clk)) then
     if (i_rst = '1') then
       mop_state <= a;
-      counter := 0;
+      counter <= 0;
       Adv_n <= '0';
       ce_n <= '1';
       oe_n_i <= '1';
@@ -211,19 +215,14 @@ begin
       addr_i <= (others => '0');
       dq_o <= x"aa55";
       dq_i <= (others => '0');
-      i_char <= (x"00", x"00", x"00", x"00", x"00", x"00", x"00");
+      i_char <= (x"30", x"30", x"30", x"30", x"30", x"30", x"30");
       w8 := 0;
+      q <= 0;
+      n <= 0;
+      i <= 0;
     else
       case (mop_state) is
         when a =>
-          i_char <= (
-          std_logic_vector (to_unsigned (dq_i_6, 8)),
-          std_logic_vector (to_unsigned (dq_i_5, 8)),
-          std_logic_vector (to_unsigned (dq_i_4, 8)),
-          std_logic_vector (to_unsigned (dq_i_3, 8)),
-          std_logic_vector (to_unsigned (dq_i_2, 8)),
-          std_logic_vector (to_unsigned (dq_i_1, 8)),
-          std_logic_vector (to_unsigned (dq_i_0, 8)));
           if (mem_op_st = '1') then
             mop_state <= a1;
             dq_o <= dq_o (0) & dq_o (15 downto 1);
@@ -283,7 +282,7 @@ begin
             mop_state <= d1;
           end if;
           addr_i <= std_logic_vector (to_unsigned (0, c_addr_bits));
-          counter := counter + 1;
+          counter <= counter + 1;
           adv_n <= '0';
           ce_n <= '1';
           oe_n_i <= '1';
@@ -291,19 +290,42 @@ begin
           if (counter = c_mem_sizes - 1) then
             mop_state <= pass;
           else
-            mop_state <= a;
+            mop_state <= d2;
           end if;
           adv_n <= '0';
           ce_n <= '1';
           oe_n_i <= '1';
-          -- 8388608
-          dq_i_0 <= (counter / 8) + (counter / 2);
-          dq_i_1 <= (counter / 64) + (counter / 32) + (counter / 4);
-          dq_i_2 <= ((counter / 512) + (counter / 256) + (counter / 128) + (counter / 64) + (counter / 32) + (counter / 8));
-          dq_i_3 <= (counter / 8192) + (counter / 1024) + (counter / 512) + (counter / 256) + (counter / 16);
-          dq_i_4 <= (counter / 65536) + (counter / 32768) + (counter / 1024) + (counter / 512) + (counter / 128) + (counter / 32);
-          dq_i_5 <= (counter / 524288) + (counter / 262144) + (counter / 131072) + (counter / 65536) + (counter / 16384) + (counter / 512) + (counter / 64);
-          dq_i_6 <= (counter mod 8) + (counter mod 2);
+        when d2 =>
+          mop_state <= d3;
+          n <= counter;
+          i <= 0;
+        when d3 =>
+          q <= n * 6554;
+          mop_state <= d4;
+        when d4 =>
+          mop_state <= d5;
+          temp <= (31 downto 16 => '0') & to_unsigned (q, 32)(31 downto 16);
+        when d5 =>
+          mop_state <= d6;
+          temp1 <= (to_unsigned (n, 32) - ((temp sll 3) + (temp sll 1)));
+        when d6 =>
+          mop_state <= d7;
+          if (to_integer (temp1 (7 downto 0)) >= 250) then
+            temp1 (7 downto 0) <= to_unsigned (250, 8);
+          end if;
+        when d7 =>
+          i_char (6-i) <= std_logic_vector (temp1 (7 downto 0) + x"30");
+          if (q = n) then
+            mop_state <= a;
+          else
+            n <= to_integer (temp);
+            mop_state <= d3;
+            if (i = 6) then
+              i <= 0;
+            else
+              i <= i + 1;
+            end if;
+          end if;
         when fail =>
           i_char <= (x"45", x"41", x"49", x"4c", x"00", x"00", x"00");
         when pass =>
