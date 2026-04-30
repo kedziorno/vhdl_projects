@@ -71,14 +71,14 @@ constant BYTES_SEQUENCE_LENGTH : natural := 26;
 type ARRAY_BYTE_SEQUENCE is array(0 to BYTES_SEQUENCE_LENGTH-1) of std_logic_vector(0 to G_BYTE_SIZE-1);
 constant sequence : ARRAY_BYTE_SEQUENCE := (
 x"AE",x"D5",x"80",x"A8",x"1F",x"D3",x"00",x"40",x"8D",
-x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"8F",
+x"14",x"20",x"00",x"A1",x"C8",x"DA",x"02",x"81",x"FF",
 x"D9",x"F1",x"DB",x"40",x"A4",x"A6",x"2E",x"AF");
 
 constant NI_SET_COORDINATION : natural := 6;
 type A_SET_COORDINATION is array (0 to NI_SET_COORDINATION-1) of std_logic_vector(7 downto 0);
 constant set_coordination : A_SET_COORDINATION := (
 x"21",x"00",std_logic_vector(to_unsigned(OLED_WIDTH-1,8)),
-x"22",x"00",std_logic_vector(to_unsigned(4-1,8))
+x"22",x"00",x"00"
 );
 
 SIGNAL i2c_ena     : STD_LOGIC;                     --i2c enable signal
@@ -309,12 +309,7 @@ begin
           mop_state <= d6;
           temp1 <= (to_unsigned (n, 32) - ((temp sll 3) + (temp sll 1)));
         when d6 =>
-          mop_state <= d7;
-          if (to_integer (temp1 (7 downto 0)) >= 250) then
-            temp1 (7 downto 0) <= to_unsigned (250, 8);
-          end if;
-        when d7 =>
-          i_char (6-i) <= std_logic_vector (temp1 (7 downto 0) + x"30");
+          i_char (6-i) <= std_logic_vector (temp1 (3 downto 0) + x"30");
           if (q = n) then
             mop_state <= a;
           else
@@ -464,6 +459,9 @@ begin
 							glcdfont_index <= std_logic_vector(to_unsigned(to_integer(unsigned(current_character))*5+4,glcdfont_index'length));
 							i2c_data_wr <= glcdfont_character;
 						when 7 =>
+							glcdfont_index <= std_logic_vector(to_unsigned(0,glcdfont_index'length));
+							i2c_data_wr <= glcdfont_character;
+						when 8 =>
               i2c_ena <= '0';
               if (i2c_busy = '0') then
                 busy_cnt <= 0;

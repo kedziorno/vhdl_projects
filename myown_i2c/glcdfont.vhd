@@ -1805,15 +1805,17 @@ constant GLCDFONTC : ARRAY_GLCDFONTC :=
 
 begin
 
+o_character <= GLCDFONTC(to_integer(unsigned(i_index)));
+
 -- XXX to long par
-p0 : process (i_clk) is
-	variable index : integer range 0 to NUMBER_GLCDFONTC-1;
-begin
-	if (rising_edge(i_clk)) then
-		index := to_integer(unsigned(i_index))+1;
-		o_character <= GLCDFONTC(index);
-	end if;
-end  process p0;
+--p0 : process (i_clk) is
+--	variable index : integer range 0 to NUMBER_GLCDFONTC-1;
+--begin
+--	if (falling_edge(i_clk)) then
+--		index := to_integer(unsigned(i_index))+1;
+--		o_character <= GLCDFONTC(index);
+--	end if;
+--end  process p0;
 
 --p0 : process (i_index) is
 --begin
