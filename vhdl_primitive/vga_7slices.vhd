@@ -47,12 +47,12 @@ begin
 
 div99_1 : SRL16E
 generic map (
-INIT => "0000000100000000"
+INIT => x"0001"
 )
 port map (
 Q => a,       -- SRL data output
 A0 => '1',     -- Select[0] input
-A1 => '0',     -- Select[1] input
+A1 => '1',     -- Select[1] input
 A2 => '1',     -- Select[2] input
 A3 => '0',     -- Select[3] input
 CE => '1',     -- Clock enable input
@@ -62,11 +62,11 @@ D => not a -- SRL data input
 
 div99_2 : SRL16E
 generic map (
-INIT => "0000010000000000"
+INIT => x"0001"
 )
 port map (
 Q => b,       -- SRL data output
-A0 => '1',     -- Select[0] input
+A0 => '0',     -- Select[0] input
 A1 => '1',     -- Select[1] input
 A2 => '0',     -- Select[2] input
 A3 => '0',     -- Select[3] input
