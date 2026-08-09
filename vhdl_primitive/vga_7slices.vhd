@@ -6,7 +6,7 @@
 -- Design Name:     vhdl_primitve
 -- Module Name:     vga_7slices - Behavioral
 -- Project Name:    -
--- Target Devices:  Xilinx Virtex-5
+-- Target Devices:  Xilinx Spartan-3E (xc3s1200e)
 -- Tool versions:   14.7 ISE
 -- Description:     Ultra-compact VGA timing generator utilizing LUT as SRL
 --                  (SRL16E (xc3, xc4), SRLC32E (xc5)), coprime phasing shift
@@ -18,7 +18,7 @@
 --
 -- Revision:
 -- Revision 0.01 - File Created
--- Additional Comments: TODO - check MUXCY, move to Spartan-3E/Virtex-4
+-- Additional Comments: TODO - check MUXCY
 --
 ----------------------------------------------------------------------------------
 
@@ -66,39 +66,27 @@ port map (
 );
 
 o_hs <= not c;
-hs : SRLC32E
-generic map (
-INIT => "00111100000000000000000000000000"
-)
+hs : entity work.dummyplug_srlc32e
+generic map (INIT => "00111100000000000000000000000000")
 port map (
-Q => open,       -- SRL data output
-Q31 => c,       -- SRL data output
-A(0) => '1',     -- Select[0] input
-A(1) => '1',     -- Select[1] input
-A(2) => '0',     -- Select[2] input
-A(3) => '1',     -- Select[3] input
-A(4) => '0',     -- Select[3] input
-CE => '1',     -- Clock enable input
-CLK => b,   -- Clock input
-D => c -- SRL data input
+  Q     => open,
+  Q31   => c,
+  A(0)  => '1', A(1) => '1', A(2) => '0', A(3) => '1', A(4) => '0',
+  CE    => '1',
+  CLK   => b,
+  D     => c
 );
 
 o_hb <= not d;
-hb : SRLC32E
-generic map (
-INIT => "11111110000000000000000000000000"
-)
+hb : entity work.dummyplug_srlc32e
+generic map (INIT => "11111110000000000000000000000000")
 port map (
-Q => open,       -- SRL data output
-Q31 => d,       -- SRL data output
-A(0) => '0',     -- Select[0] input
-A(1) => '0',     -- Select[1] input
-A(2) => '0',     -- Select[2] input
-A(3) => '0',     -- Select[3] input
-A(4) => '0',     -- Select[3] input
-CE => '1',     -- Clock enable input
-CLK => b,   -- Clock input
-D => d -- SRL data input
+  Q     => open,
+  Q31   => d,
+  A(0)  => '0', A(1) => '0', A(2) => '0', A(3) => '0', A(4) => '0',
+  CE    => '1',
+  CLK   => b,
+  D     => d
 );
 
 end architecture Behavioral;
