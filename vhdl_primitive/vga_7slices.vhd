@@ -6,7 +6,7 @@
 -- Design Name:     vhdl_primitve
 -- Module Name:     vga_7slices - Behavioral
 -- Project Name:    -
--- Target Devices:  Xilinx Virtex-5
+-- Target Devices:  Xilinx Spartan-3E (xc3s1200e)
 -- Tool versions:   14.7 ISE
 -- Description:     Ultra-compact VGA timing generator utilizing LUT as SRL
 --                  (SRL16E (xc3, xc4), SRLC32E (xc5)), coprime phasing shift
@@ -18,7 +18,22 @@
 --
 -- Revision:
 -- Revision 0.01 - File Created
+<<<<<<< HEAD
 -- Additional Comments: TODO - check MUXCY, move to Spartan-3E/Virtex-4
+-- Currently VGA Horizontal signal timings (10 ns / 100 MHz):
+=======
+-- Additional Comments: TODO - check MUXCY, remove Gated Clocks (CE)
+-- Currently VGA timings (10 ns / 100 MHz):
+--  - Horizontal signal timings:
+>>>>>>> 8e70d9e (vhdl_primitive - vga 7 slices - vs 16727.04us, o_vs)
+--   - ALL/ONE - 31.68 us / 27.72 us
+--   - SYNC - 3.96 us
+--   - BP - 1.98 us
+--   - FP - 0.99 us
+--   - DATA / Between DATA - 24.75 us / 6.93 us
+--  - Vertical signal timings:
+--   - ALL/ONE - 16727.04 us / 16204.32 us
+--   - SYNC - 522.72 us
 --
 ----------------------------------------------------------------------------------
 
@@ -35,13 +50,15 @@ port (
   i_clock : in std_logic;
   i_reset : in std_logic;
   o_hs : out std_logic;
-  o_hb : out std_logic
+  o_hb : out std_logic;
+  o_vs : out std_logic;
+  o_vb : out std_logic
 );
 end entity vga_7slices;
 
 architecture Behavioral of vga_7slices is
 
-signal a, b, c, d : std_logic;
+signal a, b, c, d, e, en, f, fn, g, gn : std_logic;
 
 begin
 
@@ -60,45 +77,71 @@ generic map (INIT => x"0001")
 port map (
   Q   => b,
   A0  => '0', A1 => '1', A2 => '0', A3 => '1',
-  CE  => '1',
-  CLK => a,
+  CE  => a,
+  CLK => i_clock,
   D   => b
 );
 
 o_hs <= not c;
-hs : SRLC32E
-generic map (
-INIT => "00111100000000000000000000000000"
-)
+hs : entity work.dummyplug_srlc32e
+generic map (INIT => "00111100000000000000000000000000")
 port map (
-Q => open,       -- SRL data output
-Q31 => c,       -- SRL data output
-A(0) => '1',     -- Select[0] input
-A(1) => '1',     -- Select[1] input
-A(2) => '0',     -- Select[2] input
-A(3) => '1',     -- Select[3] input
-A(4) => '0',     -- Select[3] input
-CE => '1',     -- Clock enable input
-CLK => b,   -- Clock input
-D => c -- SRL data input
+  Q     => open,
+  Q31   => c,
+  A(0)  => '1', A(1) => '1', A(2) => '0', A(3) => '1', A(4) => '0',
+  CE    => '1',
+  CLK   => b,
+  D     => c
 );
 
 o_hb <= not d;
-hb : SRLC32E
-generic map (
-INIT => "11111110000000000000000000000000"
-)
+hb : entity work.dummyplug_srlc32e
+generic map (INIT => "11111110000000000000000000000000")
 port map (
-Q => open,       -- SRL data output
-Q31 => d,       -- SRL data output
-A(0) => '0',     -- Select[0] input
-A(1) => '0',     -- Select[1] input
-A(2) => '0',     -- Select[2] input
-A(3) => '0',     -- Select[3] input
-A(4) => '0',     -- Select[3] input
-CE => '1',     -- Clock enable input
-CLK => b,   -- Clock input
-D => d -- SRL data input
+  Q     => open,
+  Q31   => d,
+  A(0)  => '0', A(1) => '0', A(2) => '0', A(3) => '0', A(4) => '0',
+  CE    => '1',
+  CLK   => b,
+  D     => d
+);
+
+e <= not en;
+vga_15dot84us : entity work.dummyplug_srlc32e
+generic map (INIT => "00000000000000000111111111111111")
+port map (
+  Q     => en,
+  Q31   => open,
+  A(0)  => '1', A(1) => '1', A(2) => '1', A(3) => '1', A(4) => '0',
+  CE    => '1',
+  CLK   => b,
+  D     => en
+);
+
+f <= not fn;
+vga_522dot72us : entity work.dummyplug_srlc33e
+generic map (INIT => "111111111111111111111111111111110")
+port map (
+  Q     => fn,
+  Q32   => open,
+  A(0)  => '1', A(1) => '1', A(2) => '1', A(3) => '1', A(4) => '1', A(5) => '1',
+  CE    => '1',
+  CLK   => en,
+  D     => fn
+);
+
+o_vs <= gn;
+o_vb <= g;
+g <= not gn;
+vga_16727dot04us : entity work.dummyplug_srlc32e
+generic map (INIT => "11111111111111111111111111111110")
+port map (
+  Q     => gn,
+  Q31   => open,
+  A(0)  => '1', A(1) => '1', A(2) => '1', A(3) => '1', A(4) => '1',
+  CE    => '1',
+  CLK   => fn,
+  D     => gn
 );
 
 end architecture Behavioral;
