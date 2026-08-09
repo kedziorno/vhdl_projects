@@ -49,7 +49,7 @@ end entity vga_7slices;
 
 architecture Behavioral of vga_7slices is
 
-signal a, b, c, d, e, f : std_logic;
+signal a, b, c, d, e, en, f : std_logic;
 
 begin
 
@@ -68,8 +68,8 @@ generic map (INIT => x"0001")
 port map (
   Q   => b,
   A0  => '0', A1 => '1', A2 => '0', A3 => '1',
-  CE  => '1',
-  CLK => a,
+  CE  => a,
+  CLK => i_clock,
   D   => b
 );
 
@@ -97,16 +97,16 @@ port map (
   D     => d
 );
 
---o_vb <= not e;
-vb : entity work.dummyplug_srlc32e
-generic map (INIT => "00010000000000000000000000000000")
+e <= not en;
+vga_15dot84us : entity work.dummyplug_srlc32e
+generic map (INIT => "00000000000000000111111111111111")
 port map (
-  Q     => open,
-  Q31   => e,
-  A(0)  => '0', A(1) => '0', A(2) => '0', A(3) => '0', A(4) => '1',
+  Q     => en,
+  Q31   => open,
+  A(0)  => '1', A(1) => '1', A(2) => '1', A(3) => '1', A(4) => '0',
   CE    => '1',
   CLK   => b,
-  D     => e
+  D     => en
 );
 
 end architecture Behavioral;
