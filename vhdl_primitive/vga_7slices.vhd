@@ -18,13 +18,22 @@
 --
 -- Revision:
 -- Revision 0.01 - File Created
+<<<<<<< HEAD
 -- Additional Comments: TODO - check MUXCY, move to Spartan-3E/Virtex-4
 -- Currently VGA Horizontal signal timings (10 ns / 100 MHz):
+=======
+-- Additional Comments: TODO - check MUXCY, remove Gated Clocks (CE)
+-- Currently VGA timings (10 ns / 100 MHz):
+--  - Horizontal signal timings:
+>>>>>>> 8e70d9e (vhdl_primitive - vga 7 slices - vs 16727.04us, o_vs)
 --   - ALL/ONE - 31.68 us / 27.72 us
 --   - SYNC - 3.96 us
 --   - BP - 1.98 us
 --   - FP - 0.99 us
 --   - DATA / Between DATA - 24.75 us / 6.93 us
+--  - Vertical signal timings:
+--   - ALL/ONE - 16727.04 us / 16204.32 us
+--   - SYNC - 522.72 us
 --
 ----------------------------------------------------------------------------------
 
@@ -49,7 +58,7 @@ end entity vga_7slices;
 
 architecture Behavioral of vga_7slices is
 
-signal a, b, c, d, e, en, f, fn : std_logic;
+signal a, b, c, d, e, en, f, fn, g, gn : std_logic;
 
 begin
 
@@ -119,6 +128,20 @@ port map (
   CE    => '1',
   CLK   => en,
   D     => fn
+);
+
+o_vs <= gn;
+o_vb <= g;
+g <= not gn;
+vga_16727dot04us : entity work.dummyplug_srlc32e
+generic map (INIT => "11111111111111111111111111111110")
+port map (
+  Q     => gn,
+  Q31   => open,
+  A(0)  => '1', A(1) => '1', A(2) => '1', A(3) => '1', A(4) => '1',
+  CE    => '1',
+  CLK   => fn,
+  D     => gn
 );
 
 end architecture Behavioral;
