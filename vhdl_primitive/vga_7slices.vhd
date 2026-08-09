@@ -18,7 +18,13 @@
 --
 -- Revision:
 -- Revision 0.01 - File Created
--- Additional Comments: TODO - check MUXCY
+-- Additional Comments: TODO - check MUXCY, move to Spartan-3E/Virtex-4
+-- Currently VGA Horizontal signal timings (10 ns / 100 MHz):
+--   - ALL/ONE - 31.68 us / 27.72 us
+--   - SYNC - 3.96 us
+--   - BP - 1.98 us
+--   - FP - 0.99 us
+--   - DATA / Between DATA - 24.75 us / 6.93 us
 --
 ----------------------------------------------------------------------------------
 
