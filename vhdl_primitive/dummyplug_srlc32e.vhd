@@ -48,7 +48,9 @@ signal mux, muxb : std_logic;
 begin
 
 q <= mux when a (4) = '1' else muxb;
+--q <= mux or muxb;
 
+--q31 <= q15_hi when a (4) = '1' else q15_lo;
 q31 <= q15_hi;
 
 srlc16e_hi_i0 : SRLC16E
@@ -57,7 +59,7 @@ port map (
   Q   => mux,
   Q15 => q15_hi,
   A0  => a (0), A1 => a (1), A2 => a (2), A3 => a (3),
-  CE  => '1',
+  CE  => ce,
   CLK => clk,
   D   => q15_lo
 );
@@ -68,7 +70,7 @@ port map (
   Q   => muxb,
   Q15 => q15_lo,
   A0  => a (0), A1 => a (1), A2 => a (2), A3 => a (3),
-  CE  => '1',
+  CE  => ce,
   CLK => clk,
   D   => d
 );
