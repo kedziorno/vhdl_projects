@@ -48,8 +48,9 @@ signal q32_i : std_logic;
 
 begin
 
-q <= q32_i when a (5) = '1' else (mux or muxb);
-q32 <= q32_i or q15_hi or q15_lo;
+q <= q32_i when a (5) = '1' else mux when a (4) = '1' else muxb;
+--q32 <= q32_i or q15_hi or q15_lo;
+q32 <= q32_i;
 
 srl33_i0 : FDCE
 generic map (INIT => INIT (32))
