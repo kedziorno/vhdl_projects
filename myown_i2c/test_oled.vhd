@@ -31,6 +31,7 @@ port
 (
 signal i_clk : in std_logic;
 signal i_rst : in std_logic;
+signal i_refresh : in std_logic;
 signal io_sda,io_scl : inout std_logic
 );
 end test_oled;
@@ -65,6 +66,7 @@ x"22",x"00",std_logic_vector(to_unsigned(4-1,8))
 
 SIGNAL i2c_ena     : STD_LOGIC;                     --i2c enable signal
 SIGNAL i2c_addr    : STD_LOGIC_VECTOR(6 DOWNTO 0);  --i2c address signal
+SIGNAL i2c_rw      : STD_LOGIC;                     --i2c read/write command signal
 SIGNAL i2c_data_wr : STD_LOGIC_VECTOR(0 to G_BYTE_SIZE-1);  --i2c write data
 SIGNAL i2c_busy    : STD_LOGIC;                     --i2c busy signal
 SIGNAL i2c_reset   : STD_LOGIC;                     --i2c busy signal
@@ -83,22 +85,22 @@ port(
 end component glcdfont;
 for all : glcdfont use entity WORK.glcdfont(behavioral_glcdfont);
 
-component my_i2c_fsm is
-generic(
-BOARD_CLOCK : INTEGER := G_BOARD_CLOCK;
-BUS_CLOCK : INTEGER := G_BUS_CLOCK
+COMPONENT my_i2c IS
+GENERIC (
+	BOARD_CLOCK : INTEGER := G_BOARD_CLOCK;
+	BUS_CLOCK : INTEGER := G_BUS_CLOCK
 );
-port(
-i_clock : in std_logic;
-i_reset : in std_logic;
-i_slave_address : in std_logic_vector(0 to G_SLAVE_ADDRESS_SIZE-1);
-i_bytes_to_send : in std_logic_vector(0 to G_BYTE_SIZE-1);
-i_enable : in std_logic;
-o_busy : out std_logic;
-o_sda : out std_logic;
-o_scl : out std_logic
+PORT (
+	i_clock : in std_logic;
+	i_reset : in std_logic;
+	i_slave_address : std_logic_vector(0 to G_SLAVE_ADDRESS_SIZE-1);
+	i_bytes_to_send : in std_logic_vector(0 to G_BYTE_SIZE-1);
+	i_enable : in std_logic;
+	o_busy : out std_logic;
+	o_sda : out std_logic;
+	o_scl : out std_logic
 );
-end component my_i2c_fsm;
+END COMPONENT my_i2c;
 
 type state is 
 (
@@ -133,19 +135,17 @@ port map
 	o_character => glcdfont_character
 );
 
-c1 : my_i2c_fsm
-GENERIC MAP
-(
+c1 : my_i2c
+GENERIC MAP (
 	BOARD_CLOCK => GCLK,
 	BUS_CLOCK => BCLK
 )
-PORT MAP
-(
+PORT MAP (
 	i_clock => i_clk,
-	i_reset => i2c_reset,
-	i_enable => i2c_ena,
+	i_reset => i_rst,
 	i_slave_address => i2c_addr,
 	i_bytes_to_send => i2c_data_wr,
+	i_enable => i2c_ena,
 	o_busy => i2c_busy,
 	o_sda => io_sda,
 	o_scl => io_scl

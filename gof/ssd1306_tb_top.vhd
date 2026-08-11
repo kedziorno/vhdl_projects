@@ -28,6 +28,7 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 use WORK.p_memory_content.ALL;
+use WORK.p_constants1.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -54,17 +55,7 @@ signal clk : in std_logic;
 signal btn_1 : in std_logic;
 signal btn_2 : in std_logic;
 signal btn_3 : in std_logic;
-signal sda,scl : inout std_logic;
-signal io_MemOE : inout std_logic;
-signal io_MemWR : inout std_logic;
-signal io_RamAdv : inout std_logic;
-signal io_RamCS : inout std_logic;
-signal io_RamCRE : inout std_logic;
-signal io_RamLB : inout std_logic;
-signal io_RamUB : inout std_logic;
-signal io_RamWait : inout std_logic;
-signal io_MemAdr : inout MemoryAddressALL;
-signal io_MemDB : inout MemoryDataByte
+signal sda,scl : inout std_logic
 );
 END COMPONENT;
 
@@ -107,16 +98,7 @@ btn_1 => btn_1,
 btn_2 => btn_2,
 btn_3 => btn_3,
 sda => sda,
-scl => scl,
-io_MemOE => MemOE,
-io_MemWR => MemWR,
-io_RamAdv => RamAdv,
-io_RamCS => RamCS,
-io_RamLB => RamLB,
-io_RamUB => RamUB,
-io_RamCRE => RamCRE,
-io_MemAdr => MemAdr,
-io_MemDB => MemDB
+scl => scl
 );
 
 -- Clock process definitions

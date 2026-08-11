@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<symbol version="7" name="ex_4_2_Add_half_0_delay">
+    <symboltype>BLOCK</symboltype>
+    <timestamp>2023-6-6T14:25:5</timestamp>
+    <pin polarity="Input" x="-64" y="-32" name="A" />
+    <pin polarity="Input" x="-64" y="16" name="B" />
+    <pin polarity="Output" x="64" y="16" name="c_out" />
+    <pin polarity="Output" x="64" y="-32" name="sum" />
+    <graph>
+        <rect width="96" x="-48" y="-48" height="80" />
+        <attrtext style="alignment:BCENTER;fontsize:12;fontname:Arial" attrname="SymbolName" x="0" y="-56" type="symbol" />
+        <line x2="-64" y1="-32" y2="-32" x1="-48" />
+        <attrtext attrname="PinName" x="-40" y="-32" type="pin A" />
+        <line x2="-64" y1="16" y2="16" x1="-48" />
+        <attrtext attrname="PinName" x="-40" y="16" type="pin B" />
+        <line x2="64" y1="16" y2="16" x1="48" />
+        <attrtext style="alignment:RIGHT" attrname="PinName" x="40" y="16" type="pin c_out" />
+        <line x2="64" y1="-32" y2="-32" x1="48" />
+        <attrtext style="alignment:RIGHT" attrname="PinName" x="40" y="-32" type="pin sum" />
+    </graph>
+</symbol>

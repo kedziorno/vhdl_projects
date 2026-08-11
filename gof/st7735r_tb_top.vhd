@@ -40,7 +40,7 @@ END st7735r_tb_top;
 
 ARCHITECTURE behavior OF st7735r_tb_top IS 
 
-constant IC : integer := 1_000_000; --50_000_000; --29_952_000; --1_000_000;
+constant IC : integer := 50_000_000; --50_000_000; --29_952_000; --1_000_000;
 constant SPISPEED : integer := C_CLOCK_COUNTER_MF; --C_CLOCK_COUNTER_EF; --C_CLOCK_COUNTER_MF;
 
 -- Component Declaration for the Unit Under Test (UUT)
@@ -58,6 +58,9 @@ o_do : out std_logic;
 o_ck : out std_logic;
 o_reset : out std_logic;
 o_rs : out std_logic;
+Led5 : out std_logic;
+Led6 : out std_logic;
+Led7 : out std_logic;
 o_MemOE : out std_logic;
 o_MemWR : out std_logic;
 o_RamAdv : out std_logic;
@@ -86,6 +89,7 @@ signal o_rs : std_logic;
 signal o_MemOE,o_MemWR,o_RamAdv,o_RamCS,o_RamLB,o_RamUB,o_RamCRE,i_RamWait,o_RamClk,o_FlashCS : std_logic;
 signal o_MemAdr : MemoryAddress;
 signal io_MemDB : MemoryDataByte;
+signal Led5,Led6,Led7 : std_logic;
 
 -- Clock period definitions 
 constant clk_period : time := (1_000_000_000 / IC) * 1 ns;
@@ -106,6 +110,9 @@ o_do => o_do,
 o_ck => o_ck,
 o_reset => o_reset,
 o_rs => o_rs,
+Led5 => Led5,
+Led6 => Led6,
+Led7 => Led7,
 o_MemOE => o_MemOE,
 o_MemWR => o_MemWR,
 o_RamAdv => o_RamAdv,
@@ -141,6 +148,6 @@ wait for clk_period*10;
 wait;
 end process;
 
-st7735r_store_image_fsm(clk,btn_1,o_cs,o_do,o_ck); -- XXX for store image in file from st7735r spi
+--st7735r_store_image_fsm(clk,btn_1,o_cs,o_do,o_ck); -- XXX for store image in file from st7735r spi
 
 END;

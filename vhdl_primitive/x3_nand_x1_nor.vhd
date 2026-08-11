@@ -38,13 +38,16 @@ Q : out  STD_LOGIC
 end x3_nand_x1_nor;
 
 architecture Behavioral of x3_nand_x1_nor is
-	signal g_nand1,g_nand2,g_nand3,g_nor1 : std_logic; -- XXX 0,1=1
+  signal g_nand1,g_nand2,g_nand3,g_nor1 : std_logic; -- XXX 0,1=1
 begin
+--	process (A,B,g_nand1,g_nand2,g_nand3) is
 	process (A,B) is
+--    variable g_nand1,g_nand2,g_nand3,g_nor1 : std_logic; -- XXX 0,1=1
 	begin
-		g_nand1 <= A nand B;
-		g_nand2 <= g_nand1 nand A;
-		g_nand3 <= g_nand1 nand B;
-		Q <= g_nand2 nor g_nand3;
+--    Q <= ((A nand B) nand A) nor ((A nand B) nand B) after 1 ns;
+		g_nand1 <= A nand B after 10 ns;
+		g_nand2 <= g_nand1 nand A after 10 ns;
+		g_nand3 <= g_nand1 nand B after 10 ns;
+    Q <= g_nand2 nor g_nand3 after 10 ns;
 	end process;
 end Behavioral;

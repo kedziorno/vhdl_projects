@@ -354,12 +354,12 @@ io_MemDB => open
 );
 
 gof_logic : process (CLK_BUFG,i_reset) is
-	variable vppX : integer range 0 to ROWS - 1;
-	variable vppYp : integer range 0 to COLS_PIXEL - 1;
-	variable vppXm1 : integer range 0 to ROWS - 1;
-	variable vppXp1 : integer range 0 to ROWS - 1;
-	variable vppYm1 : integer range 0 to COLS_PIXEL - 1;
-	variable vppYp1 : integer range 0 to COLS_PIXEL - 1;
+	variable vppX : integer range -1 to ROWS;
+	variable vppYp : integer range -1 to COLS_PIXEL;
+	variable vppXm1 : integer range -1 to ROWS;
+	variable vppXp1 : integer range -1 to ROWS;
+	variable vppYm1 : integer range -1 to COLS_PIXEL;
+	variable vppYp1 : integer range -1 to COLS_PIXEL;
 	variable vcountAlive : integer range 0 to 7;
 	variable vCellAlive,vCellAlive2 : boolean;
 	constant ALL_PIXELS : integer range 0 to (ROWS * COLS_PIXEL) - 1 := (ROWS * COLS_PIXEL) - 1;

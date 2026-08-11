@@ -14,14 +14,11 @@ package p_memory_content is
 
 --	constant G_BOARD_CLOCK : integer := 50_000_000;
 --	constant G_BUS_CLOCK : integer := 100_000;
---	constant G_ClockDivider : integer := 10000;
---	constant G_MemoryAddress : integer := 24;
---	constant G_MemoryData : integer := 16;
---	subtype MemoryAddress is std_logic_vector(1 to G_MemoryAddress-1);
---	subtype MemoryAddressALL is std_logic_vector(0 to G_MemoryAddress-1);
---	subtype MemoryDataByte is std_logic_vector(0 to G_MemoryData-1);
---	constant G_HalfHex : integer := 4;
---	constant G_FullHex : integer := G_HalfHex*2;
+	constant G_ClockDivider : integer := 10000;
+	constant G_MemoryAddress : integer := 24; --17;
+	constant G_MemoryData : integer := 16; --3;
+	constant G_HalfHex : integer := 4;
+	constant G_FullHex : integer := G_HalfHex*2;
 --	constant ROWS : integer := 128;
 --	constant ROWS_BITS : integer := 7;
 --	constant COLS_PIXEL : integer := 32;
@@ -30,14 +27,12 @@ package p_memory_content is
 --	constant COLS_BLOCK_BITS : integer := 2;
 --	constant BYTE_BITS : integer := 8;
 --	constant WORD_BITS : integer := COLS_BLOCK*BYTE_BITS;
---	constant G_LCDSegment : integer := 7;
---	constant G_LCDAnode : integer := 4;
---	constant G_LCDClockDivider : integer := 200;
+	constant G_LCDSegment : integer := 7;
+	constant G_LCDAnode : integer := 4;
+	constant G_LCDClockDivider : integer := 200;
 --	constant G_Button : integer := 4;
 --	constant G_Led : integer := 8;
---	type LCDHex is array(G_LCDAnode-1 downto 0) of std_logic_vector(G_HalfHex-1 downto 0);
---	subtype WORD is std_logic_vector(0 to WORD_BITS-1);
---	type MEMORY is array(0 to ROWS-1) of WORD;
+	type LCDHex is array(G_LCDAnode-1 downto 0) of std_logic_vector(G_HalfHex-1 downto 0);
 --	type LiveSubArray is array(WORD_BITS-1 downto 0) of std_logic_vector(2 downto 0);
 --	type LiveArrayType is array(ROWS-1 downto 0) of LiveSubArray;
 
@@ -58,13 +53,16 @@ package p_memory_content is
 	constant WORD_BITS : integer := COLS_BLOCK*BYTE_BITS;
 	constant PARITY_BITS : integer := 4;
 	constant BRAM_ADDRESS_BITS : integer := 9;
-	constant G_MemoryAddress : integer := 17; --24;
-	constant G_MemoryData : integer := 3; --16;
+	subtype MemoryAddressALL is std_logic_vector(0 to G_MemoryAddress-1);
+--	subtype MemoryAddress is std_logic_vector(1 to G_MemoryAddress-1);
+--	subtype MemoryDataByte is std_logic_vector(0 to G_MemoryData-1);
 	subtype MemoryAddress is std_logic_vector(G_MemoryAddress-1 downto 1);
 	subtype MemoryDataByte is std_logic_vector(G_MemoryData-1 downto 0);
 
-	subtype WORD is std_logic_vector(COLS_PIXEL-1 downto 0);
-	type MEMORY is array(ROWS-1 downto 0) of WORD;
+--	subtype WORD is std_logic_vector(COLS_PIXEL-1 downto 0);
+--	type MEMORY is array(ROWS-1 downto 0) of WORD;
+	subtype WORD is std_logic_vector(0 to WORD_BITS-1);
+	type MEMORY is array(0 to ROWS-1) of WORD;
 
 -- https://www.conwaylife.com/patterns/gosperglidergun.cells
 -- !Name: Gosper glider gun

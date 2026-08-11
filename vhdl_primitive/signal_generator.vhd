@@ -31,9 +31,9 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity signal_generator is
 port (
-	clk : in bit;
-	x : buffer bit;
-	y : out bit
+	clk : in std_logic;
+	x : buffer std_logic;
+	y : out std_logic
 );
 end signal_generator;
 

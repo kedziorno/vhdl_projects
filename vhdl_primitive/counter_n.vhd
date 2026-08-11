@@ -46,13 +46,18 @@ begin
 
 p0 : process (i_clock,i_reset) is
 begin
-	o_count <= counter;
 	if (i_reset = '1') then
 		counter <= (others => '0');
 	elsif (rising_edge(i_clock)) then
-		counter <= std_logic_vector(to_unsigned(to_integer(unsigned(counter))+1,N));
+    if (to_integer(unsigned(counter)) = 2**N-1) then
+      counter <= (others => '0');
+    else
+      counter <= std_logic_vector(to_unsigned(to_integer(unsigned(counter))+1,N));
+    end if;
 	end if;
 end process p0;
+
+o_count <= counter;
 
 end Behavioral;
 

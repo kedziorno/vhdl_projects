@@ -1,0 +1,8 @@
+NET "Decimal_Digit<3>" TNM_NET = "CLK_A";
+TIMESPEC "TS_CLKA" = PERIOD "CLK_A" 10 ns;
+NET "Decimal_Digit<2>" TNM_NET = "CLK_B";
+TIMESPEC "TS_CLKB" = PERIOD "CLK_B" 10 ns;
+NET "Decimal_Digit<1>" TNM_NET = "CLK_C";
+TIMESPEC "TS_CLKC" = PERIOD "CLK_C" 10 ns;
+NET "Decimal_Digit<0>" TNM_NET = "CLK_D";
+TIMESPEC "TS_CLKD" = PERIOD "CLK_D" 10 ns;

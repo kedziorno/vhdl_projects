@@ -1,0 +1,21 @@
+NET "i_clock" LOC = "B8";
+
+NET "i_reset" LOC = "R17";
+
+NET "i_push" LOC = "G18";
+
+NET "i_phase1" LOC = "B18";
+NET "i_phase2" LOC = "D18";
+
+NET "o_anode<0>" LOC = "F17";
+NET "o_anode<1>" LOC = "H17";
+NET "o_anode<2>" LOC = "C18";
+NET "o_anode<3>" LOC = "F15";
+
+NET "o_segment<0>" LOC = "L18";
+NET "o_segment<1>" LOC = "F18";
+NET "o_segment<2>" LOC = "D17";
+NET "o_segment<3>" LOC = "D16";
+NET "o_segment<4>" LOC = "G14";
+NET "o_segment<5>" LOC = "J17";
+NET "o_segment<6>" LOC = "H14";

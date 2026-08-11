@@ -44,7 +44,7 @@ signal i_byte : in std_logic_vector(BYTE_SIZE-1 downto 0);
 signal i_all_pixels : in std_logic;
 signal o_busy : out std_logic;
 signal o_display_initialize : inout std_logic;
-signal o_busy : out std_logic;
+--signal o_busy : out std_logic;
 signal io_sda,io_scl : inout std_logic);
 end oled_display;
 
@@ -112,6 +112,7 @@ type state is
 	set_address_1, -- set begin point 0,0
 	wait1, -- wait after initialize
 	send_character, -- send the some data in loop
+	send_character1,
 	wait2, -- disable i2c and wait between transition coordination
 	wait3,
 	set_coordinations,
@@ -356,12 +357,12 @@ begin
 						if (i2c_busy = '0') then
 							busy_cnt <= 0;
 							counter <= COUNTER_WAIT1-1;
-							c_state <= send_character;
+							c_state <= send_character1;
 							o_busy <= '0';
 						end if;
 					when others => null;
 				end case;
-			when send_character =>
+			when send_character1 =>
 				busy_prev <= i2c_busy;
 				if (busy_prev = '0' and i2c_busy = '1') then
 					busy_cnt <= busy_cnt + 1;

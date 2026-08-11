@@ -37,7 +37,7 @@ END tb_pwm_generator;
 
 ARCHITECTURE behavior OF tb_pwm_generator IS
 
-constant N : integer := 4;
+constant N : integer := 8;
 
 -- Component Declaration for the Unit Under Test (UUT)
 COMPONENT PWM_generator
@@ -51,7 +51,7 @@ o_pwm : OUT  std_logic
 END COMPONENT;
 
 --Inputs
-signal i_clock : std_logic := '0';
+signal i_clock : std_logic;
 signal i_reset : std_logic := '0';
 signal i_data : std_logic_vector(N-1 downto 0) := (others => '0');
 
@@ -59,7 +59,7 @@ signal i_data : std_logic_vector(N-1 downto 0) := (others => '0');
 signal o_pwm : std_logic;
 
 -- Clock period definitions
-constant i_clock_period : time := 20 ns;
+constant i_clock_period : time := 10 ns;
 
 BEGIN
 
@@ -93,10 +93,11 @@ wait for i_clock_period*10;
 -- insert stimulus here
 l0 : for i in 0 to (2**N)-1 loop
 i_data <= std_logic_vector(to_unsigned(i,N));
-wait for i_clock_period*(2**N)*2;
+wait for i_clock_period*(2**N)*1;
 end loop l0;
 i_data <= std_logic_vector(to_unsigned(0,N));
-wait for i_clock_period*(2**N)*2;
+wait for i_clock_period*(2**N)*1;
+report "tb done" severity failure;
 wait;
 end process;
 
