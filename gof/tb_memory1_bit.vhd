@@ -62,14 +62,14 @@ ARCHITECTURE behavior OF tb_memory1_bit IS
 	signal i_enable_bit : std_logic;
 	signal i_write_byte : std_logic := '0';
 	signal i_write_bit : std_logic;
-	signal i_row : std_logic_vector(6 downto 0);
-	signal i_col_pixel : std_logic_vector(4 downto 0);
-	signal i_col_block : std_logic_vector(1 downto 0) := (others => '0');
-	signal i_byte : std_logic_vector(7 downto 0) := (others => '0');
+	signal i_row : std_logic_vector(ROWS_BITS-1 downto 0);
+	signal i_col_pixel : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
+	signal i_col_block : std_logic_vector(COLS_BLOCK_BITS-1 downto 0) := (others => '0');
+	signal i_byte : std_logic_vector(BYTE_BITS-1 downto 0) := (others => '0');
 	signal i_bit : std_logic;
 
 	--Outputs - leave bit options and set default byte to 0
-	signal o_byte : std_logic_vector(7 downto 0) := (others => '0');
+	signal o_byte : std_logic_vector(BYTE_BITS-1 downto 0) := (others => '0');
 	signal o_bit : std_logic;
 
 	-- Clock period definitions
@@ -170,8 +170,8 @@ BEGIN
 		i_enable_bit <= '0';
 
 		-- better visible in simulation
-		i_row <= "UUUUUUU";
-		i_col_pixel <= "UUUUU";
+		i_row <= (others => 'U');
+		i_col_pixel <= (others => 'U');
 		i_enable_bit <= 'U';
 		
 		wait for 10*i_clk_period;
@@ -249,8 +249,8 @@ BEGIN
 		i_write_bit <= '0';
 		
 		-- better visible in simulation
-		i_row <= "UUUUUUU";
-		i_col_pixel <= "UUUUU";
+		i_row <= (others => 'U');
+		i_col_pixel <= (others => 'U');
 		i_enable_bit <= 'U';
 		i_write_bit <= 'U';
 		i_bit <= 'U';
@@ -316,8 +316,8 @@ BEGIN
 		i_enable_bit <= '0';
 
 		-- better visible in simulation
-		i_row <= "UUUUUUU";
-		i_col_pixel <= "UUUUU";
+		i_row <= (others => 'U');
+		i_col_pixel <= (others => 'U');
 		i_enable_bit <= 'U';
 		
 		wait for 10*i_clk_period;
@@ -395,8 +395,8 @@ BEGIN
 		i_write_bit <= '0';
 		
 		-- better visible in simulation
-		i_row <= "UUUUUUU";
-		i_col_pixel <= "UUUUU";
+		i_row <= (others => 'U');
+		i_col_pixel <= (others => 'U');
 		i_enable_bit <= 'U';
 		i_write_bit <= 'U';
 		i_bit <= 'U';
@@ -462,8 +462,8 @@ BEGIN
 		i_enable_bit <= '0';
 
 		-- better visible in simulation
-		i_row <= "UUUUUUU";
-		i_col_pixel <= "UUUUU";
+		i_row <= (others => 'U');
+		i_col_pixel <= (others => 'U');
 		i_enable_bit <= 'U';
 		
 		wait for 10*i_clk_period;
@@ -541,8 +541,8 @@ BEGIN
 		i_write_bit <= '0';
 		
 		-- better visible in simulation
-		i_row <= "UUUUUUU";
-		i_col_pixel <= "UUUUU";
+		i_row <= (others => 'U');
+		i_col_pixel <= (others => 'U');
 		i_enable_bit <= 'U';
 		i_write_bit <= 'U';
 		i_bit <= 'U';
@@ -608,8 +608,8 @@ BEGIN
 		i_enable_bit <= '0';
 
 		-- better visible in simulation
-		i_row <= "UUUUUUU";
-		i_col_pixel <= "UUUUU";
+		i_row <= (others => 'U');
+		i_col_pixel <= (others => 'U');
 		i_enable_bit <= 'U';
 		
 		wait for 10*i_clk_period;
@@ -687,8 +687,8 @@ BEGIN
 		i_write_bit <= '0';
 		
 		-- better visible in simulation
-		i_row <= "UUUUUUU";
-		i_col_pixel <= "UUUUU";
+		i_row <= (others => 'U');
+		i_col_pixel <= (others => 'U');
 		i_enable_bit <= 'U';
 		i_write_bit <= 'U';
 		i_bit <= 'U';
@@ -754,8 +754,8 @@ BEGIN
 		i_enable_bit <= '0';
 
 		-- better visible in simulation
-		i_row <= "UUUUUUU";
-		i_col_pixel <= "UUUUU";
+		i_row <= (others => 'U');
+		i_col_pixel <= (others => 'U');
 		i_enable_bit <= 'U';
 		
 		wait;

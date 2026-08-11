@@ -1,0 +1,5 @@
+NET "i_r" LOC = "T1";
+NET "C" LOC = "T2";
+NET "J" LOC = "U1";
+NET "K" LOC = "V2";
+NET "Q1" LOC = "U3";

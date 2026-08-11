@@ -62,14 +62,14 @@ ARCHITECTURE behavior OF tb_memory1_byte IS
 	signal i_enable_bit : std_logic := '0';
 	signal i_write_byte : std_logic;
 	signal i_write_bit : std_logic := '0';
-	signal i_row : std_logic_vector(6 downto 0);
-	signal i_col_pixel : std_logic_vector(4 downto 0) := (others => '0');
-	signal i_col_block : std_logic_vector(1 downto 0);
-	signal i_byte : std_logic_vector(7 downto 0);
+	signal i_row : std_logic_vector(ROWS_BITS-1 downto 0);
+	signal i_col_pixel : std_logic_vector(COLS_PIXEL_BITS-1 downto 0) := (others => '0');
+	signal i_col_block : std_logic_vector(COLS_BLOCK_BITS-1 downto 0);
+	signal i_byte : std_logic_vector(BYTE_BITS-1 downto 0);
 	signal i_bit : std_logic := '0';
 
 	--Outputs - leave byte options and set default bit to 0
-	signal o_byte : std_logic_vector(7 downto 0);
+	signal o_byte : std_logic_vector(BYTE_BITS-1 downto 0);
 	signal o_bit : std_logic := '0';
 
 	-- Clock period definitions
@@ -162,8 +162,8 @@ BEGIN
 		i_enable_byte <= 'U';
 		
 		-- better visible in simulation
-		i_row <= "UUUUUUU";
-		i_col_block <= "UU";
+		i_row <= (others => 'U');
+		i_col_block <= (others => 'U');
 
 		wait for 10*i_clk_period;
 
@@ -209,9 +209,9 @@ BEGIN
 		-- disable write
 		i_enable_byte <= 'U';
 		i_write_byte <= 'U';
-		i_row <= "UUUUUUU";
-		i_col_block <= "UU";
-		i_byte <= "UUUUUUUU";
+		i_row <= (others => 'U');
+		i_col_block <= (others => 'U');
+		i_byte <= (others => 'U');
 
 		wait for 10*i_clk_period;
 
@@ -243,8 +243,8 @@ BEGIN
 		wait for i_clk_period;
 		
 		i_enable_byte <= 'U';
-		i_row <= "UUUUUUU";
-		i_col_block <= "UU";
+		i_row <= (others => 'U');
+		i_col_block <= (others => 'U'); 
 		
 		wait;
 	end process;

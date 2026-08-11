@@ -20,6 +20,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use WORK.p_memory_content.ALL;
+use WORK.p_constants1.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -27,8 +28,26 @@ use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
+library UNISIM;
+use UNISIM.VComponents.all;
+
+-- XXX !!!!!!!!!
+-- XXX NEEDS FIX 
+-- XXX NEEDS FIX 
+-- XXX NEEDS FIX 
+-- XXX NEEDS FIX 
+-- XXX NEEDS FIX 
+-- XXX NEEDS FIX 
+-- XXX NEEDS FIX 
+-- XXX NEEDS FIX 
+-- XXX NEEDS FIX 
+-- XXX NEEDS FIX 
+-- XXX NEEDS FIX 
+-- XXX NEEDS FIX 
+-- XXX NEEDS FIX 
+-- XXX NEEDS FIX 
+-- XXX NEEDS FIX 
+-- XXX !!!!!!!!!
 
 entity top is
 generic(
@@ -73,7 +92,7 @@ Port (
 	o_segment : out std_logic_vector(G_LCDSegment-1 downto 0)
 );
 end component lcd_display;
-for all : lcd_display use entity WORK.lcd_display(Behavioral);
+--for all : lcd_display use entity WORK.lcd_display(Behavioral);
 
 component oled_display is
 generic(
@@ -97,8 +116,12 @@ signal o_busy : out std_logic;
 signal o_display_initialize : inout std_logic;
 signal io_sda,io_scl : inout std_logic);
 end component oled_display;
-for all : oled_display use entity WORK.oled_display(Behavioral);
-	
+
+component BUFG
+port (I : in std_logic;
+O : out std_logic); 
+end component;
+
 component clock_divider is
 Port(
 i_clk : in STD_LOGIC;
@@ -107,7 +130,6 @@ i_divider : in INTEGER;
 o_clk : out STD_LOGIC
 );
 end component clock_divider;
-for all : clock_divider use entity WORK.clock_divider(Behavioral);
 
 component memorymodule is
 Port (
@@ -131,7 +153,42 @@ io_MemAdr : out MemoryAddressALL;
 io_MemDB : inout MemoryDataByte
 );
 end component memorymodule;
-for all : memorymodule use entity WORK.memorymodule(Behavioral);
+--for all : memorymodule use entity WORK.memorymodule(Behavioral);
+
+--component memory1 is
+--Port (
+--i_clk : in std_logic;
+--i_reset : in std_logic;
+--i_enable_byte : in std_logic;
+--i_enable_bit : in std_logic;
+--i_write_byte : in std_logic;
+--i_write_bit : in std_logic;
+--i_row : in std_logic_vector(ROWS_BITS-1 downto 0);
+--i_col_pixel : in std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
+--i_col_block : in std_logic_vector(COLS_BLOCK_BITS-1 downto 0);
+--i_byte : in std_logic_vector(BYTE_BITS-1 downto 0);
+--i_bit : in std_logic;
+--o_byte : out std_logic_vector(BYTE_BITS-1 downto 0);
+--o_bit : out std_logic);
+--end component memory1;
+--for all : memory1 use entity WORK.memory1(Behavioral);
+
+component RAMB16_S4
+generic (
+WRITE_MODE : string := "NO_CHANGE" ; -- WRITE_FIRST(default)/ READ_FIRST/NO_CHANGE
+INIT : bit_vector(3 downto 0) := X"0";
+SRVAL : bit_vector(3 downto 0) := X"0"
+);
+port (
+DI    : in std_logic_vector (3 downto 0);
+ADDR  : in std_logic_vector (11 downto 0);
+EN    : in STD_LOGIC;
+WE    : in STD_LOGIC;
+SSR   : in STD_LOGIC;
+CLK   : in STD_LOGIC;
+DO    : out std_logic_vector (3 downto 0)
+);
+end component;
 
 signal row : std_logic_vector(ROWS_BITS-1 downto 0) := (others => '0');
 signal col_pixel : std_logic_vector(COLS_PIXEL_BITS-1 downto 0) := (others => '0');
@@ -149,6 +206,14 @@ signal i_mem_e_byte : std_logic;
 signal i_mem_e_bit : std_logic;
 signal i_mem_write_bit : std_logic;
 signal i_bit : std_logic;
+
+signal CLK_BUFG : std_logic;
+
+signal DATA_IN : std_logic_vector(3 downto 0);
+signal ADDRESS : std_logic_vector(11 downto 0);
+signal ENABLE : std_logic;
+signal WRITE_EN : std_logic;
+signal DATA_OUT : std_logic_vector(3 downto 0);
 
 type state is (
 set_cd_memorycopy,enable_memory_module,enable_write_fh,copy_first_halfword,disable_write_fh,memory_wait_fh,enable_write_sh,copy_second_halfword,disable_write_sh,memory_wait_sh,disable_memory_module,check_ranges_write,
@@ -214,13 +279,14 @@ signal ppYm1 : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
 signal ppYp1 : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
 signal oppX : std_logic_vector(ROWS_BITS-1 downto 0);
 signal oppY : std_logic_vector(COLS_PIXEL_BITS-1 downto 0);
-signal countAlive : std_logic_vector(2 downto 0);
+
+signal countAlive : std_logic_vector(3 downto 0);
 --signal slivearray : std_logic_vector(2 downto 0);
 signal CellAlive : std_logic;
 --signal LiveArray : LiveArrayType;
 signal CD : integer := DIVIDER_CLOCK; -- XXX
-signal CD_DISPLAY : integer := DIVIDER_CLOCK; -- XXX
-signal CD_CALCULATE : integer := DIVIDER_CLOCK*100; -- XXX
+signal CD_DISPLAY : integer := DIVIDER_CLOCK*1; -- XXX
+signal CD_CALCULATE : integer := DIVIDER_CLOCK*10000; -- XXX
 signal CD_COPYMEMORY : integer := DIVIDER_CLOCK; -- XXX
 
 function To_Std_Logic(x_vot : BOOLEAN) return std_ulogic is
@@ -300,9 +366,28 @@ Port Map (
 	o_segment => seg
 );
 
+U_BUFG: BUFG 
+port map (
+I => clk,
+O => CLK_BUFG
+);
+
+i_reset <= btn_1;
+
+U_RAMB16_S4: RAMB16_S4
+port map (
+DI => DATA_IN,
+ADDR => ADDRESS,
+EN => ENABLE,
+WE => WRITE_EN,
+SSR => i_reset,
+CLK => CLK_BUFG,
+DO => DATA_OUT
+);
+
 clk_div : clock_divider
 port map (
-	i_clk => clk,
+	i_clk => CLK_BUFG,
 	i_board_clock => INPUT_CLOCK,
 	i_divider => CD,
 	o_clk => clk_1s
@@ -318,8 +403,8 @@ generic map (
 	H_BITS => COLS_BLOCK_BITS,
 	BYTE_SIZE => BYTE_BITS)
 port map (
-	i_clk => clk,
-	i_rst => btn_1,
+	i_clk => CLK_BUFG,
+	i_rst => i_reset,
 	i_clear => btn_2,
 	i_draw => draw,
 	i_x => row,
@@ -353,9 +438,27 @@ mm : memorymodule PORT MAP (
 	io_MemDB => MemDB
 );
 
+--m1 : memory1
+--port map (
+--	i_clk => CLK_BUFG,
+--	i_reset => i_reset,
+--	i_enable_byte => i_mem_e_byte,
+--	i_enable_bit => i_mem_e_bit,
+--	i_write_byte => '0',
+--	i_write_bit => i_mem_write_bit,
+--	i_row => row,
+--	i_col_pixel => col_pixel,
+--	i_col_block => col_block,
+--	i_byte => (others => 'X'),
+--	i_bit => i_bit,
+--	o_byte => display_byte,
+--	o_bit => o_bit
+--);
+
 gof_logic : process (clk_1s,i_reset) is
 	constant W : integer := 1;
 	variable waiting : integer range W downto 0 := W;
+--	variable waiting : integer range W-1 downto 0 := 0;
 	variable vppX : natural range 0 to ROWS-1;
 	variable vppYb : natural range 0 to COLS_BLOCK-1;
 	variable vppYp : natural range 0 to COLS_PIXEL-1;
@@ -363,7 +466,7 @@ gof_logic : process (clk_1s,i_reset) is
 	variable vppXp1 : integer range 0 to ROWS;
 	variable vppYm1 : integer range -1 to COLS_PIXEL-1;
 	variable vppYp1 : integer range 0 to COLS_PIXEL;
-	variable vcountAlive : integer;
+	variable vcountAlive : integer range 0 to 15;
 	variable vCellAlive,newCellAlive : boolean;
 	variable m1 : MEMORY := memory_content;
 	variable rowIndex : integer range 0 to ROWS-1;
@@ -600,7 +703,7 @@ begin
 			when reset_count_alive =>
 				cstate <= c1_me;
 				vcountAlive := 0;
-				countAlive <= "000";
+				countAlive <= "0000";
 			--
 			when c1_me =>
 				cstate <= c1_mr;
@@ -608,6 +711,7 @@ begin
 			when c1_mr =>
 				cstate <= set_c1;
 				i_read <= '1';
+				countAlive <= (others => '0');
 			when set_c1 =>
 				cstate <= c1;
 				if (vppYm1 > (COLS_PIXEL/2)-1) then
@@ -629,7 +733,7 @@ begin
 					if (o_MemDB(tppY) = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
-					countAlive <= std_logic_vector(to_unsigned(vcountALive,3));
+					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 				end if;
 			when c1_mdr =>
 				if (o_membusy = '1') then
@@ -669,7 +773,7 @@ begin
 					if (o_MemDB(tppY) = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
-					countAlive <= std_logic_vector(to_unsigned(vcountALive,3));
+					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 				end if;
 			when c2_mdr =>
 				if (o_membusy = '1') then
@@ -709,7 +813,7 @@ begin
 					if (o_MemDB(tppY) = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
-					countAlive <= std_logic_vector(to_unsigned(vcountALive,3));
+					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 				end if;
 			when c3_mdr =>
 				if (o_membusy = '1') then
@@ -749,7 +853,7 @@ begin
 					if (o_MemDB(tppY) = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
-					countAlive <= std_logic_vector(to_unsigned(vcountALive,3));
+					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 				end if;
 			when c4_mdr =>
 				if (o_membusy = '1') then
@@ -789,7 +893,7 @@ begin
 					if (o_MemDB(tppY) = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
-					countAlive <= std_logic_vector(to_unsigned(vcountALive,3));
+					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 				end if;
 			when c5_mdr =>
 				if (o_membusy = '1') then
@@ -829,7 +933,7 @@ begin
 					if (o_MemDB(tppY) = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
-					countAlive <= std_logic_vector(to_unsigned(vcountALive,3));
+					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 				end if;
 			when c6_mdr =>
 				if (o_membusy = '1') then
@@ -869,7 +973,7 @@ begin
 					if (o_MemDB(tppY) = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
-					countAlive <= std_logic_vector(to_unsigned(vcountALive,3));
+					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 				end if;
 			when c7_mdr =>
 				if (o_membusy = '1') then
@@ -909,8 +1013,14 @@ begin
 					if (o_MemDB(tppY) = '1') then
 						vcountAlive := vcountAlive + 1;
 					end if;
-					countAlive <= std_logic_vector(to_unsigned(vcountALive,3));
+					countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
 				end if;
+			when waitfor =>
+				cstate <= memory_disable_bit;
+				countAlive <= std_logic_vector(to_unsigned(vcountALive,4));
+			when memory_disable_bit =>
+				cstate <= store_count_alive;
+				i_MemAdr <= std_logic_vector(to_unsigned(6666+vppX+vppYp,G_MemoryAddress));
 			when c8_mdr =>
 				if (o_membusy = '1') then
 					cstate <= c8_mdr;
@@ -928,9 +1038,7 @@ begin
 			when store_count_alive_we =>
 				cstate <= store_count_alive_sa;
 				i_write <= '1';
-			when store_count_alive_sa =>
-				cstate <= store_count_alive;
-				i_MemAdr <= std_logic_vector(to_unsigned(6666+vppX+vppYp,G_MemoryAddress));
+--			when store_count_alive_sa =>
 			when store_count_alive =>
 				cstate <= store_count_alive_wd;
 				i_MemDB <= std_logic_vector(to_unsigned(vcountAlive,G_MemoryData));
@@ -946,7 +1054,13 @@ begin
 			when store_count_alive_md =>
 				cstate <= update_row1;
 				i_enable <= '0';
+				ENABLE <= '1';
+				WRITE_EN <= '1';
+				ADDRESS <= std_logic_vector(to_unsigned(vppX+vppYp*WORD_BITS,12));
+				DATA_IN <= countAlive;
 			when update_row1 =>
+			     ENABLE <= '0';
+			     WRITE_EN <= '0';
 				if (vppX < ROWS-1) then
 					vppX := vppX + 1;
 					cstate <= check_coordinations;
@@ -992,6 +1106,8 @@ begin
 				else
 					tppY := vppYp;
 				end if;
+				row <= ppX;
+				col_pixel <= ppYp;
 			when get_alive1 =>
 				cstate <= memory_disable_read1;
 				if (o_MemDB(tppY) = '1') then -- xxx up before read=0
@@ -1028,12 +1144,24 @@ begin
 				if (vCellAlive = true) then
 					if ((to_integer(unsigned(t)) = 2) or (to_integer(unsigned(t)) = 3)) then
 						newCellAlive := true;
+--				cstate <= write_count_alive;
+--				i_mem_write_bit <= '1';
+--			     ENABLE <= '1';
+--			     WRITE_EN <= '0';
+--			     ADDRESS <= std_logic_vector(to_unsigned(vppX+vppYp*WORD_BITS,12));
+--			when write_count_alive =>
+--				cstate <= disable_write_to_memory;
+--				if (vCellAlive = true) then
+--					if ((to_integer(unsigned(DATA_OUT)) = 2) or (to_integer(unsigned(DATA_OUT)) = 3)) then
+--						i_bit <= '1';
 					else
 						newCellAlive := false;
 					end if;
 				elsif (vCellAlive = false) then
 					if ((to_integer(unsigned(t)) = 3)) then
 						newCellAlive := true;
+--					if (to_integer(unsigned(DATA_OUT)) = 3) then
+--						i_bit <= '1';
 					else
 						newCellAlive := false;
 					end if;
@@ -1080,6 +1208,8 @@ begin
 					cstate <= vvv;
 				end if;
 			when vvv =>
+--			     ENABLE <= '0';
+--			     WRITE_EN <= '0';
 				cstate <= update_row2;
 				i_enable <= '0';
 			when update_row2 =>

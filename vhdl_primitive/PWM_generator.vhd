@@ -31,7 +31,7 @@ use UNISIM.VComponents.all;
 
 entity PWM_generator is
 Generic (
-N : integer := 4
+N : integer := 8
 );
 Port (
 i_clock : in std_logic;
@@ -124,14 +124,18 @@ architecture Behavioral of PWM_generator is
 	signal q_data_input : std_logic_vector(N-1 downto 0);
 	signal data_input_clock,pwm_out_clear : std_logic;
 
+  signal out_pwm_n : std_logic;
+
 begin
+
+c_enable <= '1';
 
 PULLUP_inst : PULLUP
 	port map (O=>pull_up);
 
 data_input_FDCPE_generate : for i in N-1 downto 0 generate
 	FDCPE_inst : FDCPE
-	generic map (INIT => '0')
+	generic map (INIT => '1')
 	port map (Q=>q_data_input(i),C=>data_input_clock,CE=>c_enable,CLR=>not pull_up,D=>i_data(i),PRE=>not pull_up);
 end generate data_input_FDCPE_generate;
 
@@ -179,7 +183,8 @@ port map (Q=>data_input_clock,QB=>pwm_out_clear,C=>i_clock,CE=>c_enable,CLR=>i_r
 
 FDCPE_pwm : FDCPE
 generic map (INIT => '1')
-port map (Q=>o_pwm,C=>not or_n_output,CE=>c_enable,CLR=>not pwm_out_clear,D=>pull_up,PRE=>not pull_up);
-	
+port map (Q=>out_pwm_n,C=>not or_n_output,CE=>c_enable,CLR=>not pwm_out_clear,D=>pull_up,PRE=>not pull_up);
+
+o_pwm <= not out_pwm_n;
 end Behavioral;
 

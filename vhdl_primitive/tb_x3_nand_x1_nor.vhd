@@ -101,7 +101,7 @@ wait for clock_period;
 A <= '1';
 B <= '1';
 wait for clock_period;
-wait;
+report "tb done" severity failure;
 end process;
 
 END;

@@ -1,0 +1,5 @@
+NET "i_clock" LOC = "T1";
+NET "i_cpb" LOC = "T2";
+NET "i_mrb" LOC = "U1";
+NET "i_ud" LOC = "V2";
+NET "o_q<0>" LOC = "U3";

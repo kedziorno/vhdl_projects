@@ -3,14 +3,18 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 entity glcdfont is
-port (signal i_clk : in std_logic; signal i_index : in std_logic_vector(11 downto 0); signal o_character : out std_logic_vector(7 downto 0));
+port (
+signal i_clk : in std_logic;
+signal i_index : in std_logic_vector(10 downto 0);
+signal o_character : out std_logic_vector(7 downto 0)
+);
 end entity glcdfont;
 
 architecture behavioral_glcdfont of glcdfont is
 
 constant NUMBER_GLCDFONTC : natural := 1275;
 type ARRAY_GLCDFONTC is array (0 to NUMBER_GLCDFONTC-1) of std_logic_vector(7 downto 0);
-signal GLCDFONTC : ARRAY_GLCDFONTC :=
+constant GLCDFONTC : ARRAY_GLCDFONTC :=
 (
 
 	 -- 0:    0x00, 0x00, 0x00, 0x00, 0x00,   
@@ -1801,6 +1805,19 @@ signal GLCDFONTC : ARRAY_GLCDFONTC :=
 
 begin
 
-o_character <= GLCDFONTC(to_integer(unsigned(i_index)));
+-- XXX to long par
+p0 : process (i_clk) is
+	variable index : integer range 0 to NUMBER_GLCDFONTC-1;
+begin
+	if (rising_edge(i_clk)) then
+		index := to_integer(unsigned(i_index))+1;
+		o_character <= GLCDFONTC(index);
+	end if;
+end  process p0;
+
+--p0 : process (i_index) is
+--begin
+--	o_character <= GLCDFONTC(to_integer(unsigned(i_index)));
+--end process p0;
 
 end architecture behavioral_glcdfont;

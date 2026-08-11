@@ -38,6 +38,7 @@ Generic (
 Port (
 	i_reset : in STD_LOGIC;
 	i_clock : in STD_LOGIC;
+	i_enable : in STD_LOGIC;
 	o_clock : out STD_LOGIC
 );
 end clock_divider_count;
@@ -54,13 +55,18 @@ begin
 		counter := 0;
 		clock_out := '0';
 	elsif (rising_edge(i_clock)) then
-		if (counter = divider - 1) then
-			clock_out := not clock_out;
-			--clock_out := '1';
-			counter := 0;
+		if (i_enable = '1') then
+			if (counter = divider - 1) then
+				clock_out := not clock_out;
+				--clock_out := '1';
+				counter := 0;
+			else
+				--clock_out := '0';
+				counter := counter + 1;
+			end if;
 		else
-			--clock_out := '0';
-			counter := counter + 1;
+			counter := 0;
+			clock_out := '0';
 		end if;
 	end if;
 	o_clock <= clock_out;
