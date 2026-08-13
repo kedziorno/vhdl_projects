@@ -59,7 +59,7 @@ architecture Behavioral of vga_7slices is
 signal a, b, c, d, e, en, f, fn, g, gn : std_logic;
 
 constant c_cnr : integer := 64;
-constant c_max : integer := 617;
+constant c_max : integer := 625;
 signal   index : integer range 0 to c_max - 1;
 
 type t_color_array is array (63 downto 0) of std_logic_vector (5 downto 0);
@@ -208,7 +208,7 @@ begin
       when 580 to 589 => vga_color <= c_color (58);
       when 590 to 599 => vga_color <= c_color (59);
       when 600 to 609 => vga_color <= c_color (60);
-      when 610 to 616 => vga_color <= c_color (61);
+      when 610 to 624 => vga_color <= c_color (61);
 --      when 620 to 629 => vga_color <= c_color (62);
 --      when 630 to 639 => vga_color <= c_color (63);
     end case;
@@ -229,7 +229,7 @@ div99_9bit : SRL16E
 generic map (INIT => x"0001")
 port map (
   Q   => a,
-  A0  => '0', A1 => '0', A2 => '0', A3 => '1',
+  A0  => '1', A1 => '0', A2 => '0', A3 => '1',
   CE  => '1',
   CLK => i_clock,
   D   => a
@@ -239,7 +239,7 @@ div99_11bit : SRL16E
 generic map (INIT => x"0001")
 port map (
   Q   => b,
-  A0  => '0', A1 => '1', A2 => '0', A3 => '1',
+  A0  => '1', A1 => '0', A2 => '0', A3 => '1',
   CE  => '1',
   CLK => a,
   D   => b
@@ -247,7 +247,7 @@ port map (
 
 o_hs <= not c;
 hs : entity work.dummyplug_srlc32e
-generic map (INIT => "01111000000000000000000000000000")
+generic map (INIT => "00111100000000000000000000000000")
 port map (
 Q => open,       -- SRL data output
 Q31 => c,       -- SRL data output
