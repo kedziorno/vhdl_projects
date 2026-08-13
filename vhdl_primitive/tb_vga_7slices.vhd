@@ -43,8 +43,10 @@ COMPONENT vga_7slices
 PORT(
 i_clock : IN  std_logic;
 i_reset : IN  std_logic;
-o_hs : OUT  std_logic;
-o_hb : OUT  std_logic
+o_hs : out std_logic;
+o_hblank : out std_logic;
+o_vs : out std_logic;
+o_vblank : out std_logic
 );
 END COMPONENT;
 
@@ -56,6 +58,8 @@ signal i_reset : std_logic := '0';
 --Outputs
 signal o_hs : std_logic;
 signal o_hb : std_logic;
+signal o_vs : std_logic;
+signal o_vb : std_logic;
 
 -- Clock period definitions
 constant i_clock_period : time := 10 ns;
@@ -67,7 +71,9 @@ uut: vga_7slices PORT MAP (
 i_clock => i_clock,
 i_reset => i_reset,
 o_hs => o_hs,
-o_hb => o_hb
+o_hblank => o_hb,
+o_vs => o_vs,
+o_vblank => o_vb
 );
 
 -- Clock process definitions
