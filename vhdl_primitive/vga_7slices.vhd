@@ -17,18 +17,18 @@
 -- Dependencies:    -
 --
 -- Revision:
--- Revision 0.01 - File Created
+-- Revision 0.02 - Add 6-bit colorbar (stable image, expect a few vlines - 3)
 -- Additional Comments: TODO - check MUXCY, remove Gated Clocks (CE)
--- Currently VGA timings (10 ns / 100 MHz):
+-- Currently VGA timings (10 ns / 100 MHz) - base pulse have 980 ns:
 --  - Horizontal signal timings:
---   - ALL/ONE - 31.68 us / 27.72 us
---   - SYNC - 3.96 us
---   - BP - 1.98 us
---   - FP - 0.99 us
---   - DATA / Between DATA - 24.75 us / 6.93 us
+--   - ALL/ONE - 31.36 us / 27.44 us
+--   - SYNC - 3.92 us
+--   - BP - 0.98 us
+--   - FP - 0.98 us
+--   - DATA / Between DATA - 25.48 us / 5.88 us
 --  - Vertical signal timings:
---   - ALL/ONE - 16727.04 us / 16204.32 us
---   - SYNC - 522.72 us
+--   - ALL/ONE - 16558.08 us / 16040.64 us
+--   - SYNC - 517.44 us
 --
 ----------------------------------------------------------------------------------
 
@@ -59,7 +59,7 @@ architecture Behavioral of vga_7slices is
 signal a, b, c, d, e, en, f, fn, g, gn : std_logic;
 
 constant c_cnr : integer := 64;
-constant c_max : integer := 625;
+constant c_max : integer := 637;
 signal   index : integer range 0 to c_max - 1;
 
 type t_color_array is array (63 downto 0) of std_logic_vector (5 downto 0);
@@ -208,9 +208,9 @@ begin
       when 580 to 589 => vga_color <= c_color (58);
       when 590 to 599 => vga_color <= c_color (59);
       when 600 to 609 => vga_color <= c_color (60);
-      when 610 to 624 => vga_color <= c_color (61);
---      when 620 to 629 => vga_color <= c_color (62);
---      when 630 to 639 => vga_color <= c_color (63);
+      when 610 to 619 => vga_color <= c_color (61);
+      when 620 to 629 => vga_color <= c_color (62);
+      when 630 to 636 => vga_color <= c_color (63);
     end case;
   end if;
 end process p_bars;
@@ -225,21 +225,23 @@ o_vg (0) <= vga_color (2) when d = '0' else '0';
 o_vb (1) <= vga_color (1) when d = '0' else '0';
 o_vb (0) <= vga_color (0) when d = '0' else '0';
 
-div99_9bit : SRL16E
+-- Clock have 10 ns so impulse is equal 70 ns
+div99_7bit : SRL16E
 generic map (INIT => x"0001")
 port map (
   Q   => a,
-  A0  => '1', A1 => '0', A2 => '0', A3 => '1',
+  A0  => '0', A1 => '1', A2 => '1', A3 => '0',
   CE  => '1',
   CLK => i_clock,
   D   => a
 );
 
-div99_11bit : SRL16E
+-- Next impulse 70 ns multipled by 14 have 980ns
+div99_14bit : SRL16E
 generic map (INIT => x"0001")
 port map (
   Q   => b,
-  A0  => '1', A1 => '0', A2 => '0', A3 => '1',
+  A0  => '1', A1 => '0', A2 => '1', A3 => '1',
   CE  => '1',
   CLK => a,
   D   => b
@@ -249,21 +251,17 @@ o_hs <= not c;
 hs : entity work.dummyplug_srlc32e
 generic map (INIT => "00111100000000000000000000000000")
 port map (
-Q => open,       -- SRL data output
-Q31 => c,       -- SRL data output
-A(0) => '1',     -- Select[0] input
-A(1) => '1',     -- Select[1] input
-A(2) => '0',     -- Select[2] input
-A(3) => '1',     -- Select[3] input
-A(4) => '0',     -- Select[3] input
-CE => '1',     -- Clock enable input
-CLK => b,   -- Clock input
-D => c -- SRL data input
+  Q     => open,
+  Q31   => c,
+  A(0)  => '1', A(1) => '1', A(2) => '0', A(3) => '1', A(4) => '0',
+  CE    => '1',
+  CLK   => b,
+  D     => c
 );
 
 o_hblank <= not d;
 hb : entity work.dummyplug_srlc32e
-generic map (INIT => "11111110000000000000000000000000")
+generic map (INIT => "01111110000000000000000000000000")
 port map (
   Q     => open,
   Q31   => d,
